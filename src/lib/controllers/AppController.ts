@@ -94,3 +94,24 @@ export class AppController {
     
   }
 }
+
+// function confirmDelete(e:Event) {
+//   toast.push({
+//     component: {
+//       src: ConfirmDelete,
+//       props: {
+//         properties: ['archive', $state.archive.data.name]
+//       },
+//       sendIdTo: 'toastId'
+//     },
+//     target: "top",
+//     dismissable: false,
+//     initial: 0,
+//         intro: { y: -192 },
+//     theme: {
+//       '--toastPadding': '0',
+//             '--toastBackground': 'transparent',
+//       '--toastMsgPadding': '0'
+//     }
+//   });
+// }
