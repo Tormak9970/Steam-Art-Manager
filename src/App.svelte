@@ -1,39 +1,59 @@
 <script lang="ts">
-  import Greet from './lib/Greet.svelte'
+	import { SvelteToast } from "@zerodevx/svelte-toast";
+	import Titlebar from "./components/Titlebar.svelte";
 </script>
 
-<main class="container">
-  <h1>Welcome to Tauri!</h1>
-
-  <div class="row">
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-
-  <p>
-    Click on the Tauri, Vite, and Svelte logos to learn more.
-  </p>
-
-  <div class="row">
-    <Greet />
-  </div>
-
-
+<div class="wrap">
+	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
+</div>
+<main>
+	<Titlebar title="Steam Art Manager" />
+	<div class="content">
+		<div>Hello World</div>
+	</div>
 </main>
+<SvelteToast />
 
 <style>
-  .logo.vite:hover {
-    filter: drop-shadow(0 0 2em #747bff);
-  }
+	@import "/theme.css";
 
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00);
-  }
+	main {
+		width: 100%;
+		height: 100%;
+
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+
+		color: var(--font-color);
+	}
+
+	.wrap {
+		--toastContainerTop: 0.5rem;
+		--toastContainerRight: 0.5rem;
+		--toastContainerBottom: auto;
+		--toastContainerLeft: 0.5rem;
+		--toastWidth: 100%;
+		--toastMinHeight: 100px;
+		--toastPadding: 0 0.5rem;
+		font-size: 0.875rem;
+	}
+	@media (min-width: 40rem) {
+		.wrap {
+			--toastContainerRight: auto;
+			--toastContainerLeft: calc(50vw - 20rem);
+			--toastWidth: 40rem;
+		}
+	}
+
+	.content {
+		width: 100%;
+		height: calc(100% - 30px);
+
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+	}
 </style>

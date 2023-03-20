@@ -37,16 +37,10 @@
     });
     close.addEventListener("click", async () => {
       console.log(title);
-      if (title == "About") {
-        AppController.hideAboutWindow();
-      } else if (title == "Choose a backup to recover") {
-        AppController.hideBackupWindow();
-      } else {
-        await exit(0);
-      }
+      await exit(0);
     });
 
-    if (title.indexOf("Editor") == 0) {
+    if (title == "Steam Art Manager") {
       await AppController.init();
       await AppController.setup();
     }
