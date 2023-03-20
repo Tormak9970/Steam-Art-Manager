@@ -1,0 +1,42 @@
+{
+  "name": "steam-art-manager",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "author": {
+    "email": "Tormak9970@gmail.com",
+    "name": "Travis Lane (Tormak)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tormak9970/Steam-Art-Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tormak9970/Steam-Art-Manager/issues"
+  },
+  "homepage": "https://github.com/Tormak9970/Steam-Art-Manager#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.2.0",
+    "@zerodevx/svelte-toast": "^0.8.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.10",
+    "@sveltejs/vite-plugin-svelte": "^2.0.0",
+    "@tsconfig/svelte": "^3.0.0",
+    "svelte": "^3.54.0",
+    "svelte-check": "^3.0.0",
+    "svelte-preprocess": "^5.0.0",
+    "tslib": "^2.4.1",
+    "typescript": "^4.6.4",
+    "vite": "^4.0.0",
+    "@tauri-apps/cli": "^1.2.2"
+  }
+}

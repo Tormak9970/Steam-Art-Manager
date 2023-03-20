@@ -1,2 +1,2 @@
 # Steam-Art-Manager
-A tool similar to Steam ROM Manager for setting the art for games in your Steam library
+A simple tool for setting the artwork of your Steam library.
