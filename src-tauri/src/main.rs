@@ -5,7 +5,7 @@
 
 use std::io::*;
 
-use std::i64;
+use std::u32;
 use std::fs::{create_dir_all, File, OpenOptions};
 use std::path::Path;
 
@@ -59,20 +59,13 @@ fn clean_out_log(log_path: String) {
 }
 
 #[tauri::command]
-fn get_active_user() -> i64 {
+fn get_active_user() -> u32 {
   let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
 
   let steam_active_process: RegKey = hkcu.open_subkey("SOFTWARE\\Valve\\Steam\\ActiveProcess").expect("Couldn't getActiveProcess from the registry");
-  let active_user_dword: String = steam_active_process.get_value("ActiveUser").expect("Couldn't get ActiveUser from the registry");
+  let active_user_dword: u32 = steam_active_process.get_value("ActiveUser").expect("Couldn't get ActiveUser from the registry");
 
-  let active_user_id = i64::from_str_radix(&active_user_dword[..], 16);
-  
-  if active_user_id.is_ok() {
-    return active_user_id.unwrap();
-  } else {
-    eprintln!("Couldn't convert active_user hex to int: {}", active_user_id.unwrap_err());
-    return 0;
-  }
+  return active_user_dword;
 }
 
 #[tauri::command]
@@ -82,13 +75,11 @@ fn get_steam_games() -> String {
 
   let mut steam_apps: String = "".to_owned();
 
-  for (field, value) in steam_apps_reg.enum_values().map(|x| x.unwrap()) {
-    println!("{} = {:?}", field, value);
-
+  for field in steam_apps_reg.enum_keys().map(|x| x.unwrap()) {
     let mut app: String = "".to_owned();
-    app.push_str("appId:\"");
+    app.push_str("\"appId\":");
     app.push_str(&field);
-    app.push_str("\",");
+    app.push_str(",");
 
     let app_reg: RegKey = steam_apps_reg.open_subkey(field).expect("Couldn't get app from registry");
     let mut app_name = "";
@@ -99,10 +90,9 @@ fn get_steam_games() -> String {
       app_name = app_name_reg.as_ref().unwrap();
     }
     
-    app.push_str("name:\"");
+    app.push_str("\"name\":\"");
     app.push_str(app_name);
     app.push_str("\",");
-
     let mut updated_app = "".to_owned();
     updated_app.push_str("{");
     updated_app.push_str(&app[..(app.len() - 1)]);
@@ -115,7 +105,7 @@ fn get_steam_games() -> String {
   updated_apps.push_str(&"[");
   updated_apps.push_str(&steam_apps[..(steam_apps.len() - 1)]);
   updated_apps.push_str(&"]");
-
+  
   return updated_apps;
 }
 

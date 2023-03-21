@@ -26,6 +26,7 @@ export class RustInterop {
 
   static async getSteamGames() {
     const res = await invoke<string>("get_steam_games", {});
+    // console.log(res);
     console.log(JSON.parse(res));
   }
 }

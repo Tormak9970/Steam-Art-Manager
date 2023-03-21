@@ -6,7 +6,7 @@
 
 	onMount(async () => {
 		await RustInterop.getActiveUser();
-		// await RustInterop.getSteamGames();
+		await RustInterop.getSteamGames();
 	});
 </script>
 
