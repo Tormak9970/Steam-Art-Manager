@@ -20,13 +20,12 @@ export class RustInterop {
 
   static async getActiveUser() {
     const res = await invoke<number>("get_active_user", {});
-    console.log(res);
     return res;
   }
 
   static async getSteamGames() {
     const res = await invoke<string>("get_steam_games", {});
-    // console.log(res);
-    console.log(JSON.parse(res));
+    // console.log(JSON.parse(res));
+    return JSON.parse(res)
   }
 }
