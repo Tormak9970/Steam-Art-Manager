@@ -17,4 +17,15 @@ export class RustInterop {
   static async logToFile(message: string, level:LogLevel, logPath:string):Promise<void> {
     await invoke("log_to_file", {message: message, level: level, logPath: logPath});
   }
+
+  static async getActiveUser() {
+    const res = await invoke<number>("get_active_user", {});
+    console.log(res);
+    return res;
+  }
+
+  static async getSteamGames() {
+    const res = await invoke<string>("get_steam_games", {});
+    console.log(JSON.parse(res));
+  }
 }

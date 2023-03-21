@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { SvelteToast } from "@zerodevx/svelte-toast";
+	import { onMount } from "svelte";
 	import Titlebar from "./components/Titlebar.svelte";
+	import { RustInterop } from "./lib/controllers/RustInterop";
+
+	onMount(async () => {
+		await RustInterop.getActiveUser();
+		// await RustInterop.getSteamGames();
+	});
 </script>
 
 <div class="wrap">
