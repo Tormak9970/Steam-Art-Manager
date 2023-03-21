@@ -11,23 +11,18 @@ export class SettingsManager {
    */
   static async setSettingsPath() {
     const appDir = await path.appConfigDir();
-    // @ts-ignore
-    if (!(await fs.exists(appDir))) {
-      await fs.createDir(appDir);
-    }
-    const setsPath = await path.join(await path.appConfigDir(), "settings.json");
-    // @ts-ignore
+    if (!(await fs.exists(appDir))) await fs.createDir(appDir);
+
+    const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
       await fs.readTextFile(setsPath).then(
         () => {},
         async () => {
-          await fs.copyFile(
-            await path.resolveResource("../settings.json"),
-            setsPath
-          );
+          await fs.copyFile(await path.resolveResource("../settings.json"), setsPath);
         }
       );
     }
+
     SettingsManager.settingsPath = setsPath;
   }
 

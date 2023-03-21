@@ -14,9 +14,13 @@ use chrono::prelude::*;
 use winreg::enums::*;
 use winreg::RegKey;
 
+use tauri::api::path;
+use tauri::Config;
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn log_to_file(message: String, level: u8, log_path: String) {
+fn log_to_file(message: String, level: u8) {
+  let log_path = path::app_log_dir(Config).expect("Tried to resolve app log dir and failed.");
   let mut log_file: File = OpenOptions::new()
     .create(true)
     .write(true)
@@ -37,7 +41,8 @@ fn log_to_file(message: String, level: u8, log_path: String) {
 }
 
 #[tauri::command]
-fn clean_out_log(log_path: String) {
+fn clean_out_log() {
+  let log_path = path::app_log_dir(Config).expect("Tried to resolve app log dir and failed.");
   let parent = Path::new(&log_path)
     .parent()
     .unwrap()
@@ -55,7 +60,7 @@ fn clean_out_log(log_path: String) {
 
   drop(log_file);
 
-  log_to_file(String::from("Initialized logging file"), 0, log_path);
+  log_to_file(String::from("Initialized logging file"), 0);
 }
 
 #[tauri::command]

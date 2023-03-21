@@ -22,9 +22,9 @@
           "$DESKTOP/**",
           "$DOCUMENT/**",
           "$RESOURCE/**",
-          "$DATA/**",
-          "$APPDATA/**",
-          "$APPCONFIG/**"
+          "$APPCONFIG/**",
+          "$APPLOG/**",
+          "$APPCACHE/**"
         ]
       },
       "protocol": {
@@ -35,9 +35,9 @@
           "$DESKTOP/**",
           "$DOCUMENT/**",
           "$RESOURCE/**",
-          "$DATA/**",
-          "$APPDATA/**",
-          "$APPCONFIG/**"
+          "$APPCONFIG/**",
+          "$APPLOG/**",
+          "$APPCACHE/**"
         ]
       },
       "shell": {
