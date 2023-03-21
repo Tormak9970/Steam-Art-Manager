@@ -3,6 +3,8 @@
 	import { onMount } from "svelte";
 	import Titlebar from "./components/Titlebar.svelte";
 	import { RustInterop } from "./lib/controllers/RustInterop";
+	import { Pane, Splitpanes } from 'svelte-splitpanes';
+	import Footer from "./components/Footer.svelte";
 
 	onMount(async () => {
 		await RustInterop.getActiveUser();
@@ -16,8 +18,19 @@
 <main>
 	<Titlebar title="Steam Art Manager" />
 	<div class="content">
-		<div>Hello World</div>
+		<Splitpanes>
+			<Pane minSize={10}>
+
+			</Pane>
+			<Pane minSize={20}>
+				
+			</Pane>
+			<Pane minSize={10}>
+				
+			</Pane>
+		</Splitpanes>
 	</div>
+	<Footer />
 </main>
 <SvelteToast />
 
@@ -56,7 +69,7 @@
 
 	.content {
 		width: 100%;
-		height: calc(100% - 30px);
+		height: calc(100% - 60px);
 
 		display: flex;
 		flex-direction: column;

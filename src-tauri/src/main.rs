@@ -5,22 +5,29 @@
 
 use std::io::*;
 
+use std::path::{
+  PathBuf,
+  Path
+};
 use std::u32;
 use std::fs::{create_dir_all, File, OpenOptions};
-use std::path::Path;
 
 use chrono::prelude::*;
 
 use winreg::enums::*;
 use winreg::RegKey;
 
-use tauri::api::path;
-use tauri::Config;
+use tauri::AppHandle;
+
+fn get_log_path(app_handle: &AppHandle) -> PathBuf {
+  let app_log_dir = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
+  return app_log_dir.join("steam-art-manager.log");
+}
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn log_to_file(message: String, level: u8) {
-  let log_path = path::app_log_dir(Config).expect("Tried to resolve app log dir and failed.");
+fn log_to_file(app_handle: AppHandle, message: String, level: u8) {
+  let log_path = get_log_path(&app_handle);
   let mut log_file: File = OpenOptions::new()
     .create(true)
     .write(true)
@@ -41,8 +48,8 @@ fn log_to_file(message: String, level: u8) {
 }
 
 #[tauri::command]
-fn clean_out_log() {
-  let log_path = path::app_log_dir(Config).expect("Tried to resolve app log dir and failed.");
+fn clean_out_log(app_handle: AppHandle) {
+  let log_path = get_log_path(&app_handle);
   let parent = Path::new(&log_path)
     .parent()
     .unwrap()
@@ -60,7 +67,7 @@ fn clean_out_log() {
 
   drop(log_file);
 
-  log_to_file(String::from("Initialized logging file"), 0);
+  log_to_file(app_handle, String::from("Initialized logging file"), 0);
 }
 
 #[tauri::command]

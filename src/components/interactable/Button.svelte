@@ -1,29 +1,13 @@
-<!--
- Rogue Legacy Save Editor is a tool for viewing and modifying game saves from Rogue Legacy 1 & 2.
- Copyright (C) 2023 Travis Lane (Tormak)
- 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <https://www.gnu.org/licenses/>
- -->
 <script lang="ts">
     export let text: string;
     export let width = "40px";
+    export let height = "auto";
     export let onClick: (e: MouseEvent) => void;
     export let disabled = false;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:disabled={disabled} style="width: {width};" on:click={onClick}>
+<button class="button" class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick}>
     <div>{text}</div>
 </button>
 

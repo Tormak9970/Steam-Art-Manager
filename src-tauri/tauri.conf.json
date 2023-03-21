@@ -19,10 +19,9 @@
         "all": true,
         "scope": [
           "$APP/**",
-          "$DESKTOP/**",
-          "$DOCUMENT/**",
           "$RESOURCE/**",
           "$APPCONFIG/**",
+          "$DATA/**",
           "$APPLOG/**",
           "$APPCACHE/**"
         ]
@@ -32,10 +31,9 @@
         "asset": true,
         "assetScope": [
           "$APP/**",
-          "$DESKTOP/**",
-          "$DOCUMENT/**",
           "$RESOURCE/**",
           "$APPCONFIG/**",
+          "$DATA/**",
           "$APPLOG/**",
           "$APPCACHE/**"
         ]

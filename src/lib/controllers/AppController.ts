@@ -9,7 +9,6 @@ import { LogController } from "./LogController";
  * The main controller for the application
  */
 export class AppController {
-  private static logFilePath = "";
   static logController = new LogController();
 
   static async setup(): Promise<void> {
@@ -24,17 +23,7 @@ export class AppController {
   static async init(): Promise<void> {
     const logDir = await path.join(await path.appDataDir(), "logs");
 
-    AppController.logFilePath = await path.join(logDir, "rogue-legacy-editor.log");
-    AppController.logController.setFilePath(AppController.logFilePath);
     await AppController.logController.cleanLogFile();
-
-    const backupPath = await path.join(await path.appDataDir(), "backups");
-    const rogueOneBackupPath = await path.join(backupPath, "rogueLegacy1");
-    const rogueTwoBackupPath = await path.join(backupPath, "rogueLegacy2");
-
-    if (!(await fs.exists(backupPath))) await fs.createDir(backupPath);
-    if (!(await fs.exists(rogueOneBackupPath))) await fs.createDir(rogueOneBackupPath);
-    if (!(await fs.exists(rogueTwoBackupPath))) await fs.createDir(rogueTwoBackupPath);
   }
 
   /**
