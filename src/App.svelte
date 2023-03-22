@@ -3,25 +3,32 @@
 	import { onMount } from "svelte";
 	import Titlebar from "./components/Titlebar.svelte";
 	import { RustInterop } from "./lib/controllers/RustInterop";
-	import { Pane, Splitpanes } from 'svelte-splitpanes';
+	import { Splitpanes } from 'svelte-splitpanes';
 	import Footer from "./components/Footer.svelte";
 	import Filters from "./components/core/filters/Filters.svelte";
 	import Games from "./components/core/games/Games.svelte";
 	import Grids from "./components/core/grids/Grids.svelte";
   import { AppController } from "./lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { isOnline } from "./Stores";
+  import { activeUserId, isOnline } from "./Stores";
+  import { ToastController } from "./lib/controllers/ToastController";
 
 	onMount(async () => {
+    await AppController.setup();
+    
 		if (navigator.onLine) {
       $isOnline = true;
-      await RustInterop.getActiveUser();
-      const games = await RustInterop.getSteamGames();
-      console.log(games);
     } else {
       const wantsToContinue = await AppController.promptOffline();
       if (!wantsToContinue) exit(0);
     }
+
+    $activeUserId = await RustInterop.getActiveUser();
+    if ($activeUserId == 0) {
+      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
+    }
+
+    AppController.init();
 	});
 </script>
 

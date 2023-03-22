@@ -22,11 +22,6 @@
       console.log(title);
       await exit(0);
     });
-
-    if (title == "Steam Art Manager") {
-      await AppController.init();
-      await AppController.setup();
-    }
   });
 </script>
 

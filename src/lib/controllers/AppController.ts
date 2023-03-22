@@ -1,29 +1,56 @@
-import { dialog, fs, path } from "@tauri-apps/api";
-// import { get, type Unsubscriber } from "svelte/store";
-// import { } from "../../Stores";
-import { ToasterController } from "./ToasterController";
+import { dialog } from "@tauri-apps/api";
+import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
+import { get } from "svelte/store";
+import { isOnline, needsAPIKey, steamGridDBKey } from "../../Stores";
+import { CacheController } from "./CacheController";
+import { RustInterop } from "./RustInterop";
 
 /**
  * The main controller for the application
  */
 export class AppController {
-  static logController = new LogController();
+  private static cacheController = new CacheController();
 
   static async setup(): Promise<void> {
     await SettingsManager.setSettingsPath();
     let settings:AppSettings = await SettingsManager.getSettings();
 
+    if (settings.steamGridDbApiKey != "") {
+      steamGridDBKey.set(settings.steamGridDbApiKey);
+      needsAPIKey.set(false);
+    }
   }
 
   /**
-   * Sets up the app
+   * Sets up the AppController.
    */
   static async init(): Promise<void> {
-    const logDir = await path.join(await path.appDataDir(), "logs");
+    await LogController.cleanLogFile();
 
-    await AppController.logController.cleanLogFile();
+    const appIsOnline = get(isOnline);
+    LogController.log(`App initialized. IsOnline: ${appIsOnline}`);
+
+    // TODO: Check if api key is set. if not, prompt user to set it.
+    if (get(needsAPIKey)) {
+      
+    }
+  }
+
+  static async getUserSteamApps() {
+    const apps = await RustInterop.getSteamApps();
+
+    const appIsOnline = get(isOnline);
+    const needsSgdbKey = get(needsAPIKey);
+
+    if (appIsOnline && !needsSgdbKey) {
+      
+    } else {
+      ToastController.showGenericToast("AppId Blacklist will not be generated.");
+      if (!isOnline) LogController.warn("App is offline, not generating blacklist");
+      if (needsSgdbKey) LogController.warn("App needs SteamGrid api key, not generating blacklist");
+    }
   }
 
   /**
@@ -39,7 +66,7 @@ export class AppController {
   static async discardChanges(): Promise<void> {
     
 
-    ToasterController.showSuccessToast("Changes discarded!");
+    ToastController.showSuccessToast("Changes discarded!");
   }
 
   /**
@@ -62,30 +89,10 @@ export class AppController {
   }
 
   /**
-   * Logs a message with level [INFO] to the app's log file.
-   * @param message Message to log.
+   * Function run on app closing/refreshing.
    */
-  static log(message:string) {
-    AppController.logController.log(message);
-    console.log(message);
-  }
-  
-  /**
-   * Logs a message with level [WARNING] to the app's log file.
-   * @param message Message to log.
-   */
-  static warn(message:string) {
-    AppController.logController.warn(message);
-    console.warn(message);
-  }
-  
-  /**
-   * Logs a message with level [ERROR] to the app's log file.
-   * @param message Message to log.
-   */
-  static error(message:string) {
-    AppController.logController.error(message);
-    console.error(message);
+  static onDestroy(): void {
+    
   }
 
   /**
@@ -97,13 +104,6 @@ export class AppController {
       title: "No Internet Connection",
       type: "warning"
     });
-  }
-
-  /**
-   * Function run on app closing/refreshing.
-   */
-  static onDestroy(): void {
-    
   }
 }
 

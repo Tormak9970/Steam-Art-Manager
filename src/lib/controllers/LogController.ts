@@ -4,19 +4,34 @@ import { LogLevel, RustInterop } from "./RustInterop";
  * Controller that handles all logging done by the app.
  */
 export class LogController {
-  async cleanLogFile(): Promise<void> {
+  /**
+   * Cleans the app's log file.
+   */
+  static async cleanLogFile(): Promise<void> {
     await RustInterop.cleanOutLog();
   }
 
-  async log(message:string): Promise<void> {
+  /**
+   * Logs a message with level [INFO] to the app's log file.
+   * @param message Message to log.
+   */
+  static async log(message:string): Promise<void> {
     await RustInterop.logToFile(message, LogLevel.INFO);
   }
 
-  async warn(message:string): Promise<void> {
+  /**
+   * Logs a message with level [WARNING] to the app's log file.
+   * @param message Message to log.
+   */
+  static async warn(message:string): Promise<void> {
     await RustInterop.logToFile(message, LogLevel.WARN);
   }
 
-  async error(message:string): Promise<void> {
+  /**
+   * Logs a message with level [ERROR] to the app's log file.
+   * @param message Message to log.
+   */
+  static async error(message:string): Promise<void> {
     await RustInterop.logToFile(message, LogLevel.ERROR);
   }
 }

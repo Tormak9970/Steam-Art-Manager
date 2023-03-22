@@ -124,7 +124,7 @@ fn get_active_user(app_handle: AppHandle) -> u32 {
 }
 
 #[tauri::command]
-fn get_steam_games(app_handle: AppHandle) -> String {
+fn get_steam_apps(app_handle: AppHandle) -> String {
   let mut steam_apps: String = "".to_owned();
   let platform = env::consts::OS;
 
@@ -205,7 +205,7 @@ fn get_steam_games(app_handle: AppHandle) -> String {
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
-    .invoke_handler(tauri::generate_handler![clean_out_log, log_to_file, get_active_user, get_steam_games])
+    .invoke_handler(tauri::generate_handler![clean_out_log, log_to_file, get_active_user, get_steam_apps])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

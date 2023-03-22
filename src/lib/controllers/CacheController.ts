@@ -29,7 +29,15 @@ export class CacheController {
     if (!(await fs.exists(this.gridCacheDirPath))) await fs.createDir(this.gridCacheDirPath);
   }
 
-  invalidateCache() {
+  private addIdToBlacklist(appId: string): void {
+
+  }
+
+  async fetchGameInfos(apps: SteamRegistryApp[]): Promise<void> {
+    const games = null;
+  }
+
+  invalidateCache(): void {
 
   }
 
