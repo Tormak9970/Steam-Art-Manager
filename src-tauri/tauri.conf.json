@@ -66,9 +66,11 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": ["../settings.json"],
+      "resources": [
+        "../settings.json"
+      ],
       "shortDescription": "A simple tool for setting the artwork of your Steam library.",
-      "targets": "all",
+      "targets": [ "appimage", "msi" ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -76,7 +78,8 @@
         "webviewInstallMode": {
           "type": "offlineInstaller"
         }
-      }
+      },
+      "appimage": { "bundleMediaFramework": false }
     },
     "security": {
       "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; style-src 'self' 'unsafe-inline'",

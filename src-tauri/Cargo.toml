@@ -20,6 +20,8 @@ tauri = { version = "1.1", features = ["dialog-all", "fs-all", "os-all", "path-a
 tauri-plugin-persisted-scope = "0.1.0"
 chrono = "0.4.23"
 winreg = "0.11"
+home = "0.5.4"
+vdf-serde = "0.3.0"
 
 [features]
 # by default Tauri runs in production mode
