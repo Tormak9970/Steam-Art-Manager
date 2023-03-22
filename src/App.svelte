@@ -8,26 +8,20 @@
 	import Filters from "./components/core/filters/Filters.svelte";
 	import Games from "./components/core/games/Games.svelte";
 	import Grids from "./components/core/grids/Grids.svelte";
-
-	import SteamAPI from 'steamapi';
+  import { AppController } from "./lib/controllers/AppController";
+  import { exit } from "@tauri-apps/api/process";
+  import { isOnline } from "./Stores";
 
 	onMount(async () => {
-		await RustInterop.getActiveUser();
-		const games = await RustInterop.getSteamGames();
-		console.log(games);
-
-		const steam = new SteamAPI('');
-		steam.getUserOwnedGames("76561198884918228").then((res) => {
-			console.log(res)
-		})
-		// fetch("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=&steamid=76561198884918228&format=json&include_appinfo=true", {
-		// 	method: "GET",
-		// 	headers: {
-		// 		"Access-Control-Allow-Origin": "*"
-		// 	}
-		// }).then((res) => {
-		// 	console.log(res)
-		// });
+		if (navigator.onLine) {
+      $isOnline = true;
+      await RustInterop.getActiveUser();
+      const games = await RustInterop.getSteamGames();
+      console.log(games);
+    } else {
+      const wantsToContinue = await AppController.promptOffline();
+      if (!wantsToContinue) exit(0);
+    }
 	});
 </script>
 

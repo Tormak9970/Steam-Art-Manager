@@ -1,4 +1,4 @@
-import { fs, path } from "@tauri-apps/api";
+import { dialog, fs, path } from "@tauri-apps/api";
 // import { get, type Unsubscriber } from "svelte/store";
 // import { } from "../../Stores";
 import { ToasterController } from "./ToasterController";
@@ -86,6 +86,17 @@ export class AppController {
   static error(message:string) {
     AppController.logController.error(message);
     console.error(message);
+  }
+
+  /**
+   * Prompts the user to decide if they want to continue offline.
+   * @returns A promise resolving to the user's decisions.
+   */
+  static async promptOffline(): Promise<boolean> {
+    return await dialog.ask("You are offline. Steam Art Manager won't work properly/fully. Do you want to continue?", {
+      title: "No Internet Connection",
+      type: "warning"
+    });
   }
 
   /**

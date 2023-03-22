@@ -26,7 +26,6 @@
     "@tauri-apps/api": "^1.2.0",
     "@zerodevx/svelte-toast": "^0.8.0",
     "jszip": "^3.10.1",
-    "steamapi": "^2.2.0",
     "svelte-splitpanes": "^0.7.13"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
 import { writable } from "svelte/store";
 
+export const isOnline = writable(false);
+
 export const filters = writable({
   "": {
 
