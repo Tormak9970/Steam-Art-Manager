@@ -3,7 +3,8 @@
   windows_subsystem = "windows"
 )]
 
-use std::collections::HashMap;
+mod vdf_structs;
+
 use std::{ io::*, env, fs };
 use std::path::{ PathBuf, Path };
 use std::u32;
@@ -17,26 +18,6 @@ use winreg::RegKey;
 
 use tauri::AppHandle;
 
-use serde::{Serialize, Deserialize};
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-#[allow(non_snake_case)]
-struct User {
-  AccountName: String,
-  PersonaName: String,
-  RememberPassword: String,
-  WantsOfflineMode: String,
-  SkipOfflineModeWarning: String,
-  AllowAutoLogin: String,
-  MostRecent: String,
-  TimeStamp: String
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct LoginUsers {
-  users: HashMap<String, User>
-}
-
 fn get_log_path(app_handle: &AppHandle) -> PathBuf {
   let app_log_dir = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
   return app_log_dir.join("steam-art-manager.log");
@@ -46,10 +27,10 @@ fn get_steam_root_dir() -> PathBuf {
   let home_dir = home_dir().expect("Couldn't get user's home dir.");
   let mut steam_dir = home_dir.clone();
 
-  if home_dir.join("/.var/app/com.valvesoftware.Steam/data/Steam").exists() {
-    steam_dir = steam_dir.join("/.var/app/com.valvesoftware.Steam/data/Steam");
+  if home_dir.join("/.var/app/com.valvesoftware.Steam/data").exists() {
+    steam_dir = steam_dir.join("/.var/app/com.valvesoftware.Steam/data");
   } else {
-    steam_dir = steam_dir.join("/.steam/steam");
+    steam_dir = steam_dir.join("/.steam");
   }
 
   return steam_dir;
@@ -116,13 +97,13 @@ fn get_active_user(app_handle: AppHandle) -> u32 {
 
     return active_user_dword;
   } else if platform == "linux" {
-    log_to_file(app_handle.to_owned(), "Checking /config/loginusers.vdf for current user info.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking /steam/config/loginusers.vdf for current user info.".to_owned(), 0);
     
     let steam_root = get_steam_root_dir();
-    let loginusers_vdf = steam_root.join("/config/loginusers.vdf");
+    let loginusers_vdf = steam_root.join("/steam/config/loginusers.vdf");
     let contents = fs::read_to_string(loginusers_vdf).unwrap();
 
-    let users = vdf_serde::from_str::<LoginUsers>(&contents).unwrap().users;
+    let users = vdf_serde::from_str::<vdf_structs::LoginUsers>(&contents).unwrap().users;
 
     for (key, value) in users.into_iter() {
       if value.MostRecent == "1" {
@@ -182,34 +163,33 @@ fn get_steam_games(app_handle: AppHandle) -> String {
     log_to_file(app_handle.to_owned(), "Checking registry.vdf for steam games.".to_owned(), 0);
 
     let steam_root = get_steam_root_dir();
+    let registry_vdf = steam_root.join("/registry.vdf");
+    let contents = fs::read_to_string(registry_vdf).unwrap();
 
-    // let steam_apps_reg = hkcu.open_subkey("SOFTWARE\\Valve\\Steam\\Apps").expect("Couldn't Apps from the registry");
+    let steam_apps_res = vdf_serde::from_str::<vdf_structs::Registry>(&contents).unwrap().HKCU.Software.Valve.Steam.apps;
 
-    // for field in steam_apps_reg.enum_keys().map(|x| x.unwrap()) {
-    //   let mut app: String = "".to_owned();
-    //   app.push_str("\"appId\":");
-    //   app.push_str(&field);
-    //   app.push_str(",");
+    for (key, value) in steam_apps_res.into_iter() {
+      let mut app: String = "".to_owned();
+      app.push_str("\"appId\":");
+      app.push_str(&key);
+      app.push_str(",");
 
-    //   let app_reg: RegKey = steam_apps_reg.open_subkey(field).expect("Couldn't get app from registry");
-    //   let mut app_name = "";
+      let mut app_name = "";
 
-    //   let app_name_reg: Result<String> = app_reg.get_value("Name");
-
-    //   if app_name_reg.is_ok() {
-    //     app_name = app_name_reg.as_ref().unwrap();
-    //   }
+      if value.contains_key("name") {
+        app_name = value.get("name").unwrap().as_ref();
+      }
       
-    //   app.push_str("\"name\":\"");
-    //   app.push_str(app_name);
-    //   app.push_str("\",");
-    //   let mut updated_app = "".to_owned();
-    //   updated_app.push_str("{");
-    //   updated_app.push_str(&app[..(app.len() - 1)]);
-    //   updated_app.push_str("},");
+      app.push_str("\"name\":\"");
+      app.push_str(app_name);
+      app.push_str("\",");
+      let mut updated_app = "".to_owned();
+      updated_app.push_str("{");
+      updated_app.push_str(&app[..(app.len() - 1)]);
+      updated_app.push_str("},");
 
-    //   steam_apps.push_str(&updated_app);
-    // }
+      steam_apps.push_str(&updated_app);
+    }
   } else {
     panic!("Steam Art Manager can only be run on linux or windows!");
   }
