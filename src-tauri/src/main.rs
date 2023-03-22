@@ -3,15 +3,9 @@
   windows_subsystem = "windows"
 )]
 
-use std::{
-  io::*,
-  env
-};
-
-use std::path::{
-  PathBuf,
-  Path
-};
+use std::collections::HashMap;
+use std::{ io::*, env, fs };
+use std::path::{ PathBuf, Path };
 use std::u32;
 use std::fs::{create_dir_all, File, OpenOptions};
 
@@ -22,6 +16,25 @@ use winreg::enums::*;
 use winreg::RegKey;
 
 use tauri::AppHandle;
+
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+struct User {
+  AccountName: String,
+  PersonaName: String,
+  RememberPassword: String,
+  WantsOfflineMode: String,
+  SkipOfflineModeWarning: String,
+  AllowAutoLogin: String,
+  MostRecent: String,
+  TimeStamp: String
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+struct LoginUsers {
+  users: HashMap<String, User>
+}
 
 fn get_log_path(app_handle: &AppHandle) -> PathBuf {
   let app_log_dir = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
@@ -92,36 +105,35 @@ fn get_active_user(app_handle: AppHandle) -> u32 {
   let platform = env::consts::OS;
 
   if platform == "windows" {
-    log_to_file(app_handle, "Checking registry for current user.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking registry for current user.".to_owned(), 0);
     let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
 
     let steam_active_process: RegKey = hkcu.open_subkey("SOFTWARE\\Valve\\Steam\\ActiveProcess").expect("Couldn't getActiveProcess from the registry");
     let active_user_dword: u32 = steam_active_process.get_value("ActiveUser").expect("Couldn't get ActiveUser from the registry");
 
-    log_to_file(app_handle, format!("Got current_user: {}", active_user_dword), 0);
+    log_to_file(app_handle, format!("Got current_user_id: {}", active_user_dword), 0);
 
     return active_user_dword;
   } else if platform == "linux" {
-    log_to_file(app_handle, "Checking /config/loginusers.vdf for current user info.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking /config/loginusers.vdf for current user info.".to_owned(), 0);
     
     let steam_root = get_steam_root_dir();
     let loginusers_vdf = steam_root.join("/config/loginusers.vdf");
+    let contents = fs::read_to_string(loginusers_vdf).unwrap();
 
-    //* How to get the id:
-    // find like starting with 7656119
-    // substring at that index till \"
-    // if last
-    //    convert to long
-    //    subtract 76561197960265728
+    let users = vdf_serde::from_str::<LoginUsers>(&contents).unwrap().users;
 
-    // ex:
-    //    76561198884918228
-    //   -76561197960265728
-    // --------------------
-    //    00000000924652500
-    // aka 924652500
+    for (key, value) in users.into_iter() {
+      if value.MostRecent == "1" {
+        let big_id = key.parse::<u64>().unwrap() - 76561197960265728;
+        let id = u32::try_from(big_id).expect("Should have been able to convert subtracted big_id to u32.");
 
-    // log_to_file(app_handle, format!("Got current_user: {}", active_user_dword), 0);
+        log_to_file(app_handle.to_owned(), format!("Got current_user_id: {}", id), 0);
+        return id;
+      }
+    }
+    
+    log_to_file(app_handle, "Did not find a most recent user".to_owned(), 2);
 
     return 0;
   } else {
@@ -135,7 +147,7 @@ fn get_steam_games(app_handle: AppHandle) -> String {
   let platform = env::consts::OS;
 
   if platform == "windows" {
-    log_to_file(app_handle, "Checking registry for steam games.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking registry for steam games.".to_owned(), 0);
 
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let steam_apps_reg = hkcu.open_subkey("SOFTWARE\\Valve\\Steam\\Apps").expect("Couldn't Apps from the registry");
@@ -166,7 +178,7 @@ fn get_steam_games(app_handle: AppHandle) -> String {
       steam_apps.push_str(&updated_app);
     }
   } else if platform == "linux" {
-    log_to_file(app_handle, "Checking registry.vdf for steam games.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking registry.vdf for steam games.".to_owned(), 0);
 
     let steam_root = get_steam_root_dir();
 
