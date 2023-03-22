@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Pane } from "svelte-splitpanes";
-  import SectionTitle from "./SectionTitle.svelte";
+  import SectionTitle from "../SectionTitle.svelte";
 
 </script>
 

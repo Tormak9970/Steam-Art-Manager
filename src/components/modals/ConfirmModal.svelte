@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Button from "../interactable/Button.svelte";
+    import Button from "../interactables/Button.svelte";
     import Pane from "../layout/Pane.svelte";
 
     export let message:string;
@@ -17,8 +17,8 @@
                 {message}
             </div>
             <div class="buttons">
-                <Button text={"Cancel"} onClick={onCancel} width={"60px"} />
-                <Button text={"Confirm"} onClick={onConfirm} width={"60px"} />
+                <Button label={"Cancel"} onClick={onCancel} width={"60px"} />
+                <Button label={"Confirm"} onClick={onConfirm} width={"60px"} />
             </div>
         </Pane>
     </div>

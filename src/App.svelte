@@ -5,9 +5,9 @@
 	import { RustInterop } from "./lib/controllers/RustInterop";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Footer from "./components/Footer.svelte";
-    import Filters from "./components/layout/Filters.svelte";
-    import Games from "./components/layout/Games.svelte";
-    import Grids from "./components/layout/Grids.svelte";
+    import Filters from "./components/core/filters/Filters.svelte";
+    import Games from "./components/core/games/Games.svelte";
+    import Grids from "./components/core/grids/Grids.svelte";
 
 	onMount(async () => {
 		await RustInterop.getActiveUser();

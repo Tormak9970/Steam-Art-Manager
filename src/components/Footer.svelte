@@ -1,21 +1,17 @@
 <script lang="ts">
-  import Button from "./interactable/Button.svelte";
+  import { AppController } from "../lib/controllers/AppController";
+  import { canSave, showConfirmEmptyCacheToast, showSetApiKeyToast } from "../Stores";
+  import Button from "./interactables/Button.svelte";
   
-  function emptyCache(e: Event) {
-    
-  }
+  /**
+   * Empties the cache.
+   */
+  function emptyCache() { $showConfirmEmptyCacheToast = true; }
 
-  function importGrids(e: Event) {
-    
-  }
-
-  function exportGrids(e: Event) {
-    
-  }
-
-  function addSteamGridKey(e: Event) {
-
-  }
+  /**
+   * Opens a toast prompting the user to set their steamGridDB api key.
+   */
+  function addSteamGridKey() { $showSetApiKeyToast = true; }
 </script>
 
 <div class="footer">
@@ -23,13 +19,19 @@
     <div style="margin-left: 8px; text-align: center;">© Travis Lane {new Date().getFullYear()}</div>
   </div>
   <div class="btns">
-    <Button text="Empty Cache" onClick={emptyCache} width="auto" height="20px" />
+    {#if $canSave}
+      <Button label="Save" onClick={AppController.saveChanges} highlight={true} width="auto" height="20px" />
+      <div style="height: 100%; width: 7px;" />
+      <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="20px" />
+      <div style="height: 100%; width: 7px;" />
+    {/if}
+    <Button label="Empty Cache" onClick={emptyCache} width="auto" height="20px" />
     <div style="height: 100%; width: 7px;" />
-    <Button text="Import" onClick={importGrids} width="auto" height="20px" />
+    <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
     <div style="height: 100%; width: 7px;" />
-    <Button text="Export" onClick={exportGrids} width="auto" height="20px" />
+    <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />
     <div style="height: 100%; width: 7px;" />
-    <Button text="Add SteamGrid Key" onClick={addSteamGridKey} width="auto" height="20px" />
+    <Button label="Add SteamGrid Key" onClick={addSteamGridKey} width="auto" height="20px" />
   </div>
 </div>
 

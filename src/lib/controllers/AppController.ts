@@ -49,6 +49,18 @@ export class AppController {
     
   }
 
+  static async importGrids(): Promise<void> {
+
+  }
+
+  static async exportGrids(): Promise<void> {
+
+  }
+
+  static async emptyCache(): Promise<void> {
+    
+  }
+
   /**
    * Logs a message with level [INFO] to the app's log file.
    * @param message Message to log.
