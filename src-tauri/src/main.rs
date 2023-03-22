@@ -20,6 +20,7 @@ use tauri::AppHandle;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[allow(non_snake_case)]
 struct User {
   AccountName: String,
   PersonaName: String,
