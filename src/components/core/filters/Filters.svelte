@@ -16,5 +16,7 @@
 </Pane>
 
 <style>
-
+  .content {
+    margin-left: 12px;
+  }
 </style>
