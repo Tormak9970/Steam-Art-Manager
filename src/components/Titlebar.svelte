@@ -88,6 +88,6 @@
     height: 30px;
   }
   .titlebar-button:hover {
-    background: var(--hover);
+    background: var(--foreground-light);
   }
 </style>

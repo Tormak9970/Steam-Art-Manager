@@ -185,13 +185,13 @@
     border: 1px solid black;
   }
   .select-items > div:hover {
-    background-color: var(--hover);
+    background-color: var(--foreground-light);
     cursor: pointer;
   }
 
   .select-hide { display: none; }
   .same-as-selected {
-    background-color: var(--hover);
+    background-color: var(--foreground-light);
     cursor: pointer;
   }
 </style>

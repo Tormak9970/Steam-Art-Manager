@@ -1,10 +1,10 @@
 <script lang="ts">
   export let title: string;
-
+  export let fontSize = "20px";
 </script>
 
 <div class="section-title">
-  <h2 class="title">{title}</h2>
+  <h2 class="title" style="font-size: {fontSize};">{title}</h2>
 </div>
 
 <style>
@@ -14,7 +14,6 @@
 
   .title {
     margin: 7px 12px;
-    font-size: 20px;
     border-bottom: 1px solid var(--foreground);
   }
 </style>

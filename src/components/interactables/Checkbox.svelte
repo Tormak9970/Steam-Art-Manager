@@ -55,6 +55,6 @@
   }
 
   .check-box-container:hover input ~ .check-box {
-    background-color: var(--hover);
+    background-color: var(--foreground-light);
   }
 </style>

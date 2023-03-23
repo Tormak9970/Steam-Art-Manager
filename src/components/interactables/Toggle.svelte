@@ -30,14 +30,18 @@
 <style>
   @import "/theme.css";
 
-  .toggle { display: flex; align-items: center; }
+  .toggle {
+    display: flex;
+    align-items: center;
+  }
 
   .toggle button {
     width: 2.15em;
     height: 1.2em;
     position: relative;
-    background: var(--hover);
+    background: var(--foreground-light);
     border: none;
+    cursor: pointer;
   }
 
   .toggle button::before {
@@ -51,7 +55,8 @@
     transition: transform 0.3s;
   }
 
-  .toggle button[aria-checked="true"] { background-color: var(--highlight); }
+  .toggle button[aria-checked="true"] {background-color: var(--highlight); }
+  .toggle button[aria-checked="true"]:hover {background-color: var(--highlight-hover); }
   .toggle button[aria-checked="true"]::before {
     transform: translateX(0.9em);
     transition: transform 0.3s;

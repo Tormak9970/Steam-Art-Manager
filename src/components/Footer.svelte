@@ -2,6 +2,7 @@
   import { AppController } from "../lib/controllers/AppController";
   import { canSave, showConfirmEmptyCacheToast, showSetApiKeyToast } from "../Stores";
   import Button from "./interactables/Button.svelte";
+    import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
   
   /**
    * Empties the cache.
@@ -21,16 +22,16 @@
   <div class="btns">
     {#if $canSave}
       <Button label="Save" onClick={AppController.saveChanges} highlight={true} width="auto" height="20px" />
-      <div style="height: 100%; width: 7px;" />
+      <HorizontalSpacer />
       <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="20px" />
-      <div style="height: 100%; width: 7px;" />
+      <HorizontalSpacer />
     {/if}
     <Button label="Empty Cache" onClick={emptyCache} width="auto" height="20px" />
-    <div style="height: 100%; width: 7px;" />
+    <HorizontalSpacer />
     <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
-    <div style="height: 100%; width: 7px;" />
+    <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />
-    <div style="height: 100%; width: 7px;" />
+    <HorizontalSpacer />
     <Button label="Add SteamGrid Key" onClick={addSteamGridKey} width="auto" height="20px" />
   </div>
 </div>
@@ -42,7 +43,7 @@
     height: 30px;
     width: 100%;
 
-    background: var(--hover);
+    background: var(--foreground-light);
     user-select: none;
     display: inline-flex;
     align-items: center;

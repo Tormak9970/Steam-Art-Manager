@@ -20,7 +20,9 @@
     --background: #1a1a1a;
     --background-hover: #1f1f1f;
     --foreground: #252525;
-    --hover: #303030;
+		/* --foreground-hover: #2c2c2c; */
+    --foreground-light: #303030;
+    --foreground-light-hover: #333333;
 
     --highlight: #04e200;
     --highlight-dim: #039900;
@@ -46,8 +48,8 @@
 
 .splitpanes__splitter {
 	background-color: var(--background-hover) !important;
-    border-left: 1px solid var(--hover) !important;
-    border-right: 1px solid var(--hover) !important;
+    border-left: 1px solid var(--foreground-light) !important;
+    border-right: 1px solid var(--foreground-light) !important;
 	position: relative;
 }
 .splitpanes__splitter:before {
