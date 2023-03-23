@@ -33,6 +33,8 @@ export class CacheController {
 
   }
 
+  //* The page parameter will be useful for pagnation
+
   async fetchGameInfos(apps: SteamRegistryApp[]): Promise<void> {
     const games = null;
   }
