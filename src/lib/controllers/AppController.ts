@@ -71,6 +71,7 @@ export class AppController {
   static async saveChanges(): Promise<void> {
     
     ToastController.showSuccessToast("Changes saved!");
+    LogController.log("Saved changes.");
   }
 
   /**
@@ -79,13 +80,7 @@ export class AppController {
   static async discardChanges(): Promise<void> {
     
     ToastController.showSuccessToast("Changes discarded!");
-  }
-
-  /**
-   * Reloads the user's saves
-   */
-  static async reload(): Promise<void> {
-    
+    LogController.log("Discarded changes.");
   }
 
   static async importGrids(): Promise<void> {

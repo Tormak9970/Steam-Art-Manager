@@ -27,10 +27,23 @@ fn get_steam_root_dir() -> PathBuf {
   let home_dir = home_dir().expect("Couldn't get user's home dir.");
   let mut steam_dir = home_dir.clone();
 
-  if home_dir.join("/.var/app/com.valvesoftware.Steam/data").exists() {
-    steam_dir = steam_dir.join("/.var/app/com.valvesoftware.Steam/data");
+  let platform = env::consts::OS;
+
+  if platform == "windows" {
+    let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
+
+    let steam_install_data: RegKey = hkcu.open_subkey("SOFTWARE\\Valve\\Steam").expect("Couldn't get Steam Install Data from the registry");
+    let steam_install_path: String = steam_install_data.get_value("SteamPath").expect("Couldn't get SteamPath from the registry");
+
+    steam_dir = Path::new(&(steam_install_path.replace("\\", "/"))).to_path_buf();
+  } else if platform == "linux" {
+    if home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
+      steam_dir = steam_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
+    } else {
+      steam_dir = steam_dir.join(".steam/steam");
+    }
   } else {
-    steam_dir = steam_dir.join("/.steam");
+    panic!("Steam Art Manager can only be run on linux or windows!");
   }
 
   return steam_dir;
@@ -83,6 +96,23 @@ fn clean_out_log(app_handle: AppHandle) {
 }
 
 #[tauri::command]
+fn get_grids_directory(app_handle: AppHandle) -> String {
+  log_to_file(app_handle.to_owned(), "Getting steam grids folder...".to_owned(), 0);
+  
+  let steam_root = get_steam_root_dir();
+  let steam_active_user_id = get_active_user(app_handle.to_owned());
+  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+}
+
+#[tauri::command]
+fn get_library_cache_directory(app_handle: AppHandle) -> String {
+  log_to_file(app_handle.to_owned(), "Getting steam library cache folder...".to_owned(), 0);
+  
+  let steam_root = get_steam_root_dir();
+  return steam_root.join("appcache/librarycache").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+}
+
+#[tauri::command]
 fn get_active_user(app_handle: AppHandle) -> u32 {
   let platform = env::consts::OS;
 
@@ -97,10 +127,10 @@ fn get_active_user(app_handle: AppHandle) -> u32 {
 
     return active_user_dword;
   } else if platform == "linux" {
-    log_to_file(app_handle.to_owned(), "Checking /steam/config/loginusers.vdf for current user info.".to_owned(), 0);
+    log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.".to_owned(), 0);
     
     let steam_root = get_steam_root_dir();
-    let loginusers_vdf = steam_root.join("/steam/config/loginusers.vdf");
+    let loginusers_vdf = steam_root.join("config/loginusers.vdf");
     let contents = fs::read_to_string(loginusers_vdf).unwrap();
 
     let users = vdf_serde::from_str::<vdf_structs::LoginUsers>(&contents).unwrap().users;
@@ -163,7 +193,7 @@ fn get_steam_apps(app_handle: AppHandle) -> String {
     log_to_file(app_handle.to_owned(), "Checking registry.vdf for steam games.".to_owned(), 0);
 
     let steam_root = get_steam_root_dir();
-    let registry_vdf = steam_root.join("/registry.vdf");
+    let registry_vdf = steam_root.parent().expect("Parent should have existed").join("registry.vdf");
     let contents = fs::read_to_string(registry_vdf).unwrap();
 
     let steam_apps_res = vdf_serde::from_str::<vdf_structs::Registry>(&contents).unwrap().HKCU.Software.Valve.Steam.apps;
@@ -205,7 +235,7 @@ fn get_steam_apps(app_handle: AppHandle) -> String {
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
-    .invoke_handler(tauri::generate_handler![clean_out_log, log_to_file, get_active_user, get_steam_apps])
+    .invoke_handler(tauri::generate_handler![clean_out_log, log_to_file, get_active_user, get_steam_apps, get_grids_directory, get_library_cache_directory])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

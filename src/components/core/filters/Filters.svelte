@@ -42,10 +42,17 @@
 
   <div class="content">
     {#each Object.keys($dbFilters[$artType]) as section}
-      <Accordion label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}" open={true}>
+      <Accordion
+        label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+        open={true}
+      >
         <VerticalSpacer />
         {#each Object.keys($dbFilters[$artType][section]) as filter}
-          <Toggle label="{toUpperCaseSplit(filter)}" checked={$dbFilters[$artType][section][filter]} onChange={updateFilters(section, filter)} />
+          <Toggle
+            label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+            checked={$dbFilters[$artType][section][filter]}
+            onChange={updateFilters(section, filter)}
+          />
           <VerticalSpacer />
         {/each}
       </Accordion>

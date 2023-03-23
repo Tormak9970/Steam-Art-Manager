@@ -23,18 +23,18 @@
 
   /**
    * Function to run when either button is clicked.
-   * @param canceled Whether the cancel button was clicked.
+   * @param saved Whether the cancel button was clicked.
    */
-  const clicked = (canceled: boolean) => {
+  const clicked = (saved: boolean) => {
     toast.pop(toastId);
     toast.push({
-      msg: canceled ? "Canceled" : "Api key saved",
+      msg: saved ? "Api key saved" : "Canceled",
       theme: {
-        "--toastBackground": canceled ? "#04e200" : "#e24a4a",
-        "--toastBarBackground": canceled ? "#039900" : "#e13525",
+        "--toastBackground": saved ? "#04e200" : "#e24a4a",
+        "--toastBarBackground": saved ? "#039900" : "#e13525",
       },
     });
-    if (!canceled) onConfirm();
+    if (!saved) onConfirm();
   };
 
   /**
@@ -64,8 +64,8 @@
   <div style="text-align: center; line-height: 20px; margin-bottom: 7px;">Please enter you steamGridDB api key. Go to <a href="" on:click={openLinkInBrowser}>Steamgrid</a>, sign in and go to preferences, then API.</div>
   <InputField label="Api key" value="" onChange={onChange} width="{220}" />
   <div class="btn-cont">
-    <Button label="Cancel" onClick={() => clicked(true)} width="auto" />
-    <Button label="Save" onClick={() => clicked(false)} highlight={true} disabled={!canSave} width="auto" />
+    <Button label="Cancel" onClick={() => clicked(false)} width="auto" />
+    <Button label="Save" onClick={() => clicked(true)} highlight={true} disabled={!canSave} width="auto" />
   </div>
 </div>
 
