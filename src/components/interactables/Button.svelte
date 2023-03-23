@@ -5,10 +5,11 @@
   export let onClick: (e: MouseEvent) => void;
   export let disabled = false;
   export let highlight = false;
+  export let warn = false;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick}>
   <div>{label}</div>
 </button>
 
@@ -46,11 +47,19 @@
     opacity: 0.7;
   }
 
-  .highlight {
-    background-color: var(--highlight);
-  }
+.highlight {
+  background-color: var(--highlight-dim);
+}
 
-  .highlight:hover {
-    background-color: var(--highlight-hover);
-  }
+.highlight:hover {
+  background-color: var(--highlight-dim-hover);
+}
+
+.warn {
+  background-color: var(--warning);
+}
+
+.warn:hover {
+  background-color: var(--warning-hover);
+}
 </style>

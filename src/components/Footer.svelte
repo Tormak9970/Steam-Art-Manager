@@ -1,18 +1,8 @@
 <script lang="ts">
   import { AppController } from "../lib/controllers/AppController";
-  import { canSave, showConfirmEmptyCacheToast, showSetApiKeyToast } from "../Stores";
+  import { canSave } from "../Stores";
   import Button from "./interactables/Button.svelte";
-    import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
-  
-  /**
-   * Empties the cache.
-   */
-  function emptyCache() { $showConfirmEmptyCacheToast = true; }
-
-  /**
-   * Opens a toast prompting the user to set their steamGridDB api key.
-   */
-  function addSteamGridKey() { $showSetApiKeyToast = true; }
+  import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
 </script>
 
 <div class="footer">
@@ -26,13 +16,13 @@
       <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="20px" />
       <HorizontalSpacer />
     {/if}
-    <Button label="Empty Cache" onClick={emptyCache} width="auto" height="20px" />
+    <Button label="Empty Cache" onClick={AppController.showEmptyCacheToast} width="auto" height="20px" />
     <HorizontalSpacer />
     <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
     <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />
     <HorizontalSpacer />
-    <Button label="Add SteamGrid Key" onClick={addSteamGridKey} width="auto" height="20px" />
+    <Button label="Add SteamGrid Key" onClick={AppController.showApiKeyToast} width="auto" height="20px" />
   </div>
 </div>
 

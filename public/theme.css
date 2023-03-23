@@ -25,8 +25,9 @@
     --foreground-light-hover: #333333;
 
     --highlight: #04e200;
-    --highlight-dim: #039900;
     --highlight-hover: #05FF00;
+    --highlight-dim: #039900;
+    --highlight-dim-hover: #04aa02;
     --warning: #e24a4a;
     --warning-hover: #e13525;
 

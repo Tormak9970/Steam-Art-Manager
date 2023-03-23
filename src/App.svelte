@@ -69,10 +69,11 @@
 		--toastContainerTop: 0.5rem;
 		--toastContainerRight: 0.5rem;
 		--toastContainerBottom: auto;
-		--toastContainerLeft: 0.5rem;
-		--toastWidth: 100%;
+		--toastContainerLeft: calc(50vw - 13rem) !important;
+		--toastBoxShadow: transparent 0px 0px 0px 0px;
+		--toastWidth: 26rem !important;
 		--toastMinHeight: 100px;
-		--toastPadding: 0 0.5rem;
+		--toastPadding: 0 0.5rem !important;
 		font-size: 0.875rem;
 	}
 	@media (min-width: 40rem) {

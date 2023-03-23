@@ -125,6 +125,3 @@ export const dbFilters = writable({
     }
   }
 });
-
-export const showSetApiKeyToast = writable(false);
-export const showConfirmEmptyCacheToast = writable(false);
