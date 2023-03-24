@@ -47,29 +47,37 @@ export class AppController {
     } else {
       AppController.getUserSteamApps();
     }
-
-    
-    const buffer = await fs.readBinaryFile('C:/Users/Tormak/Desktop/appinfo.vdf');
-    const vdf = new Vdf(new Reader(buffer));
-    console.log(vdf);
   }
 
   /**
    * Gets the user's steam apps.
    */
   static async getUserSteamApps(): Promise<void> {
-    const apps = await RustInterop.getSteamApps();
+    const id = ToastController.showLoaderToast("Loading games...");
+    LogController.log("Getting steam games...");
+    const buffer = await fs.readBinaryFile(await RustInterop.getAppinfoPath());
+    const vdf = new Vdf(new Reader(buffer), true);
+    console.log(vdf);
+    ToastController.remLoaderToast(id);
+    ToastController.showSuccessToast("Games Loaded!");
+    LogController.log("Steam games loaded");
 
     const appIsOnline = get(isOnline);
     const needsSgdbKey = get(needsAPIKey);
 
     if (appIsOnline && !needsSgdbKey) {
-      AppController.steamGridController.getAppData(apps);
+      const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory())).map((file) => file.path);
+      console.log(libraryCacheContents);
+      const realGames = vdf.entries.filter((entry) => libraryCacheContents.includes(`${entry.appid}p`));
     } else {
       ToastController.showGenericToast("AppId Blacklist will not be generated.");
       if (!isOnline) LogController.warn("App is offline, not generating blacklist");
       if (needsSgdbKey) LogController.warn("App needs SteamGrid api key, not generating blacklist");
     }
+  }
+
+  static addIdToBlacklist(appId: string): void {
+
   }
 
   /**

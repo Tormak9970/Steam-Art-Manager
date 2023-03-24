@@ -28,15 +28,23 @@ export class RustInterop {
 
   /**
    * Gets the active steam user's grids directory.
-   * @returns A promise resolving to the active steam user's grids directory
+   * @returns A promise resolving to the active steam user's grids directory.
    */
   static async getGridsDirectory(): Promise<string> {
     return await invoke<string>("get_grids_directory", {});
   }
 
   /**
+   * Gets the active steam user's appinfo.vdf path.
+   * @returns A promise resolving to the active steam user's appinfo.vdf path.
+   */
+  static async getAppinfoPath(): Promise<string> {
+    return await invoke<string>("get_appinfo_path", {});
+  }
+
+  /**
    * Gets the active steam user's library cache directory.
-   * @returns A promise resolving to the active steam user's library cache directory
+   * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
     return await invoke<string>("get_library_cache_directory", {});

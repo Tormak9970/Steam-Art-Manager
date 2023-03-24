@@ -1,10 +1,20 @@
 import type { Reader } from "../utils/Reader";
 
+const neededKeys = [
+  "common",
+  "name",
+  "type",
+  "associations",
+  "0"
+];
+
 export class Vdf {
   entries: any[];
+  shouldCutBloat: boolean;
 
-  constructor(reader: Reader) {
+  constructor(reader: Reader, shouldCutBloat: boolean) {
     this.entries = [];
+    this.shouldCutBloat = shouldCutBloat;
     this.read(reader);
   }
 
@@ -34,7 +44,7 @@ export class Vdf {
     while (id != 0x00000000) {
       let entry = this.readAppEntry(reader, id, skip);
   
-      this.entries.push(entry);
+      if ((entry.entries as any).common?.type == "game" || (entry.entries as any).common?.type == "Game" || !this.shouldCutBloat) this.entries.push(entry);
 
       id = reader.readUint32();
     }
@@ -45,6 +55,12 @@ export class Vdf {
   
     const name = reader.readString();
     const entries = this.readEntries(reader);
+
+    if (this.shouldCutBloat) {
+      for (const key of Object.keys(entries)) {
+        if (key != "appid" && key != "common") delete entries[key];
+      }
+    }
   
     return {
       id: id,
@@ -61,7 +77,7 @@ export class Vdf {
     while (type != 0x08) {
       let [key, val] = this.readEntry(reader, type);
   
-      entries[key] = val;
+      if (neededKeys.includes(key) || !this.shouldCutBloat) entries[key] = val
       
       type = reader.readUint8();
     }

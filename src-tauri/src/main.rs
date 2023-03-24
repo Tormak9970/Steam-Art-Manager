@@ -113,6 +113,16 @@ fn get_library_cache_directory(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
+fn get_appinfo_path(app_handle: AppHandle) -> String {
+  log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...".to_owned(), 0);
+  
+  let steam_root = get_steam_root_dir();
+  let appinfo_path: String = steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  // TODO: Add to scope.
+  return appinfo_path;
+}
+
+#[tauri::command]
 fn get_active_user(app_handle: AppHandle) -> u32 {
   let platform = env::consts::OS;
 
@@ -235,7 +245,15 @@ fn get_steam_apps(app_handle: AppHandle) -> String {
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
-    .invoke_handler(tauri::generate_handler![clean_out_log, log_to_file, get_active_user, get_steam_apps, get_grids_directory, get_library_cache_directory])
+    .invoke_handler(tauri::generate_handler![
+      clean_out_log,
+      log_to_file,
+      get_active_user,
+      get_steam_apps,
+      get_grids_directory,
+      get_library_cache_directory,
+      get_appinfo_path
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

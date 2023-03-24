@@ -1,5 +1,6 @@
 import { fs, path } from "@tauri-apps/api";
 import { appCacheDir } from '@tauri-apps/api/path';
+import type { Vdf } from "../models/Vdf";
 
 /**
  * Controller class for handling caching of requests.
@@ -29,13 +30,13 @@ export class CacheController {
     if (!(await fs.exists(this.gridCacheDirPath))) await fs.createDir(this.gridCacheDirPath);
   }
 
-  private addIdToBlacklist(appId: string): void {
-
-  }
-
   //* The page parameter will be useful for pagnation
 
-  async fetchGameInfos(apps: SteamRegistryApp[]): Promise<void> {
+  /**
+   * Caches the appInfo json.
+   * @param appInfo The parsed appInfo data.
+   */
+  async cacheGameInfos(appInfo:Vdf): Promise<void> {
     const games = null;
   }
 
