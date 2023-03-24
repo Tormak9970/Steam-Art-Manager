@@ -23,6 +23,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@petamoriken/float16": "^3.7.1",
     "@tauri-apps/api": "^1.2.0",
     "@zerodevx/svelte-toast": "^0.8.0",
     "jszip": "^3.10.1",

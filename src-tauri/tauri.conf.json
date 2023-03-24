@@ -19,6 +19,7 @@
         "all": true,
         "scope": [
           "$APP/**",
+          "$DESKTOP/**",
           "$RESOURCE/**",
           "$APPCONFIG/**",
           "$DATA/**",
@@ -31,6 +32,7 @@
         "asset": true,
         "assetScope": [
           "$APP/**",
+          "$DESKTOP/**",
           "$RESOURCE/**",
           "$APPCONFIG/**",
           "$DATA/**",

@@ -1,4 +1,4 @@
-import { dialog } from "@tauri-apps/api";
+import { dialog, fs } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -10,6 +10,8 @@ import { toast } from "@zerodevx/svelte-toast";
 import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import { SteamGridController } from "./SteamGridController";
+import { Vdf } from "../models/Vdf";
+import { Reader } from "../utils/Reader";
 
 /**
  * The main controller for the application
@@ -45,6 +47,11 @@ export class AppController {
     } else {
       AppController.getUserSteamApps();
     }
+
+    
+    const buffer = await fs.readBinaryFile('C:/Users/Tormak/Desktop/appinfo.vdf');
+    const vdf = new Vdf(new Reader(buffer));
+    console.log(vdf);
   }
 
   /**
