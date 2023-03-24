@@ -37,7 +37,7 @@
   }
 </script>
 
-<Pane minSize={15}>
+<Pane minSize={15} size={20}>
   <SectionTitle title="Filters" />
 
   <div class="content">

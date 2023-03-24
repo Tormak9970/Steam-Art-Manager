@@ -3,7 +3,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { isOnline, needsAPIKey, steamGridDBKey } from "../../Stores";
+import { appLibraryCache, isOnline, needsAPIKey, steamGames, steamGridDBKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
@@ -42,11 +42,18 @@ export class AppController {
     const appIsOnline = get(isOnline);
     LogController.log(`App initialized. IsOnline: ${appIsOnline}`);
 
+    AppController.getUserSteamApps();
+
     if (get(needsAPIKey)) {
       AppController.showApiKeyToast();
-    } else {
-      AppController.getUserSteamApps();
     }
+  }
+
+  private static setLibraryCache(libraryCacheContents: fs.FileEntry[]) {
+    const res: { [appid: string]: LibraryCacheEntry } = {};
+    // appLibraryCache.set(libraryCacheContents.map(entry => entry.path));
+
+    appLibraryCache.set(res);
   }
 
   /**
@@ -55,29 +62,27 @@ export class AppController {
   static async getUserSteamApps(): Promise<void> {
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
+
     const buffer = await fs.readBinaryFile(await RustInterop.getAppinfoPath());
     const vdf = new Vdf(new Reader(buffer), true);
-    console.log(vdf);
+    
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");
     LogController.log("Steam games loaded");
 
-    const appIsOnline = get(isOnline);
-    const needsSgdbKey = get(needsAPIKey);
+    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
+    AppController.setLibraryCache(libraryCacheContents);
+    const realGames = vdf.entries.filter((entry) => libraryCacheContents.some((file) => file.name.includes(entry.id)));
 
-    if (appIsOnline && !needsSgdbKey) {
-      const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory())).map((file) => file.name);
-      const realGames = vdf.entries.filter((entry) => libraryCacheContents.some((path) => path.includes(entry.id)));
-      // TODO: add removed to blacklist
-      console.log(realGames);
-    } else {
-      ToastController.showGenericToast("AppId Blacklist will not be generated.");
-      if (!isOnline) LogController.warn("App is offline, not generating blacklist");
-      if (needsSgdbKey) LogController.warn("App needs SteamGrid api key, not generating blacklist");
-    }
+    steamGames.set(realGames.map((game) => {
+      return {
+        "appid": game.id,
+        "name": game.entries.common.name
+      } as SteamGame;
+    }));
   }
 
-  static addIdToBlacklist(appId: string): void {
+  static hideGame(appId: string): void {
 
   }
 
@@ -137,9 +142,6 @@ export class AppController {
     toast.push({
       component: {
         src: SetApiKeyToast,
-        props: {
-          "onSave": AppController.getUserSteamApps.bind(AppController),
-        },
         sendIdTo: 'toastId'
       },
       target: "top",

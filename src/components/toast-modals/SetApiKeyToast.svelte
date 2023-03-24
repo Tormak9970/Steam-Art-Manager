@@ -7,18 +7,16 @@
   import InputField from "../interactables/InputField.svelte";
 
   export let toastId: string;
-  export let onSave: () => void;
 
   let canSave = false;
   let key = "";
 
   function onConfirm(): void {
     // TODO: save api key to settings
-    SettingsManager.updateSettings("steamGridDbApiKey", key);
+    SettingsManager.updateSetting<string>("steamGridDbApiKey", key);
     // update state
     $steamGridDBKey = key;
     $needsAPIKey = false;
-    onSave();
   }
 
   /**
@@ -34,7 +32,7 @@
         "--toastBarBackground": saved ? "#039900" : "#e13525",
       },
     });
-    if (!saved) onConfirm();
+    if (saved) onConfirm();
   };
 
   /**

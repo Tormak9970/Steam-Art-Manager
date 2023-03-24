@@ -9,7 +9,4 @@ export class SteamGridController {
 
   }
 
-  async getAppData(app:SteamRegistryApp[]): Promise<void> {
-
-  }
 }

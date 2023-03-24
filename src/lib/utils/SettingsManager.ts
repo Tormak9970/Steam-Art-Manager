@@ -1,4 +1,5 @@
 import { fs, path } from "@tauri-apps/api";
+import { LogController } from "../controllers/LogController";
 
 /**
  * A class for managing application settings
@@ -55,7 +56,7 @@ export class SettingsManager {
       }
 
       settings.version = __APP_VERSION__;
-      await SettingsManager.updateSettings("version", __APP_VERSION__);
+      await SettingsManager.updateSetting("version", __APP_VERSION__);
     }
     
     return settings;
@@ -66,7 +67,7 @@ export class SettingsManager {
    * @param prop The setting to update.
    * @param val The new value.
    */
-  static async updateSettings<T>(prop: string, val: T) {
+  static async updateSetting<T>(prop: string, val: T) {
     const settingsData = await fs.readTextFile(SettingsManager.settingsPath);
 
     const settings = JSON.parse(settingsData);
@@ -76,5 +77,7 @@ export class SettingsManager {
       path: SettingsManager.settingsPath,
       contents: JSON.stringify(settings),
     });
+
+    LogController.log(`Updated setting ${prop} to ${val}.`);
   }
 }
