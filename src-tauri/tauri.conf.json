@@ -24,7 +24,8 @@
           "$APPCONFIG/**",
           "$DATA/**",
           "$APPLOG/**",
-          "$APPCACHE/**"
+          "$APPCACHE/**",
+          "**"
         ]
       },
       "protocol": {
@@ -37,7 +38,8 @@
           "$APPCONFIG/**",
           "$DATA/**",
           "$APPLOG/**",
-          "$APPCACHE/**"
+          "$APPCACHE/**",
+          "**"
         ]
       },
       "shell": {

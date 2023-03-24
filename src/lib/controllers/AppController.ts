@@ -68,7 +68,8 @@ export class AppController {
     if (appIsOnline && !needsSgdbKey) {
       const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory())).map((file) => file.path);
       console.log(libraryCacheContents);
-      const realGames = vdf.entries.filter((entry) => libraryCacheContents.includes(`${entry.appid}p`));
+      const realGames = vdf.entries.filter((entry) => libraryCacheContents.some((path) => path.includes(entry.appid)));
+      console.log(realGames);
     } else {
       ToastController.showGenericToast("AppId Blacklist will not be generated.");
       if (!isOnline) LogController.warn("App is offline, not generating blacklist");
