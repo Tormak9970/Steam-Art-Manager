@@ -117,9 +117,7 @@ fn get_appinfo_path(app_handle: AppHandle) -> String {
   log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...".to_owned(), 0);
   
   let steam_root = get_steam_root_dir();
-  let appinfo_path: String = steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
-  // TODO: Add to scope.
-  return appinfo_path;
+  return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]

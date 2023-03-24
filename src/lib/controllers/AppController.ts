@@ -66,9 +66,9 @@ export class AppController {
     const needsSgdbKey = get(needsAPIKey);
 
     if (appIsOnline && !needsSgdbKey) {
-      const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory())).map((file) => file.path);
-      console.log(libraryCacheContents);
-      const realGames = vdf.entries.filter((entry) => libraryCacheContents.some((path) => path.includes(entry.appid)));
+      const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory())).map((file) => file.name);
+      const realGames = vdf.entries.filter((entry) => libraryCacheContents.some((path) => path.includes(entry.id)));
+      // TODO: add removed to blacklist
       console.log(realGames);
     } else {
       ToastController.showGenericToast("AppId Blacklist will not be generated.");
