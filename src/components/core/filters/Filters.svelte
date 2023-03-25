@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Pane } from "svelte-splitpanes";
-  import { artType, dbFilters } from "../../../Stores";
+  import { gridType, dbFilters } from "../../../Stores";
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -16,7 +16,7 @@
     return (value: boolean) => {
       const filters = $dbFilters;
 
-      filters[$artType][section][filter] = value;
+      filters[$gridType][section][filter] = value;
 
       $dbFilters = {...filters};
       console.log($dbFilters);
@@ -41,16 +41,16 @@
   <SectionTitle title="Filters" />
 
   <div class="content">
-    {#each Object.keys($dbFilters[$artType]) as section}
+    {#each Object.keys($dbFilters[$gridType]) as section}
       <Accordion
         label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
         open={true}
       >
         <VerticalSpacer />
-        {#each Object.keys($dbFilters[$artType][section]) as filter}
+        {#each Object.keys($dbFilters[$gridType][section]) as filter}
           <Toggle
             label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-            checked={$dbFilters[$artType][section][filter]}
+            checked={$dbFilters[$gridType][section][filter]}
             onChange={updateFilters(section, filter)}
           />
           <VerticalSpacer />

@@ -20,9 +20,9 @@
     --background: #1a1a1a;
     --background-hover: #1f1f1f;
     --foreground: #252525;
-		/* --foreground-hover: #2c2c2c; */
-    --foreground-light: #303030;
-    --foreground-light-hover: #333333;
+		--foreground-hover: #303030;
+    --foreground-light: #3d3d3d;
+    --foreground-light-hover: #474747;
 
     --highlight: #04e200;
     --highlight-hover: #05FF00;

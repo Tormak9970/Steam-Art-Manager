@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 
-export enum ArtTypes {
+export enum GridTypes {
   GRIDS="Grids",
   HEROS="Heros",
   LOGOS="Logos",
@@ -9,7 +9,7 @@ export enum ArtTypes {
 
 export const needsAPIKey = writable(true);
 export const canSave = writable(false);
-export const artType:Writable<ArtTypes> = writable(ArtTypes.GRIDS);
+export const gridType:Writable<GridTypes> = writable(GridTypes.GRIDS);
 
 export const isOnline = writable(false);
 export const activeUserId = writable(0);
@@ -18,6 +18,8 @@ export const steamGames:Writable<SteamGame[]> = writable([]);
 export const hiddenGames:Writable<SteamGame[]> = writable([]);
 
 export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
+
+export const selectedGameAppId: Writable<string> = writable(null);
 
 export const dbFilters = writable({
   "Grids": {
