@@ -13,7 +13,14 @@ import { SteamGridController } from "./SteamGridController";
 import { Vdf } from "../models/Vdf";
 import { Reader } from "../utils/Reader";
 
-const typeLUT = {
+const gridTypeLUT = {
+  "grid": GridTypes.GRIDS,
+  "hero": GridTypes.HEROS,
+  "icon": GridTypes.ICONS,
+  "logo": GridTypes.LOGOS
+}
+
+const libraryCacheLUT = {
   "library_600x900": GridTypes.GRIDS,
   "library_hero": GridTypes.HEROS,
   "icon": GridTypes.ICONS,
@@ -55,27 +62,54 @@ export class AppController {
       AppController.showApiKeyToast();
     }
   }
+  
+  /**
+   * Filters and structures the library grids based on the app's needs.
+   * @param gridsDirContents The contents of the grids dir.
+   * @returns The filtered and structured grids dir.
+   */
+  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): { [appid: string]: LibraryCacheEntry } {
+    let resKeys = [];
+    const res: { [appid: string]: LibraryCacheEntry } = {};
+
+    for (const fileEntry of gridsDirContents) {
+      const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
+      const appId = fileEntry.name.substring(0, firstUnderscore);
+      const type = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf(".")) : "grid";
+
+      if (gridTypeLUT[type]) {
+        if (!resKeys.includes(appId)) {
+          resKeys.push(appId);
+          res[appId] = {} as LibraryCacheEntry;
+        }
+        res[appId][gridTypeLUT[type]] = fileEntry.path;
+      }
+    }
+
+    return res;
+  }
 
   /**
    * Filters and structures the library cache based on the app's needs.
    * @param libraryCacheContents The contents of the library cache.
+   * @param gridsInfos The filtered grid infos.
    * @returns The filtered and structured library cache.
    */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[]): { [appid: string]: LibraryCacheEntry } {
-    let resKeys = [];
-    const res: { [appid: string]: LibraryCacheEntry } = {};
+  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }): { [appid: string]: LibraryCacheEntry } {
+    let resKeys = Object.keys(gridsInfos);
+    const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
     for (const fileEntry of libraryCacheContents) {
       const firstUnderscore = fileEntry.name.indexOf("_");
       const appId = fileEntry.name.substring(0, firstUnderscore);
       const type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
 
-      if (typeLUT[type]) {
+      if (libraryCacheLUT[type]) {
         if (!resKeys.includes(appId)) {
           resKeys.push(appId);
           res[appId] = {} as LibraryCacheEntry;
         }
-        res[appId][typeLUT[type]] = fileEntry.path;
+        if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
       }
     }
 
@@ -98,8 +132,11 @@ export class AppController {
     ToastController.showSuccessToast("Games Loaded!");
     LogController.log("Steam games loaded");
 
+    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
+    const filteredGrids = AppController.filterGridsDir(gridDirContents);
+
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents);
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);

@@ -13,7 +13,6 @@
     $tabsDict[tabsId] = tabStore;
 
     $tabsDict = {...$tabsDict};
-    console.log($tabsDict)
   });
 </script>
 
