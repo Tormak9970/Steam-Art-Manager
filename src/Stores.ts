@@ -10,16 +10,17 @@ export enum GridTypes {
 export const needsAPIKey = writable(true);
 export const canSave = writable(false);
 export const gridType:Writable<GridTypes> = writable(GridTypes.GRIDS);
+export const showHidden = writable(false);
 
 export const isOnline = writable(false);
 export const activeUserId = writable(0);
 export const steamGridDBKey = writable("");
 export const steamGames:Writable<SteamGame[]> = writable([]);
-export const hiddenGames:Writable<SteamGame[]> = writable([]);
+export const hiddenGameIds:Writable<number[]> = writable([]);
 
 export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
-export const selectedGameAppId: Writable<string> = writable(null);
+export const selectedGameAppId: Writable<number> = writable(null);
 
 export const dbFilters = writable({
   "Grids": {

@@ -3,7 +3,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, isOnline, needsAPIKey, steamGames, steamGridDBKey } from "../../Stores";
+import { GridTypes, appLibraryCache, hiddenGameIds, isOnline, needsAPIKey, steamGames, steamGridDBKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
@@ -45,6 +45,8 @@ export class AppController {
       steamGridDBKey.set(settings.steamGridDbApiKey);
       needsAPIKey.set(false);
     }
+
+    hiddenGameIds.set(settings.hiddenGameIds);
   }
 
   /**
@@ -147,11 +149,7 @@ export class AppController {
         "appid": game.id,
         "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
       } as SteamGame;
-    }));
-  }
-
-  static hideGame(appId: string): void {
-
+    }).sort((gameA, gameB) => gameA.name.localeCompare(gameB.name)));
   }
 
   /**

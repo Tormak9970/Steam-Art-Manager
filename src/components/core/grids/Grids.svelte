@@ -6,10 +6,6 @@
   import Tabs from "../../layout/tabs/Tabs.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
-
-  onMount(() => {
-    gridType.subscribe(type => console.log(type));
-  })
 </script>
 
 <Pane minSize={20}>
