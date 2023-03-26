@@ -22,6 +22,7 @@ chrono = "0.4.23"
 winreg = "0.11"
 home = "0.5.4"
 vdf-serde = "0.3.0"
+zip = "0.6.4"
 
 [features]
 # by default Tauri runs in production mode

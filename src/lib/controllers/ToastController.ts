@@ -20,6 +20,14 @@ export class ToastController {
     };
   }
 
+  private static getWarningToastTheme(): any {
+    return {
+      "--toastBackground": "#e24a4a",
+      "--toastBarBackground": "#e13525",
+      "--toastColor": "rgb(231, 231, 231)",
+    };
+  }
+
   /**
    * Creates and displays a new loading toast with the provided message.
    * @param msg The message to show.
@@ -48,6 +56,18 @@ export class ToastController {
   static showSuccessToast(msg: string): void {
     toast.push(msg, {
       theme: ToastController.getSuccessToastTheme(),
+      dismissable: false,
+      duration: 1500,
+    });
+  }
+
+  /**
+   * Creates and displays a new warning toast with the provided message.
+   * @param msg The message to show.
+   */
+  static showWarningToast(msg: string): void {
+    toast.push(msg, {
+      theme: ToastController.getWarningToastTheme(),
       dismissable: false,
       duration: 1500,
     });

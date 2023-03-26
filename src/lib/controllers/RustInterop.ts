@@ -66,4 +66,20 @@ export class RustInterop {
     const res = await invoke<string>("get_steam_apps", {});
     return JSON.parse(res);
   }
+
+  /**
+   * Exports the active user's grids to a zip file.
+   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   */
+  static async exportGridsToZip(): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", {});
+  }
+
+  /**
+   * Imports the active user's grids from a zip file.
+   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   */
+  static async importGridsFromZip(): Promise<boolean> {
+    return await invoke<boolean>("import_grids_from_zip", {});
+  }
 }

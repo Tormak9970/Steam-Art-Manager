@@ -170,12 +170,31 @@ export class AppController {
     LogController.log("Discarded changes.");
   }
 
+  /**
+   * Prompts the user to select a .zip file containing steam game art.
+   */
   static async importGrids(): Promise<void> {
+    const succeeded = await RustInterop.importGridsFromZip();
 
+    if (succeeded) {
+      ToastController.showSuccessToast("Import successful!");
+      //TODO: reload images and empty cache.
+    } else {
+      ToastController.showWarningToast("Cancelled.");
+    }
   }
 
+  /**
+   * Exports the user's grids directory to a .zip file and prompts them to save.
+   */
   static async exportGrids(): Promise<void> {
+    const succeeded = await RustInterop.exportGridsToZip();
 
+    if (succeeded) {
+      ToastController.showSuccessToast("Export successful!");
+    } else {
+      ToastController.showWarningToast("Cancelled.");
+    }
   }
 
   static async emptyCache(): Promise<void> {

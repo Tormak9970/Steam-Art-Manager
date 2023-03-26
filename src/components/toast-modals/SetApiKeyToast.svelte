@@ -1,6 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell"
   import { toast } from "@zerodevx/svelte-toast";
+    import { ToastController } from "../../lib/controllers/ToastController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import { needsAPIKey, steamGridDBKey } from "../../Stores";
   import Button from "../interactables/Button.svelte";
@@ -25,13 +26,11 @@
    */
   const clicked = (saved: boolean) => {
     toast.pop(toastId);
-    toast.push({
-      msg: saved ? "Api key saved" : "Canceled",
-      theme: {
-        "--toastBackground": saved ? "#04e200" : "#e24a4a",
-        "--toastBarBackground": saved ? "#039900" : "#e13525",
-      },
-    });
+    if (saved) {
+      ToastController.showSuccessToast("Api key saved!");
+    } else {
+      ToastController.showWarningToast("Cancelled.")
+    }
     if (saved) onConfirm();
   };
 
