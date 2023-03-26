@@ -19,7 +19,8 @@ use tauri::{AppHandle, api::dialog::blocking::FileDialogBuilder};
 async fn export_grids_to_zip(app_handle: AppHandle) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
-    .set_file_name("Steam_Grids_Export")
+    .set_file_name("Steam_Grids_Export.zip")
+    .add_filter("zip", &["zip"])
     .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
 
   let file_path = file_dialog.save_file();
@@ -48,7 +49,7 @@ async fn export_grids_to_zip(app_handle: AppHandle) -> bool {
 async fn import_grids_from_zip(app_handle: AppHandle) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
-    .add_filter("zip", &[".zip"])
+    .add_filter("zip", &["zip"])
     .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
 
   let file_path = file_dialog.pick_file();

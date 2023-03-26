@@ -5,6 +5,7 @@ use std::{path::PathBuf, io::{BufReader, self, Write}, fs::{File, read_dir, read
 use tauri::AppHandle;
 use zip;
 
+#[allow(unused)]
 pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
@@ -16,10 +17,9 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
     let entry = dir_entry.expect("Should have been able to get directory entry.");
 
     if entry.file_type().unwrap().is_file() {
-      let name = entry.file_name().to_str().unwrap();
       let contents = read(entry.path()).expect("Should have been able to read file, but couldn't.");
 
-      zip_writer.start_file(name, entry_options);
+      zip_writer.start_file(entry.file_name().to_str().unwrap(), entry_options);
       zip_writer.write(&contents);
       logger::log_to_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
     } else {
