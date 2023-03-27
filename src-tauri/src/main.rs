@@ -3,13 +3,16 @@
   windows_subsystem = "windows"
 )]
 
+mod reader;
 mod vdf_structs;
 mod logger;
 mod steam;
 mod zip_controller;
+mod appinfo_vdf_parser;
 
 use std::path::PathBuf;
 
+use appinfo_vdf_parser::read_vdf;
 use home::home_dir;
 
 use tauri::{AppHandle, api::dialog::blocking::FileDialogBuilder};
@@ -74,6 +77,13 @@ async fn import_grids_from_zip(app_handle: AppHandle) -> bool {
   }
 }
 
+#[tauri::command]
+async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
+  let appinfo_path = PathBuf::from(steam::get_appinfo_path(app_handle));
+  let appinfo_vdf = read_vdf(&appinfo_path);
+  return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
+}
+
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
@@ -86,7 +96,8 @@ fn main() {
       steam::get_library_cache_directory,
       steam::get_appinfo_path,
       export_grids_to_zip,
-      import_grids_from_zip
+      import_grids_from_zip,
+      read_appinfo_vdf
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

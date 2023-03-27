@@ -26,9 +26,9 @@ export class Vdf {
     
     let skip = 0;
     const magic = reader.readUint32();
-    if(magic == 0x07564428) {
+    if (magic == 0x07564428) {
       skip = 65;
-    } else if(magic == 0x07564427) {
+    } else if (magic == 0x07564427) {
       skip = 45;
     } else {
       throw new Error("Magic header is unknown");

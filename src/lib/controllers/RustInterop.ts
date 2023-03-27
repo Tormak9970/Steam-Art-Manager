@@ -82,4 +82,12 @@ export class RustInterop {
   static async importGridsFromZip(): Promise<boolean> {
     return await invoke<boolean>("import_grids_from_zip", {});
   }
+
+  /**
+   * Imports the active user's grids from a zip file.
+   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   */
+  static async readAppinfoVdf(): Promise<any> {
+    return JSON.parse(await invoke<string>("read_appinfo_vdf", {}));
+  }
 }

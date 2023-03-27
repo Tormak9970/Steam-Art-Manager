@@ -127,8 +127,7 @@ export class AppController {
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
 
-    const buffer = await fs.readBinaryFile(await RustInterop.getAppinfoPath());
-    const vdf = new Vdf(new Reader(buffer), true);
+    const vdf = await RustInterop.readAppinfoVdf();
     
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");
@@ -149,7 +148,7 @@ export class AppController {
         "appid": game.id,
         "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
       } as SteamGame;
-    }).sort((gameA, gameB) => gameA.name.localeCompare(gameB.name)));
+    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name)));
   }
 
   /**
