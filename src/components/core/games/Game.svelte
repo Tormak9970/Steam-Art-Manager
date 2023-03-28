@@ -61,8 +61,8 @@
     {/if}
   </div>
   <div class="img" style="height: {heights[$gridType]}px;">
-    <Lazy height="{heights[$gridType]}px" offset={0} fadeOption={{delay: 500, duration: 1000}}>
-      <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto; content-visibility: auto;" /> <!-- loading="lazy" decoding="async" -->
+    <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+      <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
     </Lazy>
   </div>
   <div class="name">{game.name}</div>
@@ -88,12 +88,24 @@
     cursor: pointer;
 
     user-select: none;
+
+    transition: transform 0.2s ease-in-out;
   }
-  .game:hover { background-color: var(--foreground-hover); }
+  .game:hover {
+    background-color: var(--foreground-hover);
+    transform: scale(1.1);
+  }
 
-  .img { border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .img {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-  .selected { background-color: var(--foreground-light-hover); }
+  .selected {
+    background-color: var(--foreground-light-hover);
+    transform: scale(1.1);
+  }
   .selected:hover { background-color: var(--foreground-light-hover); }
 
   .name {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
-    import type { Unsubscriber } from "svelte/store";
+  import type { Unsubscriber } from "svelte/store";
   import { gridType, hiddenGameIds, showHidden, steamGames } from "../../../Stores";
   import Toggle from "../../interactables/Toggle.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -59,6 +59,9 @@
   </div>
 
   <div class="content">
+    <VerticalSpacer />
+    <VerticalSpacer />
+
     {#if $steamGames.length == 0}
       <!-- TODO: loading spinner -->
     {:else}
@@ -70,6 +73,7 @@
     {/if}
     
     <VerticalSpacer />
+    <VerticalSpacer />
   </div>
 </Pane>
 
@@ -80,8 +84,9 @@
   }
   .content {
     margin: 0px 6px;
+    padding: 0px 6px;
     overflow: auto;
-    max-height: calc(100% - 45px)
+    max-height: calc(100% - 65px)
   }
 
   .game-grid {
@@ -89,7 +94,7 @@
     display: grid;
     
     grid-template-columns: repeat(auto-fill, var(--img-width));
-    gap: 10px;
+    gap: 15px;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
   }
