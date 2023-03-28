@@ -1,7 +1,9 @@
 <script lang="ts">
   import { tauri } from "@tauri-apps/api"
   import { onDestroy, onMount } from "svelte";
-    import type { Unsubscriber } from "svelte/store";
+  import type { Unsubscriber } from "svelte/store";
+  import Lazy from "svelte-lazy";
+
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { appLibraryCache, gridType, hiddenGameIds, selectedGameAppId } from "../../../Stores";
 
@@ -59,7 +61,9 @@
     {/if}
   </div>
   <div class="img" style="height: {heights[$gridType]}px;">
-    <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+    <Lazy height="{heights[$gridType]}px" offset={0} fadeOption={{delay: 500, duration: 1000}}>
+      <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto; content-visibility: auto;" /> <!-- loading="lazy" decoding="async" -->
+    </Lazy>
   </div>
   <div class="name">{game.name}</div>
 </div>
