@@ -66,7 +66,7 @@
       <!-- TODO: loading spinner -->
     {:else}
       <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-        {#each games as game, i (`${i}|${game.appid}`)}
+        {#each games as game, i (`${game.appid}`)}
           <Game game={game} widths={widths} heights={heights} />
         {/each}
       </div>
@@ -93,9 +93,12 @@
     width: 100%;
     display: grid;
     
-    grid-template-columns: repeat(auto-fill, var(--img-width));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, var(--img-width));
+    row-gap: 15px;
+    column-gap: 30px;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
+
+    justify-content: center;
   }
 </style>
