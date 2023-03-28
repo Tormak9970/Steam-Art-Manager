@@ -28,7 +28,7 @@
 <div data-tauri-drag-region class="titlebar">
   <div class="info">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px;" />
-    <div style="margin-left: 8px; margin-right: 30px;">{title}</div>
+    <div style="margin-left: 8px; margin-right: 30px;">{title} - v{__APP_VERSION__}</div>
   </div>
   <div class="btns">
     <div bind:this={minimize} class="titlebar-button" id="titlebar-minimize">
