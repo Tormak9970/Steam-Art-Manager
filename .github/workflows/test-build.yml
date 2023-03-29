@@ -94,7 +94,7 @@ jobs:
         run: echo "WINDOWS_SIG=${{ steps.readWindows.output.content }}" >> $GITHUB_ENV
 
       - name: WriteGist
-        if: $LINUX_SIG != "" && $WINDOWS_SIG != ""
+        if: matrix.platform == 'windows-latest'
         uses: sergeysova/gist-write-action@v1
         with:
           gist_id: a72aa3b7232033772d80b0ed86303f01
