@@ -67,7 +67,7 @@
         "../settings.json"
       ],
       "shortDescription": "A simple tool for setting the artwork of your Steam library.",
-      "targets": [ "appimage", "msi" ],
+      "targets": [ "appimage", "msi", "updater" ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
@@ -88,7 +88,7 @@
         "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}"
       ],
       "dialog": true,
-      "pubkey": "YOUR_UPDATER_SIGNATURE_PUBKEY_HERE"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5MjkxNENCMzBFNUU1Q0IKUldUTDVlVXd5eFFwT1NKbURvMVRRL01CanBFelpqdmZmZDNqeXdKZDdyTWZGbzIwVDdSTzM3MjgK"
     },
     "windows": [
       {

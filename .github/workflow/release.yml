@@ -54,6 +54,8 @@ jobs:
       - name: Changelog
         uses: scottbrenner/generate-changelog-action@master
         id: Changelog
+        with:
+          exclude: ["build"]
 
       - name: Read linux release sig
         if: matrix.platform == 'ubuntu-20.04'
@@ -62,8 +64,9 @@ jobs:
         with:
           path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
       
-      - name: 
-        run: echo "LINUX_SIG=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+      - name: Set linux sig
+        if: matrix.platform == 'ubuntu-20.04'
+        run: echo "LINUX_SIG=${{ steps.readLinux.output.content }}" >> $GITHUB_ENV
       
       - name: Read windows release sig
         if: matrix.platform == 'windows-latest'
@@ -71,8 +74,13 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
+        
+      - name: Set windows sig
+        if: matrix.platform == 'windows-latest'
+        run: echo "WINDOWS_SIG=${{ steps.readWindows.output.content }}" >> $GITHUB_ENV
 
       - name: WriteGist
+        if: $LINUX_SIG != "" && $WINDOWS_SIG != ""
         uses: sergeysova/gist-write-action@v1
         with:
           gist_id: a72aa3b7232033772d80b0ed86303f01
@@ -84,11 +92,11 @@ jobs:
               "pub_date": "2020-06-22T19:25:57Z",
               "platforms": {
                 "linux-x86_64": {
-                  "signature": "${{ steps.readLinux.output.content }}",
+                  "signature": "$LINUX_SIG",
                   "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.AppImage.tar.gz"
                 },
                 "windows-x86_64": {
-                  "signature": "${{ steps.readWindows.output.content }}",
+                  "signature": "$WINDOWS_SIG",
                   "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.msi.zip"
                 }
               }
