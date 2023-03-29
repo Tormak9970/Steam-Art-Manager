@@ -1,5 +1,5 @@
 # Steam Art Manager
-A simple tool for setting the artwork of your Steam library.
+A tool for setting the artwork of your Steam library.
 
 ![Steam Art Manager's Main UI](public/main-ui.png)
 
