@@ -1,5 +1,8 @@
 import { invoke } from "@tauri-apps/api";
 
+/**
+ * The available logging levels.
+ */
 export enum LogLevel {
   INFO,
   WARN,
@@ -8,6 +11,7 @@ export enum LogLevel {
 
 /**
  * Handles wrapping ipc communication into an easy to use JS bindings.
+ * ! Should do no logging here.
  */
 export class RustInterop {
   /**

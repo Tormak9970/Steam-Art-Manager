@@ -36,6 +36,7 @@ export class AppController {
 
   /**
    * Sets up the AppController.
+   * ? Logging complete.
    */
   static async setup(): Promise<void> {
     await SettingsManager.setSettingsPath();
@@ -47,16 +48,18 @@ export class AppController {
     }
 
     hiddenGameIds.set(settings.hiddenGameIds);
+    LogController.log("App setup complete.");
   }
 
   /**
    * Sets up the AppController.
+   * ? Logging complete.
    */
   static async init(): Promise<void> {
     await LogController.cleanLogFile();
 
     const appIsOnline = get(isOnline);
-    LogController.log(`App initialized. IsOnline: ${appIsOnline}`);
+    LogController.log(`App initialized. IsOnline: ${appIsOnline}.`);
 
     AppController.getUserSteamApps();
 
@@ -69,6 +72,7 @@ export class AppController {
    * Filters and structures the library grids based on the app's needs.
    * @param gridsDirContents The contents of the grids dir.
    * @returns The filtered and structured grids dir.
+   * ? Logging complete.
    */
   private static filterGridsDir(gridsDirContents: fs.FileEntry[]): { [appid: string]: LibraryCacheEntry } {
     let resKeys = [];
@@ -101,6 +105,7 @@ export class AppController {
    * @param libraryCacheContents The contents of the library cache.
    * @param gridsInfos The filtered grid infos.
    * @returns The filtered and structured library cache.
+   * ? Logging complete.
    */
   private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }): { [appid: string]: LibraryCacheEntry } {
     let resKeys = Object.keys(gridsInfos);
@@ -127,22 +132,22 @@ export class AppController {
 
   /**
    * Gets the user's steam apps.
+   * ? Logging complete.
    */
   static async getUserSteamApps(): Promise<void> {
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
 
     const vdf = await RustInterop.readAppinfoVdf();
-    
-    ToastController.remLoaderToast(id);
-    ToastController.showSuccessToast("Games Loaded!");
-    LogController.log("Steam games loaded");
 
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
     const filteredGrids = AppController.filterGridsDir(gridDirContents);
+    LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
     const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
+    LogController.log("Library Cache loaded.");
+
     originalAppLibraryCache.set(filteredCache);
     appLibraryCache.set(filteredCache);
 
@@ -155,10 +160,15 @@ export class AppController {
         "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
       } as SteamGame;
     }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name)));
+    
+    ToastController.remLoaderToast(id);
+    ToastController.showSuccessToast("Games Loaded!");
+    LogController.log("Steam games loaded.");
   }
 
   /**
    * Saves the current changes
+   * ? Logging complete.
    */
   static async saveChanges(): Promise<void> {
     
@@ -168,6 +178,7 @@ export class AppController {
 
   /**
    * Discards the current changes
+   * ? Logging complete.
    */
   static async discardChanges(): Promise<void> {
     appLibraryCache.set(get(originalAppLibraryCache));
@@ -176,6 +187,11 @@ export class AppController {
   }
 
 
+  /**
+   * Sets the provided art for the current game and grid type.
+   * @param path The path of the new art.
+   * ? Logging complete.
+   */
   static async setCustomArt(path: string): Promise<void> {
     const selectedGameId = get(selectedGameAppId);
     const selectedGridType = get(gridType);
@@ -190,60 +206,77 @@ export class AppController {
 
   /**
    * Prompts the user to select a .zip file containing steam game art.
+   * ? Logging complete.
    */
   static async importGrids(): Promise<void> {
+    LogController.log("Prompting user to grids.");
     const succeeded = await RustInterop.importGridsFromZip();
-    // TODO: reload appCache
 
     if (succeeded) {
       ToastController.showSuccessToast("Import successful!");
-      //TODO: reload images and empty cache.
+      LogController.log("Successfully imported user's grids.");
+      //TODO: reload app cache.
     } else {
       ToastController.showWarningToast("Cancelled.");
+      LogController.log("Import grids cancelled.");
     }
   }
 
   /**
    * Exports the user's grids directory to a .zip file and prompts them to save.
+   * ? Logging complete.
    */
   static async exportGrids(): Promise<void> {
+    LogController.log("Prompting user to export.");
     const succeeded = await RustInterop.exportGridsToZip();
 
     if (succeeded) {
       ToastController.showSuccessToast("Export successful!");
+      LogController.log("Successfully exported user's grids.");
     } else {
       ToastController.showWarningToast("Cancelled.");
+      LogController.log("Export grids cancelled.");
     }
   }
 
+  /**
+   * Empties the SteamGridDB cache.
+   */
   static async emptyCache(): Promise<void> {
     
   }
 
   /**
    * Function run on app closing/refreshing.
+   * ? Logging complete.
    */
   static onDestroy(): void {
-    
+    LogController.log("App destroyed.");
   }
 
   /**
    * Checks if the app can go online, goes online if so, otherwise notifies the user.
+   * ? Logging complete.
    */
   static async tryGoOnline(): Promise<void> {
+    LogController.log("Attempting to go online...");
     if (navigator.onLine) {
       isOnline.set(true);
       ToastController.showSuccessToast("Now Online!");
+      LogController.log("Attempted succeeded. Now online.")
     } else {
       ToastController.showWarningToast("Can't go online.");
+      LogController.log("Attempt failed. Continuing in offline mode.");
     }
   }
 
   /**
    * Prompts the user to decide if they want to continue offline.
    * @returns A promise resolving to the user's decisions.
+   * ? Logging complete.
    */
   static async promptOffline(): Promise<boolean> {
+    LogController.log("Notifying user that they are offline...");
     return await dialog.ask("You are offline. Steam Art Manager won't work properly/fully. Do you want to continue?", {
       title: "No Internet Connection",
       type: "warning"
@@ -252,8 +285,10 @@ export class AppController {
 
   /**
    * Shows a toast prompting the user to set their steamgrid api key.
+   * ? Logging complete.
    */
   static showApiKeyToast(): void {
+    LogController.log("Showing setApiKey toast.");
     // @ts-ignore
     toast.push({
       component: {
@@ -274,8 +309,10 @@ export class AppController {
 
   /**
    * Shows the empty cache confirm toast.
+   * ? Logging complete.
    */
   static showEmptyCacheToast(): void {
+    LogController.log("Showing confirmEmptyCache toast.");
     // @ts-ignore
     toast.push({
       component: {

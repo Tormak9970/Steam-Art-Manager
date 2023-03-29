@@ -2,6 +2,7 @@ import { LogLevel, RustInterop } from "./RustInterop";
 
 /**
  * Controller that handles all logging done by the app.
+ * ! Should do no logging here.
  */
 export class LogController {
   /**
