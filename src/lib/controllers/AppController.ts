@@ -182,9 +182,12 @@ export class AppController {
    */
   static async saveChanges(): Promise<void> {
     LogController.log("Saving changes...");
-    const res = await RustInterop.saveChanges(get(appLibraryCache), get(originalAppLibraryCache));
+
+    const originalCache = get(originalAppLibraryCache);
+    const res = await RustInterop.saveChanges(get(appLibraryCache), originalCache);
     
     if (res) {
+      appLibraryCache.set(originalCache)
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     } else {
@@ -263,7 +266,10 @@ export class AppController {
    * Empties the SteamGridDB cache.
    */
   static async emptyCache(): Promise<void> {
-    
+    LogController.log("Clearing cache...");
+    await AppController.cacheController.invalidateCache();
+    LogController.log("Cleared cache.");
+    ToastController.showSuccessToast("Cache cleared!");
   }
 
   /**

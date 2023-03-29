@@ -40,7 +40,7 @@ export class CacheController {
     const games = null;
   }
 
-  invalidateCache(): void {
+  async invalidateCache(): Promise<void> {
 
   }
 
