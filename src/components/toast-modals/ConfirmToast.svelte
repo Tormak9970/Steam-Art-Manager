@@ -1,24 +1,26 @@
 <script lang="ts">
-    import { toast } from "@zerodevx/svelte-toast";
-    import Button from "../interactables/Button.svelte";
+  import { toast } from "@zerodevx/svelte-toast";
+  import { ToastController } from "../../lib/controllers/ToastController";
+  import { onlyOnKey } from "../../lib/utils/Utils";
+  import Button from "../interactables/Button.svelte";
 
-    export let toastId: string;
-    export let message: string;
-    export let confirmMessage: string;
-    export let onConfirm: () => void;
+  export let toastId: string;
+  export let message: string;
+  export let confirmMessage: string;
+  export let onConfirm: () => void;
 
-    const clicked = (canceled: boolean) => {
-      toast.pop(toastId);
-      toast.push({
-        msg: canceled ? "Canceled" : confirmMessage,
-        theme: {
-          "--toastBackground": canceled ? "#04e200" : "#e24a4a",
-          "--toastBarBackground": canceled ? "#039900" : "#e13525",
-        },
-      });
-      if (!canceled) onConfirm();
-    };
+  const clicked = (saved: boolean) => {
+    toast.pop(toastId);
+    if (saved) {
+      ToastController.showWarningToast(confirmMessage);
+    } else {
+      ToastController.showSuccessToast("Cancelled.")
+    }
+    if (saved) onConfirm();
+  };
 </script>
+
+<svelte:window on:keyup={onlyOnKey("Escape", () => clicked(false))} />
 
 <div class="comfirm-toast">
   <div style="text-align: center; line-height: 20px;">{message}</div>

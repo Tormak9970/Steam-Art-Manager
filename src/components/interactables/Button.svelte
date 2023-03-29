@@ -40,6 +40,7 @@
 
   .button:focus {
     border: 1px solid var(--highlight);
+    outline: none;
   }
 
   .disabled {
@@ -47,19 +48,19 @@
     opacity: 0.7;
   }
 
-.highlight {
-  background-color: var(--highlight-dim);
-}
+  .highlight {
+    background-color: var(--highlight-dim);
+  }
 
-.highlight:hover {
-  background-color: var(--highlight-dim-hover);
-}
+  .highlight:hover {
+    background-color: var(--highlight-dim-hover);
+  }
 
-.warn {
-  background-color: var(--warning);
-}
+  .warn {
+    background-color: var(--warning);
+  }
 
-.warn:hover {
-  background-color: var(--warning-hover);
-}
+  .warn:hover {
+    background-color: var(--warning-hover);
+  }
 </style>

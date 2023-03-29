@@ -21,3 +21,15 @@ export function throttle(func: any, wait: number) {
     }, wait);
   };
 }
+
+/**
+ * Prevents a keyboard event from running unless the key is the provided key
+ * @param key The key to listen for.
+ * @param listener The listener to call.
+ * @returns A function to run when a key is pressed.
+ */
+export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (e: KeyboardEvent) => void {
+  return (e: KeyboardEvent) => {
+    if (e.key == key) listener(e);
+  }
+}

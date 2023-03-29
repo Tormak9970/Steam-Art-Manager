@@ -10,11 +10,17 @@
   let searching = false;
   let timeout:NodeJS.Timeout|null;
 
+  /**
+   * Wraps the onChange handler.
+   */
   function inputWrapper() {
     searching = false;
     onChange(value);
   }
 
+  /**
+   * Handles debouncing the search.
+   */
   function handleSearch() {
     searching = true;
     if (timeout) clearTimeout(timeout);

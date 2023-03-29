@@ -1,8 +1,9 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell"
   import { toast } from "@zerodevx/svelte-toast";
-    import { ToastController } from "../../lib/controllers/ToastController";
+  import { ToastController } from "../../lib/controllers/ToastController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
+  import { onlyOnKey } from "../../lib/utils/Utils";
   import { needsAPIKey, steamGridDBKey } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import InputField from "../interactables/InputField.svelte";
@@ -55,6 +56,8 @@
     }
   }
 </script>
+
+<svelte:window on:keyup={onlyOnKey("Escape", () => clicked(false))} />
 
 <div class="comfirm-toast">
   <!-- svelte-ignore a11y-invalid-attribute -->
