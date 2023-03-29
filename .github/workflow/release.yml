@@ -44,10 +44,6 @@ jobs:
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: yarn install # Change this to npm, yarn or pnpm.
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
-        id: build
-        
       - name: Date
         run: echo "DATE=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
 
@@ -56,6 +52,20 @@ jobs:
         id: Changelog
         with:
           exclude: ["build"]
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        id: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
+          releaseName: 'Steam Art Manager v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
+          releaseBody: |
+            ${{ steps.Changelog.outputs.changelog }}
+          draft: false
+          releaseDraft: true
+          prerelease: false
 
       - name: Read linux release sig
         if: matrix.platform == 'ubuntu-20.04'
@@ -101,14 +111,3 @@ jobs:
                 }
               }
             }
-            
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
-          releaseName: 'Steam Art Manager v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: |
-            ${{ steps.Changelog.outputs.changelog }}
-          draft: false
-          releaseDraft: true
-          prerelease: false
