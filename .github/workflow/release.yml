@@ -1,4 +1,4 @@
-name: Create Release
+name: Release
 on:
   push:
     tags:
@@ -46,11 +46,54 @@ jobs:
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
+        id: build
         
+      - name: Date
+        run: echo "DATE=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+
       - name: Changelog
         uses: scottbrenner/generate-changelog-action@master
         id: Changelog
 
+      - name: Read linux release sig
+        if: matrix.platform == 'ubuntu-20.04'
+        id: readLinux
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
+      
+      - name: 
+        run: echo "LINUX_SIG=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+      
+      - name: Read windows release sig
+        if: matrix.platform == 'windows-latest'
+        id: readWindows
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
+
+      - name: WriteGist
+        uses: sergeysova/gist-write-action@v1
+        with:
+          gist_id: a72aa3b7232033772d80b0ed86303f01
+          file_name: sarm_version.json
+          content: |
+            {
+              "version": "${{ github.ref_name }}",
+              "notes": "${{ steps.Changelog.outputs.changelog }}",
+              "pub_date": "2020-06-22T19:25:57Z",
+              "platforms": {
+                "linux-x86_64": {
+                  "signature": "${{ steps.readLinux.output.content }}",
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.AppImage.tar.gz"
+                },
+                "windows-x86_64": {
+                  "signature": "${{ steps.readWindows.output.content }}",
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.msi.zip"
+                }
+              }
+            }
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
