@@ -91,13 +91,15 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
 
   for (key, value) in current_art_dict.into_iter() {
     for (sub_key, sub_value) in value.into_iter() {
-      let original_val: String = original_art_dict.get(key.as_str()).unwrap().get(sub_key.as_str()).unwrap().to_owned();
-      if original_val != sub_value {
-        let copy_res = fs::copy(sub_value, original_val);
+      let original_value: &String = original_art_dict.get(key.as_str()).unwrap().get(sub_key.as_str()).unwrap();
+      let original_val = original_value.to_owned();
+      let sub_val = sub_value.to_owned();
+      if original_val != sub_val {
+        let copy_res = fs::copy(sub_value, original_value);
         if copy_res.is_ok() {
-          logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", sub_value, original_val).as_str(), 0);
+          logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", sub_val, original_val).as_str(), 0);
         } else {
-          logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", sub_value, original_val).as_str(), 2);
+          logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", sub_val, original_val).as_str(), 2);
           return false;
         }
       }
