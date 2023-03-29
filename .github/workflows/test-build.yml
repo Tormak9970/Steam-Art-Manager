@@ -55,7 +55,7 @@ jobs:
         uses: scottbrenner/generate-changelog-action@master
         id: Changelog
         with:
-          exclude: ["build"]
+          exclude: "build"
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
