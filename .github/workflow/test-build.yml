@@ -1,8 +1,5 @@
-name: Release
-on:
-  push:
-    branches:
-      - release
+name: Pipeline Test
+on: [pull_request]
 
 jobs:
   release:
