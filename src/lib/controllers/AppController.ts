@@ -131,6 +131,22 @@ export class AppController {
   }
 
   /**
+   * Gets the steam game image data.
+   * @returns A promise resolving to the image data.
+   */
+  private static async getCacheData(): Promise<{ [appid: string]: LibraryCacheEntry }> {
+    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
+    const filteredGrids = AppController.filterGridsDir(gridDirContents);
+    LogController.log("Grids loaded.");
+
+    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
+    LogController.log("Library Cache loaded.");
+
+    return filteredCache;
+  }
+
+  /**
    * Gets the user's steam apps.
    * ? Logging complete.
    */
@@ -140,13 +156,7 @@ export class AppController {
 
     const vdf = await RustInterop.readAppinfoVdf();
 
-    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
-    const filteredGrids = AppController.filterGridsDir(gridDirContents);
-    LogController.log("Grids loaded.");
-
-    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
-    LogController.log("Library Cache loaded.");
+    const filteredCache = await AppController.getCacheData();
 
     originalAppLibraryCache.set(filteredCache);
     appLibraryCache.set(filteredCache);
@@ -171,9 +181,16 @@ export class AppController {
    * ? Logging complete.
    */
   static async saveChanges(): Promise<void> {
+    LogController.log("Saving changes...");
+    const res = await RustInterop.saveChanges(get(appLibraryCache), get(originalAppLibraryCache));
     
-    ToastController.showSuccessToast("Changes saved!");
-    LogController.log("Saved changes.");
+    if (res) {
+      ToastController.showSuccessToast("Changes saved!");
+      LogController.log("Saved changes.");
+    } else {
+      ToastController.showSuccessToast("Changes failed.");
+      LogController.log("Changes failed.");
+    }
   }
 
   /**
@@ -215,7 +232,10 @@ export class AppController {
     if (succeeded) {
       ToastController.showSuccessToast("Import successful!");
       LogController.log("Successfully imported user's grids.");
-      //TODO: reload app cache.
+
+      const filteredCache = await AppController.getCacheData();
+      originalAppLibraryCache.set(filteredCache);
+      appLibraryCache.set(filteredCache);
     } else {
       ToastController.showWarningToast("Cancelled.");
       LogController.log("Import grids cancelled.");

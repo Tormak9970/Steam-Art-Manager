@@ -94,4 +94,14 @@ export class RustInterop {
   static async readAppinfoVdf(): Promise<any> {
     return JSON.parse(await invoke<string>("read_appinfo_vdf", {}));
   }
+
+  /**
+   * Saves the user's changes.
+   * @param currentArt The current changes.
+   * @param originalArt The original art dictionary.
+   * @returns A promise resolving to true if the save was successfull, false otherwise.
+   */
+  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<boolean> {
+    return await invoke<boolean>("save_changes", { current_art: JSON.stringify(currentArt), original_art: JSON.stringify(originalArt) });
+  }
 }

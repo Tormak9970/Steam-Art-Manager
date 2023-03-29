@@ -10,7 +10,7 @@ mod steam;
 mod zip_controller;
 mod appinfo_vdf_parser;
 
-use std::path::PathBuf;
+use std::{path::PathBuf, collections::HashMap, fs};
 
 use appinfo_vdf_parser::read_vdf;
 use home::home_dir;
@@ -84,6 +84,29 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 }
 
+#[tauri::command]
+async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String) -> bool {
+  let current_art_dict: HashMap<String, HashMap<String, String>> = serde_json::from_str(current_art.as_str()).unwrap();
+  let original_art_dict: HashMap<String, HashMap<String, String>> = serde_json::from_str(original_art.as_str()).unwrap();
+
+  for (key, value) in current_art_dict.into_iter() {
+    for (sub_key, sub_value) in value.into_iter() {
+      let original_val: String = original_art_dict.get(key.as_str()).unwrap().get(sub_key.as_str()).unwrap().to_owned();
+      if original_val != sub_value {
+        let copy_res = fs::copy(sub_value, original_val);
+        if copy_res.is_ok() {
+          logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", sub_value, original_val).as_str(), 0);
+        } else {
+          logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", sub_value, original_val).as_str(), 2);
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
@@ -97,7 +120,8 @@ fn main() {
       steam::get_appinfo_path,
       export_grids_to_zip,
       import_grids_from_zip,
-      read_appinfo_vdf
+      read_appinfo_vdf,
+      save_changes
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

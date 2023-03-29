@@ -56,7 +56,13 @@ export class SettingsManager {
       }
 
       settings.version = __APP_VERSION__;
-      await SettingsManager.updateSetting("version", __APP_VERSION__);
+
+      await fs.writeFile({
+        path: SettingsManager.settingsPath,
+        contents: JSON.stringify(settings),
+      });
+  
+      LogController.log(`Updated settings for new app version.`);
     }
     
     return settings;
