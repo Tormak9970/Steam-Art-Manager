@@ -3,6 +3,8 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { gridType, hiddenGameIds, showHidden, steamGames } from "../../../Stores";
+  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
@@ -28,17 +30,25 @@
     "Icons": 60,
   };
 
+  let searchQuery = "";
   let games: SteamGame[] = [];
+
+  const filterSteamGames = (allGames: SteamGame[], hiddenIds: number[], hidden: boolean) => (hidden ? allGames : allGames.filter((game) => !hiddenIds.includes(game.appid))).filter((game) => game.name.toLowerCase().includes(searchQuery));
+
+  function onSearchChange(query: string) {
+    searchQuery = query.toLowerCase();
+    games = filterSteamGames($steamGames, $hiddenGameIds, $showHidden);
+  }
 
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((stGames) => {
-      games = $showHidden ? stGames : stGames.filter((game) => !$hiddenGameIds.includes(game.appid));
+      games = filterSteamGames(stGames, $hiddenGameIds, $showHidden);
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
-      games = $showHidden ? $steamGames : games.filter((game) => !ids.includes(game.appid));
+      games = filterSteamGames($steamGames, ids, $showHidden);
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
-      games = show ? $steamGames : games.filter((game) => !$hiddenGameIds.includes(game.appid));
+      games = filterSteamGames($steamGames, $hiddenGameIds, show);
     });
   });
 
@@ -52,9 +62,13 @@
 <Pane minSize={20}>
   <SectionTitle title="Games" />
 
-  <div class="content" style="margin-left: 12px;">
-    <Toggle label="Show hidden" bind:checked={$showHidden}/>
+  <div class="content">
+    <div style="margin-left: 6px; display: flex; justify-content: space-between;">
+      <Toggle label="Show hidden" bind:checked={$showHidden}/>
+      <SearchBar label="Search Library" onChange={onSearchChange} interval={800} />
+    </div>
     
+    <div class="border" />
     <VerticalSpacer />
   </div>
 
@@ -63,7 +77,9 @@
     <VerticalSpacer />
 
     {#if $steamGames.length == 0}
-      <!-- TODO: loading spinner -->
+      <div class="loader-container">
+        <LoadingSpinner />
+      </div>
     {:else}
       <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
         {#each games as game, i (`${game.appid}`)}
@@ -100,5 +116,19 @@
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
+  }
+
+  .border {
+    margin-top: 7px;
+    border-bottom: 1px solid var(--foreground);
+  }
+
+  .loader-container {
+    width: 100%;
+    padding-top: 14px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>

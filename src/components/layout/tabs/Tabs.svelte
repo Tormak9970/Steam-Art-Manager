@@ -58,7 +58,10 @@
     flex-grow: 1;
 
     justify-content: center;
+
+    border-right: 2px solid var(--foreground);
   }
+  li:last-child { border-right: none; }
 
   span {
     border: 1px solid transparent;
