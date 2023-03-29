@@ -11,14 +11,10 @@ A simple tool for setting the artwork of your Steam library.
  - Export your current art to a zip file
  - Import art from a zip file
 
-<br/>
-
 ## Download and Install
 To get the most recent release, head to [releases](https://github.com/Tormak9970/Steam-Art-Manager/releases) and select the most recent release for your platform. Download it and run the installer.
 
-<br/>
-
-## How to use the App
+## How to use the app
 When using Steam Art Manager, your workflow will typically be:
  - Make sure Steam is already running (windows only)
  - Open Steam Art Manager
@@ -27,19 +23,15 @@ When using Steam Art Manager, your workflow will typically be:
  - Go through your games, setting the art to whatever you choose
  - Save the changes
 
-### Setting up the API Keys
+### Setting up the API key
 If you want to use or browse images from [SteamGridDB](https://steamgriddb.com) you will need an api key (which is easy and free). To get one:
  - First, go to [SteamGridDB](https://steamgriddb.com), and sign in with Steam.
  - Next, go to preferences, then API, and generate a new key if you don't already have one.
  - Now copy the api key.
  - Finally, in Steam Art Manager, click the "Set API Key" button and paste the key in the text field and click "Save".
 
-### Loading Your Games
-The app should be able to find and load your games automatically. It looks for your `appinfo.vdf` (its where Valve stores all the info for each of your Steam apps) and reads that to find all of your games.
-
-### Setting the Art
-To set the art for your games first either have the desired files on hand, or make sure your SteamGridDB api key is set. Next, for either, select the type of art (Capsule, Wide Capsule, Hero, Logo, or Icon). <br/>
-For files on your PC:
+### Managing your art
+For custom artwork:
  - Click the "Upload Your Own!" button and select your file.
 
 For SteamGridDB:
@@ -94,11 +86,7 @@ This will generate a `.msi` file in `src-tauri/target/release/bundle/msi/app_nam
 
 ## Acknowledgements
 
-<br/>
-
 ## Licensing
 This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL)
-
-<br/>
 
 Copyright Travis Lane (Tormak) 
