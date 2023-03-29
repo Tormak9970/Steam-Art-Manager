@@ -17,17 +17,19 @@
   const padding = 20;
 
   const widths = {
-    "Grids": 100,
-    "Heros": 353,
-    "Logos": 200,
-    "Icons": 60,
+    "Capsule": 100,
+    "Wide Capsule": 200,
+    "Hero": 353,
+    "Logo": 200,
+    "Icon": 60,
   };
 
   const heights = {
-    "Grids": 150,
-    "Heros": 114,
-    "Logos": 134,
-    "Icons": 60,
+    "Capsule": 150,
+    "Wide Capsule": 133,
+    "Hero": 114,
+    "Logo": 134,
+    "Icon": 60,
   };
 
   let searchQuery = "";

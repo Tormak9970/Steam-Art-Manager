@@ -3,9 +3,9 @@ import { writable, type Writable } from "svelte/store";
 export enum GridTypes {
   CAPSULE="Capsule",
   WIDE_CAPSULE="Wide Capsule",
-  HEROS="Heros",
-  LOGOS="Logos",
-  ICONS="Icons"
+  HERO="Hero",
+  LOGO="Logo",
+  ICON="Icon"
 }
 
 export const needsAPIKey = writable(true);
@@ -86,7 +86,7 @@ export const dbFilters = writable({
       "untagged": true,
     }
   },
-  "Heros": {
+  "Hero": {
     "styles": {
       "alternate": true,
       "blurred": true,
@@ -113,7 +113,7 @@ export const dbFilters = writable({
       "untagged": true,
     }
   },
-  "Logos": {
+  "Logo": {
     "styles": {
       "official": true,
       "white": true,
@@ -135,7 +135,7 @@ export const dbFilters = writable({
       "untagged": true,
     }
   },
-  "Icons": {
+  "Icon": {
     "styles": {
       "official": true,
       "custom": true,

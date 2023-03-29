@@ -65,7 +65,7 @@
   span {
     border: 1px solid transparent;
     display: block;
-    padding: 4px 1rem;
+    padding: 4px 6px;
     cursor: pointer;
 
     background-color: var(--background-hover);

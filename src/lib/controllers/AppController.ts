@@ -14,17 +14,17 @@ import { SteamGridController } from "./SteamGridController";
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
   "wide_capsule": GridTypes.WIDE_CAPSULE,
-  "hero": GridTypes.HEROS,
-  "icon": GridTypes.ICONS,
-  "logo": GridTypes.LOGOS
+  "hero": GridTypes.HERO,
+  "icon": GridTypes.ICON,
+  "logo": GridTypes.LOGO
 }
 
 const libraryCacheLUT = {
   "library_600x900": GridTypes.CAPSULE,
-  "library_header": GridTypes.WIDE_CAPSULE,
-  "library_hero": GridTypes.HEROS,
-  "icon": GridTypes.ICONS,
-  "logo": GridTypes.LOGOS
+  "header": GridTypes.WIDE_CAPSULE,
+  "library_hero": GridTypes.HERO,
+  "icon": GridTypes.ICON,
+  "logo": GridTypes.LOGO
 }
 
 /**
@@ -121,7 +121,7 @@ export class AppController {
     }
 
     const entries = Object.entries(res);
-    const filtered = entries.filter(([_, entry]) => Object.keys(entry).length == 4);
+    const filtered = entries.filter(([_, entry]) => Object.keys(entry).length >= 4);
     return Object.fromEntries(filtered);
   }
 
@@ -170,10 +170,11 @@ export class AppController {
    * Discards the current changes
    */
   static async discardChanges(): Promise<void> {
-    
+    appLibraryCache.set(get(originalAppLibraryCache));
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
   }
+
 
   static async setCustomArt(path: string): Promise<void> {
     const selectedGameId = get(selectedGameAppId);
@@ -183,6 +184,8 @@ export class AppController {
 
     appLibraryCache.set(gameImages);
     canSave.set(true);
+
+    LogController.log(`Set ${selectedGridType} for ${get(steamGames)[selectedGameId]} to ${path}.`);
   }
 
   /**

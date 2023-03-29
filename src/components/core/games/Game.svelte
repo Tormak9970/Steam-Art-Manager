@@ -12,6 +12,7 @@
   export let heights: any;
 
   let gridTypeUnsub: Unsubscriber;
+  let libraryCacheUnsub: Unsubscriber;
 
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
@@ -38,10 +39,14 @@
     gridTypeUnsub = gridType.subscribe((type) => {
       imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
     });
+    libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
+      imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+    });
   });
 
   onDestroy(() => {
     if (gridTypeUnsub) gridTypeUnsub();
+    if (libraryCacheUnsub) libraryCacheUnsub();
   })
 </script>
 
