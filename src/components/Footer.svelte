@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AppController } from "../lib/controllers/AppController";
-  import { canSave } from "../Stores";
+  import { canSave, isOnline } from "../Stores";
   import Button from "./interactables/Button.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
 </script>
@@ -14,6 +14,10 @@
       <Button label="Save" onClick={AppController.saveChanges} highlight={true} width="auto" height="20px" />
       <HorizontalSpacer />
       <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="20px" />
+      <HorizontalSpacer />
+    {/if}
+    {#if !$isOnline}
+      <Button label="Go Online" onClick={AppController.tryGoOnline} width="auto" height="20px" />
       <HorizontalSpacer />
     {/if}
     <Button label="Empty Cache" onClick={AppController.showEmptyCacheToast} width="auto" height="20px" />

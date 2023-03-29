@@ -3,15 +3,13 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, hiddenGameIds, isOnline, needsAPIKey, steamGames, steamGridDBKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, steamGames, steamGridDBKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
 import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import { SteamGridController } from "./SteamGridController";
-import { Vdf } from "../models/Vdf";
-import { Reader } from "../utils/Reader";
 
 const gridTypeLUT = {
   "grid": GridTypes.GRIDS,
@@ -138,6 +136,7 @@ export class AppController {
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
     const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
+    originalAppLibraryCache.set(filteredCache);
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
@@ -169,11 +168,22 @@ export class AppController {
     LogController.log("Discarded changes.");
   }
 
+  static async setCustomArt(path: string): Promise<void> {
+    const selectedGameId = get(selectedGameAppId);
+    const selectedGridType = get(gridType);
+    const gameImages = get(appLibraryCache);
+    gameImages[selectedGameId][selectedGridType] = path;
+
+    appLibraryCache.set(gameImages);
+    canSave.set(true);
+  }
+
   /**
    * Prompts the user to select a .zip file containing steam game art.
    */
   static async importGrids(): Promise<void> {
     const succeeded = await RustInterop.importGridsFromZip();
+    // TODO: reload appCache
 
     if (succeeded) {
       ToastController.showSuccessToast("Import successful!");
@@ -205,6 +215,18 @@ export class AppController {
    */
   static onDestroy(): void {
     
+  }
+
+  /**
+   * Checks if the app can go online, goes online if so, otherwise notifies the user.
+   */
+  static async tryGoOnline(): Promise<void> {
+    if (navigator.onLine) {
+      isOnline.set(true);
+      ToastController.showSuccessToast("Now Online!");
+    } else {
+      ToastController.showWarningToast("Can't go online.");
+    }
   }
 
   /**

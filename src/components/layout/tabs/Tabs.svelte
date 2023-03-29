@@ -4,6 +4,7 @@
 
   export let selected: string;
   export let tabsId: string;
+  export let height = "100%";
   
   let labels: string[] = [];
 
@@ -27,7 +28,7 @@
   {/each}
 </ul>
 
-<div class="tabs">
+<div class="tabs" style="height: {height};">
   <slot />
 </div>
 
@@ -40,8 +41,6 @@
     border-top: 2px solid var(--foreground-light);
     
     background-color: var(--foreground);
-
-    height: 100%;
 	}
 
   ul {

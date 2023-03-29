@@ -18,6 +18,7 @@ export const steamGridDBKey = writable("");
 export const steamGames:Writable<SteamGame[]> = writable([]);
 export const hiddenGameIds:Writable<number[]> = writable([]);
 
+export const originalAppLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
 export const selectedGameAppId: Writable<number> = writable(null);
