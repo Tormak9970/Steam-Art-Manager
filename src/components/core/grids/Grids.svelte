@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { dialog } from "@tauri-apps/api";
+  import { dialog } from "@tauri-apps/api";
   import { onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
-    import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController } from "../../../lib/controllers/AppController";
   import { gridType, GridTypes, isOnline, selectedGameAppId } from "../../../Stores";
-    import Button from "../../interactables/Button.svelte";
+  import Button from "../../interactables/Button.svelte";
   import Tab from "../../layout/tabs/Tab.svelte";
   import Tabs from "../../layout/tabs/Tabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";

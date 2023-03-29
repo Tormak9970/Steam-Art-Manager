@@ -12,14 +12,16 @@ import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte"
 import { SteamGridController } from "./SteamGridController";
 
 const gridTypeLUT = {
-  "grid": GridTypes.GRIDS,
+  "capsule": GridTypes.CAPSULE,
+  "wide_capsule": GridTypes.WIDE_CAPSULE,
   "hero": GridTypes.HEROS,
   "icon": GridTypes.ICONS,
   "logo": GridTypes.LOGOS
 }
 
 const libraryCacheLUT = {
-  "library_600x900": GridTypes.GRIDS,
+  "library_600x900": GridTypes.CAPSULE,
+  "library_header": GridTypes.WIDE_CAPSULE,
   "library_hero": GridTypes.HEROS,
   "icon": GridTypes.ICONS,
   "logo": GridTypes.LOGOS
@@ -75,7 +77,12 @@ export class AppController {
     for (const fileEntry of gridsDirContents) {
       const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
       const appId = fileEntry.name.substring(0, firstUnderscore);
-      const type = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf(".")) : "grid";
+      let type = "";
+      if (fileEntry.name.indexOf("_") > 0) {
+        type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
+      } else {
+        type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
+      }
 
       if (gridTypeLUT[type]) {
         if (!resKeys.includes(appId)) {
