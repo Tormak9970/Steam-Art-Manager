@@ -76,7 +76,7 @@ jobs:
         id: readLinux
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
+          path: ${{ steps.build.outputs.artifacts[3] }}
       
       - name: Set linux sig
         if: matrix.platform == 'ubuntu-20.04'
@@ -87,7 +87,7 @@ jobs:
         id: readWindows
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
+          path: ${{ steps.build.outputs.artifacts[3] }}
         
       - name: Set windows sig
         if: matrix.platform == 'windows-latest'
