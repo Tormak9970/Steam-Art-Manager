@@ -9,7 +9,7 @@ import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
 import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
-import { SteamGridController } from "./SteamGridController";
+import type { SGDBImage } from "../models/SGDB";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -32,7 +32,6 @@ const libraryCacheLUT = {
  */
 export class AppController {
   private static cacheController = new CacheController();
-  private static steamGridController = new SteamGridController(AppController.cacheController);
 
   /**
    * Sets up the AppController.
@@ -263,6 +262,15 @@ export class AppController {
   }
 
   /**
+   * Gets a list of grids for the provided game.
+   * @param appId The id of the app to get.
+   * @returns A promise resolving to a list of the results.
+   */
+  static async getSteamGridArt(appId: number): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId);
+  }
+
+  /**
    * Empties the SteamGridDB cache.
    */
   static async emptyCache(): Promise<void> {
@@ -278,6 +286,7 @@ export class AppController {
    */
   static onDestroy(): void {
     LogController.log("App destroyed.");
+    AppController.cacheController.onDestroy()
   }
 
   /**

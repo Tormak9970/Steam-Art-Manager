@@ -1,15 +1,22 @@
 <script lang="ts">
   import { dialog } from "@tauri-apps/api";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
+  import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
-  import { gridType, GridTypes, isOnline, selectedGameAppId } from "../../../Stores";
+    import type { SGDBImage } from "../../../lib/models/SGDB";
+  import { gridType, GridTypes, isOnline, selectedGameAppId, steamGridDBKey } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
   import Tab from "../../layout/tabs/Tab.svelte";
   import Tabs from "../../layout/tabs/Tabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
+
+  let selectedAppIdUnsub: Unsubscriber;
+  let onlineUnsub: Unsubscriber;
+  let apiKeyUnsub: Unsubscriber;
+  let grids: SGDBImage[] = [];
 
   /**
    * Prompts the user to select their custom game art.
@@ -39,6 +46,24 @@
     });
     if (path && path != "") AppController.setCustomArt(path as string);
   }
+
+  onMount(() => {
+    selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
+      if ($isOnline && $steamGridDBKey != "" && id != null) grids = await AppController.getSteamGridArt(id);
+    });
+    onlineUnsub = isOnline.subscribe(async (online) => {
+      if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = await AppController.getSteamGridArt($selectedGameAppId);
+    });
+    apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
+      if ($isOnline && key != "" && $selectedGameAppId != null) grids = await AppController.getSteamGridArt($selectedGameAppId);
+    });
+  });
+
+  onDestroy(() => {
+    if (selectedAppIdUnsub) selectedAppIdUnsub();
+    if (onlineUnsub) onlineUnsub();
+    if (apiKeyUnsub) apiKeyUnsub();
+  });
 </script>
 
 <Pane minSize={20}>

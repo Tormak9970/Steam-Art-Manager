@@ -28,6 +28,13 @@
           "**"
         ]
       },
+      "http": {
+        "all": false,
+        "request": true,
+        "scope": [
+          "https://*.steamgriddb.com/api/*"
+        ]
+      },
       "protocol": {
         "all": true,
         "asset": true,
