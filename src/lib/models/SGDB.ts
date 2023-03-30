@@ -47,6 +47,27 @@ interface SGDBQueryParams {
   [key: string]: string;
 }
 
+export type TauriRequest = {
+  data: string,
+  headers: Record<string, string>,
+  ok: boolean,
+  rawHeaders: Record<string, string[]>,
+  status: number,
+  url: string
+}
+
+export class RequestError extends Error {
+  response: TauriRequest;
+  status: number;
+
+  constructor(message: string, response: TauriRequest) {
+    super(message);
+    this.name = "Request Error"
+    this.response = response;
+    this.status = response.status;
+  }
+}
+
 /**
  * Tauri compatible wrapper for the SteamGridDB API.
  */
@@ -118,20 +139,17 @@ export class SGDB {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response;
+    let response = await http.fetch<any>(`${this.baseURL}/temp/${url}`, options);
 
-    try {
-      response = await http.fetch(`${this.baseURL}${url}`, options);
-    } catch (error) {
-      error.message = error.response.data?.errors?.join(", ") ?? error.message;
-      throw error;
+    if (response.ok) {
+      if (response?.data.success) {
+        return response.data.data ?? response.data.success;
+      } else {
+        throw new RequestError(response.data?.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
+      }
+    } else {
+      throw new RequestError(response.data?.errors?.join(", ") ?? "SteamGridDB error.", response);
     }
-
-    if (response?.data.success) {
-      return response.data.data ?? response.data.success;
-    }
-
-    throw new Error(response.data?.errors?.join(", ") ?? "Unknown SteamGridDB error.");
   }
 
   /**

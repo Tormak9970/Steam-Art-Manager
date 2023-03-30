@@ -49,33 +49,25 @@ export class CacheController {
 
   //* The page parameter will be useful for pagnation
 
-  /**
-   * Caches the appInfo json.
-   */
-  async cacheGameInfos(): Promise<void> {
-    const games = null;
-  }
-
   async invalidateCache(): Promise<void> {
 
   }
 
-  async fetchGridsWithoutCache() {
+  async getGridImage() {
 
   }
 
   async fetchGrids(appId: number): Promise<SGDBImage[]> {
     const type = get(gridType);
-    // TODO: check in memory request cache.
-    let cachedData = false;
-
-    if (cachedData) {
-
-    } else {
-      const grids = await this.client[`get${type.indexOf("Capsule") ? "Grids": type}BySteamAppId`](appId);
-      // TODO: update in memory request cache.
-      return grids;
-    }
+    const styles = [];
+    const dimensions = [];
+    const mimes = [];
+    const types = [];
+    const nsfw = "";
+    const humor = "";
+    
+    const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId, styles, dimensions, mimes, types, nsfw, humor);
+    return grids;
   }
   
   onDestroy() {
