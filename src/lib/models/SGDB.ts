@@ -43,10 +43,6 @@ export interface SGDBImageOptions {
   page?: number;
 }
 
-interface SGDBQueryParams {
-  [key: string]: string;
-}
-
 export type TauriRequest = {
   data: string,
   headers: Record<string, string>,
@@ -58,13 +54,11 @@ export type TauriRequest = {
 
 export class RequestError extends Error {
   response: TauriRequest;
-  status: number;
 
   constructor(message: string, response: TauriRequest) {
     super(message);
     this.name = "Request Error"
     this.response = response;
-    this.status = response.status;
   }
 }
 
@@ -78,7 +72,7 @@ export class SGDB {
 
   /**
    * Creates a new SGDB instance.
-   * @param options The api key or SGDB options
+   * @param options The api key or SGDB options.
    */
   constructor(options: SGDBOptions | string) {
     // Allow passing just the API key as a string
@@ -101,10 +95,10 @@ export class SGDB {
     }
   }
 
-  private buildQuery(options): SGDBQueryParams {
+  private buildQuery(options: any): { [key: string]: string; } {
     const multiParams = ["styles", "dimensions", "mimes", "types"];
     const singleParams = ["nsfw", "humor", "epilepsy", "oneoftag", "page"];
-    const params = {};
+    const params: any = {};
 
     multiParams.forEach((queryParam) => {
       if (options[queryParam]?.length) {
@@ -128,7 +122,7 @@ export class SGDB {
    * @param formData Optional form data.
    * @returns A promise resolving to the request's result.
    */
-  async handleRequest(method: http.HttpVerb, url: string, params: SGDBQueryParams = {}, formData = null): Promise<any> {
+  async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null): Promise<any> {
     let options = {
       headers: this.headers,
       method,
@@ -190,7 +184,7 @@ export class SGDB {
 
   /**
    * Gets grids for a game given its platform and id.
-   * @param options The SGDB request options
+   * @param options The SGDB request options.
    * @returns A promise resolving to the game's grids.
    */
   async getGrids(options: SGDBImageOptions): Promise<SGDBImage[]> {
@@ -201,11 +195,11 @@ export class SGDB {
    * Gets a list of grids based on the provided game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of grids for the desired game matching the provided filters.
    */
   async getGridsById(
@@ -233,11 +227,11 @@ export class SGDB {
    * Gets a list of grids based on the provided steam game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of grids for the desired steam game matching the provided filters.
    */
   async getGridsBySteamAppId(
@@ -263,7 +257,7 @@ export class SGDB {
 
   /**
    * Gets heros for a game given its platform and id.
-   * @param options The SGDB request options
+   * @param options The SGDB request options.
    * @returns A promise resolving to the game's heros.
    */
   async getHeroes(options: SGDBImageOptions): Promise<SGDBImage[]> {
@@ -274,11 +268,11 @@ export class SGDB {
    * Gets a list of heroes based on the provided game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
+   * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param humor Whether the result should include humor images
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getHeroesById(
@@ -306,11 +300,11 @@ export class SGDB {
    * Gets a list of heroes based on the provided steam game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
+   * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param humor Whether the result should include humor images
    * @returns A promise resolving to a list of heroes for the desired steam game matching the provided filters.
    */
   async getHeroesBySteamAppId(
@@ -336,7 +330,7 @@ export class SGDB {
 
   /**
    * Gets icons for a game given its platform and id.
-   * @param options The SGDB request options
+   * @param options The SGDB request options.
    * @returns A promise resolving to the game's icons.
    */
   async getIcons(options: SGDBImageOptions): Promise<SGDBImage[]> {
@@ -347,11 +341,11 @@ export class SGDB {
    * Gets a list of icons based on the provided game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getIconsById(
@@ -379,11 +373,11 @@ export class SGDB {
    * Gets a list of icons based on the provided steam game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of icons for the desired steam game matching the provided filters.
    */
   async getIconsBySteamAppId(
@@ -409,7 +403,7 @@ export class SGDB {
 
   /**
    * Gets logos for a game given its platform and id.
-   * @param options The SGDB request options
+   * @param options The SGDB request options.
    * @returns A promise resolving to the game's logos.
    */
   async getLogos(options: SGDBImageOptions): Promise<SGDBImage[]> {
@@ -420,11 +414,11 @@ export class SGDB {
    * Gets a list of logos based on the provided game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of logos for the desired game matching the provided filters.
    */
   async getLogosById(
@@ -452,11 +446,11 @@ export class SGDB {
    * Gets a list of logos based on the provided steam game id and filters.
    * @param id The game's id.
    * @param styles List of styles to include.
-   * @param dimensions List of dimensions to include,
+   * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
-   * @param types List of types to include,
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor  images
+   * @param types List of types to include.
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
    * @returns A promise resolving to a list of logos for the desired steam game matching the provided filters.
    */
   async getLogosBySteamAppId(
@@ -478,5 +472,16 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor
     });
+  }
+
+  /**
+   * Deletes the provided grids from SteamGridDB.
+   * @param ids Id or list of ids of grids to delete.
+   * @returns A promise resolving to true if the operation succeeded.
+   */
+  async deleteGrids(ids:number|number[]):Promise<boolean> {
+    const gridIds = Array.isArray(ids) ? ids.join(",") : ids.toString();
+
+    return await this.handleRequest("DELETE", `/grids/${Array.isArray(gridIds) ? gridIds.join(",") : gridIds}`);
   }
 }
