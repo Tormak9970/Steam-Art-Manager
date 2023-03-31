@@ -12,7 +12,8 @@ jobs:
       version: ${{ steps.changelog.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: setup node
         uses: actions/setup-node@v3
@@ -52,7 +53,8 @@ jobs:
 
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: setup node
         uses: actions/setup-node@v3
@@ -84,7 +86,8 @@ jobs:
 
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
       - name: setup node
         uses: actions/setup-node@v3
