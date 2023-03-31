@@ -25,6 +25,7 @@ type LibraryCacheEntry = {
 type ChangedPath = {
   appId: string,
   gridType: string,
+  oldPath: string,
   targetPath: string,
   sourcePath: string
 }

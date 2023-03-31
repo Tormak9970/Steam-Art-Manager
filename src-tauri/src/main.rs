@@ -25,6 +25,7 @@ type GridImageCache = HashMap<String, HashMap<String, String>>;
 struct ChangedPath {
   appId: String,
   gridType: String,
+  oldPath: String,
   targetPath: String,
   sourcePath: String
 }
@@ -41,7 +42,7 @@ fn get_grid_filename(appid: &str, grid_type: &str, image_type: &str) -> String {
 }
 
 fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
-  let format_start_index = path.rfind(".").expect("Path should have had a file extension.") + 1;
+  let format_start_index = path.rfind(".").expect("Path should have had a file extension.");
   let image_type = &path[format_start_index..];
   return get_grid_filename(appid, grid_type, image_type);
 }
@@ -56,19 +57,15 @@ fn filter_paths(app_handle: &AppHandle, current_paths: &GridImageCache, original
       let grid_path_owned = grid_path.to_owned();
       let source_path_owned = source_path.to_owned();
 
-      if appid.as_str().to_owned() == "752590" {
-        println!("Source: {} Target: {}.", source_path_owned, grid_path_owned);
-      }
-
       if source_path_owned != grid_path_owned {
-        // println!("Source: {} Target: {}.", source_path_owned, grid_path_owned);
-        let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str());
-        let target_path = grids_dir.join(adjusted_path);
+        let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
+        let target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
         let changed_path = ChangedPath {
           appId: appid.to_owned(),
           gridType: grid_type.to_owned(),
-          targetPath: String::from(target_path.to_str().unwrap()),
-          sourcePath: source_path_owned
+          oldPath: grid_path_owned.replace("\\", "/"),
+          targetPath: target_path.to_owned(),
+          sourcePath: source_path_owned.replace("\\", "/")
         };
 
         res.push(changed_path);
@@ -158,12 +155,25 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
   for changed_path in (&paths_to_set).into_iter() {
     let source = changed_path.sourcePath.to_owned();
     let target = changed_path.targetPath.to_owned();
-    let copy_res = fs::copy(target.clone(), source.clone());
+
+    if changed_path.oldPath.contains("grid") {
+      let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
+      if remove_res.is_err() {
+        let err = remove_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
+    }
+
+    fs::File::create(target.clone()).unwrap();
+    
+    let copy_res = fs::copy(source.clone(), target.clone());
+
     if copy_res.is_ok() {
       logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
     } else {
       logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
-      return format!("{{ \"error\": \"Failed to copy {} to {}\"}}", source, target);
+      let err = copy_res.err().unwrap();
+      return format!("{{ \"error\": \"{}\"}}", err.to_string());
     }
   }
 

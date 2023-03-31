@@ -156,7 +156,7 @@ export class AppController {
 
     const filteredCache = await AppController.getCacheData();
 
-    originalAppLibraryCache.set(filteredCache);
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
@@ -189,7 +189,6 @@ export class AppController {
       ToastController.showSuccessToast("Changes failed.");
       LogController.log("Changes failed.");
     } else {
-      console.log(changedPaths);
       for (const changedPath of (changedPaths as ChangedPath[])) {
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
       }
@@ -198,6 +197,8 @@ export class AppController {
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     }
+
+    canSave.set(false);
   }
 
   /**
@@ -206,10 +207,12 @@ export class AppController {
    */
   static async discardChanges(): Promise<void> {
     const originalImgs = get(originalAppLibraryCache);
-    appLibraryCache.set(originalImgs);
+    appLibraryCache.set({...originalImgs});
 
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
+    
+    canSave.set(false);
   }
 
 
