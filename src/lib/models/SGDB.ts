@@ -16,11 +16,16 @@ export interface SGDBAuthor {
 export interface SGDBImage {
   id: number;
   score: number;
-  style: string[];
+  style: string;
+  mime: string;
   url: URL;
   thumb: URL;
   tags: string[];
   author: SGDBAuthor;
+  width: number;
+  height: number;
+  epilepsy: boolean;
+  nsfw: boolean;
 }
 
 export interface SGDBOptions {
@@ -133,7 +138,7 @@ export class SGDB {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await http.fetch<any>(`${this.baseURL}/temp/${url}`, options);
+    let response = await http.fetch<any>(`${this.baseURL}${url}`, options);
 
     if (response.ok) {
       if (response?.data.success) {

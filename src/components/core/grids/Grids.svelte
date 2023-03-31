@@ -4,18 +4,59 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
-    import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { gridType, GridTypes, isOnline, selectedGameAppId, steamGridDBKey } from "../../../Stores";
+  import type { SGDBImage } from "../../../lib/models/SGDB";
+  import { dbFilters, gridType, GridTypes, isOnline, needsAPIKey, selectedGameAppId, steamGridDBKey, type DBFilters } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
-  import Tab from "../../layout/tabs/Tab.svelte";
-  import Tabs from "../../layout/tabs/Tabs.svelte";
+  import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
+  import Grid from "./Grid.svelte";
 
   let selectedAppIdUnsub: Unsubscriber;
+  let dbFiltersUnsub: Unsubscriber;
+  let gridTypeUnsub: Unsubscriber;
   let onlineUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
+
+  const padding = 20;
+
+  const widths = {
+    "Capsule": 100,
+    "Wide Capsule": 200,
+    "Hero": 353,
+    "Logo": 200,
+    "Icon": 60,
+  };
+
+  const heights = {
+    "Capsule": 150,
+    "Wide Capsule": 133,
+    "Hero": 114,
+    "Logo": 134,
+    "Icon": 60,
+  };
+
+  function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
+    console.log(allGrids);
+
+    const targetFilters = filters[type];
+    const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
+    const dimensions = type != GridTypes.LOGO ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
+    const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
+    const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
+    const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
+    const nsfwAllowed = targetFilters.oneoftag.nsfw;
+
+    return allGrids.filter((grid: SGDBImage) => {
+      return gridStyles.includes(grid.style)
+        && dimensions.includes(`${grid.width}x${grid.height}`)
+        && imageFormats.includes(grid.mime)
+        && (grid.epilepsy ? epilepsyAllowed : true)
+        && (grid.nsfw ? nsfwAllowed : true);
+    });
+  }
+
   let grids: SGDBImage[] = [];
 
   /**
@@ -49,18 +90,26 @@
 
   onMount(() => {
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
-      if ($isOnline && $steamGridDBKey != "" && id != null) grids = await AppController.getSteamGridArt(id);
+      if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
-      if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = await AppController.getSteamGridArt($selectedGameAppId);
+      if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+    });
+    gridTypeUnsub = gridType.subscribe(async (type) => {
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), type, $dbFilters);
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
-      if ($isOnline && key != "" && $selectedGameAppId != null) grids = await AppController.getSteamGridArt($selectedGameAppId);
+      if ($isOnline && key != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+    });
+    dbFiltersUnsub = dbFilters.subscribe(async (filters) => {
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, filters);
     });
   });
 
   onDestroy(() => {
     if (selectedAppIdUnsub) selectedAppIdUnsub();
+    if (dbFiltersUnsub) dbFiltersUnsub();
+    if (gridTypeUnsub) gridTypeUnsub();
     if (onlineUnsub) onlineUnsub();
     if (apiKeyUnsub) apiKeyUnsub();
   });
@@ -81,17 +130,23 @@
 
   <div class="content" style="height: calc(100% - 85px);">
     {#if $isOnline}
-      {#if $selectedGameAppId != null}
-        <Tabs tabsId="gridTypes" height="calc(100% - 70px)" bind:selected={$gridType}>
-          {#each Object.values(GridTypes) as type}
-            <Tab label="{type}" tabsId="gridTypes">
-              {type}
-            </Tab>
-          {/each}
-        </Tabs>
+      {#if !$needsAPIKey}
+        {#if $selectedGameAppId != null}
+          <ListTabs tabs={Object.values(GridTypes)} height="calc(100% - 70px)" bind:selected={$gridType}>
+            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+              {#each grids as grid (`${grid.id}`)}
+                <Grid grid={grid} widths={widths} heights={heights} />
+              {/each}
+            </div>
+          </ListTabs>
+        {:else}
+          <div class="message">
+            Select a game to start managing your art!
+          </div>
+        {/if}
       {:else}
         <div class="message">
-          Select a game to start managing your art!
+          Please set your API key to use SteamGridDB.
         </div>
       {/if}
     {:else}
@@ -110,6 +165,19 @@
     padding: 0px 6px;
     overflow: auto;
     max-height: calc(100% - 65px);
+  }
+
+  .game-grid {
+    width: 100%;
+    display: grid;
+    
+    grid-template-columns: repeat(auto-fit, var(--img-width));
+    row-gap: 15px;
+    column-gap: 30px;
+    grid-auto-flow: row;
+    grid-auto-rows: var(--img-height);
+
+    justify-content: center;
   }
 
   .border {

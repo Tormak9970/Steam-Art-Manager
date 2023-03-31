@@ -1,4 +1,15 @@
 import { writable, type Writable } from "svelte/store";
+import type { SGDBImage } from "./lib/models/SGDB";
+
+export type DBFilters = {
+  [key in GridTypes]: {
+    styles: Record<string, boolean>,
+    dimensions?: Record<string, boolean>,
+    mimes: Record<string, boolean>,
+    types: Record<string, boolean>,
+    oneoftag: Record<string, boolean>,
+  }
+}
 
 export enum GridTypes {
   CAPSULE="Capsule",
@@ -22,9 +33,11 @@ export const hiddenGameIds:Writable<number[]> = writable([]);
 export const originalAppLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
+export const gridsCache:{ [appid: number]: SGDBImage[] } = {};
+
 export const selectedGameAppId: Writable<number> = writable(null);
 
-export const dbFilters = writable({
+export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
       "alternate": true,

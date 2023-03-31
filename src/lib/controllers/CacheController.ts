@@ -3,14 +3,13 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { gridType, steamGridDBKey } from "../../Stores";
+import { gridsCache, gridType, steamGridDBKey } from "../../Stores";
 
 /**
  * Controller class for handling caching of requests.
  */
 export class CacheController {
   private appCacheDirPath: string;
-  private gameInfoCacheDirPath: string;
   private gridCacheDirPath: string;
 
   apiKeyUnsub: Unsubscriber;
@@ -29,11 +28,8 @@ export class CacheController {
    */
   private async init(): Promise<void> {
     this.appCacheDirPath = await appCacheDir();
-
-    this.gameInfoCacheDirPath = await path.join(this.appCacheDirPath, "game-info");
     this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
 
-    if (!(await fs.exists(this.gameInfoCacheDirPath))) await fs.createDir(this.gameInfoCacheDirPath);
     if (!(await fs.exists(this.gridCacheDirPath))) await fs.createDir(this.gridCacheDirPath);
 
     this.apiKeyUnsub = steamGridDBKey.subscribe((key) => {
@@ -49,27 +45,51 @@ export class CacheController {
 
   //* The page parameter will be useful for pagnation
 
+  /**
+   * Empties the grids cache
+   */
   async invalidateCache(): Promise<void> {
 
   }
 
-  async getGridImage() {
+  /**
+   * Gets a image from steamGrid's cdn.
+   * @param imageToGet The url of the image to get.
+   */
+  async getGridImage(imageToGet: string) {
 
   }
 
+  /**
+   * Gets the current type of grid for the provided app id.
+   * @param appId The id of the app to fetch.
+   * @returns A promise resolving to the grids.
+   */
   async fetchGrids(appId: number): Promise<SGDBImage[]> {
     const type = get(gridType);
-    const styles = [];
-    const dimensions = [];
-    const mimes = [];
-    const types = [];
-    const nsfw = "";
-    const humor = "";
+    const gridCacheKey = Object.keys(gridsCache);
     
-    const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId, styles, dimensions, mimes, types, nsfw, humor);
-    return grids;
+    if (gridCacheKey.includes(appId.toString())) {
+      const types = Object.keys(gridsCache[appId.toString()]);
+
+      if (types.includes(type)) {
+        return gridsCache[appId.toString()][type];
+      } else {
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId);
+        gridsCache[appId.toString()][type] = grids;
+        return grids;
+      }
+    } else {
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId);
+      gridsCache[appId.toString()] = {};
+      gridsCache[appId.toString()][type] = grids;
+      return grids;
+    }
   }
   
+  /**
+   * Function to run when the app closes.
+   */
   onDestroy() {
     this.apiKeyUnsub();
   }
