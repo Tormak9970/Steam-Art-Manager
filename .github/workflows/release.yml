@@ -1,9 +1,8 @@
 name: Release
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+    branches:
+      - release
 
 jobs:
   release:
@@ -18,6 +17,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: get version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
@@ -59,7 +66,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
+          tagName: v$PACKAGE_VERSION
           releaseName: 'Steam Art Manager v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
           releaseBody: |
             ${{ steps.Changelog.outputs.changelog }}
@@ -97,17 +104,17 @@ jobs:
           file_name: sarm_version.json
           content: |
             {
-              "version": "${{ github.ref_name }}",
+              "version": "v$PACKAGE_VERSION",
               "notes": "${{ steps.Changelog.outputs.changelog }}",
               "pub_date": "2020-06-22T19:25:57Z",
               "platforms": {
                 "linux-x86_64": {
                   "signature": "$LINUX_SIG",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.AppImage.tar.gz"
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$PACKAGE_VERSION/Steam Art Manager_$PACKAGE_VERSION_en-US.AppImage.tar.gz"
                 },
                 "windows-x86_64": {
                   "signature": "$WINDOWS_SIG",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ github.ref_name }}/Steam Art Manager_${{ github.ref_name }}_en-US.msi.zip"
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$PACKAGE_VERSION/Steam Art Manager_$PACKAGE_VERSION_en-US.msi.zip"
                 }
               }
             }

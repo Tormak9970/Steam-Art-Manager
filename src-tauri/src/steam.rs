@@ -43,7 +43,15 @@ pub fn get_grids_directory(app_handle: AppHandle) -> String {
   
   let steam_root = get_steam_root_dir();
   let steam_active_user_id = get_active_user(app_handle.to_owned());
-  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let grids_dir = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+
+  let dir_create_res = fs::create_dir_all(grids_dir.clone());
+  if dir_create_res.is_err() {
+    panic!("Should have been able to create the grids dir!");
+  }
+
+
+  return grids_dir;
 }
 
 #[tauri::command]

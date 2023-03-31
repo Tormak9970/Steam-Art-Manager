@@ -28,6 +28,14 @@
           "**"
         ]
       },
+      "http": {
+        "all": false,
+        "request": true,
+        "scope": [
+          "https://*.steamgriddb.com/api/*",
+          "https://*.steamgriddb.com/file/*"
+        ]
+      },
       "protocol": {
         "all": true,
         "asset": true,
@@ -85,7 +93,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}"
+        "https://gist.githubusercontent.com/Tormak9970/a72aa3b7232033772d80b0ed86303f01/raw/543ba0ac70fde24805d0472811aac208b846eedd/sarm_version.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5MjkxNENCMzBFNUU1Q0IKUldUTDVlVXd5eFFwT1NKbURvMVRRL01CanBFelpqdmZmZDNqeXdKZDdyTWZGbzIwVDdSTzM3MjgK"
@@ -97,7 +105,7 @@
         "height": 740,
         "resizable": true,
         "title": "Steam Art Manager",
-        "width": 1170,
+        "width": 1200,
         "decorations": false,
         "center": true,
         "visible": true,

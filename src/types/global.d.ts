@@ -15,10 +15,17 @@ type SteamGame = {
 }
 
 type LibraryCacheEntry = {
-  "Grids": string,
-  "Heros": string,
-  "Logos": string,
-  "Icons": string,
+  "Capsule": string,
+  "Wide Capsule": string,
+  "Hero": string,
+  "Logo": string,
+  "Icon": string,
 }
 
-declare const __APP_VERSION__: string;
+type ChangedPath = {
+  appId: string,
+  gridType: string,
+  oldPath: string,
+  targetPath: string,
+  sourcePath: string
+}

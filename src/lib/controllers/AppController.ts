@@ -7,9 +7,8 @@ import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline,
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
-import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
-import { SteamGridController } from "./SteamGridController";
+import type { SGDBImage } from "../models/SGDB";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -32,7 +31,6 @@ const libraryCacheLUT = {
  */
 export class AppController {
   private static cacheController = new CacheController();
-  private static steamGridController = new SteamGridController(AppController.cacheController);
 
   /**
    * Sets up the AppController.
@@ -131,6 +129,22 @@ export class AppController {
   }
 
   /**
+   * Gets the steam game image data.
+   * @returns A promise resolving to the image data.
+   */
+  private static async getCacheData(): Promise<{ [appid: string]: LibraryCacheEntry }> {
+    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
+    const filteredGrids = AppController.filterGridsDir(gridDirContents);
+    LogController.log("Grids loaded.");
+
+    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
+    LogController.log("Library Cache loaded.");
+
+    return filteredCache;
+  }
+
+  /**
    * Gets the user's steam apps.
    * ? Logging complete.
    */
@@ -140,15 +154,9 @@ export class AppController {
 
     const vdf = await RustInterop.readAppinfoVdf();
 
-    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
-    const filteredGrids = AppController.filterGridsDir(gridDirContents);
-    LogController.log("Grids loaded.");
+    const filteredCache = await AppController.getCacheData();
 
-    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
-    LogController.log("Library Cache loaded.");
-
-    originalAppLibraryCache.set(filteredCache);
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
@@ -171,9 +179,26 @@ export class AppController {
    * ? Logging complete.
    */
   static async saveChanges(): Promise<void> {
+    LogController.log("Saving changes...");
+
+    const originalCache = get(originalAppLibraryCache);
+    const libraryCache = get(appLibraryCache);
+    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache);
     
-    ToastController.showSuccessToast("Changes saved!");
-    LogController.log("Saved changes.");
+    if ((changedPaths as any).error !== undefined) {
+      ToastController.showSuccessToast("Changes failed.");
+      LogController.log("Changes failed.");
+    } else {
+      for (const changedPath of (changedPaths as ChangedPath[])) {
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
+      }
+      originalAppLibraryCache.set(libraryCache);
+      appLibraryCache.set(libraryCache);
+      ToastController.showSuccessToast("Changes saved!");
+      LogController.log("Saved changes.");
+    }
+
+    canSave.set(false);
   }
 
   /**
@@ -181,9 +206,13 @@ export class AppController {
    * ? Logging complete.
    */
   static async discardChanges(): Promise<void> {
-    appLibraryCache.set(get(originalAppLibraryCache));
+    const originalImgs = get(originalAppLibraryCache);
+    appLibraryCache.set({...originalImgs});
+
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
+    
+    canSave.set(false);
   }
 
 
@@ -201,7 +230,27 @@ export class AppController {
     appLibraryCache.set(gameImages);
     canSave.set(true);
 
-    LogController.log(`Set ${selectedGridType} for ${get(steamGames)[selectedGameId]} to ${path}.`);
+    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${path}.`);
+  }
+
+  /**
+   * Sets the image for a game to the provided image.
+   * @param appId The id of the grid.
+   * @param url The url of the SteamGridDB image.
+   * ? Logging complete.
+   */
+  static async setSteamGridArt(appId: number, url: URL): Promise<void> {
+    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
+    
+    const selectedGameId = get(selectedGameAppId);
+    const selectedGridType = get(gridType);
+    const gameImages = get(appLibraryCache);
+    gameImages[selectedGameId][selectedGridType] = localPath;
+
+    appLibraryCache.set(gameImages);
+    canSave.set(true);
+
+    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${localPath}.`);
   }
 
   /**
@@ -215,7 +264,10 @@ export class AppController {
     if (succeeded) {
       ToastController.showSuccessToast("Import successful!");
       LogController.log("Successfully imported user's grids.");
-      //TODO: reload app cache.
+
+      const filteredCache = await AppController.getCacheData();
+      originalAppLibraryCache.set(filteredCache);
+      appLibraryCache.set(filteredCache);
     } else {
       ToastController.showWarningToast("Cancelled.");
       LogController.log("Import grids cancelled.");
@@ -240,17 +292,20 @@ export class AppController {
   }
 
   /**
-   * Empties the SteamGridDB cache.
+   * Gets a list of grids for the provided game.
+   * @param appId The id of the app to get.
+   * @returns A promise resolving to a list of the results.
    */
-  static async emptyCache(): Promise<void> {
-    
+  static async getSteamGridArt(appId: number): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId);
   }
 
   /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
-  static onDestroy(): void {
+  static async destroy(): Promise<void> {
+    await AppController.cacheController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -293,35 +348,6 @@ export class AppController {
     toast.push({
       component: {
         src: SetApiKeyToast,
-        sendIdTo: 'toastId'
-      },
-      target: "top",
-      dismissable: false,
-      initial: 0,
-      intro: { y: -192 },
-      theme: {
-        '--toastPadding': '0',
-        '--toastBackground': 'transparent',
-        '--toastMsgPadding': '0'
-      }
-    });
-  }
-
-  /**
-   * Shows the empty cache confirm toast.
-   * ? Logging complete.
-   */
-  static showEmptyCacheToast(): void {
-    LogController.log("Showing confirmEmptyCache toast.");
-    // @ts-ignore
-    toast.push({
-      component: {
-        src: ConfirmToast,
-        props: {
-          "message": "Are you sure you want to empty the cache? This will mean refetching all cached game info and images.",
-          "onConfirm": AppController.emptyCache.bind(AppController),
-          "confirmMessage": "Cache emptied"
-        },
         sendIdTo: 'toastId'
       },
       target: "top",

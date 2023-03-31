@@ -84,7 +84,7 @@
       </div>
     {:else}
       <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-        {#each games as game, i (`${game.appid}`)}
+        {#each games as game (`${game.appid}`)}
           <Game game={game} widths={widths} heights={heights} />
         {/each}
       </div>
