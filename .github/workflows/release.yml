@@ -31,6 +31,11 @@ jobs:
           config-file-path: "./.commitlintrc.json"
           github-token: ${{ secrets.github_token }}
           output-file: "false"
+          
+      - name: Set env vars for script
+        run: |
+          echo "RELEASE_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
+          echo "RELEASE_LOG=${{ steps.changelog.outputs.clean_changelog }}" >> $GITHUB_ENV
 
       - name: create release
         id: create-release
@@ -40,13 +45,14 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: "v${{ steps.changelog.outputs.tag }}",
-              name: `Steam Art Manager v${steps.changelog.outputs.version}`,
-              body: "${{ steps.changelog.outputs.clean_changelog }}",
+              tag_name: `${process.env.RELEASE_TAG}`,
+              name: `Steam Art Manager ${process.env.RELEASE_TAG}`,
+              body: `${process.env.RELEASE_LOG}`,
               draft: true,
               prerelease: false
             })
             return data.id
+
   build-tauri-linux:
     needs: create-release
     permissions:
@@ -150,6 +156,7 @@ jobs:
                 }
               }
             }
+            
   publish-release:
     needs: [create-release, build-tauri-linux, build-tauri-windows, update-gist]
     permissions:
