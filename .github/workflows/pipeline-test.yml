@@ -29,6 +29,9 @@ jobs:
         uses: TriPSs/conventional-changelog-action@v3
         with:
           config-file-path: "./.commitlintrc.json"
+          version-file: "./package.json"
+          version-path: "version"
+          commit-message: "chore(release): {version}"
           skip-version-file: "true"
           github-token: ${{ secrets.github_token }}
           output-file: "false"
