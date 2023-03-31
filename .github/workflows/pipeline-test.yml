@@ -28,7 +28,7 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3
         with:
-          config-file-path: "./commitlintrc.json"
+          config-file-path: "./.commitlintrc.json"
           skip-version-file: "true"
           github-token: ${{ secrets.github_token }}
           output-file: "false"
