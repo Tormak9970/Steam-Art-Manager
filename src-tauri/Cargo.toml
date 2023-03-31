@@ -19,10 +19,12 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.1", features = ["dialog-all", "fs-all", "http-request", "os-all", "path-all", "process-exit", "protocol-all", "shell-open", "updater", "window-all"] }
 tauri-plugin-persisted-scope = "0.1.0"
 chrono = "0.4.23"
-winreg = "0.11"
 home = "0.5.4"
 vdf-serde = "0.3.0"
 zip = "0.6.4"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.11"
 
 [features]
 # by default Tauri runs in production mode
