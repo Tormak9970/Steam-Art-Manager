@@ -41,10 +41,13 @@ fn get_grid_filename(appid: &str, grid_type: &str, image_type: &str) -> String {
 }
 
 fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
-
+  let format_start_index = path.rfind(".").expect("Path should have had a file extension.") + 1;
+  let image_type = &path[format_start_index..];
+  return get_grid_filename(appid, grid_type, image_type);
 }
 
-fn filter_paths(current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+fn filter_paths(app_handle: &AppHandle, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+  let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned()));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -53,12 +56,18 @@ fn filter_paths(current_paths: &GridImageCache, original_paths: &GridImageCache)
       let grid_path_owned = grid_path.to_owned();
       let source_path_owned = source_path.to_owned();
 
+      if appid.as_str().to_owned() == "752590" {
+        println!("Source: {} Target: {}.", source_path_owned, grid_path_owned);
+      }
+
       if source_path_owned != grid_path_owned {
-        let target_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str());
+        // println!("Source: {} Target: {}.", source_path_owned, grid_path_owned);
+        let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str());
+        let target_path = grids_dir.join(adjusted_path);
         let changed_path = ChangedPath {
           appId: appid.to_owned(),
           gridType: grid_type.to_owned(),
-          targetPath: target_path,
+          targetPath: String::from(target_path.to_str().unwrap()),
           sourcePath: source_path_owned
         };
 
@@ -143,12 +152,12 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
-  let paths_to_set: Vec<ChangedPath> = filter_paths(&current_art_dict, &original_art_dict);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, &current_art_dict, &original_art_dict);
   logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
-  for changed_path in paths_to_set.into_iter() {
-    let source = changed_path.sourcePath;
-    let target = changed_path.targetPath;
+  for changed_path in (&paths_to_set).into_iter() {
+    let source = changed_path.sourcePath.to_owned();
+    let target = changed_path.targetPath.to_owned();
     let copy_res = fs::copy(target.clone(), source.clone());
     if copy_res.is_ok() {
       logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
@@ -158,8 +167,14 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
     }
   }
 
-  let changed_as_string: String = serde_json::to_string(paths_to_set.as_ref()).unwrap();
-  return changed_as_string;
+  let changed_res = serde_json::to_string::<Vec<ChangedPath>>(paths_to_set.as_ref());
+
+  if changed_res.is_ok() {
+    return changed_res.unwrap();
+  } else {
+    let err = changed_res.err().unwrap();
+    panic!("{}", err.to_string());
+  }
 }
 
 fn main() {

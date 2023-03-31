@@ -174,29 +174,6 @@ export class AppController {
     LogController.log("Steam games loaded.");
   }
 
-  private static convertOriginalToGridPaths(originalPaths: { [appid: string]: LibraryCacheEntry }, libraryPaths: { [appid: string]: LibraryCacheEntry }): { [appid: string]: LibraryCacheEntry } {
-    LogController.log("Converting entries to grid paths...");
-    const originalEntries = Object.entries(originalPaths);
-
-    const convertedEntries = originalEntries.map(([appId, cacheEntry]) => {
-      let convertedEntry = {};
-      const libraryEntry = libraryPaths[appId];
-      
-      for (const type of Object.keys(cacheEntry)) {
-        const libEntry = libraryEntry[type];
-        if (libEntry != cacheEntry[type]) {
-          const imageType = libEntry.substring(libEntry.lastIndexOf("."));
-          convertedEntry[type] = getGridFileName(appId, type as GridTypes, imageType);
-        }
-      }
-
-      return [appId, convertedEntry];
-    });
-
-    LogController.log("Entries converted to grid paths.");
-    return Object.fromEntries(convertedEntries);
-  }
-
   /**
    * Saves the current changes
    * ? Logging complete.
@@ -208,14 +185,18 @@ export class AppController {
     const libraryCache = get(appLibraryCache);
     const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache);
     
-    if (res) {
-      originalAppLibraryCache.set(convertedPaths);
-      appLibraryCache.set(convertedPaths);
-      ToastController.showSuccessToast("Changes saved!");
-      LogController.log("Saved changes.");
-    } else {
+    if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
       LogController.log("Changes failed.");
+    } else {
+      console.log(changedPaths);
+      for (const changedPath of (changedPaths as ChangedPath[])) {
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
+      }
+      originalAppLibraryCache.set(libraryCache);
+      appLibraryCache.set(libraryCache);
+      ToastController.showSuccessToast("Changes saved!");
+      LogController.log("Saved changes.");
     }
   }
 
