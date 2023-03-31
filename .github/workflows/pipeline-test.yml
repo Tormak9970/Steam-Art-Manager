@@ -40,9 +40,9 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: ${{ steps.changelog.outputs.tag }},
+              tag_name: "v${{ steps.changelog.outputs.tag }}",
               name: `Steam Art Manager v${steps.changelog.outputs.version}`,
-              body: ${{ steps.changelog.outputs.clean_changelog }},
+              body: "${{ steps.changelog.outputs.clean_changelog }}",
               draft: true,
               prerelease: false
             })
