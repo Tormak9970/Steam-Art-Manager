@@ -35,7 +35,10 @@ jobs:
       - name: Set env vars for script
         run: |
           echo "RELEASE_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
-          echo "RELEASE_LOG=${{ steps.changelog.outputs.clean_changelog }}" >> $GITHUB_ENV
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "RELEASE_LOG<<$EOF" >> $GITHUB_ENV
+          echo "${{ steps.changelog.outputs.clean_changelog }}" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
 
       - name: create release
         id: create-release
