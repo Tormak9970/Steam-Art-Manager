@@ -35,7 +35,7 @@ export class SettingsManager {
     const currentSettings:any = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
 
     settings = {...currentSettings};
-    if (currentSettings.version !== __APP_VERSION__) {
+    if (currentSettings.version !== APP_VERSION) {
       const defaultSettings = JSON.parse(await fs.readTextFile(await path.resolveResource("../settings.json")));
 
       const curEntries = Object.entries(currentSettings);
@@ -55,7 +55,7 @@ export class SettingsManager {
         }
       }
 
-      settings.version = __APP_VERSION__;
+      settings.version = APP_VERSION;
 
       await fs.writeFile({
         path: SettingsManager.settingsPath,

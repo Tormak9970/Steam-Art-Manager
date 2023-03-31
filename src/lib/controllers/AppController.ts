@@ -7,7 +7,6 @@ import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline,
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
-import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import type { SGDBImage } from "../models/SGDB";
 
@@ -224,7 +223,8 @@ export class AppController {
   }
 
   static async setSteamGridArt(url: URL): Promise<void> {
-
+    const localPath = await AppController.cacheController.getGridImage(url.toString());
+    
   }
 
   /**
@@ -275,22 +275,12 @@ export class AppController {
   }
 
   /**
-   * Empties the SteamGridDB cache.
-   */
-  static async emptyCache(): Promise<void> {
-    LogController.log("Clearing cache...");
-    await AppController.cacheController.invalidateCache();
-    LogController.log("Cleared cache.");
-    ToastController.showSuccessToast("Cache cleared!");
-  }
-
-  /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
-  static onDestroy(): void {
+  static async destroy(): Promise<void> {
+    await AppController.cacheController.destroy();
     LogController.log("App destroyed.");
-    AppController.cacheController.onDestroy()
   }
 
   /**
@@ -332,35 +322,6 @@ export class AppController {
     toast.push({
       component: {
         src: SetApiKeyToast,
-        sendIdTo: 'toastId'
-      },
-      target: "top",
-      dismissable: false,
-      initial: 0,
-      intro: { y: -192 },
-      theme: {
-        '--toastPadding': '0',
-        '--toastBackground': 'transparent',
-        '--toastMsgPadding': '0'
-      }
-    });
-  }
-
-  /**
-   * Shows the empty cache confirm toast.
-   * ? Logging complete.
-   */
-  static showEmptyCacheToast(): void {
-    LogController.log("Showing confirmEmptyCache toast.");
-    // @ts-ignore
-    toast.push({
-      component: {
-        src: ConfirmToast,
-        props: {
-          "message": "Are you sure you want to empty the cache? This will mean refetching all cached game info and images.",
-          "onConfirm": AppController.emptyCache.bind(AppController),
-          "confirmMessage": "Cache emptied"
-        },
         sendIdTo: 'toastId'
       },
       target: "top",

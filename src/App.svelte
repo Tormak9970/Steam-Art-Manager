@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { SvelteToast } from "@zerodevx/svelte-toast";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "./components/Titlebar.svelte";
 	import { RustInterop } from "./lib/controllers/RustInterop";
 	import { Splitpanes } from 'svelte-splitpanes';
@@ -29,6 +29,10 @@
     }
 
     AppController.init();
+	});
+
+	onDestroy(async () => {
+		await AppController.destroy();
 	});
 </script>
 
