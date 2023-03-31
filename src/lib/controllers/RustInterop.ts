@@ -99,9 +99,10 @@ export class RustInterop {
    * Saves the user's changes.
    * @param currentArt The current changes.
    * @param originalArt The original art dictionary.
-   * @returns A promise resolving to true if the save was successfull, false otherwise.
+   * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<boolean> {
-    return await invoke<boolean>("save_changes", { current_art: JSON.stringify(currentArt), original_art: JSON.stringify(originalArt) });
+  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<ChangedPath[]> {
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt) });
+    return JSON.parse(res) as ChangedPath[];
   }
 }

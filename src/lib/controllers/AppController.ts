@@ -174,6 +174,29 @@ export class AppController {
     LogController.log("Steam games loaded.");
   }
 
+  private static convertOriginalToGridPaths(originalPaths: { [appid: string]: LibraryCacheEntry }, libraryPaths: { [appid: string]: LibraryCacheEntry }): { [appid: string]: LibraryCacheEntry } {
+    LogController.log("Converting entries to grid paths...");
+    const originalEntries = Object.entries(originalPaths);
+
+    const convertedEntries = originalEntries.map(([appId, cacheEntry]) => {
+      let convertedEntry = {};
+      const libraryEntry = libraryPaths[appId];
+      
+      for (const type of Object.keys(cacheEntry)) {
+        const libEntry = libraryEntry[type];
+        if (libEntry != cacheEntry[type]) {
+          const imageType = libEntry.substring(libEntry.lastIndexOf("."));
+          convertedEntry[type] = getGridFileName(appId, type as GridTypes, imageType);
+        }
+      }
+
+      return [appId, convertedEntry];
+    });
+
+    LogController.log("Entries converted to grid paths.");
+    return Object.fromEntries(convertedEntries);
+  }
+
   /**
    * Saves the current changes
    * ? Logging complete.
@@ -182,10 +205,12 @@ export class AppController {
     LogController.log("Saving changes...");
 
     const originalCache = get(originalAppLibraryCache);
-    const res = await RustInterop.saveChanges(get(appLibraryCache), originalCache);
+    const libraryCache = get(appLibraryCache);
+    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache);
     
     if (res) {
-      appLibraryCache.set(originalCache)
+      originalAppLibraryCache.set(convertedPaths);
+      appLibraryCache.set(convertedPaths);
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     } else {
@@ -199,7 +224,9 @@ export class AppController {
    * ? Logging complete.
    */
   static async discardChanges(): Promise<void> {
-    appLibraryCache.set(get(originalAppLibraryCache));
+    const originalImgs = get(originalAppLibraryCache);
+    appLibraryCache.set(originalImgs);
+
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
   }
@@ -219,12 +246,26 @@ export class AppController {
     appLibraryCache.set(gameImages);
     canSave.set(true);
 
-    LogController.log(`Set ${selectedGridType} for ${get(steamGames)[selectedGameId]} to ${path}.`);
+    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${path}.`);
   }
 
+  /**
+   * Sets the image for a game to the provided image.
+   * @param url The url of the SteamGridDB image.
+   * ? Logging complete.
+   */
   static async setSteamGridArt(url: URL): Promise<void> {
     const localPath = await AppController.cacheController.getGridImage(url.toString());
     
+    const selectedGameId = get(selectedGameAppId);
+    const selectedGridType = get(gridType);
+    const gameImages = get(appLibraryCache);
+    gameImages[selectedGameId][selectedGridType] = localPath;
+
+    appLibraryCache.set(gameImages);
+    canSave.set(true);
+
+    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${localPath}.`);
   }
 
   /**

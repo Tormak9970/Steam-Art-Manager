@@ -4,6 +4,10 @@ import { toast } from "@zerodevx/svelte-toast";
  * A controller for handling toast messages.
  */
 export class ToastController {
+  /**
+   * Helper function to get the generic toast styles.
+   * @returns The generic theme.
+   */
   private static getAppToastTheme(): any {
     return {
       "--toastBackground": "#22aeff",
@@ -12,6 +16,10 @@ export class ToastController {
     };
   }
 
+  /**
+   * Helper function to get the success toast styles.
+   * @returns The success theme.
+   */
   private static getSuccessToastTheme(): any {
     return {
       "--toastBackground": "#27b803",
@@ -20,6 +28,10 @@ export class ToastController {
     };
   }
 
+  /**
+   * Helper function to get the warning toast styles.
+   * @returns The warning theme.
+   */
   private static getWarningToastTheme(): any {
     return {
       "--toastBackground": "#e24a4a",

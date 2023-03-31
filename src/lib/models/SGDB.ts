@@ -100,6 +100,11 @@ export class SGDB {
     }
   }
 
+  /**
+   * Helper function to format query paramters based on the provided options.
+   * @param options The query's options.
+   * @returns The built query.
+   */
   private buildQuery(options: any): { [key: string]: string; } {
     const multiParams = ["styles", "dimensions", "mimes", "types"];
     const singleParams = ["nsfw", "humor", "epilepsy", "oneoftag", "page"];

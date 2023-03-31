@@ -15,7 +15,60 @@ use std::{path::PathBuf, collections::HashMap, fs};
 use appinfo_vdf_parser::read_vdf;
 use home::home_dir;
 
+use serde;
 use tauri::{AppHandle, api::dialog::blocking::FileDialogBuilder};
+
+type GridImageCache = HashMap<String, HashMap<String, String>>;
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
+#[allow(non_snake_case)]
+struct ChangedPath {
+  appId: String,
+  gridType: String,
+  targetPath: String,
+  sourcePath: String
+}
+
+fn get_grid_filename(appid: &str, grid_type: &str, image_type: &str) -> String {
+  match grid_type {
+    "Capsule" => return format!("{}p{}", appid, image_type),
+    "Wide Capsule" => return format!("{}{}", appid, image_type),
+    "Hero" => return format!("{}_hero{}", appid, image_type),
+    "Logo" => return format!("{}_logo{}", appid, image_type),
+    "Icon" => return format!("{}_icon{}", appid, image_type),
+    _ => panic!("Unexpected grid type {}", grid_type)
+  }
+}
+
+fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
+
+}
+
+fn filter_paths(current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+  let mut res:Vec<ChangedPath> = Vec::new();
+
+  for (appid, grids_map) in current_paths.into_iter() {
+    for (grid_type, source_path) in grids_map.into_iter() {
+      let grid_path: &String = original_paths.get(appid.as_str()).unwrap().get(grid_type.as_str()).unwrap();
+      let grid_path_owned = grid_path.to_owned();
+      let source_path_owned = source_path.to_owned();
+
+      if source_path_owned != grid_path_owned {
+        let target_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str());
+        let changed_path = ChangedPath {
+          appId: appid.to_owned(),
+          gridType: grid_type.to_owned(),
+          targetPath: target_path,
+          sourcePath: source_path_owned
+        };
+
+        res.push(changed_path);
+      }
+    }
+  }
+
+  return res;
+}
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -85,28 +138,28 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String) -> bool {
-  let current_art_dict: HashMap<String, HashMap<String, String>> = serde_json::from_str(current_art.as_str()).unwrap();
-  let original_art_dict: HashMap<String, HashMap<String, String>> = serde_json::from_str(original_art.as_str()).unwrap();
+async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String) -> String {
+  let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
+  let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
-  for (key, value) in current_art_dict.into_iter() {
-    for (sub_key, sub_value) in value.into_iter() {
-      let original_value: &String = original_art_dict.get(key.as_str()).unwrap().get(sub_key.as_str()).unwrap();
-      let original_val = original_value.to_owned();
-      let sub_val = sub_value.to_owned();
-      if original_val != sub_val {
-        let copy_res = fs::copy(sub_value, original_value);
-        if copy_res.is_ok() {
-          logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", sub_val, original_val).as_str(), 0);
-        } else {
-          logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", sub_val, original_val).as_str(), 2);
-          return false;
-        }
-      }
+  logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&current_art_dict, &original_art_dict);
+  logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
+
+  for changed_path in paths_to_set.into_iter() {
+    let source = changed_path.sourcePath;
+    let target = changed_path.targetPath;
+    let copy_res = fs::copy(target.clone(), source.clone());
+    if copy_res.is_ok() {
+      logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
+    } else {
+      logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
+      return format!("{{ \"error\": \"Failed to copy {} to {}\"}}", source, target);
     }
   }
 
-  return true;
+  let changed_as_string: String = serde_json::to_string(paths_to_set.as_ref()).unwrap();
+  return changed_as_string;
 }
 
 fn main() {
