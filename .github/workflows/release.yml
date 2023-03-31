@@ -1,21 +1,22 @@
 name: Release
+
 on:
   push:
     branches:
-      - release
+      - "release"
 
 jobs:
-  release:
+  create-release:
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-20.04, windows-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: ubuntu-20.04
+    outputs:
+      release_id: ${{ steps.create-release.outputs.result }}
+      change_log: ${{ steps.changelog.outputs.clean_changelog }}
+      version: ${{ steps.changelog.outputs.version }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: setup node
@@ -23,98 +24,151 @@ jobs:
         with:
           node-version: 16
 
-      - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
-        # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
-
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3
         with:
-          workspaces: './src-tauri -> target'
+          config-file-path: "./.commitlintrc.json"
+          github-token: ${{ secrets.github_token }}
+          output-file: "false"
 
-      - name: Sync node version and setup cache
+      - name: create release
+        id: create-release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "v${{ steps.changelog.outputs.tag }}",
+              name: `Steam Art Manager v${steps.changelog.outputs.version}`,
+              body: "${{ steps.changelog.outputs.clean_changelog }}",
+              draft: true,
+              prerelease: false
+            })
+            return data.id
+  build-tauri-linux:
+    needs: create-release
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*'
-          cache: 'yarn' # Set this to npm, yarn or pnpm.
+          node-version: 16
 
-      - name: Install frontend dependencies
-        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-        run: yarn install # Change this to npm, yarn or pnpm.
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
 
+      - name: install dependencies (ubuntu only)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: install frontend dependencies
+        run: npm install # change this to npm or pnpm depending on which one you use
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+
+  build-tauri-windows:
+    needs: create-release
+    permissions:
+      contents: write
+
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: install frontend dependencies
+        run: npm install # change this to npm or pnpm depending on which one you use
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+
+  update-gist:
+    needs: [create-release, build-tauri-linux, build-tauri-windows]
+    permissions:
+      contents: write
+    runs-on: ubuntu-20.04
+    
+    steps:
       - name: Date
         run: echo "DATE=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
 
-      - name: Changelog
-        uses: scottbrenner/generate-changelog-action@master
-        id: Changelog
-        with:
-          exclude: ["build"]
-
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
-        id: build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: v$PACKAGE_VERSION
-          releaseName: 'Steam Art Manager v__VERSION__' # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: |
-            ${{ steps.Changelog.outputs.changelog }}
-          draft: false
-          releaseDraft: true
-          prerelease: false
-
       - name: Read linux release sig
-        if: matrix.platform == 'ubuntu-20.04'
         id: readLinux
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
-      
-      - name: Set linux sig
-        if: matrix.platform == 'ubuntu-20.04'
-        run: echo "LINUX_SIG=${{ steps.readLinux.output.content }}" >> $GITHUB_ENV
+          path: ${{ needs.build-tauri-linux.outputs.artifactPaths[3] }}
       
       - name: Read windows release sig
-        if: matrix.platform == 'windows-latest'
         id: readWindows
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ steps.build.outputs.artifacts[steps.build.outputs.artifacts.length - 1] }}
-        
-      - name: Set windows sig
-        if: matrix.platform == 'windows-latest'
-        run: echo "WINDOWS_SIG=${{ steps.readWindows.output.content }}" >> $GITHUB_ENV
+          path: ${{ needs.build-tauri-windows.outputs.artifactPaths[3] }}
 
       - name: WriteGist
-        if: $LINUX_SIG != "" && $WINDOWS_SIG != ""
         uses: sergeysova/gist-write-action@v1
         with:
           gist_id: a72aa3b7232033772d80b0ed86303f01
           file_name: sarm_version.json
           content: |
             {
-              "version": "v$PACKAGE_VERSION",
-              "notes": "${{ steps.Changelog.outputs.changelog }}",
-              "pub_date": "2020-06-22T19:25:57Z",
+              "version": "v${{ needs.create-release.outputs.version }}",
+              "notes": "${{ needs.create-release.outputs.change_log }}",
+              "pub_date": "$DATE",
               "platforms": {
                 "linux-x86_64": {
-                  "signature": "$LINUX_SIG",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$PACKAGE_VERSION/Steam Art Manager_$PACKAGE_VERSION_en-US.AppImage.tar.gz"
+                  "signature": "${{ steps.readLinux.output.content }}",
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/Steam Art Manager_${{ needs.create-release.outputs.version }}_en-US.AppImage.tar.gz"
                 },
                 "windows-x86_64": {
-                  "signature": "$WINDOWS_SIG",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$PACKAGE_VERSION/Steam Art Manager_$PACKAGE_VERSION_en-US.msi.zip"
+                  "signature": "${{ steps.readWindows.output.content }}",
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/Steam Art Manager_${{ needs.create-release.outputs.version }}_en-US.msi.zip"
                 }
               }
             }
+  publish-release:
+    needs: [create-release, build-tauri-linux, build-tauri-windows, update-gist]
+    permissions:
+      contents: write
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: publish release
+        id: publish-release
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              draft: false,
+              prerelease: false
+            })
+  
