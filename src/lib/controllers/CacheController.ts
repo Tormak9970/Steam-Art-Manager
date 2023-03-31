@@ -3,7 +3,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { gridsCache, gridType, GridTypes, steamGridDBKey } from "../../Stores";
+import { dowloadingGridId, gridsCache, gridType, GridTypes, steamGridDBKey } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -98,19 +98,23 @@ export class CacheController {
    * @param imageURL The url of the image to get.
    * ? Logging complete.
    */
-  async getGridImage(imageURL: string): Promise<string> {
+  async getGridImage(appId: number, imageURL: string): Promise<string> {
     LogController.log(`Fetching image ${imageURL}...`);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
     const localImagePath = await path.join(this.gridCacheDirPath, get(gridType), fileName);
 
     if (!(await fs.exists(localImagePath))) {
       LogController.log(`Fetching image from API.`);
+
+      dowloadingGridId.set(appId);
       const imageData = await http.fetch<Uint8Array>(imageURL, {
         method: "GET",
         responseType: 3
       });
       
       await fs.writeBinaryFile(localImagePath, imageData.data);
+      
+      dowloadingGridId.set(null);
     } else {
       LogController.log(`Cache found. Fetching image from local file system.`);
     }

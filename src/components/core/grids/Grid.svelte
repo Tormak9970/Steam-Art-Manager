@@ -4,19 +4,25 @@
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
 
-  import { gridType } from "../../../Stores";
+  import { dowloadingGridId, gridType, selectedGameAppId } from "../../../Stores";
+    import LoadingSpinner from "../../info/LoadingSpinner.svelte";
 
   export let grid: SGDBImage;
   export let widths: any;
   export let heights: any;
 
+  let clicked = false;
+
   function selectGame() {
-    AppController.setSteamGridArt(grid.url);
+    AppController.setSteamGridArt(grid.id, grid.url);
   }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="grid" on:click={selectGame}>
+  <div class="loading-overlay" class:showing={$dowloadingGridId == grid.id}>
+    <LoadingSpinner width="40px" height="40px" />
+  </div>
   <div class="img" style="height: {heights[$gridType]}px;">
     <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
       <img src="{grid.url.toString()}" alt="{grid.author}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
@@ -71,5 +77,26 @@
     white-space: nowrap;
     
     text-align: center;
+  }
+
+  .loading-overlay {
+    display: none;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+
+    background-color: rgba(0, 0, 0, 0.7);
+
+    justify-content: center;
+    align-items: center;
+  }
+
+  .showing {
+    display: flex;
   }
 </style>

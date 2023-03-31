@@ -235,11 +235,12 @@ export class AppController {
 
   /**
    * Sets the image for a game to the provided image.
+   * @param appId The id of the grid.
    * @param url The url of the SteamGridDB image.
    * ? Logging complete.
    */
-  static async setSteamGridArt(url: URL): Promise<void> {
-    const localPath = await AppController.cacheController.getGridImage(url.toString());
+  static async setSteamGridArt(appId: number, url: URL): Promise<void> {
+    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
     
     const selectedGameId = get(selectedGameAppId);
     const selectedGridType = get(gridType);
