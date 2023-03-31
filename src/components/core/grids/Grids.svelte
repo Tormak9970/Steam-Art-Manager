@@ -38,8 +38,6 @@
   };
 
   function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
-    console.log(allGrids);
-
     const targetFilters = filters[type];
     const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
     const dimensions = type != GridTypes.LOGO ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
@@ -132,11 +130,19 @@
     {#if $isOnline}
       {#if !$needsAPIKey}
         {#if $selectedGameAppId != null}
-          <ListTabs tabs={Object.values(GridTypes)} height="calc(100% - 70px)" bind:selected={$gridType}>
-            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-              {#each grids as grid (`${grid.id}`)}
-                <Grid grid={grid} widths={widths} heights={heights} />
-              {/each}
+          <ListTabs tabs={Object.values(GridTypes)} height="calc(100% - 45px)" bind:selected={$gridType}>
+            <div class="grids-cont">
+              <VerticalSpacer />
+              <VerticalSpacer />
+              
+              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                {#each grids as grid (`${grid.id}|${$gridType}`)}
+                  <Grid grid={grid} widths={widths} heights={heights} />
+                {/each}
+              </div>
+              
+              <VerticalSpacer />
+              <VerticalSpacer />
             </div>
           </ListTabs>
         {:else}
@@ -154,8 +160,6 @@
         You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
       </div>
     {/if}
-    
-    <VerticalSpacer />
   </div>
 </Pane>
 
@@ -165,6 +169,12 @@
     padding: 0px 6px;
     overflow: auto;
     max-height: calc(100% - 65px);
+  }
+
+  .grids-cont {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
   }
 
   .game-grid {

@@ -3,7 +3,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { gridsCache, gridType, steamGridDBKey } from "../../Stores";
+import { gridsCache, gridType, GridTypes, steamGridDBKey } from "../../Stores";
 
 /**
  * Controller class for handling caching of requests.
@@ -75,12 +75,12 @@ export class CacheController {
       if (types.includes(type)) {
         return gridsCache[appId.toString()][type];
       } else {
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
         gridsCache[appId.toString()][type] = grids;
         return grids;
       }
     } else {
-      const grids = await this.client[`get${type.includes("Capsule") ? "Grids": type}BySteamAppId`](appId);
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
       gridsCache[appId.toString()] = {};
       gridsCache[appId.toString()][type] = grids;
       return grids;

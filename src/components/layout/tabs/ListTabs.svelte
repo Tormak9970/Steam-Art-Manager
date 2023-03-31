@@ -25,8 +25,8 @@
   @import "/theme.css";
 
 	.tabs {
-		margin-bottom: 10px;
 		padding: 10px;
+    padding-bottom: 5px;
     border-top: 2px solid var(--foreground-light);
     
     background-color: var(--foreground);

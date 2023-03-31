@@ -223,6 +223,10 @@ export class AppController {
     LogController.log(`Set ${selectedGridType} for ${get(steamGames)[selectedGameId]} to ${path}.`);
   }
 
+  static async setSteamGridArt(url: URL): Promise<void> {
+
+  }
+
   /**
    * Prompts the user to select a .zip file containing steam game art.
    * ? Logging complete.

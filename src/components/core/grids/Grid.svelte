@@ -1,5 +1,6 @@
 <script lang="ts">
   import Lazy from "svelte-lazy";
+    import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
 
@@ -10,7 +11,7 @@
   export let heights: any;
 
   function selectGame() {
-    
+    AppController.setSteamGridArt(grid.url);
   }
 </script>
 
@@ -21,14 +22,14 @@
       <img src="{grid.url.toString()}" alt="{grid.author}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
     </Lazy>
   </div>
-  <div class="name">{grid.author}</div>
+  <div class="author">By {grid.author.name}</div>
 </div>
 
 <style>
   @import "/theme.css";
 
   .grid {
-    background-color: var(--foreground);
+    background-color: var(--foreground-hover);
     padding: 10px;
     padding-bottom: 5px;
     border-radius: 4px;
@@ -48,7 +49,7 @@
     transition: transform 0.2s ease-in-out;
   }
   .grid:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground-light);
     transform: scale(1.1);
   }
 
@@ -58,10 +59,12 @@
     justify-content: center;
   }
 
-  .name {
+  .author {
     width: 100%;
     height: 23px;
     line-height: 23px;
+
+    font-size: 12px;
 
     text-overflow: ellipsis;
     overflow: hidden;
