@@ -22,6 +22,11 @@ inputs:
     default: "conventional.changelog.action@github.com"
     required: false
 
+  git-pull-method:
+    description: "The git pull method used when pulling all changes from remote"
+    default: "--ff-only"
+    required: false
+
   git-branch:
     description: "The git branch to be pushed"
     default: ${{ github.ref }}
@@ -30,6 +35,11 @@ inputs:
   tag-prefix:
     description: "Prefix that is used for the git tag"
     default: "v"
+    required: false
+
+  git-url:
+    description: "Git Url"
+    default: "github.com"
     required: false
     
 outputs:
