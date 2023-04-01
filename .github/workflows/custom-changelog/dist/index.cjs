@@ -291,7 +291,7 @@ function run() {
             const packgeJsonPath = path_1.default.resolve(process.cwd(), "./package.json");
             const packageJson = JSON.parse(fs_1.default.readFileSync(packgeJsonPath).toString());
             let oldVersion = packageJson.version;
-            const tauriConfigPath = path_1.default.resolve(process.cwd(), "./src-tauri/tauri.config.json");
+            const tauriConfigPath = path_1.default.resolve(process.cwd(), "./src-tauri/tauri.conf.json");
             const tauriConfig = JSON.parse(fs_1.default.readFileSync(tauriConfigPath).toString());
             let newVersion = `${parseInt(oldVersion.substring(0, 1)) + 1}${oldVersion.substring(1)}`;
             let gitTag = `${tagPrefix}${newVersion}`;
