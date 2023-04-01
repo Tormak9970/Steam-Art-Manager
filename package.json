@@ -1,7 +1,7 @@
 {
   "name": "steam-art-manager",
+  "version": "0.1.0",
   "private": true,
-  "version": null,
   "type": "module",
   "author": {
     "email": "Tormak9970@gmail.com",
