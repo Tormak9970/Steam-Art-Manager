@@ -102,10 +102,10 @@
       {
         "label": "main",
         "fullscreen": false,
-        "height": 740,
+        "height": 800,
         "resizable": true,
         "title": "Steam Art Manager",
-        "width": 1200,
+        "width": 1250,
         "decorations": false,
         "center": true,
         "visible": true,
