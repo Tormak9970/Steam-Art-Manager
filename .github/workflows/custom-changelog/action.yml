@@ -2,6 +2,11 @@ name: 'custom-changelog-action'
 description: 'Generates changelogs for commitlint commits and is compatible with tauri.'
 author: 'Tormak'
 inputs:
+  github-token:
+    description: "Github token"
+    default: ${{ github.token }}
+    required: false
+    
   git-message:
     description: "Commit message to use"
     default: "chore(release): {version}"
