@@ -245,7 +245,8 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
         }
     });
     let versions = currentVersion.split(".");
-    return `${versions[0]}.${parseInt(versions[1]) + Math.max(1, Math.ceil(numFeats / 10))}.${parseInt(versions[2]) + Math.max(1, Math.ceil(numFixes / 10))}`;
+    let featsAdd = Math.max(1, Math.ceil(numFeats / 10));
+    return `${versions[0]}.${parseInt(versions[1]) + featsAdd}.${featsAdd == 0 ? parseInt(versions[2]) + Math.max(1, Math.ceil(numFixes / 10)) : 0}`;
 }
 function filterChangeLog(changelog) {
     let output = [];
@@ -294,11 +295,12 @@ function run() {
             const tauriConfigPath = path_1.default.resolve(process.cwd(), "./src-tauri/tauri.conf.json");
             const tauriConfig = JSON.parse(fs_1.default.readFileSync(tauriConfigPath).toString());
             let newVersion = `${parseInt(oldVersion.substring(0, 1)) + 1}${oldVersion.substring(1)}`;
-            let gitTag = `${tagPrefix}${newVersion}`;
             // Generate the string changelog
             let stringChangelog = filterChangeLog(yield (0, generateChangelog_1.generateStringChangelog)(tagPrefix, preset, newVersion, 1, config, gitPath, !prerelease));
             newVersion = calcTrueNewVersionFromLog(oldVersion, stringChangelog);
-            console.info(`Calcualted version: "${newVersion}"`);
+            let gitTag = `${tagPrefix}${newVersion}`;
+            core.info(`Calcualted version: "${newVersion}"`);
+            core.info(`Calcualted tag: "${gitTag}"`);
             packageJson.version = newVersion;
             tauriConfig.version = newVersion;
             fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, '\t'));
