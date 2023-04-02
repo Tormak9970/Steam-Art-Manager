@@ -29,18 +29,13 @@ jobs:
         uses: ./.github/workflows/custom-changelog
         with:
           github-token: ${{ secrets.github_token }}
-          
-      - name: Set Release Enviroment Variables
-        run: |
-          echo "RELEASE_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "RELEASE_LOG<<$EOF" >> $GITHUB_ENV
-          echo "${{ steps.changelog.outputs.clean_changelog }}" >> $GITHUB_ENV
-          echo "$EOF" >> $GITHUB_ENV
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
+        env:
+          RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
+          RELEASE_LOG: ${{ steps.changelog.outputs.clean_changelog }}
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
@@ -93,9 +88,11 @@ jobs:
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
+          releaseBody: ${{ needs.create-release.outputs.clean_output }}
+          includeUpdaterJson: true
             
   publish-release:
-    needs: build-tauri
+    needs: [create-release, build-tauri]
     permissions:
       contents: write
     runs-on: ubuntu-20.04
