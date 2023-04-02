@@ -95,11 +95,12 @@ jobs:
           includeUpdaterJson: true
 
       - name: Update Latest.json
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: ./latest.json
-          commit-msg: "chore: updated latest.json"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add latest.json
+          git commit -m "chore: saving changes to latest.json"
+          git push origin ${{ github.ref_name }}
             
   publish-release:
     needs: [create-release, build-tauri]
