@@ -8,7 +8,7 @@
 	},
 	"package": {
 		"productName": "Steam Art Manager",
-		"version": "0.6.0"
+		"version": "../package.json"
 	},
 	"tauri": {
 		"allowlist": {

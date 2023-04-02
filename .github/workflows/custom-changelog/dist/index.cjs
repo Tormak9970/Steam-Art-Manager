@@ -283,7 +283,7 @@ function run() {
             core.info(`Using "${gitCommitMessage}" as commit message`);
             core.info(`Using "${gitUserName}" as git user.name`);
             core.info(`Using "${gitUserEmail}" as git user.email`);
-            core.info(`Using "./package.json" and "./src-tauri/tauri.config.json" as version file`);
+            core.info(`Using "./package.json" as version file`);
             core.info(`Using "${tagPrefix}" as tag prefix`);
             core.info(`Using "${gitBranch}" as gitBranch`);
             core.info('Pull to make sure we have the full git history');
@@ -292,8 +292,6 @@ function run() {
             const packgeJsonPath = path_1.default.resolve(process.cwd(), "./package.json");
             const packageJson = JSON.parse(fs_1.default.readFileSync(packgeJsonPath).toString());
             let oldVersion = packageJson.version;
-            const tauriConfigPath = path_1.default.resolve(process.cwd(), "./src-tauri/tauri.conf.json");
-            const tauriConfig = JSON.parse(fs_1.default.readFileSync(tauriConfigPath).toString());
             let newVersion = `${parseInt(oldVersion.substring(0, 1)) + 1}${oldVersion.substring(1)}`;
             // Generate the string changelog
             let stringChangelog = filterChangeLog(yield (0, generateChangelog_1.generateStringChangelog)(tagPrefix, preset, newVersion, 1, config, gitPath, !prerelease));
@@ -301,11 +299,9 @@ function run() {
             let gitTag = `${tagPrefix}${newVersion}`;
             core.info(`Calculated version: "${newVersion}"`);
             core.info(`Calculated tag: "${gitTag}"`);
-            core.info(`Bumping version files "./package.json" and "./src-tauri/tauri.config.json"`);
+            core.info(`Bumping version files "./package.json"`);
             packageJson.version = newVersion;
-            tauriConfig.package.version = newVersion;
             fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, 2));
-            fs_1.default.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, 2));
             // Removes the version number from the changelog
             const cleanChangelog = stringChangelog.split('\n').slice(3).join('\n').trim();
             core.info('Changelog generated');
