@@ -5,7 +5,7 @@
   import Lazy from "svelte-lazy";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, hiddenGameIds, selectedGameAppId } from "../../../Stores";
+  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId } from "../../../Stores";
 
   export let game: SteamGame;
   export let widths: any;
@@ -14,6 +14,7 @@
   let gridTypeUnsub: Unsubscriber;
   let libraryCacheUnsub: Unsubscriber;
 
+  let showImage = true;
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
 
@@ -37,17 +38,33 @@
 
   onMount(() => {
     gridTypeUnsub = gridType.subscribe((type) => {
-      imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+      if ($appLibraryCache[game.appid][type]) {
+        showImage = true;
+        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+      } else if (type == GridTypes.WIDE_CAPSULE) {
+        showImage = true;
+        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][GridTypes.CAPSULE]);
+      } else {
+        showImage = false;
+      }
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+      if (cache[game.appid][$gridType]) {
+        showImage = true;
+        imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+      } else if ($gridType == GridTypes.WIDE_CAPSULE) {
+        showImage = true;
+        imagePath = tauri.convertFileSrc(cache[game.appid][GridTypes.CAPSULE]);
+      } else {
+        showImage = false;
+      }
     });
   });
 
   onDestroy(() => {
     if (gridTypeUnsub) gridTypeUnsub();
     if (libraryCacheUnsub) libraryCacheUnsub();
-  })
+  });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -66,9 +83,13 @@
     {/if}
   </div>
   <div class="img" style="height: {heights[$gridType]}px;">
-    <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-      <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
-    </Lazy>
+    {#if showImage}
+      <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+        <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+      </Lazy>
+    {:else}
+      <div>No {$gridType} image for game</div>
+    {/if}
   </div>
   <div class="name">{game.name}</div>
 </div>

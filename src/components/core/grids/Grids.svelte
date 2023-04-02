@@ -94,6 +94,7 @@
       if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
     });
     gridTypeUnsub = gridType.subscribe(async (type) => {
+      console.log(type);
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), type, $dbFilters);
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
