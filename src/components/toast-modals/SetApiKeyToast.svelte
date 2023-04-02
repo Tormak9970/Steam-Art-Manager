@@ -6,7 +6,7 @@
   import { onlyOnKey } from "../../lib/utils/Utils";
   import { needsAPIKey, steamGridDBKey } from "../../Stores";
   import Button from "../interactables/Button.svelte";
-  import InputField from "../interactables/InputField.svelte";
+  import TextInput from "../interactables/TextInput.svelte";
 
   export let toastId: string;
 
@@ -62,7 +62,7 @@
 <div class="comfirm-toast">
   <!-- svelte-ignore a11y-invalid-attribute -->
   <div style="text-align: center; line-height: 20px; margin-bottom: 7px;">Please enter you steamGridDB api key. Go to <a href="" on:click={openLinkInBrowser}>Steamgrid</a>, sign in and go to preferences, then API.</div>
-  <InputField label="Api key" value="" onChange={onChange} width="{220}" />
+  <TextInput label="Api key" value="" onChange={onChange} width="{220}" />
   <div class="btn-cont">
     <Button label="Cancel" onClick={() => clicked(false)} width="auto" />
     <Button label="Save" onClick={() => clicked(true)} highlight={true} disabled={!canSave} width="auto" />

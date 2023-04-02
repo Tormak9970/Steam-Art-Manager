@@ -39,7 +39,7 @@
 
 <div class="input">
   <!-- svelte-ignore a11y-label-has-associated-control -->
-  <label style="margin-right: 13px; font-size: 14px">{label}:</label>
+  <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   <input style="flex: 1; margin-right: 7px" type="text" placeholder="{value}" value="{value}" on:change="{wrapper}" bind:this={inputElem}>
 
   <FileButton onClick={openDialog} />

@@ -19,7 +19,7 @@ export class SettingsManager {
       await fs.readTextFile(setsPath).then(
         () => {},
         async () => {
-          await fs.copyFile(await path.resolveResource("../settings.json"), setsPath);
+          await fs.copyFile(await path.resolveResource("./settings.json"), setsPath);
         }
       );
     }
