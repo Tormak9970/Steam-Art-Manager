@@ -237,10 +237,10 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
     let numFixes = 0;
     let numFeats = 0;
     changelog.split("\n").forEach((logLine) => {
-        if (logLine.includes("* feat")) {
+        if (logLine.includes("* feat:")) {
             numFeats++;
         }
-        else if (logLine.includes("* fix")) {
+        else if (logLine.includes("* fix:")) {
             numFixes++;
         }
     });
@@ -254,10 +254,10 @@ function filterChangeLog(changelog) {
     let feats = [];
     changelog.split("\n").forEach((logLine, i) => {
         core.info(`LogLine ${i}: ${logLine}`);
-        if (logLine.includes("* feat")) {
+        if (logLine.includes("* feat:")) {
             feats.push(logLine);
         }
-        else if (logLine.includes("* fix")) {
+        else if (logLine.includes("* fix:")) {
             fixes.push(logLine);
         }
     });
@@ -303,7 +303,7 @@ function run() {
             packageJson.version = newVersion;
             fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, 2));
             // Removes the version number from the changelog
-            const cleanChangelog = stringChangelog.split('\n').slice(3).join('\n').trim();
+            const cleanChangelog = stringChangelog.trim();
             core.info('Changelog generated');
             core.info(cleanChangelog);
             core.info(`New version: ${newVersion}`);
