@@ -1,116 +1,140 @@
 {
-  "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist",
-    "withGlobalTauri": false
-  },
-  "package": {
-    "productName": "Steam Art Manager",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "dialog": { "all": true },
-      "path": { "all": true },
-      "os": { "all": true },
-      "fs": {
-        "all": true,
-        "scope": [
-          "$APP/**",
-          "$DESKTOP/**",
-          "$RESOURCE/**",
-          "$APPCONFIG/**",
-          "$DATA/**",
-          "$APPLOG/**",
-          "$APPCACHE/**",
-          "**"
-        ]
-      },
-      "http": {
-        "all": false,
-        "request": true,
-        "scope": [
-          "https://*.steamgriddb.com/api/*",
-          "https://*.steamgriddb.com/file/*"
-        ]
-      },
-      "protocol": {
-        "all": true,
-        "asset": true,
-        "assetScope": [
-          "$APP/**",
-          "$DESKTOP/**",
-          "$RESOURCE/**",
-          "$APPCONFIG/**",
-          "$DATA/**",
-          "$APPLOG/**",
-          "$APPCACHE/**",
-          "**"
-        ]
-      },
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "window": { "all": true },
-      "process": {
-        "all": false,
-        "exit": true,
-        "relaunch": false,
-        "relaunchDangerousAllowSymlinkMacos": false
-      }
-    },
-    "bundle": {
-      "active": true,
-      "category": "Utility",
-      "copyright": "Copyright Travis Lane 2023",
-      "deb": { "depends": [] },
-      "externalBin": [],
-      "icon": [ "icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico" ],
-      "identifier": "dev.tormak.steam-art-manager",
-      "longDescription": "A simple tool for setting the artwork of your Steam library.",
-      "resources": [
-        "./settings.json"
-      ],
-      "shortDescription": "A simple tool for setting the artwork of your Steam library.",
-      "targets": [ "appimage", "msi", "updater" ],
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": "",
-        "webviewInstallMode": {
-          "type": "offlineInstaller"
-        }
-      },
-      "appimage": { "bundleMediaFramework": false }
-    },
-    "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; style-src 'self' 'unsafe-inline'",
-      "dangerousDisableAssetCspModification": ["style-src"]
-    },
-    "updater": {
-      "active": true,
-      "endpoints": [
-        "https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
-      ],
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
-    },
-    "windows": [
-      {
-        "label": "main",
-        "fullscreen": false,
-        "height": 800,
-        "resizable": true,
-        "title": "Steam Art Manager",
-        "width": 1300,
-        "decorations": false,
-        "center": true,
-        "visible": true,
-        "url": "index.html"
-      }
-    ]
-  }
+	"build": {
+		"beforeDevCommand": "npm run dev",
+		"beforeBuildCommand": "npm run build",
+		"devPath": "http://localhost:1420",
+		"distDir": "../dist",
+		"withGlobalTauri": false
+	},
+	"package": {
+		"productName": "Steam Art Manager",
+		"version": "0.6.0"
+	},
+	"tauri": {
+		"allowlist": {
+			"dialog": {
+				"all": true
+			},
+			"path": {
+				"all": true
+			},
+			"os": {
+				"all": true
+			},
+			"fs": {
+				"all": true,
+				"scope": [
+					"$APP/**",
+					"$DESKTOP/**",
+					"$RESOURCE/**",
+					"$APPCONFIG/**",
+					"$DATA/**",
+					"$APPLOG/**",
+					"$APPCACHE/**",
+					"**"
+				]
+			},
+			"http": {
+				"all": false,
+				"request": true,
+				"scope": [
+					"https://*.steamgriddb.com/api/*",
+					"https://*.steamgriddb.com/file/*"
+				]
+			},
+			"protocol": {
+				"all": true,
+				"asset": true,
+				"assetScope": [
+					"$APP/**",
+					"$DESKTOP/**",
+					"$RESOURCE/**",
+					"$APPCONFIG/**",
+					"$DATA/**",
+					"$APPLOG/**",
+					"$APPCACHE/**",
+					"**"
+				]
+			},
+			"shell": {
+				"all": false,
+				"open": true
+			},
+			"window": {
+				"all": true
+			},
+			"process": {
+				"all": false,
+				"exit": true,
+				"relaunch": false,
+				"relaunchDangerousAllowSymlinkMacos": false
+			}
+		},
+		"bundle": {
+			"active": true,
+			"category": "Utility",
+			"copyright": "Copyright Travis Lane 2023",
+			"deb": {
+				"depends": []
+			},
+			"externalBin": [],
+			"icon": [
+				"icons/32x32.png",
+				"icons/128x128.png",
+				"icons/128x128@2x.png",
+				"icons/icon.icns",
+				"icons/icon.ico"
+			],
+			"identifier": "dev.tormak.steam-art-manager",
+			"longDescription": "A simple tool for setting the artwork of your Steam library.",
+			"resources": [
+				"./settings.json"
+			],
+			"shortDescription": "A simple tool for setting the artwork of your Steam library.",
+			"targets": [
+				"appimage",
+				"msi",
+				"updater"
+			],
+			"windows": {
+				"certificateThumbprint": null,
+				"digestAlgorithm": "sha256",
+				"timestampUrl": "",
+				"webviewInstallMode": {
+					"type": "offlineInstaller"
+				}
+			},
+			"appimage": {
+				"bundleMediaFramework": false
+			}
+		},
+		"security": {
+			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; style-src 'self' 'unsafe-inline'",
+			"dangerousDisableAssetCspModification": [
+				"style-src"
+			]
+		},
+		"updater": {
+			"active": true,
+			"endpoints": [
+				"https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
+			],
+			"dialog": true,
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
+		},
+		"windows": [
+			{
+				"label": "main",
+				"fullscreen": false,
+				"height": 800,
+				"resizable": true,
+				"title": "Steam Art Manager",
+				"width": 1300,
+				"decorations": false,
+				"center": true,
+				"visible": true,
+				"url": "index.html"
+			}
+		]
+	}
 }
