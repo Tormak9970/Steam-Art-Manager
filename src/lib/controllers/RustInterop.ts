@@ -63,15 +63,6 @@ export class RustInterop {
   }
 
   /**
-   * Gets the active user's steam app list.
-   * @returns A promise resolving to a list of the active user's steam apps.
-   */
-  static async getSteamApps(): Promise<SteamRegistryApp[]> {
-    const res = await invoke<string>("get_steam_apps", {});
-    return JSON.parse(res);
-  }
-
-  /**
    * Exports the active user's grids to a zip file.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */

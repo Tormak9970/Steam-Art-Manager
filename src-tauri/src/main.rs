@@ -1,8 +1,3 @@
-#![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
-)]
-
 mod reader;
 mod vdf_structs;
 mod logger;
@@ -194,7 +189,6 @@ fn main() {
       logger::clean_out_log,
       logger::log_to_file,
       steam::get_active_user,
-      steam::get_steam_apps,
       steam::get_grids_directory,
       steam::get_library_cache_directory,
       steam::get_appinfo_path,
