@@ -82,7 +82,7 @@ jobs:
         run: npm install
 
       - name: Build App
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -90,8 +90,9 @@ jobs:
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: ${{ needs.create-release.outputs.tag }}
-          releaseName: "Steam Art Manager - ${{ needs.create-release.outputs.tag }}"
+          # releaseName: "Steam Art Manager - ${{ needs.create-release.outputs.tag }}"
           releaseBody: ${{ needs.create-release.outputs.clean_output }}
+          releaseDraft: true
           includeUpdaterJson: true
             
   publish-release:
