@@ -93,7 +93,6 @@ jobs:
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
-          includeUpdaterJson: true
             
   publish-release:
     needs: build-tauri
