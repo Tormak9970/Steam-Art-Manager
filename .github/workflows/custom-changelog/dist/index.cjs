@@ -302,7 +302,7 @@ function run() {
             core.info(`Calcualted version: "${newVersion}"`);
             core.info(`Calcualted tag: "${gitTag}"`);
             packageJson.version = newVersion;
-            tauriConfig.version = newVersion;
+            tauriConfig.package.version = newVersion;
             fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, '\t'));
             fs_1.default.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, '\t'));
             // Removes the version number from the changelog
