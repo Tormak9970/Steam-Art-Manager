@@ -237,10 +237,10 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
     let numFixes = 0;
     let numFeats = 0;
     changelog.split("\n").forEach((logLine) => {
-        if (logLine.startsWith("* feat")) {
+        if (logLine.includes("* feat")) {
             numFeats++;
         }
-        else if (logLine.startsWith("* fix")) {
+        else if (logLine.includes("* fix")) {
             numFixes++;
         }
     });
@@ -254,10 +254,10 @@ function filterChangeLog(changelog) {
     let feats = [];
     changelog.split("\n").forEach((logLine, i) => {
         core.info(`LogLine ${i}: ${logLine}`);
-        if (logLine.startsWith("* feat")) {
+        if (logLine.includes("* feat")) {
             feats.push(logLine);
         }
-        else if (logLine.startsWith("* fix")) {
+        else if (logLine.includes("* fix")) {
             fixes.push(logLine);
         }
     });
