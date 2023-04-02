@@ -10,7 +10,10 @@
 <style>
   @import "/theme.css";
 
-  .section-title { width: 100%; }
+  .section-title {
+    width: 100%;
+    user-select: none;
+  }
 
   .title {
     margin: 7px 12px;

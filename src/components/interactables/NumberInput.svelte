@@ -37,6 +37,8 @@
 </script>
 
 <div class="input">
+  <!-- svelte-ignore a11y-label-has-associated-control -->
+  <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   <input
     type="text"
     placeholder={value.toString()}

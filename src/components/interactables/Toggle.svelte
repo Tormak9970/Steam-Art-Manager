@@ -24,7 +24,7 @@
     aria-checked={checked}
     on:click={handleClick}
   />
-  <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center;">{label}</span>
+  <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
 </div>
 
 <style>
