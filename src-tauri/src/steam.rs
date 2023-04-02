@@ -15,6 +15,7 @@ use home::home_dir;
 #[cfg(target_os = "linux")]
 use crate::vdf_structs;
 
+
 #[cfg(target_os = "windows")]
 pub fn get_steam_root_dir() -> PathBuf {
   let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
@@ -28,7 +29,7 @@ pub fn get_steam_root_dir() -> PathBuf {
 #[cfg(target_os = "linux")]
 pub fn get_steam_root_dir() -> PathBuf {
   let pc_home_dir = home_dir().expect("Couldn't get user's home dir.");
-  let mut steam_dir = home_dir.clone();
+  let mut steam_dir = pc_home_dir.clone();
 
   if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
     steam_dir = steam_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
