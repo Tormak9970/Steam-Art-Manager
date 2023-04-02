@@ -36,6 +36,7 @@ export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = 
 export const gridsCache:{ [appid: number]: SGDBImage[] } = {};
 
 export const selectedGameAppId: Writable<number> = writable(null);
+export const selectedGameName: Writable<string> = writable(null);
 export const dowloadingGridId: Writable<number> = writable(null);
 
 export const dbFilters:Writable<DBFilters> = writable({

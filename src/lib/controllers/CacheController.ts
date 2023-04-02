@@ -131,9 +131,9 @@ export class CacheController {
   async fetchGrids(appId: number): Promise<SGDBImage[]> {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
-    const gridCacheKey = Object.keys(gridsCache);
+    const gridCacheKeys = Object.keys(gridsCache);
     
-    if (gridCacheKey.includes(appId.toString())) {
+    if (gridCacheKeys.includes(appId.toString())) {
       const types = Object.keys(gridsCache[appId.toString()]);
 
       if (types.includes(type)) {

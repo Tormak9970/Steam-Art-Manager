@@ -8,7 +8,7 @@
   }
 </script>
 
-<ul>
+<ul style="user-select: none;">
   {#each tabs as tab}
     <li class:active={selected === tab}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->

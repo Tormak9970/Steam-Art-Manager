@@ -3,7 +3,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, steamGames, steamGridDBKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
@@ -223,6 +223,7 @@ export class AppController {
    */
   static async setCustomArt(path: string): Promise<void> {
     const selectedGameId = get(selectedGameAppId);
+    const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
     gameImages[selectedGameId][selectedGridType] = path;
@@ -230,7 +231,7 @@ export class AppController {
     appLibraryCache.set(gameImages);
     canSave.set(true);
 
-    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${path}.`);
+    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${path}.`);
   }
 
   /**
@@ -243,6 +244,7 @@ export class AppController {
     const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
     
     const selectedGameId = get(selectedGameAppId);
+    const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
     gameImages[selectedGameId][selectedGridType] = localPath;
@@ -250,7 +252,7 @@ export class AppController {
     appLibraryCache.set(gameImages);
     canSave.set(true);
 
-    LogController.log(`Set ${selectedGridType} for ${selectedGameId} to ${localPath}.`);
+    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
   }
 
   /**

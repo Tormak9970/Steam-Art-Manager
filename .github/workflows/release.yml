@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -30,15 +30,17 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           
-      - name: Set env vars for script
+      - name: Set Release Enviroment Variables
         run: |
           echo "RELEASE_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "RELEASE_LOG<<$EOF" >> $GITHUB_ENV
           echo "${{ steps.changelog.outputs.clean_changelog }}" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
+          echo "Release Tag: $RELEASE_TAG"
+          echo "Changelog: $RELEASE_LOG"
 
-      - name: create release
+      - name: Create Release
         id: create-release
         uses: actions/github-script@v6
         with:
@@ -53,6 +55,9 @@ jobs:
               prerelease: false
             })
             return data.id
+        env:
+          RELEASE_TAG: $RELEASE_TAG
+          RELEASE_LOG: $RELEASE_LOG
 
   build-tauri-linux:
     needs: create-release
@@ -64,21 +69,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
-      - name: install Rust stable
+      - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: install dependencies (ubuntu only)
+      - name: Install Dependencies (Linux Only)
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
       - name: install frontend dependencies
         run: npm install
 
+      - name: Build App
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,17 +103,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
 
-      - name: install Rust stable
+      - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
 
       - name: install frontend dependencies
         run: npm install
 
+      - name: Build App
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,7 +124,7 @@ jobs:
           releaseId: ${{ needs.create-release.outputs.release_id }}
 
   update-gist:
-    needs: [create-release, build-tauri-linux, build-tauri-windows]
+    needs: [build-tauri-linux, build-tauri-windows]
     permissions:
       contents: write
     runs-on: ubuntu-20.04
@@ -126,19 +133,19 @@ jobs:
       - name: Date
         run: echo "DATE=$(date +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
 
-      - name: Read linux release sig
+      - name: Read Update Signature - Linux
         id: readLinux
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ needs.build-tauri-linux.outputs.artifactPaths[3] }}
+          path: "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/untagged-${{ needs.create-release.release_id }}/steam-art-manager_${{ needs.create-release.outputs.version }}_amd64.AppImage.tar.gz.sig"
       
-      - name: Read windows release sig
+      - name: Read Update Signature - Windows
         id: readWindows
         uses: juliangruber/read-file-action@v1
         with:
-          path: ${{ needs.build-tauri-windows.outputs.artifactPaths[3] }}
+          path: "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/untagged-${{ needs.create-release.release_id }}/Steam.Art.Manager_${{ needs.create-release.outputs.version }}_x64_en-US.msi.zip.sig"
 
-      - name: WriteGist
+      - name: Write Update Gist
         uses: sergeysova/gist-write-action@v1
         with:
           gist_id: a72aa3b7232033772d80b0ed86303f01
@@ -151,23 +158,23 @@ jobs:
               "platforms": {
                 "linux-x86_64": {
                   "signature": "${{ steps.readLinux.output.content }}",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/Steam Art Manager_${{ needs.create-release.outputs.version }}_en-US.AppImage.tar.gz"
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/steam-art-manager_${{ needs.create-release.outputs.version }}_amd64.AppImage.tar.gz"
                 },
                 "windows-x86_64": {
                   "signature": "${{ steps.readWindows.output.content }}",
-                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/Steam Art Manager_${{ needs.create-release.outputs.version }}_en-US.msi.zip"
+                  "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${{ needs.create-release.outputs.version }}/Steam.Art.Manager_${{ needs.create-release.outputs.version }}_en-US.msi.zip"
                 }
               }
             }
             
   publish-release:
-    needs: [create-release, build-tauri-linux, build-tauri-windows, update-gist]
+    needs: [update-gist]
     permissions:
       contents: write
     runs-on: ubuntu-20.04
 
     steps:
-      - name: publish release
+      - name: Publish Release
         id: publish-release
         uses: actions/github-script@v6
         env:

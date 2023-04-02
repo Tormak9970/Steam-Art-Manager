@@ -1,17 +1,15 @@
 <script lang="ts">
   import Lazy from "svelte-lazy";
-    import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
 
-  import { dowloadingGridId, gridType, selectedGameAppId } from "../../../Stores";
-    import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import { dowloadingGridId, gridType } from "../../../Stores";
+  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
 
   export let grid: SGDBImage;
   export let widths: any;
   export let heights: any;
-
-  let clicked = false;
 
   function selectGame() {
     AppController.setSteamGridArt(grid.id, grid.url);

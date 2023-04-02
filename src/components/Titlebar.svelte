@@ -18,7 +18,6 @@
       isMaxed = !isMaxed;
     });
     close.addEventListener("click", async () => {
-      console.log(title);
       await exit(0);
     });
   });
