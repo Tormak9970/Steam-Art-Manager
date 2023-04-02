@@ -252,7 +252,8 @@ function filterChangeLog(changelog) {
     let output = [];
     let fixes = [];
     let feats = [];
-    changelog.split("\n").forEach((logLine) => {
+    changelog.split("\n").forEach((logLine, i) => {
+        core.info(`LogLine ${i}: ${logLine}`);
         if (logLine.startsWith("feat")) {
             feats.push(logLine);
         }
@@ -288,7 +289,6 @@ function run() {
             core.info('Pull to make sure we have the full git history');
             yield git.pull();
             const config = false;
-            core.info(`Bumping version files "./package.json" and "./src-tauri/tauri.config.json"`);
             const packgeJsonPath = path_1.default.resolve(process.cwd(), "./package.json");
             const packageJson = JSON.parse(fs_1.default.readFileSync(packgeJsonPath).toString());
             let oldVersion = packageJson.version;
@@ -299,12 +299,13 @@ function run() {
             let stringChangelog = filterChangeLog(yield (0, generateChangelog_1.generateStringChangelog)(tagPrefix, preset, newVersion, 1, config, gitPath, !prerelease));
             newVersion = calcTrueNewVersionFromLog(oldVersion, stringChangelog);
             let gitTag = `${tagPrefix}${newVersion}`;
-            core.info(`Calcualted version: "${newVersion}"`);
-            core.info(`Calcualted tag: "${gitTag}"`);
+            core.info(`Calculated version: "${newVersion}"`);
+            core.info(`Calculated tag: "${gitTag}"`);
+            core.info(`Bumping version files "./package.json" and "./src-tauri/tauri.config.json"`);
             packageJson.version = newVersion;
             tauriConfig.package.version = newVersion;
-            fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, '\t'));
-            fs_1.default.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, '\t'));
+            fs_1.default.writeFileSync(packgeJsonPath, JSON.stringify(packageJson, null, 2));
+            fs_1.default.writeFileSync(tauriConfigPath, JSON.stringify(tauriConfig, null, 2));
             // Removes the version number from the changelog
             const cleanChangelog = stringChangelog.split('\n').slice(3).join('\n').trim();
             core.info('Changelog generated');
