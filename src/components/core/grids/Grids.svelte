@@ -4,8 +4,10 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
+    import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsAPIKey, selectedGameAppId, steamGridDBKey, type DBFilters } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters } from "../../../Stores";
+    import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
@@ -46,15 +48,25 @@
     const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
     const nsfwAllowed = targetFilters.oneoftag.nsfw;
 
-    return allGrids.filter((grid: SGDBImage) => {
+    const resGrids = allGrids.filter((grid: SGDBImage) => {
       return gridStyles.includes(grid.style)
         && dimensions.includes(`${grid.width}x${grid.height}`)
         && imageFormats.includes(grid.mime)
         && (grid.epilepsy ? epilepsyAllowed : true)
         && (grid.nsfw ? nsfwAllowed : true);
     });
+
+    let query = `"${$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for ${$selectedGameName}"`;
+    if (resGrids.length > 0) {
+      LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
+    } else {
+      LogController.log(`Query: ${query}. Result: no grids.`);
+    }
+
+    return resGrids;
   }
 
+  let isLoading = false;
   let grids: SGDBImage[] = [];
 
   /**
@@ -88,20 +100,29 @@
 
   onMount(() => {
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
+      isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
+      isLoading = false;
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
+      isLoading = true;
       if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      isLoading = false;
     });
     gridTypeUnsub = gridType.subscribe(async (type) => {
-      console.log(type);
+      isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), type, $dbFilters);
+      isLoading = false;
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
+      isLoading = true;
       if ($isOnline && key != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      isLoading = false;
     });
     dbFiltersUnsub = dbFilters.subscribe(async (filters) => {
+      isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, filters);
+      isLoading = false;
     });
   });
 
@@ -136,11 +157,23 @@
               <VerticalSpacer />
               <VerticalSpacer />
               
-              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-                {#each grids as grid (`${grid.id}|${$gridType}`)}
-                  <Grid grid={grid} widths={widths} heights={heights} />
-                {/each}
-              </div>
+              {#if isLoading}
+                <div class="loader-container">
+                  <LoadingSpinner />
+                </div>
+              {:else}
+                {#if grids.length > 0}
+                  <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                    {#each grids as grid (`${grid.id}|${$gridType}`)}
+                      <Grid grid={grid} widths={widths} heights={heights} />
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="message">
+                    No results for {$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+                  </div>
+                {/if}
+              {/if}
               
               <VerticalSpacer />
               <VerticalSpacer />
@@ -201,5 +234,14 @@
     text-align: center;
     opacity: 0.1;
     padding-top: 40px;
+  }
+
+  .loader-container {
+    width: 100%;
+    padding-top: 14px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>

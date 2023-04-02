@@ -5,7 +5,7 @@
   import Lazy from "svelte-lazy";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId } from "../../../Stores";
+  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId, selectedGameName } from "../../../Stores";
 
   export let game: SteamGame;
   export let widths: any;
@@ -18,7 +18,10 @@
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
 
-  function selectGame() { $selectedGameAppId = game.appid; }
+  function selectGame() {
+    $selectedGameAppId = game.appid;
+    $selectedGameName = game.name;
+  }
 
   function hide() {
     const tmp = $hiddenGameIds;
@@ -26,7 +29,10 @@
     $hiddenGameIds = [...tmp];
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
 
-    if ($selectedGameAppId == game.appid) $selectedGameAppId = null;
+    if ($selectedGameAppId == game.appid) {
+      $selectedGameAppId = null;
+      $selectedGameName = null;
+    }
   }
 
   function unHide() {

@@ -132,8 +132,6 @@ export class CacheController {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
     const gridCacheKeys = Object.keys(gridsCache);
-
-    console.log(`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`);
     
     if (gridCacheKeys.includes(appId.toString())) {
       const types = Object.keys(gridsCache[appId.toString()]);

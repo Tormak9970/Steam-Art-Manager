@@ -144,7 +144,6 @@ export class SGDB {
     }
 
     let response = await http.fetch<any>(`${this.baseURL}${url}`, options);
-    console.log(`${this.baseURL}${url}`);
 
     if (response.ok) {
       if (response?.data.success) {
