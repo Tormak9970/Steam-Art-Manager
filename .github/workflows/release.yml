@@ -90,7 +90,7 @@ jobs:
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: ${{ needs.create-release.outputs.tag }}
-          # releaseName: "Steam Art Manager - ${{ needs.create-release.outputs.tag }}"
+          releaseName: "Steam Art Manager - ${{ needs.create-release.outputs.tag }}"
           releaseBody: ${{ needs.create-release.outputs.clean_output }}
           includeUpdaterJson: true
             
