@@ -150,7 +150,7 @@ jobs:
                 {
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  asset_id: asset.id,
+                  asset_id: latest.id,
                   headers: {
                     accept: 'application/octet-stream',
                   },
