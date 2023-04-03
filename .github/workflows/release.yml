@@ -118,9 +118,57 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: release
+
       - name: Update Latest.json
-        run: |
-          
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          git_branch: "release"
+        with:
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+
+            const assets = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id
+            });
+
+            const latest = assets.find((asset) => asset.name === "latest.json");
+            core.info(`latest.json assetId: ${latest.id}`);
+
+            const latestContents = await github.rest.repos.getReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: latest.id
+            });
+
+            const latestPath = path.resolve(process.cwd(), "latest.json");
+            fs.writeFileSync(latestPath, latestContents);
+            
+            const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
+            const add = (file) => exec.exec(`git add ${file}`);
+            const commit = (message) => exec.exec(`git commit -m "${message}"`);
+            const push = (branch) => exec.exec(`git push origin ${branch} --follow-tags`);
+            const updateOrigin = (repo) => exec.exec(`git remote set-url origin ${repo}`);
+            
+            core.setSecret(process.env.GITHUB_TOKEN);
+            
+            updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
+            config('user.name', "github-actions");
+
+            await add(".");
+            await commit("chore(release): updating latest.json to generated version.");
+            await push(process.env.git_branch);
+
+            core.info("Git stuff complete!");
 
       - name: Publish Release
         id: publish-release
