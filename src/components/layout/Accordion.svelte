@@ -43,6 +43,8 @@
     border: none;
     background: none;
     display: flex;
+
+    align-items: center;
     
     font-size: 14px;
     cursor: pointer;
@@ -62,6 +64,6 @@
     background-color: var(--foreground);
   }
 
-	svg { transition: transform 0.2s ease-in; }
+	svg { transition: transform 0.2s ease-in; margin-right: 3px; }
 	[aria-expanded=true] svg { transform: rotate(0.25turn); }
 </style>

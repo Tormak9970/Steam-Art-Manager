@@ -1,7 +1,6 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
   import { onMount } from "svelte";
-  import { AppController } from "../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
 
   export let title: string;
@@ -19,7 +18,6 @@
       isMaxed = !isMaxed;
     });
     close.addEventListener("click", async () => {
-      console.log(title);
       await exit(0);
     });
   });
@@ -28,7 +26,8 @@
 <div data-tauri-drag-region class="titlebar">
   <div class="info">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px;" />
-    <div style="margin-left: 8px; margin-right: 30px;">{title} - v{__APP_VERSION__}</div>
+    <!-- svelte-ignore missing-declaration -->
+    <div style="margin-left: 8px; margin-right: 30px;">{title} - v{APP_VERSION}</div>
   </div>
   <div class="btns">
     <div bind:this={minimize} class="titlebar-button" id="titlebar-minimize">

@@ -3,13 +3,12 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, steamGames, steamGridDBKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
-import ConfirmToast from "../../components/toast-modals/ConfirmToast.svelte";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
-import { SteamGridController } from "./SteamGridController";
+import type { SGDBImage } from "../models/SGDB";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -32,7 +31,6 @@ const libraryCacheLUT = {
  */
 export class AppController {
   private static cacheController = new CacheController();
-  private static steamGridController = new SteamGridController(AppController.cacheController);
 
   /**
    * Sets up the AppController.
@@ -158,7 +156,7 @@ export class AppController {
 
     const filteredCache = await AppController.getCacheData();
 
-    originalAppLibraryCache.set(filteredCache);
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
@@ -182,15 +180,25 @@ export class AppController {
    */
   static async saveChanges(): Promise<void> {
     LogController.log("Saving changes...");
-    const res = await RustInterop.saveChanges(get(appLibraryCache), get(originalAppLibraryCache));
+
+    const originalCache = get(originalAppLibraryCache);
+    const libraryCache = get(appLibraryCache);
+    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache);
     
-    if (res) {
-      ToastController.showSuccessToast("Changes saved!");
-      LogController.log("Saved changes.");
-    } else {
+    if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
       LogController.log("Changes failed.");
+    } else {
+      for (const changedPath of (changedPaths as ChangedPath[])) {
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
+      }
+      originalAppLibraryCache.set(libraryCache);
+      appLibraryCache.set(libraryCache);
+      ToastController.showSuccessToast("Changes saved!");
+      LogController.log("Saved changes.");
     }
+
+    canSave.set(false);
   }
 
   /**
@@ -198,9 +206,13 @@ export class AppController {
    * ? Logging complete.
    */
   static async discardChanges(): Promise<void> {
-    appLibraryCache.set(get(originalAppLibraryCache));
+    const originalImgs = get(originalAppLibraryCache);
+    appLibraryCache.set({...originalImgs});
+
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
+    
+    canSave.set(false);
   }
 
 
@@ -211,6 +223,7 @@ export class AppController {
    */
   static async setCustomArt(path: string): Promise<void> {
     const selectedGameId = get(selectedGameAppId);
+    const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
     gameImages[selectedGameId][selectedGridType] = path;
@@ -218,7 +231,28 @@ export class AppController {
     appLibraryCache.set(gameImages);
     canSave.set(true);
 
-    LogController.log(`Set ${selectedGridType} for ${get(steamGames)[selectedGameId]} to ${path}.`);
+    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${path}.`);
+  }
+
+  /**
+   * Sets the image for a game to the provided image.
+   * @param appId The id of the grid.
+   * @param url The url of the SteamGridDB image.
+   * ? Logging complete.
+   */
+  static async setSteamGridArt(appId: number, url: URL): Promise<void> {
+    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
+    
+    const selectedGameId = get(selectedGameAppId);
+    const gameName = get(selectedGameName);
+    const selectedGridType = get(gridType);
+    const gameImages = get(appLibraryCache);
+    gameImages[selectedGameId][selectedGridType] = localPath;
+
+    appLibraryCache.set(gameImages);
+    canSave.set(true);
+
+    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
   }
 
   /**
@@ -260,17 +294,20 @@ export class AppController {
   }
 
   /**
-   * Empties the SteamGridDB cache.
+   * Gets a list of grids for the provided game.
+   * @param appId The id of the app to get.
+   * @returns A promise resolving to a list of the results.
    */
-  static async emptyCache(): Promise<void> {
-    
+  static async getSteamGridArt(appId: number): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId);
   }
 
   /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
-  static onDestroy(): void {
+  static async destroy(): Promise<void> {
+    await AppController.cacheController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -313,35 +350,6 @@ export class AppController {
     toast.push({
       component: {
         src: SetApiKeyToast,
-        sendIdTo: 'toastId'
-      },
-      target: "top",
-      dismissable: false,
-      initial: 0,
-      intro: { y: -192 },
-      theme: {
-        '--toastPadding': '0',
-        '--toastBackground': 'transparent',
-        '--toastMsgPadding': '0'
-      }
-    });
-  }
-
-  /**
-   * Shows the empty cache confirm toast.
-   * ? Logging complete.
-   */
-  static showEmptyCacheToast(): void {
-    LogController.log("Showing confirmEmptyCache toast.");
-    // @ts-ignore
-    toast.push({
-      component: {
-        src: ConfirmToast,
-        props: {
-          "message": "Are you sure you want to empty the cache? This will mean refetching all cached game info and images.",
-          "onConfirm": AppController.emptyCache.bind(AppController),
-          "confirmMessage": "Cache emptied"
-        },
         sendIdTo: 'toastId'
       },
       target: "top",

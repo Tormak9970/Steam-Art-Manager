@@ -13,6 +13,10 @@ export class Writer {
   length: number;
   view: DataView;
 
+  /**
+   * Creates a new Writer instance.
+   * @param data The buffer to write to.
+   */
   constructor(data: Uint8Array | Int8Array | ArrayBuffer) {
     this.data = this.#isUint8Array(data) ? data.buffer : data;
     this.view = new DataView(this.data);
@@ -20,10 +24,18 @@ export class Writer {
     this.offset = 0;
   }
 
+  /**
+   * Typeguard to check whether a buffer is a Uint8Array or ArrayBuffer.
+   * @param data The buffer to check.
+   * @returns True if the buffer is a Uint8Array.
+   */
   #isUint8Array(data: Uint8Array | ArrayBuffer): data is Uint8Array {
     return (data as Uint8Array).buffer !== undefined;
   }
 
+  /**
+   * Helper function to expand the capacity of the writer's data buffer.
+   */
   private expandCapacity() {
     const newDat = new ArrayBuffer(this.length * 2);
     const uint8Arr = new Uint8Array(newDat);

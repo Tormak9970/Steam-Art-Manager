@@ -63,15 +63,6 @@ export class RustInterop {
   }
 
   /**
-   * Gets the active user's steam app list.
-   * @returns A promise resolving to a list of the active user's steam apps.
-   */
-  static async getSteamApps(): Promise<SteamRegistryApp[]> {
-    const res = await invoke<string>("get_steam_apps", {});
-    return JSON.parse(res);
-  }
-
-  /**
    * Exports the active user's grids to a zip file.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
@@ -99,9 +90,10 @@ export class RustInterop {
    * Saves the user's changes.
    * @param currentArt The current changes.
    * @param originalArt The original art dictionary.
-   * @returns A promise resolving to true if the save was successfull, false otherwise.
+   * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<boolean> {
-    return await invoke<boolean>("save_changes", { current_art: JSON.stringify(currentArt), original_art: JSON.stringify(originalArt) });
+  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<ChangedPath[] | { error: string }> {
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt) });
+    return JSON.parse(res);
   }
 }

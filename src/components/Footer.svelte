@@ -20,8 +20,7 @@
       <Button label="Go Online" onClick={AppController.tryGoOnline} width="auto" height="20px" />
       <HorizontalSpacer />
     {/if}
-    <Button label="Empty Cache" onClick={AppController.showEmptyCacheToast} width="auto" height="20px" />
-    <HorizontalSpacer />
+    
     <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
     <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />

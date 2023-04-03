@@ -19,7 +19,6 @@
       filters[$gridType][section][filter] = value;
 
       $dbFilters = {...filters};
-      console.log($dbFilters);
     }
   }
 
