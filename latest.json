@@ -1,15 +1,15 @@
 {
-  "version": "",
+  "version": "0.17.0",
   "notes": "",
-  "pub_date": "",
+  "pub_date": "2023-04-03T18:37:10.003Z",
   "platforms": {
-    "linux-x86_64": {
-      "signature": "",
-      "url": ""
-    },
     "windows-x86_64": {
-      "signature": "",
-      "url": ""
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXZjajlJeTRPcXZQVUxVMmg4N2h5RnhGa2MxVk55a1ZtSGI4ejRDWmV0eEd5MGluZDdHbFI4U2x4SW8vMDZHSzVRbTY1UC9ieWdqMjJzS0V6SllYNndzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNTQ3MDA2CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMC4xNy4wX3g2NF9lbi1VUy5tc2kuemlwCnc5MzBValo4MlJ5VjhZcHJKN3FvRFIzMm9qODV1U2dPWGIyVHd2Zmp2YzdNaCtlb1A2RTUyMGVXSDJ6Y25UMTlFUWpBemw4Z2FhcnZ2UkxpYVdWbkN3PT0K",
+      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v0.17.0/Steam.Art.Manager_0.17.0_x64_en-US.msi.zip"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXFVY3ZEWDR0QitQdXhNZkdDMWZVYnBIc3NpTEFtNnBXcytNWWg3TDdFRXVJK0twZ2hXcTI1ZVJVNncvQ1lPOThXVkFQb0ZDRUpNMk9uOWltSWtBdEFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNTQ3MDE5CWZpbGU6c3RlYW0tYXJ0LW1hbmFnZXJfMC4xNy4wX2FtZDY0LkFwcEltYWdlLnRhci5negpYcEdkVk8vYisyTUVORDRFWk0xUVRUcHhMRXVaMWs0VVhYUW1KZ3JwRkhTK1I4clcwSGZuUS8yc3JIdGxRbkJZVnExZjh0K005Y2xhYUc2QjhKOFZDdz09Cg==",
+      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v0.17.0/steam-art-manager_0.17.0_amd64.AppImage.tar.gz"
     }
   }
 }
