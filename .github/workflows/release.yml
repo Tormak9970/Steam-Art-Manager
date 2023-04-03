@@ -107,7 +107,7 @@ jobs:
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: ${{ needs.create-release.outputs.tag }}
-          releaseBody: "${{ needs.create-release.outputs.clean_output }}"
+          releaseBody: "Check Github for the release notes!"
           releaseDraft: true
           includeUpdaterJson: true
             
