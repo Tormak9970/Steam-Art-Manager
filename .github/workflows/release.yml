@@ -141,14 +141,22 @@ jobs:
               release_id: process.env.release_id
             });
 
-            const latest = assets.find((asset) => asset.name === "latest.json");
+            const latest = assets.data.find((asset) => asset.name === "latest.json");
             core.info(`latest.json assetId: ${latest.id}`);
 
-            const latestContents = await github.rest.repos.getReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              asset_id: latest.id
-            });
+            const latestContents = (
+              await github.request(
+                'GET /repos/{owner}/{repo}/releases/assets/{asset_id}',
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: asset.id,
+                  headers: {
+                    accept: 'application/octet-stream',
+                  },
+                }
+              )
+            ).data;
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, latestContents);
