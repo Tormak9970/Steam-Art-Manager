@@ -85,7 +85,7 @@ This will generate a `.msi` file in `src-tauri/target/release/bundle/msi/app_nam
 <br/>
 
 ## Acknowledgements
-Big thanks to @doZenn for the advice and info on stuff related to steamgriddb. <br/>
+Big thanks to [doZenn](https://github.com/doZenn) for the advice and info on stuff related to steamgriddb. <br/>
 Other resources / references I used:
  - [Steam ROM Manager](https://github.com/SteamGridDB/steam-rom-manager)
  - [SteamGrid Decky Plugin](https://github.com/SteamGridDB/decky-steamgriddb)
