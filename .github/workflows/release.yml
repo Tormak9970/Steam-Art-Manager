@@ -159,7 +159,7 @@ jobs:
             ).data;
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
-            fs.writeFileSync(latestPath, latestContents);
+            fs.writeFileSync(latestPath, Buffer.from(latestContents));
             
             const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
             const add = (file) => exec.exec(`git add ${file}`);
