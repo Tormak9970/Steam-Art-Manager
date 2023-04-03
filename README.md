@@ -85,6 +85,14 @@ This will generate a `.msi` file in `src-tauri/target/release/bundle/msi/app_nam
 <br/>
 
 ## Acknowledgements
+Big thanks to [doZenn](https://github.com/doZenn) for the advice and info on stuff related to steamgriddb. <br/>
+Other resources / references I used:
+ - [Steam ROM Manager](https://github.com/SteamGridDB/steam-rom-manager)
+ - [SteamGrid Decky Plugin](https://github.com/SteamGridDB/decky-steamgriddb)
+ - [SteamGridDB Boop](https://github.com/SteamGridDB/SGDBoop)
+ - [binary vdf parser for js](https://github.com/cbartondock/node-binary-vdf)
+
+<br/>
 
 ## Licensing
 This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL)
