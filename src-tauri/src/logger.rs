@@ -17,22 +17,28 @@ pub fn get_log_path(app_handle: &AppHandle) -> PathBuf {
 #[tauri::command]
 pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
   let log_path: PathBuf = get_log_path(&app_handle);
-  let mut log_file: File = OpenOptions::new()
+
+  let log_file_res = OpenOptions::new()
     .create(true)
     .write(true)
     .append(true)
-    .open(&log_path)
-    .unwrap();
+    .open(&log_path);
 
-  let level_name: &str = if level == 0 { "INFO" } else if level == 1 { "WARNING" } else { "ERROR" };
+  if log_file_res.is_ok() {
+    let mut log_file = log_file_res.unwrap();
 
-  let now: DateTime<Local> = Local::now();
-  let hour: u32 = now.hour();
-  let min: u32 = now.minute();
-  let sec: u32 = now.second();
-
-  if let Err(e) = writeln!(log_file, "[Steam Art Manager] [{hour}:{min}:{sec}] [{level_name}]: {message}") {
-    eprintln!("Couldn't write to file: {}", e);
+    let level_name: &str = if level == 0 { "INFO" } else if level == 1 { "WARNING" } else { "ERROR" };
+  
+    let now: DateTime<Local> = Local::now();
+    let hour: u32 = now.hour();
+    let min: u32 = now.minute();
+    let sec: u32 = now.second();
+  
+    if let Err(e) = writeln!(log_file, "[Steam Art Manager] [{hour}:{min}:{sec}] [{level_name}]: {message}") {
+      eprintln!("Couldn't write to file: {}", e);
+    }
+  } else {
+    panic!("Error opening log file!");
   }
 }
 
@@ -47,12 +53,7 @@ pub fn clean_out_log(app_handle: AppHandle) {
     .unwrap();
   create_dir_all(parent).expect("Failed to make directory");
 
-  let log_file: File = OpenOptions::new()
-    .create(true)
-    .truncate(true)
-    .write(true)
-    .open(&log_path)
-    .unwrap();
+  let log_file: File = File::create(&log_path).expect("Log Path should have existed.");
 
   drop(log_file);
 
