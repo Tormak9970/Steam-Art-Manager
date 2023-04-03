@@ -63,10 +63,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: release
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
           node-version: 16
 
       - name: Install Rust Stable
@@ -81,6 +86,18 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm install
 
+      - name: Cache Rust Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/src-tauri/.cargo/bin/
+            ~/src-tauri/.cargo/registry/index/
+            ~/src-tauri/.cargo/registry/cache/
+            ~/src-tauri/.cargo/git/db/
+            ~/src-tauri/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
       - name: Build App
         uses: tauri-apps/tauri-action@dev
         env:
@@ -93,14 +110,6 @@ jobs:
           releaseBody: ${{ needs.create-release.outputs.clean_output }}
           releaseDraft: true
           includeUpdaterJson: true
-
-      - name: Update Latest.json
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git add latest.json
-          git commit -m "chore: saving changes to latest.json"
-          git push origin ${{ github.ref_name }}
             
   publish-release:
     needs: [create-release, build-tauri]
@@ -109,6 +118,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - name: Update Latest.json
+        run: |
+          
+
       - name: Publish Release
         id: publish-release
         uses: actions/github-script@v6
