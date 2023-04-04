@@ -24,13 +24,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          
+      - name: Get Package Version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
         env:
-          RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
-          RELEASE_LOG: ${{ steps.changelog.outputs.clean_changelog }}
+          RELEASE_TAG: $PACKAGE_VERSION
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
@@ -103,7 +105,9 @@ jobs:
           tagName: ${{ needs.create-release.outputs.tag }}
           releaseBody: "Download the release for your platform below"
           releaseDraft: true
-          includeUpdaterJson: true
+          includeDebug: true
+          includeRelease: false
+          includeUpdaterJson: false
             
   publish-release:
     needs: [create-release, build-tauri]
