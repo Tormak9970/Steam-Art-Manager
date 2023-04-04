@@ -30,8 +30,7 @@
 					"$APPCONFIG/**",
 					"$DATA/**",
 					"$APPLOG/**",
-					"$APPCACHE/**",
-					"**"
+					"$APPCACHE/**"
 				]
 			},
 			"http": {
@@ -52,8 +51,7 @@
 					"$APPCONFIG/**",
 					"$DATA/**",
 					"$APPLOG/**",
-					"$APPCACHE/**",
-					"**"
+					"$APPCACHE/**"
 				]
 			},
 			"shell": {

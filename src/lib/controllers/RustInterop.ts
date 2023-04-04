@@ -96,4 +96,12 @@ export class RustInterop {
     const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt) });
     return JSON.parse(res);
   }
+
+  /**
+   * Adds the steam directory to the fsScope.
+   * @returns Whether the scope was successfully added.
+   */
+  static async addSteamToScope(): Promise<boolean> {
+    return await invoke<boolean>("add_steam_to_scope", {});
+  }
 }

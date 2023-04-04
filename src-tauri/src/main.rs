@@ -11,7 +11,12 @@ use appinfo_vdf_parser::read_vdf;
 use home::home_dir;
 
 use serde;
-use tauri::{AppHandle, api::dialog::blocking::FileDialogBuilder};
+use steam::get_steam_root_dir;
+use tauri::{
+  AppHandle,
+  api::dialog::blocking::FileDialogBuilder,
+  FsScope, Manager
+};
 
 type GridImageCache = HashMap<String, HashMap<String, String>>;
 
@@ -182,6 +187,36 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
   }
 }
 
+#[tauri::command]
+async fn add_steam_to_scope(app_handle: AppHandle) -> bool {
+  let steam_path = get_steam_root_dir();
+  let steam_parent_dir = steam_path.parent().unwrap();
+
+  let fs_scope = app_handle.fs_scope();
+  let asset_scope = app_handle.asset_protocol_scope();
+
+  let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
+  let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+
+  if fs_res.is_ok() && asset_res.is_ok() {
+    logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
+    return true;
+  } else if fs_res.is_err() {
+    let err = fs_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+    return false;
+  } else if asset_res.is_err() {
+    let err = asset_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    return false;
+  } else {
+    let fs_err = fs_res.err().unwrap();
+    let asset_err = asset_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+    return false;
+  }
+}
+
 fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_persisted_scope::init())
@@ -195,8 +230,14 @@ fn main() {
       export_grids_to_zip,
       import_grids_from_zip,
       read_appinfo_vdf,
-      save_changes
+      save_changes,
+      add_steam_to_scope
     ])
+    .setup(| app | {
+      let app_handle = app.handle();
+      logger::clean_out_log(app_handle);
+      Ok(())
+    })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

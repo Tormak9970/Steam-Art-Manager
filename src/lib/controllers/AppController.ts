@@ -47,6 +47,11 @@ export class AppController {
 
     hiddenGameIds.set(settings.hiddenGameIds);
     LogController.log("App setup complete.");
+
+    const wasAdded = await RustInterop.addSteamToScope();
+    if (!wasAdded) {
+      ToastController.showWarningToast("Failed to add Steam to scope!");
+    }
   }
 
   /**
@@ -54,8 +59,6 @@ export class AppController {
    * ? Logging complete.
    */
   static async init(): Promise<void> {
-    await LogController.cleanLogFile();
-
     const appIsOnline = get(isOnline);
     LogController.log(`App initialized. IsOnline: ${appIsOnline}.`);
 
