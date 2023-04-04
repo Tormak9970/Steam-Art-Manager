@@ -31,15 +31,13 @@ jobs:
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
-        env:
-          RELEASE_TAG: $PACKAGE_VERSION
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `debug-${process.env.RELEASE_TAG}`,
-              name: `Steam Art Manager debug-${process.env.RELEASE_TAG}`,
+              tag_name: `debug-${process.env.PACKAGE_VERSION}`,
+              name: `Steam Art Manager debug-${process.env.PACKAGE_VERSION}`,
               body: `Download the release for your platform below`,
               draft: true,
               prerelease: true
