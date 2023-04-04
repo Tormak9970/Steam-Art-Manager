@@ -245,8 +245,8 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
         }
     });
     let versions = currentVersion.split(".");
-    let featsAdd = Math.max(1, Math.ceil(numFeats / 10));
-    return `${versions[0]}.${parseInt(versions[1]) + featsAdd}.${featsAdd == 0 ? parseInt(versions[2]) + Math.max(1, Math.ceil(numFixes / 10)) : 0}`;
+    let featsAdd = Math.ceil(numFeats / 10);
+    return `${versions[0]}.${parseInt(versions[1]) + featsAdd}.${featsAdd == 0 ? parseInt(versions[2]) + Math.ceil(numFixes / 10) : 0}`;
 }
 function filterChangeLog(changelog) {
     let output = [];
