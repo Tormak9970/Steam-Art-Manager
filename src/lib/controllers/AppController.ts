@@ -47,11 +47,6 @@ export class AppController {
 
     hiddenGameIds.set(settings.hiddenGameIds);
     LogController.log("App setup complete.");
-
-    const wasAdded = await RustInterop.addSteamToScope();
-    if (!wasAdded) {
-      ToastController.showWarningToast("Failed to add Steam to scope!");
-    }
   }
 
   /**

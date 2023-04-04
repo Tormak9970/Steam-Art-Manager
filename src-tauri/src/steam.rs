@@ -29,15 +29,12 @@ pub fn get_steam_root_dir() -> PathBuf {
 #[cfg(target_os = "linux")]
 pub fn get_steam_root_dir() -> PathBuf {
   let pc_home_dir = home_dir().expect("Couldn't get user's home dir.");
-  let mut steam_dir = pc_home_dir.clone();
 
   if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
-    steam_dir = steam_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
+    return pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
   } else {
-    steam_dir = steam_dir.join(".steam/steam");
+    return pc_home_dir.join(".steam/steam");
   }
-
-  return steam_dir;
 }
 
 #[tauri::command]
@@ -70,6 +67,7 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
+  println!("Steam Base Directory: {}", steam_root.display());
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 

@@ -24,12 +24,19 @@
 			"fs": {
 				"all": true,
 				"scope": [
+					"$APP",
 					"$APP/**",
+					"$DESKTOP",
 					"$DESKTOP/**",
+					"$RESOURCE",
 					"$RESOURCE/**",
+					"$APPCONFIG",
 					"$APPCONFIG/**",
+					"$DATA",
 					"$DATA/**",
+					"$APPLOG",
 					"$APPLOG/**",
+					"$APPCACHE",
 					"$APPCACHE/**"
 				]
 			},
@@ -45,12 +52,19 @@
 				"all": true,
 				"asset": true,
 				"assetScope": [
+					"$APP",
 					"$APP/**",
+					"$DESKTOP",
 					"$DESKTOP/**",
+					"$RESOURCE",
 					"$RESOURCE/**",
+					"$APPCONFIG",
 					"$APPCONFIG/**",
+					"$DATA",
 					"$DATA/**",
+					"$APPLOG",
 					"$APPLOG/**",
+					"$APPCACHE",
 					"$APPCACHE/**"
 				]
 			},
