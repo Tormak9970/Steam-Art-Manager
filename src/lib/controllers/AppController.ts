@@ -37,8 +37,6 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
-    await LogController.cleanLogFile();
-
     await SettingsManager.setSettingsPath();
     let settings:AppSettings = await SettingsManager.getSettings();
 
