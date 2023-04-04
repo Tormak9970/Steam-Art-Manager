@@ -30,9 +30,16 @@ export class CacheController {
    */
   private async init(): Promise<void> {
     LogController.log("Initializing CacheController...");
+    
     this.appCacheDirPath = await appCacheDir();
-    this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
+    if (!(await fs.exists(this.appCacheDirPath))) {
+      await fs.createDir(this.appCacheDirPath);
+      LogController.log("Created cache dir.");
+    } else {
+      LogController.log("Found cache dir.");
+    }
 
+    this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
     if (!(await fs.exists(this.gridCacheDirPath))) {
       await fs.createDir(this.gridCacheDirPath);
       LogController.log("Created grids cache dir.");
