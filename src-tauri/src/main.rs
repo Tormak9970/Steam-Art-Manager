@@ -233,6 +233,11 @@ fn main() {
       save_changes,
       add_steam_to_scope
     ])
+    .setup(| app | {
+      let app_handle = app.handle();
+      logger::clean_out_log(app_handle);
+      Ok(())
+    })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
