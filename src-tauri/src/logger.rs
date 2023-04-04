@@ -1,4 +1,4 @@
-use std::path::{ PathBuf, Path };
+use std::path::PathBuf;
 use std::io::*;
 use std::fs::{
   create_dir_all,
@@ -11,6 +11,7 @@ use chrono::prelude::*;
 
 pub fn get_log_path(app_handle: &AppHandle) -> PathBuf {
   let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
+
   return app_log_dir.join("steam-art-manager.log");
 }
 
@@ -45,17 +46,13 @@ pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
 #[tauri::command]
 pub fn clean_out_log(app_handle: AppHandle) {
   let log_path: PathBuf = get_log_path(&app_handle);
-  let parent: &str = Path::new(&log_path)
-    .parent()
-    .unwrap()
-    .as_os_str()
-    .to_str()
-    .unwrap();
-  create_dir_all(parent).expect("Failed to make directory");
+  let log_parent_dir = log_path.parent().expect("Should have been able to get parent of log directory.");
 
-  let log_file: File = File::create(&log_path).expect("Log Path should have existed.");
+  if !log_parent_dir.exists() {
+    create_dir_all(log_parent_dir).expect("Failed to make directory");
+  }
 
-  drop(log_file);
+  File::create(&log_path).expect("Log path should have existed.");
 
   log_to_file(app_handle, "Initialized logging file", 0);
 }
