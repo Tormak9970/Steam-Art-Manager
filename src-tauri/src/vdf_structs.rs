@@ -15,7 +15,6 @@ pub struct User {
 }
 
 
-
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[allow(non_snake_case)]
 pub struct HKLMSteam {

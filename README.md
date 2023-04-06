@@ -16,7 +16,6 @@ To get the most recent release, head to [releases](https://github.com/Tormak9970
 
 ## How to use the app
 When using Steam Art Manager, your workflow will typically be:
- - Make sure Steam is already running (windows only)
  - Open Steam Art Manager
  - Set your SteamGridDB api key (if you wish to browse images from SteamGridDB)
  - Wait for it to load your games
