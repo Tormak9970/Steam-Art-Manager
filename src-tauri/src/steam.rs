@@ -1,8 +1,6 @@
 
 use crate::logger;
-use serde::Deserialize;
 
-use std::collections::HashMap;
 use std::fs;
 use std::path::{ PathBuf, Path };
 use std::u32;
@@ -66,7 +64,6 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
-  println!("Steam Base Directory: {}", steam_root.display());
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -77,33 +74,38 @@ pub fn get_active_user(app_handle: AppHandle) -> u32 {
   let steam_root = get_steam_root_dir();
   let loginusers_vdf = steam_root.join("config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
-  println!("Contents: {}", contents);
 
   let close_braces_matches: Vec<_> = contents.match_indices("}").collect();
-  let account_name_matches: Vec<_> = contents.match_indices("\"AccountName\"").collect();
   let most_recent_matches: Vec<_> = contents.match_indices("\"MostRecent\"").collect();
 
+  const MOST_RECENT_LEN: usize = 12;
+  const VAL_TABS_LEN: usize = 2;
+  const START_OFFSET: usize = 11;
+
   for (vec_index, (index, _)) in most_recent_matches.iter().enumerate() {
-    let most_recent: String = contents.chars().skip(index + 12 + 2).take(3).collect();
+    let most_recent_str: String = contents.chars().skip(index + MOST_RECENT_LEN + VAL_TABS_LEN + 1).take(1).collect();
+    let most_recent = most_recent_str.parse::<u32>().unwrap() == 1;
 
-    if most_recent == "1" {
+    if most_recent {
+      let chars: String;
+
       if vec_index == 0 {
-
+        chars = contents.chars().skip(START_OFFSET + 1).take(contents.len() - START_OFFSET - 2).collect();
       } else {
         let (brace_index, _) = close_braces_matches[vec_index];
+        chars = contents.chars().skip(brace_index + 4).take(contents.len() - brace_index - 2).collect();
       }
+      
+      let next_quote = chars.find("\"").unwrap();
+      let user_id_64_str: String = chars.chars().take(next_quote).collect();
+
+      let big_id = user_id_64_str.parse::<u64>().unwrap() - 76561197960265728;
+      let id = u32::try_from(big_id).expect("Should have been able to convert subtracted big_id to u32.");
+
+      logger::log_to_file(app_handle.to_owned(), format!("Got current_user_id: {}", id).as_str(), 0);
+      return id;
     }
   }
-
-  // for (key, value) in users.into_iter() {
-  //   if value.MostRecent == "1" {
-  //     let big_id = key.parse::<u64>().unwrap() - 76561197960265728;
-  //     let id = u32::try_from(big_id).expect("Should have been able to convert subtracted big_id to u32.");
-
-  //     logger::log_to_file(app_handle.to_owned(), format!("Got current_user_id: {}", id).as_str(), 0);
-  //     return id;
-  //   }
-  // }
   
   logger::log_to_file(app_handle, "Did not find a most recent user", 2);
 
