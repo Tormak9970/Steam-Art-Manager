@@ -1,7 +1,6 @@
 
 use crate::logger;
 
-use std::collections::HashMap;
 use std::fs;
 use std::path::{ PathBuf, Path };
 use std::u32;
@@ -15,6 +14,8 @@ use tauri::AppHandle;
 use home::home_dir;
 #[cfg(target_os = "linux")]
 use crate::vdf_structs;
+#[cfg(target_os = "linux")]
+use std::collections::HashMap;
 
 
 #[cfg(target_os = "windows")]
