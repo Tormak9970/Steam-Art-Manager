@@ -14,12 +14,6 @@ pub struct User {
   pub TimeStamp: String
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct LoginUsers {
-  pub users: HashMap<String, User>
-}
-
-
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[allow(non_snake_case)]

@@ -54,8 +54,6 @@ export class AppController {
    * ? Logging complete.
    */
   static async init(): Promise<void> {
-    await LogController.cleanLogFile();
-
     const appIsOnline = get(isOnline);
     LogController.log(`App initialized. IsOnline: ${appIsOnline}.`);
 

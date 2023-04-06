@@ -36,7 +36,7 @@ export class SettingsManager {
 
     settings = {...currentSettings};
     if (currentSettings.version !== APP_VERSION) {
-      const defaultSettings = JSON.parse(await fs.readTextFile(await path.resolveResource("../settings.json")));
+      const defaultSettings = JSON.parse(await fs.readTextFile(await path.resolveResource("./settings.json")));
 
       const curEntries = Object.entries(currentSettings);
       const curKeys = Object.keys(currentSettings);
