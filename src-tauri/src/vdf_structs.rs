@@ -15,7 +15,8 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct LoginUsers {
+#[allow(non_camel_case_types)]
+pub struct users {
   pub users: HashMap<String, User>
 }
 

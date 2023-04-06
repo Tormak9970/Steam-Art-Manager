@@ -94,7 +94,7 @@ pub fn get_active_user(app_handle: AppHandle) -> u32 {
   let loginusers_vdf = steam_root.join("config/loginusers.vdf");
   let contents = fs::read_to_string(loginusers_vdf).unwrap();
 
-  let users = vdf_serde::from_str::<vdf_structs::LoginUsers>(&contents).unwrap().users;
+  let users = vdf_serde::from_str::<vdf_structs::users>(&contents).unwrap();
 
   for (key, value) in users.into_iter() {
     if value.MostRecent == "1" {
