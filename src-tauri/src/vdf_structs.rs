@@ -14,12 +14,6 @@ pub struct User {
   pub TimeStamp: String
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-#[allow(non_camel_case_types)]
-pub struct users {
-  pub users: HashMap<String, User>
-}
-
 
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
