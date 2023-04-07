@@ -115,7 +115,7 @@
 			}
 		},
 		"security": {
-			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; style-src 'self' 'unsafe-inline'",
+			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; style-src 'self' 'unsafe-inline'",
 			"dangerousDisableAssetCspModification": [
 				"style-src"
 			]
