@@ -47,6 +47,11 @@
     border: 1px solid transparent;
     color: var(--font-color);
     border-radius: 2px;
+    
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+  }
+  input:hover {
+    background-color: var(--foreground-hover);
   }
   input:focus {
     border: 1px solid var(--highlight);

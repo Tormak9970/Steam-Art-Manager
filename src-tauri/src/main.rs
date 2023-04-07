@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 mod reader;
 mod vdf_structs;
 mod logger;

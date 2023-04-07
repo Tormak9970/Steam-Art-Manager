@@ -27,13 +27,10 @@
 
     font-size: 12px;
     cursor: pointer;
+
+    transition: background-color 0.15s ease-in-out;
   }
 
-  .button:hover {
-    background-color: var(--background-hover);
-  }
-
-  .button:focus {
-    border: 1px solid var(--highlight);
-  }
+  .button:hover { background-color: var(--background-hover); }
+  .button:focus { border: 1px solid var(--highlight); }
 </style>

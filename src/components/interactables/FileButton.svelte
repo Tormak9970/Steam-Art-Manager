@@ -27,6 +27,8 @@
 
     font-size: 12px;
     cursor: pointer;
+
+    transition: background-color 0.15s ease-in-out;
   }
 
   .button:hover {

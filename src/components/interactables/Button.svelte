@@ -32,6 +32,8 @@
     cursor: pointer;
 
     color: rgb(231, 231, 231);
+
+    transition: background-color 0.15s ease-in-out;
   }
 
   .button:hover {
@@ -48,19 +50,9 @@
     opacity: 0.7;
   }
 
-  .highlight {
-    background-color: var(--highlight-dim);
-  }
+  .highlight { background-color: var(--highlight-dim); }
+  .highlight:hover { background-color: var(--highlight-dim-hover); }
 
-  .highlight:hover {
-    background-color: var(--highlight-dim-hover);
-  }
-
-  .warn {
-    background-color: var(--warning);
-  }
-
-  .warn:hover {
-    background-color: var(--warning-hover);
-  }
+  .warn { background-color: var(--warning); }
+  .warn:hover { background-color: var(--warning-hover); }
 </style>

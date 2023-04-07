@@ -58,9 +58,11 @@
     cursor: pointer;
 
     background-color: var(--background-hover);
+
+    transition: background-color 0.15s ease-in-out;
   }
 
-  span:hover { border-color: var(--highlight); }
-
   li.active > span { background-color: var(--foreground-light); }
+
+  span:hover {background-color: var(--foreground-light-hover) !important; }
 </style>

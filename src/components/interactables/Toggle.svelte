@@ -55,7 +55,11 @@
     transition: transform 0.3s;
   }
 
-  .toggle button[aria-checked="true"] {background-color: var(--highlight); }
+  .toggle button[aria-checked="true"] {
+    background-color: var(--highlight);
+
+    transition: background-color 0.15s ease-in-out;
+  }
   .toggle button[aria-checked="true"]:hover {background-color: var(--highlight-hover); }
   .toggle button[aria-checked="true"]::before {
     transform: translateX(0.9em);
