@@ -1,5 +1,5 @@
 /**
- * Rogue Legacy Save Editor is a tool for viewing and modifying game saves from Rogue Legacy 1 & 2.
+ * Steam Art Manager is a tool for setting the artwork of your Steam library.
  * Copyright (C) 2023 Travis Lane (Tormak)
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,27 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 :root {
-    --font-color: rgb(231, 231, 231);
-    --background: #1a1a1a;
-    --background-hover: #1f1f1f;
-    --foreground: #252525;
-		--foreground-hover: #303030;
-    --foreground-light: #3d3d3d;
-    --foreground-light-hover: #474747;
+	--font-color: rgb(231, 231, 231);
+	--background: #1a1a1a;
+	--background-hover: #222222;
+	--foreground: #252525;
+	--foreground-hover: #303030;
+	--foreground-light: #3d3d3d;
+	--foreground-light-hover: #474747;
 
-    --highlight: #04e200;
-    --highlight-hover: #05FF00;
-    --highlight-dim: #039900;
-    --highlight-dim-hover: #04aa02;
-    --warning: #e24a4a;
-    --warning-hover: #e13525;
+	--highlight: #04e200;
+	--highlight-hover: #05FF00;
+	--highlight-dim: #039900;
+	--highlight-dim-hover: #04aa02;
+	--warning: #e24a4a;
+	--warning-hover: #e13525;
 
-    --selection-color: #3891ff7a;
+	--selection-color: #3891ff7a;
 
-    --success: #36ff04;
+	--success: #36ff04;
 
-    /* Toast variables */
-    --toastContainerTop: 2.5rem;
+	/* Toast variables */
+	--toastContainerTop: 2.5rem;
 }
 
 .splitpanes {

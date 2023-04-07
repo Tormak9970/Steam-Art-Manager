@@ -41,6 +41,8 @@
     outline: none;
     border: 1px solid black;
     padding: 3px;
+
+    transition: background-color 0.15s ease-in-out, outline 0.15s ease-in-out;
   }
   .input > input:hover {
     background-color: var(--background-hover);

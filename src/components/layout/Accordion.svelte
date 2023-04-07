@@ -36,6 +36,8 @@
   .accordion {
     color: var(--font-color);
     width: 100%;
+
+    user-select: none;
   }
 
 	button {
@@ -55,6 +57,8 @@
 
     width: 100%;
     background-color: var(--foreground-light);
+
+    transition: background-color 0.15s ease-in-out;
   }
   button:hover { background-color: var(--foreground-light-hover); }
 

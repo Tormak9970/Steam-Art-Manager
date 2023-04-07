@@ -52,6 +52,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    
+    transition: background-color 0.15s ease-in-out;
   }
 
   .check-box-container:hover input ~ .check-box {
