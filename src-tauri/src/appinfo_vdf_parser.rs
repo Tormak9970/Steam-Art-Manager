@@ -24,7 +24,7 @@ pub struct Vdf {
   entries: Vec<VdfEntry>,
 }
 
-pub fn read_vdf(path: &PathBuf) -> Vdf {
+pub fn open_appinfo_vdf(path: &PathBuf) -> Vdf {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
   let metadata = fs::metadata(path).expect("unable to read metadata");

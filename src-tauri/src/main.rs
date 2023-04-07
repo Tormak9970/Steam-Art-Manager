@@ -6,10 +6,13 @@ mod logger;
 mod steam;
 mod zip_controller;
 mod appinfo_vdf_parser;
+mod shortcuts_vdf_parser;
 
 use std::{path::PathBuf, collections::HashMap, fs};
 
-use appinfo_vdf_parser::read_vdf;
+use appinfo_vdf_parser::open_appinfo_vdf;
+use shortcuts_vdf_parser::open_shortcuts_vdf;
+
 use home::home_dir;
 
 use serde;
@@ -141,8 +144,20 @@ async fn import_grids_from_zip(app_handle: AppHandle) -> bool {
 #[tauri::command]
 async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
   let appinfo_path = PathBuf::from(steam::get_appinfo_path(app_handle));
-  let appinfo_vdf = read_vdf(&appinfo_path);
+  let appinfo_vdf = open_appinfo_vdf(&appinfo_path);
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
+}
+
+#[tauri::command]
+async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
+  let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle));
+
+  if shortcuts_path.as_path().exists() {
+    let shortcuts_vdf = open_shortcuts_vdf(&shortcuts_path);
+    return serde_json::to_string(&shortcuts_vdf).expect("Should have been able to serialize Shortcuts vdf to string.");
+  } else {
+    return "{}".to_owned();
+  }
 }
 
 #[tauri::command]
@@ -227,6 +242,7 @@ fn main() {
       export_grids_to_zip,
       import_grids_from_zip,
       read_appinfo_vdf,
+      read_shortcuts_vdf,
       save_changes
     ])
     .setup(| app | {

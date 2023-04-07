@@ -47,7 +47,6 @@ pub fn get_grids_directory(app_handle: AppHandle) -> String {
     panic!("Should have been able to create the grids dir!");
   }
 
-
   return grids_dir;
 }
 
@@ -65,6 +64,17 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
   
   let steam_root = get_steam_root_dir();
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+}
+
+#[tauri::command]
+pub fn get_shortcuts_path(app_handle: AppHandle) -> String {
+  logger::log_to_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
+
+  logger::log_to_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
+  
+  let steam_root = get_steam_root_dir();
+  let steam_active_user_id = get_active_user(app_handle.to_owned());
+  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
