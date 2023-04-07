@@ -7,9 +7,9 @@ A tool for setting the artwork of your Steam library.
 
 ## Features
  - Easily edit the art for your games
+ - View the art available on SteamGridDB for your games
  - Upload custom images
- - Export your current art to a zip file
- - Import art from a zip file
+ - Import and Export your art to a zip file
 
 ## Download and Install
 To get the most recent release, head to [releases](https://github.com/Tormak9970/Steam-Art-Manager/releases) and select the most recent release for your platform. Download it and run the installer.
