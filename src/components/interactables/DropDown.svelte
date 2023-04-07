@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate, onMount } from "svelte";
+  import { onMount } from "svelte";
 
   export let label:string;
   export let options: string[];
@@ -172,7 +172,11 @@
     cursor: pointer;
     white-space: nowrap;
   }
-  .select-items > div { padding: 0px 2px; }
+  .select-items > div {
+    padding: 0px 2px;
+    
+    transition: background-color 0.15s ease-in-out;
+  }
   .select-items {
     position: absolute;
     background-color: var(--foreground);
