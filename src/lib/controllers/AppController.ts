@@ -79,6 +79,9 @@ export class AppController {
     if (get(needsAPIKey)) {
       AppController.showApiKeyToast();
     }
+
+    const shortcuts = await RustInterop.readShortcutsVdf();
+    console.log("Shortcuts:", shortcuts);
   }
   
   /**

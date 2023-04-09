@@ -69,8 +69,6 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
 #[tauri::command]
 pub fn get_shortcuts_path(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
-
-  logger::log_to_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
   let steam_root = get_steam_root_dir();
   let steam_active_user_id = get_active_user(app_handle.to_owned());

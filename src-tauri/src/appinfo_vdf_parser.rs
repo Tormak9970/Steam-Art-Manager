@@ -7,24 +7,24 @@ use serde::{Serialize, Deserialize};
 use crate::reader::Reader;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct VdfCommon {
+pub struct AppInfoVdfCommon {
   r#type: String,
   name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct VdfEntry {
+pub struct AppInfoVdfEntry {
   name: String,
   id: u32,
-  entries: HashMap<String, VdfCommon>
+  entries: HashMap<String, AppInfoVdfCommon>
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Vdf {
-  entries: Vec<VdfEntry>,
+pub struct AppInfoVdf {
+  entries: Vec<AppInfoVdfEntry>,
 }
 
-pub fn open_appinfo_vdf(path: &PathBuf) -> Vdf {
+pub fn open_appinfo_vdf(path: &PathBuf) -> AppInfoVdf {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
   let metadata = fs::metadata(path).expect("unable to read metadata");
@@ -37,7 +37,7 @@ pub fn open_appinfo_vdf(path: &PathBuf) -> Vdf {
   return read(&mut reader);
 }
 
-fn read(reader: &mut Reader) -> Vdf {
+fn read(reader: &mut Reader) -> AppInfoVdf {
   reader.seek(1, 0);
 
   let sig_a = reader.read_uint8(true);
@@ -63,10 +63,10 @@ fn read(reader: &mut Reader) -> Vdf {
 
   let entries = read_app_entries(reader, skip);
 
-  return Vdf { entries };
+  return AppInfoVdf { entries };
 }
 
-fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<VdfEntry> {
+fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<AppInfoVdfEntry> {
   let mut entries = vec![];
   let mut id = reader.read_uint32(true);
 
@@ -85,7 +85,7 @@ fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<VdfEntry> {
   return entries;
 }
 
-fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> VdfEntry {
+fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> AppInfoVdfEntry {
   reader.seek(skip.into(), 1); // Skip a bunch of fields we don't care about
   
   let name = reader.read_string(None).to_owned();
@@ -96,10 +96,10 @@ fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> VdfEntry {
     entries.insert("common".to_owned(), vdf_common.unwrap());
   }
 
-  return VdfEntry { name, id, entries };
+  return AppInfoVdfEntry { name, id, entries };
 }
 
-fn read_entries(reader: &mut Reader, should_read_last: bool) -> Option<VdfCommon> {
+fn read_entries(reader: &mut Reader, should_read_last: bool) -> Option<AppInfoVdfCommon> {
   let mut name: String = String::from("");
   let mut r#type: String = String::from("");
 
@@ -126,7 +126,7 @@ fn read_entries(reader: &mut Reader, should_read_last: bool) -> Option<VdfCommon
   }
 
   if name != "".to_owned() && r#type != "".to_owned() {
-    return Some(VdfCommon { name, r#type });
+    return Some(AppInfoVdfCommon { name, r#type });
   } else {
     return None;
   }

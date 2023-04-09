@@ -64,6 +64,14 @@ export class RustInterop {
   }
 
   /**
+   * Gets the active steam user's shortcuts.vdf path.
+   * @returns A promise resolving to the active steam user's shortcuts.vdf path.
+   */
+  static async getShortcutsPath(): Promise<string> {
+    return await invoke<string>("get_shortcuts_path", {});
+  }
+
+  /**
    * Gets the active steam user's library cache directory.
    * @returns A promise resolving to the active steam user's library cache directory.
    */
@@ -96,11 +104,19 @@ export class RustInterop {
   }
 
   /**
-   * Imports the active user's grids from a zip file.
-   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   * Reads the current user's apps from the appinfo.vdf file.
+   * @returns A promise resolving to the contents of the appinfo.vdf file.
    */
   static async readAppinfoVdf(): Promise<any> {
     return JSON.parse(await invoke<string>("read_appinfo_vdf", {}));
+  }
+
+  /**
+   * Reads the current user's non steam games from the shortcuts.vdf file.
+   * @returns A promise resolving to the contents of the shortcuts.vdf file.
+   */
+  static async readShortcutsVdf(): Promise<any> {
+    return JSON.parse(await invoke<string>("read_shortcuts_vdf", {}));
   }
 
   /**

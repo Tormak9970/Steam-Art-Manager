@@ -1,30 +1,11 @@
-use std::collections::HashMap;
 use std::{path::PathBuf, fs};
 use std::io::Read;
 
-use serde::{Serialize, Deserialize};
+use serde_json::{Value, Map};
 
 use crate::reader::Reader;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct VdfCommon {
-  r#type: String,
-  name: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct VdfEntry {
-  name: String,
-  id: u32,
-  entries: HashMap<String, VdfCommon>
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Vdf {
-  entries: Vec<VdfEntry>,
-}
-
-pub fn open_shortcuts_vdf(path: &PathBuf) -> Vdf {
+pub fn open_shortcuts_vdf(path: &PathBuf) -> Value {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
   let metadata = fs::metadata(path).expect("unable to read metadata");
@@ -37,31 +18,50 @@ pub fn open_shortcuts_vdf(path: &PathBuf) -> Vdf {
   return read(&mut reader);
 }
 
-fn read(reader: &mut Reader) -> Vdf {
+fn read(reader: &mut Reader) -> Value {
   reader.seek(1, 0);
 
-  let sig_a = reader.read_uint8(true);
-  let sig_b = reader.read_uint8(true);
-  if sig_a != 0x44 || sig_b != 0x56 {
-    panic!("Invalid File Signature {sig_a} {sig_b}");
+  let fake_header = reader.read_string(None);
+
+  if fake_header != "shortcuts".to_owned() {
+    panic!("Invalid Shortcuts File! File started with {} instead of \"shortcuts\"", fake_header);
   }
 
-  reader.seek(0, 0);
+  return read_entry_map(reader);
+}
 
-  let skip;
-  let magic = reader.read_uint32(true);
+fn read_entry_map(reader: &mut Reader) -> Value {
+  let mut props = Map::new();
 
-  if magic == 0x07564428 {
-    skip = 65;
-  } else if magic == 0x07564427 {
-    skip = 45;
-  } else {
-    panic!("Magic header is unknown");
+  let mut field_type = reader.read_uint8(true);
+
+  while field_type != 0x00 {
+    let key = reader.read_string(None);
+    let value = read_entry_field(reader, field_type);
+
+    props.insert(key, value);
+
+    field_type = reader.read_uint8(true);
   }
 
-  reader.seek(8, 0);
+  return Value::Object(props);
+}
 
-  let entries = read_app_entries(reader, skip);
-
-  return Vdf { entries };
+fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
+  match field_type {
+    0x00 => { //? map
+      return read_entry_map(reader);
+    },
+    0x01 => { //? string
+      let value = reader.read_string(None);
+      return Value::String(value);
+    },
+    0x02 => { //? number
+      let value = reader.read_uint32(true);
+      return Value::Number(value.into());
+    },
+    _ => {
+      panic!("Unexpected field type {}!", field_type);
+    }
+  }
 }

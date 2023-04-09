@@ -151,11 +151,13 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 #[tauri::command]
 async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
   let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle));
-
+    
   if shortcuts_path.as_path().exists() {
-    let shortcuts_vdf = open_shortcuts_vdf(&shortcuts_path);
-    return serde_json::to_string(&shortcuts_vdf).expect("Should have been able to serialize Shortcuts vdf to string.");
+    // logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
+    let shortcuts_array = open_shortcuts_vdf(&shortcuts_path);
+    return serde_json::to_string(&shortcuts_array).expect("Should have been able to serialize Shortcuts vdf to string.");
   } else {
+    // logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf does not exist.", 0);
     return "{}".to_owned();
   }
 }
@@ -239,6 +241,7 @@ fn main() {
       steam::get_grids_directory,
       steam::get_library_cache_directory,
       steam::get_appinfo_path,
+      steam::get_shortcuts_path,
       export_grids_to_zip,
       import_grids_from_zip,
       read_appinfo_vdf,
