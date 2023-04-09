@@ -39,7 +39,8 @@
 				"request": true,
 				"scope": [
 					"https://*.steamgriddb.com/api/*",
-					"https://*.steamgriddb.com/file/*"
+					"https://*.steamgriddb.com/file/*",
+					"http://api.steampowered.com/IPlayerService/GetOwnedGames/*"
 				]
 			},
 			"protocol": {

@@ -4,10 +4,10 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
-    import { LogController } from "../../../lib/controllers/LogController";
+  import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters } from "../../../Stores";
-    import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters } from "../../../Stores";
+  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
@@ -150,7 +150,7 @@
 
   <div class="content" style="height: calc(100% - 85px);">
     {#if $isOnline}
-      {#if !$needsAPIKey}
+      {#if !$needsSGDBAPIKey}
         {#if $selectedGameAppId != null}
           <ListTabs tabs={Object.values(GridTypes)} height="calc(100% - 45px)" bind:selected={$gridType}>
             <div class="grids-cont">

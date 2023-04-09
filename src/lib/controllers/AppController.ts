@@ -15,17 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs } from "@tauri-apps/api";
+import { dialog, fs, http } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsAPIKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import type { SGDBImage } from "../models/SGDB";
+import { Vdf } from "../models/Vdf";
+import { Reader } from "../utils/Reader";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -59,7 +61,7 @@ export class AppController {
 
     if (settings.steamGridDbApiKey != "") {
       steamGridDBKey.set(settings.steamGridDbApiKey);
-      needsAPIKey.set(false);
+      needsSGDBAPIKey.set(false);
     }
 
     hiddenGameIds.set(settings.hiddenGameIds);
@@ -76,7 +78,7 @@ export class AppController {
 
     AppController.getUserSteamApps();
 
-    if (get(needsAPIKey)) {
+    if (get(needsSGDBAPIKey)) {
       AppController.showApiKeyToast();
     }
 
@@ -169,6 +171,11 @@ export class AppController {
   static async getUserSteamApps(): Promise<void> {
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
+    
+    const userId = await RustInterop.getActiveUser();
+    const bUserId = BigInt(userId) + 76561197960265728n
+    const games = await http.fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
+    console.log(games.data);
 
     const vdf = await RustInterop.readAppinfoVdf();
 

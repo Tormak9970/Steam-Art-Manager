@@ -19,7 +19,7 @@ export enum GridTypes {
   ICON="Icon"
 }
 
-export const needsAPIKey = writable(true);
+export const needsSGDBAPIKey = writable(true);
 export const canSave = writable(false);
 export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
 export const showHidden = writable(false);
@@ -27,6 +27,7 @@ export const showHidden = writable(false);
 export const isOnline = writable(false);
 export const activeUserId = writable(0);
 export const steamGridDBKey = writable("");
+export const steamKey = writable("");
 export const steamGames:Writable<SteamGame[]> = writable([]);
 export const hiddenGameIds:Writable<number[]> = writable([]);
 

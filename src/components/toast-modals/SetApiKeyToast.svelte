@@ -4,7 +4,7 @@
   import { ToastController } from "../../lib/controllers/ToastController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import { onlyOnKey } from "../../lib/utils/Utils";
-  import { needsAPIKey, steamGridDBKey } from "../../Stores";
+  import { needsSGDBAPIKey, steamGridDBKey } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import TextInput from "../interactables/TextInput.svelte";
 
@@ -18,7 +18,7 @@
     SettingsManager.updateSetting<string>("steamGridDbApiKey", key);
     // update state
     $steamGridDBKey = key;
-    $needsAPIKey = false;
+    $needsSGDBAPIKey = false;
   }
 
   /**
