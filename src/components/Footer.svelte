@@ -21,6 +21,8 @@
       <HorizontalSpacer />
     {/if}
     
+    <Button label="Reload" onClick={AppController.reload} width="auto" height="20px" />
+    <HorizontalSpacer />
     <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
     <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />

@@ -1,6 +1,7 @@
 type AppSettings = {
   version: string;
   steamGridDbApiKey: string;
+  steamApiKey: string;
   hiddenGameIds: []
 };
 

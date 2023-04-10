@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
@@ -57,11 +57,16 @@ export class AppController {
    */
   static async setup(): Promise<void> {
     await SettingsManager.setSettingsPath();
-    let settings:AppSettings = await SettingsManager.getSettings();
+    let settings: AppSettings = await SettingsManager.getSettings();
 
     if (settings.steamGridDbApiKey != "") {
       steamGridDBKey.set(settings.steamGridDbApiKey);
       needsSGDBAPIKey.set(false);
+    }
+    
+    if (settings.steamApiKey != "") {
+      steamKey.set(settings.steamApiKey);
+      needsSteamKey.set(false);
     }
 
     hiddenGameIds.set(settings.hiddenGameIds);
@@ -74,7 +79,7 @@ export class AppController {
    */
   static async init(): Promise<void> {
     const appIsOnline = get(isOnline);
-    LogController.log(`App initialized. IsOnline: ${appIsOnline}.`);
+    LogController.log(`App loaded. IsOnline: ${appIsOnline}.`);
 
     AppController.getUserSteamApps();
 
@@ -234,6 +239,8 @@ export class AppController {
    * ? Logging complete.
    */
   static async getUserSteamApps(): Promise<void> {
+    const online = get(isOnline);
+    const needsSteamAPIKey = get(needsSteamKey);
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
 
@@ -255,6 +262,20 @@ export class AppController {
 
     const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
     console.log("Appinfo Games:", appinfoGames);
+
+    if (online && !needsSteamAPIKey) {
+      // get games from steam api
+    } else if (online) {
+      // TODO: check if profile is visible
+      const profileIsVisible = false;
+      if (profileIsVisible) {
+        // get games from steam community
+      } else {
+        // prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the flawed method
+      }
+    } else {
+      //prompt user saying they are offline, and ask if they want to use the flawed method, warning it is especially unreliable for large libraries.
+    }
 
     steamGames.set(publicGames);
     
@@ -303,7 +324,6 @@ export class AppController {
     
     canSave.set(false);
   }
-
 
   /**
    * Sets the provided art for the current game and grid type.
@@ -386,6 +406,7 @@ export class AppController {
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
    * @returns A promise resolving to a list of the results.
+   * ? Logging complete.
    */
   static async getSteamGridArt(appId: number): Promise<SGDBImage[]> {
     return await AppController.cacheController.fetchGrids(appId);
@@ -414,6 +435,15 @@ export class AppController {
       ToastController.showWarningToast("Can't go online.");
       LogController.log("Attempt failed. Continuing in offline mode.");
     }
+  }
+
+  /**
+   * Reloads the app.
+   * ? Logging complete.
+   */
+  static async reload(): Promise<void> {
+    LogController.log(`Reloading...`);
+    await AppController.init();
   }
 
   /**
