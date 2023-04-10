@@ -22,6 +22,7 @@ fn read(reader: &mut Reader) -> Value {
   reader.seek(1, 0);
 
   let fake_header = reader.read_string(None);
+  println!("Fake Header: {}", fake_header);
 
   if fake_header != "shortcuts".to_owned() {
     panic!("Invalid Shortcuts File! File started with {} instead of \"shortcuts\"", fake_header);
@@ -37,6 +38,7 @@ fn read_entry_map(reader: &mut Reader) -> Value {
 
   while field_type != 0x00 {
     let key = reader.read_string(None);
+    println!("Key: {}", key);
     let value = read_entry_field(reader, field_type);
 
     props.insert(key, value);
