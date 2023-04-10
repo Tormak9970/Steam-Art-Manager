@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell"
-  import { onMount } from "svelte";
-  import { focusedWindow, steamGridDBKey, steamKey } from "../../Stores";
+  import { onDestroy, onMount } from "svelte";
+  import { needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey } from "../../Stores";
 	import Titlebar from "../../components/Titlebar.svelte";
   import Button from "../../components/interactables/Button.svelte";
   import HorizontalSpacer from "../../components/spacers/HorizontalSpacer.svelte";
@@ -9,8 +9,12 @@
   import VerticalSpacer from "../../components/spacers/VerticalSpacer.svelte";
   import { LogController } from "../../lib/controllers/LogController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
+  import { WindowController } from "../../lib/controllers/WindowController";
+
+  let settingsFocusUnsub;
 
   let canSave = false;
+  let isFocused = false;
 
   let steamGridKey = "";
   let steamAPIKey = "";
@@ -18,10 +22,13 @@
 	async function saveSettings() {
     LogController.log("Saving settings...");
     
-    $steamGridDBKey = steamGridKey;
+    $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
+    if ($steamGridDBKey !== "" && $needsSGDBAPIKey) $needsSGDBAPIKey = false;
+
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
     
-    $steamKey = steamAPIKey;
+    $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
+    if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
     await SettingsManager.updateSetting("steamApiKey", steamAPIKey);
 
     LogController.log("Saved settings.");
@@ -68,17 +75,23 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     steamGridKey = $steamGridDBKey;
     steamAPIKey = $steamKey;
 
-    SettingsManager.setSettingsPath();
+    settingsFocusUnsub = await WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
+      isFocused = focused;
+    });
+
+    await SettingsManager.setSettingsPath();
+  });
+
+  onDestroy(() => {
+    if (settingsFocusUnsub) settingsFocusUnsub();
   });
 </script>
 
-<svelte:window on:click={() => $focusedWindow = "settings"} />
-
-<div id="settings" class:dim={$focusedWindow != "settings"}>
+<div id="settings" class:dim={!isFocused}>
 	<Titlebar title="Settings" />
 	<div class="content">
     <VerticalSpacer />
@@ -138,6 +151,8 @@
 		align-items: center;
 
 		color: var(--font-color);
+
+    transition: opacity 0.1s ease-in-out;
 	}
 
 	.content {
@@ -188,6 +203,6 @@
   }
 
   .dim {
-    /* opacity: 0.7; */
+    opacity: 0.7;
   }
 </style>

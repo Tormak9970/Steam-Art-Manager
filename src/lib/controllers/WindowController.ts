@@ -18,14 +18,13 @@
 
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { LogController } from "./LogController";
-import { focusedWindow } from "../../Stores";
 
 /**
  * Controller class for managing app windows.
  */
 export class WindowController {
-  private static mainWindow = WebviewWindow.getByLabel('main');
-  private static settingsWindow = WebviewWindow.getByLabel('settings');
+  static mainWindow = WebviewWindow.getByLabel('main');
+  static settingsWindow = WebviewWindow.getByLabel('settings');
 
   /**
    * Closes the window with the provided label.
@@ -47,7 +46,6 @@ export class WindowController {
     LogController.log("Opening settings window.");
     await this.settingsWindow.show();
     await this.settingsWindow.setFocus();
-    focusedWindow.set("settings");
   }
 
   /**
@@ -57,6 +55,5 @@ export class WindowController {
   static async closeSettingsWindow(): Promise<void> {
     LogController.log("Closing settings window.");
     await this.settingsWindow.hide();
-    focusedWindow.set("main");
   }
 }

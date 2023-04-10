@@ -206,9 +206,9 @@ export class AppController {
     const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
 
     if (res.ok) {
-      return Object.entries(res.data.response).map(([appid, game]: [any, any]) => {
+      return res.data.response.games.map((game: any) => {
         return {
-          "appid": appid,
+          "appid": game.appid,
           "name": game.name
         }
       }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));

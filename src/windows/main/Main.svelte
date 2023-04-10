@@ -10,11 +10,19 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, focusedWindow, isOnline } from "../../Stores";
+  import { activeUserId, isOnline } from "../../Stores";
   import { ToastController } from "../../lib/controllers/ToastController";
-    import { appWindow } from "@tauri-apps/api/window";
+	import { WindowController } from "../../lib/controllers/WindowController";
+	
+	let mainFocusUnsub: any;
+
+	let isFocused = false;
 
 	onMount(async () => {
+    mainFocusUnsub = await WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
+      isFocused = focused;
+    });
+
     await AppController.setup();
     
 		if (navigator.onLine) {
@@ -34,15 +42,15 @@
 
 	onDestroy(async () => {
 		await AppController.destroy();
+
+		if (mainFocusUnsub) mainFocusUnsub();
 	});
 </script>
-
-<svelte:window on:click={() => $focusedWindow = "main"} />
 
 <div class="wrap">
 	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
 </div>
-<main class:dim={$focusedWindow != "main"}>
+<main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager" />
 	<div class="content">
 		<Splitpanes>
@@ -70,6 +78,8 @@
 		align-items: center;
 
 		color: var(--font-color);
+
+		transition: opacity 0.1s ease-in-out;
 	}
 
 	.wrap {
@@ -102,6 +112,6 @@
 	}
 
 	.dim {
-		/* opacity: 0.7; */
+		opacity: 0.7;
 	}
 </style>

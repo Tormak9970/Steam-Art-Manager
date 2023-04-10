@@ -20,8 +20,6 @@ export enum GridTypes {
   ICON="Icon"
 }
 
-export const focusedWindow = sharedStore("main", "focusedWindow");
-
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
