@@ -24,7 +24,6 @@ import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline,
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
-import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 import { WindowController } from "./WindowController";
@@ -465,30 +464,6 @@ export class AppController {
     return await dialog.ask("You are offline. Steam Art Manager won't work properly/fully. Do you want to continue?", {
       title: "No Internet Connection",
       type: "warning"
-    });
-  }
-
-  /**
-   * Shows a toast prompting the user to set their steamgrid api key.
-   * ? Logging complete.
-   */
-  static showApiKeyToast(): void {
-    LogController.log("Showing setApiKey toast.");
-    // @ts-ignore
-    toast.push({
-      component: {
-        src: SetApiKeyToast,
-        sendIdTo: 'toastId'
-      },
-      target: "top",
-      dismissable: false,
-      initial: 0,
-      intro: { y: -192 },
-      theme: {
-        '--toastPadding': '0',
-        '--toastBackground': 'transparent',
-        '--toastMsgPadding': '0'
-      }
     });
   }
 }

@@ -36,16 +36,16 @@
 
   .input > input {
     color: var(--font-color);
-    background-color: var(--background);
-    border-radius: 1px;
+    background-color: var(--foreground);
+    border: 1px solid transparent;
     outline: none;
-    border: 1px solid black;
+    border-radius: 2px;
     padding: 3px;
 
     transition: background-color 0.15s ease-in-out, outline 0.15s ease-in-out;
   }
   .input > input:hover {
-    background-color: var(--background-hover);
+    background-color: var(--foreground-hover);
   }
   .input > input:focus {
     outline: 1px solid var(--highlight);
