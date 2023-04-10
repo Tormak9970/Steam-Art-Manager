@@ -40,7 +40,8 @@
 				"scope": [
 					"https://*.steamgriddb.com/api/*",
 					"https://*.steamgriddb.com/file/*",
-					"http://api.steampowered.com/IPlayerService/GetOwnedGames/*"
+					"http://api.steampowered.com/IPlayerService/GetOwnedGames/*",
+					"https://steamcommunity.com/profiles/*"
 				]
 			},
 			"protocol": {

@@ -26,8 +26,7 @@ import { RustInterop } from "./RustInterop";
 import { toast } from "@zerodevx/svelte-toast";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import type { SGDBImage } from "../models/SGDB";
-import { Vdf } from "../models/Vdf";
-import { Reader } from "../utils/Reader";
+import { xml2json } from "../utils/xml2json";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -50,6 +49,7 @@ const libraryCacheLUT = {
  */
 export class AppController {
   private static cacheController = new CacheController();
+  private static domParser = new DOMParser();
 
   /**
    * Sets up the AppController.
@@ -165,19 +165,77 @@ export class AppController {
   }
 
   /**
+   * Gets the current user's steam games from their community profile.
+   * @param bUserId The u64 id of the current user.
+   * @returns A promise resolving to a list of steam games.
+   */
+  private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<SteamGame[]> {
+    const publicGamesXml = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
+      method: "GET",
+      responseType: http.ResponseType.Text
+    });
+    const xmlData = AppController.domParser.parseFromString(publicGamesXml.data, "text/xml");
+    const jsonStr = xml2json(xmlData, "");
+    const games = JSON.parse(jsonStr);
+
+    return games.gamesList.games.game.map((game: any) => {
+      return {
+        "appid": parseInt(game.appID),
+        "name": game.name["#cdata"]
+      }
+    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+  }
+
+  /**
+   * Gets the current user's steam games from the Steam Web API.
+   * @param bUserId The u64 id of the current user.
+   * @returns A promise resolving to a list of steam games.
+   */
+  private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<SteamGame[]> {
+    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
+
+    if (res.ok) {
+      console.log(res);
+      return Object.entries(res.data.response).map(([appid, game]: [any, any]) => {
+        return {
+          "appid": appid,
+          "name": game.name
+        }
+      }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+    } else {
+      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
+      const jsonStr = xml2json(xmlData, "");
+      const err = JSON.parse(jsonStr);
+
+      console.error(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
+      ToastController.showWarningToast("Check your Steam API Key");
+      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
+      return [];
+    }
+  }
+
+  /**
+   * Gets the current user's steam games by reading the appinfo.vdf.
+   * @returns A promise resolving to a list of steam games.
+   */
+  private static async getGamesFromAppinfo(): Promise<SteamGame[]> {
+    const vdf = await RustInterop.readAppinfoVdf();
+
+    return vdf.entries.map((game: any) => {
+      return {
+        "appid": game.id,
+        "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
+      } as SteamGame;
+    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+  }
+
+  /**
    * Gets the user's steam apps.
    * ? Logging complete.
    */
   static async getUserSteamApps(): Promise<void> {
     const id = ToastController.showLoaderToast("Loading games...");
     LogController.log("Getting steam games...");
-    
-    const userId = await RustInterop.getActiveUser();
-    const bUserId = BigInt(userId) + 76561197960265728n
-    const games = await http.fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
-    console.log(games.data);
-
-    const vdf = await RustInterop.readAppinfoVdf();
 
     const filteredCache = await AppController.getCacheData();
 
@@ -185,14 +243,20 @@ export class AppController {
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
-    const realGames = vdf.entries.filter((entry) => filteredKeys.includes(entry.id.toString()));
+    
+    const userId = await RustInterop.getActiveUser();
+    const bUserId = BigInt(userId) + 76561197960265728n
+    
+    const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
+    console.log("Public Games:", publicGames);
 
-    steamGames.set(realGames.map((game) => {
-      return {
-        "appid": game.id,
-        "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
-      } as SteamGame;
-    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name)));
+    const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+    console.log("Steam API Games:", apiGames);
+
+    const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+    console.log("Appinfo Games:", appinfoGames);
+
+    steamGames.set(publicGames);
     
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");
