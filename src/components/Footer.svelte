@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AppController } from "../lib/controllers/AppController";
+  import { WindowController } from "../lib/controllers/WindowController";
   import { canSave, isOnline } from "../Stores";
   import Button from "./interactables/Button.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
@@ -27,7 +28,7 @@
     <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />
     <HorizontalSpacer />
-    <Button label="Add SteamGrid Key" onClick={AppController.showApiKeyToast} width="auto" height="20px" />
+    <Button label="Settings" onClick={WindowController.openSettingsWindow} width="auto" height="20px" />
   </div>
 </div>
 

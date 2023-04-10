@@ -1,5 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBImage } from "./lib/models/SGDB";
+import { sharedStore } from "./lib/utils/SharedStore";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -19,8 +20,10 @@ export enum GridTypes {
   ICON="Icon"
 }
 
-export const needsSGDBAPIKey = writable(true);
-export const needsSteamKey = writable(true);
+export const focusedWindow = sharedStore("main", "focusedWindow");
+
+export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
+export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
 export const canSave = writable(false);
 export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
@@ -28,8 +31,8 @@ export const showHidden = writable(false);
 
 export const isOnline = writable(false);
 export const activeUserId = writable(0);
-export const steamGridDBKey = writable("");
-export const steamKey = writable("");
+export const steamGridDBKey = sharedStore("", "steamGridDBKey");
+export const steamKey = sharedStore("", "steamKey");
 
 export const steamGames:Writable<SteamGame[]> = writable([]);
 export const hiddenGameIds:Writable<number[]> = writable([]);

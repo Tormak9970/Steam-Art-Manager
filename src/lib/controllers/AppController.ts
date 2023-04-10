@@ -27,6 +27,7 @@ import { toast } from "@zerodevx/svelte-toast";
 import SetApiKeyToast from "../../components/toast-modals/SetApiKeyToast.svelte";
 import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
+import { WindowController } from "./WindowController";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -84,7 +85,7 @@ export class AppController {
     AppController.getUserSteamApps();
 
     if (get(needsSGDBAPIKey)) {
-      AppController.showApiKeyToast();
+      WindowController.openSettingsWindow();
     }
 
     const shortcuts = await RustInterop.readShortcutsVdf();
@@ -173,8 +174,11 @@ export class AppController {
    * Gets the current user's steam games from their community profile.
    * @param bUserId The u64 id of the current user.
    * @returns A promise resolving to a list of steam games.
+   * ? Logging complete.
    */
   private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<SteamGame[]> {
+    LogController.log(`Loading games from Steam Community page...`);
+
     const publicGamesXml = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
       responseType: http.ResponseType.Text
@@ -195,12 +199,14 @@ export class AppController {
    * Gets the current user's steam games from the Steam Web API.
    * @param bUserId The u64 id of the current user.
    * @returns A promise resolving to a list of steam games.
+   * ? Logging complete.
    */
   private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<SteamGame[]> {
+    LogController.log(`Loading games from Steam API...`);
+
     const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
 
     if (res.ok) {
-      console.log(res);
       return Object.entries(res.data.response).map(([appid, game]: [any, any]) => {
         return {
           "appid": appid,
@@ -222,8 +228,11 @@ export class AppController {
   /**
    * Gets the current user's steam games by reading the appinfo.vdf.
    * @returns A promise resolving to a list of steam games.
+   * ? Logging complete.
    */
   private static async getGamesFromAppinfo(): Promise<SteamGame[]> {
+    LogController.log(`Loading games from appinfo.vdf...`);
+
     const vdf = await RustInterop.readAppinfoVdf();
 
     return vdf.entries.map((game: any) => {
@@ -252,32 +261,32 @@ export class AppController {
     const filteredKeys = Object.keys(filteredCache);
     
     const userId = await RustInterop.getActiveUser();
-    const bUserId = BigInt(userId) + 76561197960265728n
-    
-    const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
-    console.log("Public Games:", publicGames);
-
-    const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
-    console.log("Steam API Games:", apiGames);
-
-    const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
-    console.log("Appinfo Games:", appinfoGames);
+    const bUserId = BigInt(userId) + 76561197960265728n;
 
     if (online && !needsSteamAPIKey) {
-      // get games from steam api
+      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+      console.log("Steam API Games:", apiGames);
+      steamGames.set(apiGames);
+      
+      LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
     } else if (online) {
-      // TODO: check if profile is visible
-      const profileIsVisible = false;
-      if (profileIsVisible) {
-        // get games from steam community
-      } else {
-        // prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the flawed method
+      try {
+        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
+        console.log("Public Games:", publicGames);
+        steamGames.set(publicGames);
+        
+        LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
+      } catch (err: any) {
+        LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
+        // prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the slow method
       }
     } else {
-      //prompt user saying they are offline, and ask if they want to use the flawed method, warning it is especially unreliable for large libraries.
+      const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+      console.log("Appinfo Games:", appinfoGames);
+      steamGames.set(appinfoGames);
+      
+      LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
     }
-
-    steamGames.set(publicGames);
     
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");

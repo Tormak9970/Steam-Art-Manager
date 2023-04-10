@@ -141,7 +141,19 @@
 				"decorations": false,
 				"center": true,
 				"visible": true,
-				"url": "index.html"
+				"url": "src/windows/main/main.html"
+			},
+			{
+				"label": "settings",
+				"fullscreen": false,
+				"height": 500,
+				"resizable": true,
+				"title": "Settings",
+				"width": 400,
+				"decorations": false,
+				"center": true,
+				"visible": false,
+				"url": "src/windows/settings/settings.html"
 			}
 		]
 	}

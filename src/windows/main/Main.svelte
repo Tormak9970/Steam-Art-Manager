@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
-	import Titlebar from "./components/Titlebar.svelte";
-	import { RustInterop } from "./lib/controllers/RustInterop";
+	import Titlebar from "../../components/Titlebar.svelte";
+	import { RustInterop } from "../../lib/controllers/RustInterop";
 	import { Splitpanes } from 'svelte-splitpanes';
-	import Footer from "./components/Footer.svelte";
-	import Filters from "./components/core/filters/Filters.svelte";
-	import Games from "./components/core/games/Games.svelte";
-	import Grids from "./components/core/grids/Grids.svelte";
-  import { AppController } from "./lib/controllers/AppController";
+	import Footer from "../../components/Footer.svelte";
+	import Filters from "../../components/core/filters/Filters.svelte";
+	import Games from "../../components/core/games/Games.svelte";
+	import Grids from "../../components/core/grids/Grids.svelte";
+  import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, isOnline } from "./Stores";
-  import { ToastController } from "./lib/controllers/ToastController";
+  import { activeUserId, focusedWindow, isOnline } from "../../Stores";
+  import { ToastController } from "../../lib/controllers/ToastController";
+    import { appWindow } from "@tauri-apps/api/window";
 
 	onMount(async () => {
     await AppController.setup();
@@ -36,10 +37,12 @@
 	});
 </script>
 
+<svelte:window on:click={() => $focusedWindow = "main"} />
+
 <div class="wrap">
 	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
 </div>
-<main>
+<main class:dim={$focusedWindow != "main"}>
 	<Titlebar title="Steam Art Manager" />
 	<div class="content">
 		<Splitpanes>
@@ -96,5 +99,9 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+	}
+
+	.dim {
+		/* opacity: 0.7; */
 	}
 </style>

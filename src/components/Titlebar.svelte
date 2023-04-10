@@ -2,6 +2,7 @@
   import { appWindow } from "@tauri-apps/api/window";
   import { onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
+  import { WindowController } from "../lib/controllers/WindowController";
 
   export let title: string;
 
@@ -18,7 +19,11 @@
       isMaxed = !isMaxed;
     });
     close.addEventListener("click", async () => {
-      await exit(0);
+      if (title == "Steam Art Manager") {
+        await exit(0);
+      } else {
+        await WindowController.closeWindowByTitle(title);
+      }
     });
   });
 </script>
