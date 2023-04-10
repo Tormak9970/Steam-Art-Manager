@@ -203,6 +203,6 @@
   }
 
   .dim {
-    opacity: 0.7;
+    opacity: 0.8;
   }
 </style>

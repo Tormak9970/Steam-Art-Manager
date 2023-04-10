@@ -56,6 +56,8 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
+    WindowController.mainWindow.setFocus();
+    
     await SettingsManager.setSettingsPath();
     let settings: AppSettings = await SettingsManager.getSettings();
 
@@ -277,7 +279,7 @@ export class AppController {
         LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
       } catch (err: any) {
         LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
-        // prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the slow method
+        // TODO: prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the slow method
       }
     } else {
       const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));

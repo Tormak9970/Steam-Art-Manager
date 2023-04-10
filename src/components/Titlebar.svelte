@@ -19,10 +19,11 @@
       isMaxed = !isMaxed;
     });
     close.addEventListener("click", async () => {
+      console.log(title);
       if (title == "Steam Art Manager") {
         await exit(0);
-      } else {
-        await WindowController.closeWindowByTitle(title);
+      } else if (title == "Settings") {
+        await WindowController.closeSettingsWindow();
       }
     });
   });
