@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 
 mod reader;
 mod vdf_structs;
@@ -152,9 +152,7 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
   let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle));
     
-  println!("Shortcuts Path: {}", shortcuts_path.display());
   if shortcuts_path.as_path().exists() {
-    println!("Exists");
     // logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
     let shortcuts_array = open_shortcuts_vdf(&shortcuts_path);
     return serde_json::to_string(&shortcuts_array).expect("Should have been able to serialize Shortcuts vdf to string.");

@@ -23,7 +23,6 @@ import { get } from "svelte/store";
 import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
-import { toast } from "@zerodevx/svelte-toast";
 import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 import { WindowController } from "./WindowController";
