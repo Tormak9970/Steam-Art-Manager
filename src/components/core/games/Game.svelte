@@ -7,7 +7,7 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId, selectedGameName } from "../../../Stores";
 
-  export let game: SteamGame;
+  export let game: GameStruct;
   export let widths: any;
   export let heights: any;
 
@@ -44,25 +44,29 @@
 
   onMount(() => {
     gridTypeUnsub = gridType.subscribe((type) => {
-      if ($appLibraryCache[game.appid][type]) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-      } else if (type == GridTypes.WIDE_CAPSULE) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][GridTypes.CAPSULE]);
-      } else {
-        showImage = false;
+      if ($appLibraryCache[game.appid]) {
+        if ($appLibraryCache[game.appid][type]) {
+          showImage = true;
+          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+        } else if (type == GridTypes.WIDE_CAPSULE) {
+          showImage = true;
+          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][GridTypes.CAPSULE]);
+        } else {
+          showImage = false;
+        }
       }
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      if (cache[game.appid][$gridType]) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
-      } else if ($gridType == GridTypes.WIDE_CAPSULE) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc(cache[game.appid][GridTypes.CAPSULE]);
-      } else {
-        showImage = false;
+      if (cache[game.appid]) {
+        if (cache[game.appid][$gridType]) {
+          showImage = true;
+          imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+        } else if ($gridType == GridTypes.WIDE_CAPSULE) {
+          showImage = true;
+          imagePath = tauri.convertFileSrc(cache[game.appid][GridTypes.CAPSULE]);
+        } else {
+          showImage = false;
+        }
       }
     });
   });
@@ -104,7 +108,7 @@
   @import "/theme.css";
 
   .game {
-    background-color: var(--foreground);
+    background-color: var(--foreground-hover);
     padding: 10px;
     padding-bottom: 5px;
     border-radius: 4px;
@@ -124,7 +128,7 @@
     transition: transform 0.2s ease-in-out, background-color 0.15s ease-in-out;
   }
   .game:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground-light);
     transform: scale(1.1);
   }
 

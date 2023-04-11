@@ -2,17 +2,20 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { gridType, hiddenGameIds, showHidden, steamGames } from "../../../Stores";
+  import { Platforms, appLibraryCache, currentPlatform, gridType, hiddenGameIds, nonSteamGames, showHidden, steamGames } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import Game from "./Game.svelte";
+  import ListTabs from "../../layout/tabs/ListTabs.svelte";
 
   let steamGamesUnsub: Unsubscriber;
+  let nonSteamGamesUnsub: Unsubscriber;
   let hiddenGameIdsUnsub: Unsubscriber;
   let showHiddenUnsub: Unsubscriber
+  let selectedPlatformUnsub: Unsubscriber;
 
   const padding = 20;
 
@@ -33,31 +36,59 @@
   };
 
   let searchQuery = "";
-  let games: SteamGame[] = [];
+  let games: GameStruct[] = [];
 
-  const filterSteamGames = (allGames: SteamGame[], hiddenIds: number[], hidden: boolean) => (hidden ? allGames : allGames.filter((game) => !hiddenIds.includes(game.appid))).filter((game) => game.name.toLowerCase().includes(searchQuery));
+  function getGamesForPlatform(platform: Platforms): GameStruct[] {
+    switch (platform) {
+      case Platforms.STEAM:
+        return $steamGames;
+      case Platforms.NON_STEAM:
+        return $nonSteamGames;
+    }
+  }
+
+  const filterSteamGames = (platform: Platforms, hiddenIds: number[], showHidden: boolean) => {
+    let allGames = getGamesForPlatform(platform);
+    let selectedGames: GameStruct[] = [];
+
+    if (showHidden) {
+      selectedGames = allGames;
+    } else {
+      selectedGames = allGames.filter((game) => !hiddenIds.includes(game.appid));
+    }
+
+    return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery));
+  }
 
   function onSearchChange(query: string) {
     searchQuery = query.toLowerCase();
-    games = filterSteamGames($steamGames, $hiddenGameIds, $showHidden);
+    games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
   }
 
   onMount(() => {
-    steamGamesUnsub = steamGames.subscribe((stGames) => {
-      games = filterSteamGames(stGames, $hiddenGameIds, $showHidden);
+    steamGamesUnsub = steamGames.subscribe(() => {
+      if ($currentPlatform == Platforms.STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+    });
+    nonSteamGamesUnsub = nonSteamGames.subscribe(() => {
+      if ($currentPlatform == Platforms.NON_STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
-      games = filterSteamGames($steamGames, ids, $showHidden);
+      games = filterSteamGames($currentPlatform, ids, $showHidden);
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
-      games = filterSteamGames($steamGames, $hiddenGameIds, show);
+      games = filterSteamGames($currentPlatform, $hiddenGameIds, show);
+    });
+    selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
+      games = filterSteamGames(platform, $hiddenGameIds, $showHidden);
     });
   });
 
   onDestroy(() => {
     if (steamGamesUnsub) steamGamesUnsub();
+    if (nonSteamGamesUnsub) nonSteamGamesUnsub();
     if (hiddenGameIdsUnsub) hiddenGameIdsUnsub();
     if (showHiddenUnsub) showHiddenUnsub();
+    if (selectedPlatformUnsub) selectedPlatformUnsub();
   });
 </script>
 
@@ -74,24 +105,28 @@
     <VerticalSpacer />
   </div>
 
-  <div class="content">
-    <VerticalSpacer />
-    <VerticalSpacer />
-
-    {#if $steamGames.length == 0}
-      <div class="loader-container">
-        <LoadingSpinner />
+  <div class="content" style="height: calc(100% - 85px);">
+    <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
+      <div class="grids-cont">
+        <VerticalSpacer />
+        <VerticalSpacer />
+        
+        {#if games.length > 0}
+          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+            {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
+              <Game game={game} widths={widths} heights={heights} />
+            {/each}
+          </div>
+        {:else}
+          <div class="message">
+            No {$currentPlatform} games found.
+          </div>
+        {/if}
+        
+        <VerticalSpacer />
+        <VerticalSpacer />
       </div>
-    {:else}
-      <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-        {#each games as game (`${game.appid}`)}
-          <Game game={game} widths={widths} heights={heights} />
-        {/each}
-      </div>
-    {/if}
-    
-    <VerticalSpacer />
-    <VerticalSpacer />
+    </ListTabs>
   </div>
 </Pane>
 
@@ -105,6 +140,12 @@
     padding: 0px 6px;
     overflow: auto;
     max-height: calc(100% - 65px)
+  }
+
+  .grids-cont {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
   }
 
   .game-grid {
@@ -123,6 +164,13 @@
   .border {
     margin-top: 7px;
     border-bottom: 1px solid var(--foreground);
+  }
+
+  .message {
+    width: 100%;
+    text-align: center;
+    opacity: 0.1;
+    padding-top: 40px;
   }
 
   .loader-container {

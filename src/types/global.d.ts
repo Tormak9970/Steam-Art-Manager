@@ -10,7 +10,7 @@ type SteamRegistryApp = {
   name: string
 }
 
-type SteamGame = {
+type GameStruct = {
   appid: number,
   name: string,
 }

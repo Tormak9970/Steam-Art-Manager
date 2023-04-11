@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -87,9 +87,6 @@ export class AppController {
     if (get(needsSGDBAPIKey)) {
       WindowController.openSettingsWindow();
     }
-
-    const shortcuts = await RustInterop.readShortcutsVdf();
-    console.log("Shortcuts:", shortcuts);
   }
   
   /**
@@ -128,11 +125,13 @@ export class AppController {
    * Filters and structures the library cache based on the app's needs.
    * @param libraryCacheContents The contents of the library cache.
    * @param gridsInfos The filtered grid infos.
+   * @param shortcuts The list of loaded shortcuts
    * @returns The filtered and structured library cache.
    * ? Logging complete.
    */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }): { [appid: string]: LibraryCacheEntry } {
+  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcuts: GameStruct[]): { [appid: string]: LibraryCacheEntry } {
     let resKeys = Object.keys(gridsInfos);
+    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
     for (const fileEntry of libraryCacheContents) {
@@ -150,21 +149,22 @@ export class AppController {
     }
 
     const entries = Object.entries(res);
-    const filtered = entries.filter(([_, entry]) => Object.keys(entry).length >= 4);
+    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
     return Object.fromEntries(filtered);
   }
 
   /**
    * Gets the steam game image data.
+   * @param shortcuts The list of non steam games.
    * @returns A promise resolving to the image data.
    */
-  private static async getCacheData(): Promise<{ [appid: string]: LibraryCacheEntry }> {
+  private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
     const filteredGrids = AppController.filterGridsDir(gridDirContents);
     LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids);
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcuts);
     LogController.log("Library Cache loaded.");
 
     return filteredCache;
@@ -176,7 +176,7 @@ export class AppController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<SteamGame[]> {
+  private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<GameStruct[]> {
     LogController.log(`Loading games from Steam Community page...`);
 
     const publicGamesXml = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
@@ -192,7 +192,7 @@ export class AppController {
         "appid": parseInt(game.appID),
         "name": game.name["#cdata"]
       }
-    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
 
   /**
@@ -201,7 +201,7 @@ export class AppController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<SteamGame[]> {
+  private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<GameStruct[]> {
     LogController.log(`Loading games from Steam API...`);
 
     const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
@@ -212,7 +212,7 @@ export class AppController {
           "appid": game.appid,
           "name": game.name
         }
-      }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
     } else {
       const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
       const jsonStr = xml2json(xmlData, "");
@@ -230,7 +230,7 @@ export class AppController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromAppinfo(): Promise<SteamGame[]> {
+  private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
     LogController.log(`Loading games from appinfo.vdf...`);
 
     const vdf = await RustInterop.readAppinfoVdf();
@@ -239,8 +239,8 @@ export class AppController {
       return {
         "appid": game.id,
         "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
-      } as SteamGame;
-    }).sort((gameA: SteamGame, gameB: SteamGame) => gameA.name.localeCompare(gameB.name));
+      } as GameStruct;
+    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
 
   /**
@@ -251,9 +251,21 @@ export class AppController {
     const online = get(isOnline);
     const needsSteamAPIKey = get(needsSteamKey);
     const id = ToastController.showLoaderToast("Loading games...");
+
+    LogController.log("Loading non-steam games...");
+    const shortcuts = await RustInterop.readShortcutsVdf();
+    const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
+      return {
+        "appid": shortcut.appid,
+        "name": shortcut.AppName
+      };
+    });
+    nonSteamGames.set(structuredShortcuts);
+    LogController.log("Loaded non-steam games.");
+
     LogController.log("Getting steam games...");
 
-    const filteredCache = await AppController.getCacheData();
+    const filteredCache = await AppController.getCacheData(structuredShortcuts);
 
     originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
     appLibraryCache.set(filteredCache);
@@ -264,33 +276,35 @@ export class AppController {
     const bUserId = BigInt(userId) + 76561197960265728n;
 
     if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
       console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
       LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
+      LogController.log("Steam games loaded.");
     } else if (online) {
       try {
-        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
+        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
         console.log("Public Games:", publicGames);
         steamGames.set(publicGames);
         
         LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
+        LogController.log("Steam games loaded.");
       } catch (err: any) {
         LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
         // TODO: prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the slow method
       }
     } else {
-      const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: SteamGame) => filteredKeys.includes(entry.appid.toString()));
+      const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
       console.log("Appinfo Games:", appinfoGames);
       steamGames.set(appinfoGames);
       
       LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
+      LogController.log("Steam games loaded.");
     }
     
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");
-    LogController.log("Steam games loaded.");
   }
 
   /**
@@ -385,7 +399,7 @@ export class AppController {
       ToastController.showSuccessToast("Import successful!");
       LogController.log("Successfully imported user's grids.");
 
-      const filteredCache = await AppController.getCacheData();
+      const filteredCache = await AppController.getCacheData(get(nonSteamGames));
       originalAppLibraryCache.set(filteredCache);
       appLibraryCache.set(filteredCache);
     } else {

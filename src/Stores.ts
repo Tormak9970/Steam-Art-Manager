@@ -20,10 +20,16 @@ export enum GridTypes {
   ICON="Icon"
 }
 
+export enum Platforms {
+  STEAM="Steam",
+  NON_STEAM="Non Steam"
+}
+
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
 export const canSave = writable(false);
+export const currentPlatform:Writable<Platforms> = writable(Platforms.STEAM);
 export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
 export const showHidden = writable(false);
 
@@ -32,7 +38,8 @@ export const activeUserId = writable(0);
 export const steamGridDBKey = sharedStore("", "steamGridDBKey");
 export const steamKey = sharedStore("", "steamKey");
 
-export const steamGames:Writable<SteamGame[]> = writable([]);
+export const steamGames:Writable<GameStruct[]> = writable([]);
+export const nonSteamGames:Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds:Writable<number[]> = writable([]);
 
 export const originalAppLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
