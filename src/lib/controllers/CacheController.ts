@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { dowloadingGridId, gridsCache, gridType, GridTypes, steamGridDBKey } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, nonSteamSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -147,6 +147,66 @@ export class CacheController {
   }
 
   /**
+   * Gets the grids for a steam game.
+   * @param appId The id of the app to get.
+   * @param type The selected grid type.
+   * @returns A promise resolving to a list of grids.
+   * ? Logging complete.
+   */
+  private async fetchGridsForSteamGame(appId: number, type: GridTypes): Promise<SGDBImage[]> {
+    const gridCacheKeys = Object.keys(steamGridsCache);
+    if (gridCacheKeys.includes(appId.toString())) {
+      const types = Object.keys(steamGridsCache[appId.toString()]);
+
+      if (types.includes(type)) {
+        LogController.log(`Using in memory cache for steam ${appId}'s ${type}.`);
+        return steamGridsCache[appId.toString()][type];
+      } else {
+        LogController.log(`Need to fetch steam ${gridType} for ${appId}.`);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
+        steamGridsCache[appId.toString()][type] = grids;
+        return grids;
+      }
+    } else {
+      LogController.log(`Need to fetch steam ${gridType} for ${appId}.`);
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
+      steamGridsCache[appId.toString()] = {};
+      steamGridsCache[appId.toString()][type] = grids;
+      return grids;
+    }
+  }
+
+  /**
+   * Gets the grids for a non steam game.
+   * @param appId The id of the app to get.
+   * @param type The selected grid type.
+   * @returns A promise resolving to a list of grids.
+   * ? Logging complete.
+   */
+  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes): Promise<SGDBImage[]> {
+    const gridCacheKeys = Object.keys(nonSteamGridsCache);
+    if (gridCacheKeys.includes(appId.toString())) {
+      const types = Object.keys(nonSteamGridsCache[appId.toString()]);
+
+      if (types.includes(type)) {
+        LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
+        return nonSteamGridsCache[appId.toString()][type];
+      } else {
+        LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId);
+        nonSteamGridsCache[appId.toString()][type] = grids;
+        return grids;
+      }
+    } else {
+      LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId);
+      nonSteamGridsCache[appId.toString()] = {};
+      nonSteamGridsCache[appId.toString()][type] = grids;
+      return grids;
+    }
+  }
+
+  /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
    * @returns A promise resolving to the grids.
@@ -155,26 +215,29 @@ export class CacheController {
   async fetchGrids(appId: number): Promise<SGDBImage[]> {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
-    const gridCacheKeys = Object.keys(gridsCache);
+    const selectedPlatform = get(currentPlatform);
     
-    if (gridCacheKeys.includes(appId.toString())) {
-      const types = Object.keys(gridsCache[appId.toString()]);
+    if (selectedPlatform == Platforms.STEAM) {
+      return await this.fetchGridsForSteamGame(appId, type);
+    } else if (selectedPlatform == Platforms.NON_STEAM) {
+      const gameName = get(selectedGameName);
 
-      if (types.includes(type)) {
-        LogController.log(`Using in memory cache for ${appId}'s ${type}.`);
-        return gridsCache[appId.toString()][type];
-      } else {
-        LogController.log(`Need to fetch ${type} for ${appId}.`);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
-        gridsCache[appId.toString()][type] = grids;
-        return grids;
+      let results = nonSteamSearchCache[appId];
+
+      if (!results) {
+        results = await this.client.searchGame(gameName);
+        nonSteamSearchCache[appId] = results;
       }
-    } else {
-      LogController.log(`Need to fetch ${type} for ${appId}.`);
-      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
-      gridsCache[appId.toString()] = {};
-      gridsCache[appId.toString()][type] = grids;
-      return grids;
+
+      console.log(results);
+
+      // TODO: prompt user to select if results length > 1
+      if (results.length == 1) {
+        return await this.fetchGridsForNonSteamGame(results[0].id, type);
+      } else {
+
+        return [];
+      }
     }
   }
 

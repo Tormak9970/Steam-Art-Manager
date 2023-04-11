@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, appLibraryCache, currentPlatform, gridType, hiddenGameIds, nonSteamGames, showHidden, steamGames } from "../../../Stores";
+  import { Platforms, currentPlatform, gridType, hiddenGameIds, nonSteamGames, showHidden, steamGames } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
@@ -16,6 +16,8 @@
   let hiddenGameIdsUnsub: Unsubscriber;
   let showHiddenUnsub: Unsubscriber
   let selectedPlatformUnsub: Unsubscriber;
+
+  let isLoading = true;
 
   const padding = 20;
 
@@ -67,19 +69,29 @@
 
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe(() => {
+      isLoading = true;
       if ($currentPlatform == Platforms.STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+      isLoading = false;
     });
     nonSteamGamesUnsub = nonSteamGames.subscribe(() => {
+      isLoading = true;
       if ($currentPlatform == Platforms.NON_STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+      isLoading = false;
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
+      isLoading = true;
       games = filterSteamGames($currentPlatform, ids, $showHidden);
+      isLoading = false;
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
+      isLoading = true;
       games = filterSteamGames($currentPlatform, $hiddenGameIds, show);
+      isLoading = false;
     });
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
+      isLoading = true;
       games = filterSteamGames(platform, $hiddenGameIds, $showHidden);
+      isLoading = false;
     });
   });
 
@@ -111,16 +123,22 @@
         <VerticalSpacer />
         <VerticalSpacer />
         
-        {#if games.length > 0}
-          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-            {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-              <Game game={game} widths={widths} heights={heights} />
-            {/each}
+        {#if isLoading || games.length == 0}
+          <div class="loader-container">
+            <LoadingSpinner />
           </div>
         {:else}
-          <div class="message">
-            No {$currentPlatform} games found.
-          </div>
+          {#if games.length > 0}
+            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+              {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
+                <Game game={game} widths={widths} heights={heights} />
+              {/each}
+            </div>
+          {:else}
+            <div class="message">
+              No {$currentPlatform} games found.
+            </div>
+          {/if}
         {/if}
         
         <VerticalSpacer />

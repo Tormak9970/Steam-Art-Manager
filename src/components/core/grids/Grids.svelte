@@ -6,7 +6,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -15,6 +15,7 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
 
+  let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
   let gridTypeUnsub: Unsubscriber;
@@ -99,6 +100,11 @@
   }
 
   onMount(() => {
+    selectedPlatformUnsub = currentPlatform.subscribe(async (platform) => {
+      isLoading = true;
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      isLoading = false;
+    });
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
@@ -127,6 +133,7 @@
   });
 
   onDestroy(() => {
+    if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
     if (gridTypeUnsub) gridTypeUnsub();

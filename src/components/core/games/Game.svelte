@@ -19,8 +19,8 @@
   $: isHidden = $hiddenGameIds.includes(game.appid);
 
   function selectGame() {
-    $selectedGameAppId = game.appid;
     $selectedGameName = game.name;
+    $selectedGameAppId = game.appid;
   }
 
   function hide() {
@@ -171,7 +171,7 @@
 
     fill: var(--font-color);
 
-    background-color: var(--foreground-light);
+    background-color: var(--foreground);
 
     opacity: 0.8;
 

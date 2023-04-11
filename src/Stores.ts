@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import type { SGDBImage } from "./lib/models/SGDB";
+import type { SGDBGame, SGDBImage } from "./lib/models/SGDB";
 import { sharedStore } from "./lib/utils/SharedStore";
 
 export type DBFilters = {
@@ -28,15 +28,23 @@ export enum Platforms {
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
-export const canSave = writable(false);
-export const currentPlatform:Writable<Platforms> = writable(Platforms.STEAM);
-export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
-export const showHidden = writable(false);
-
-export const isOnline = writable(false);
-export const activeUserId = writable(0);
 export const steamGridDBKey = sharedStore("", "steamGridDBKey");
 export const steamKey = sharedStore("", "steamKey");
+
+
+export const canSave = writable(false);
+export const isOnline = writable(false);
+export const currentPlatform:Writable<Platforms> = writable(Platforms.STEAM);
+export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
+
+export const selectedGameAppId: Writable<number> = writable(null);
+export const selectedGameName: Writable<string> = writable(null);
+export const dowloadingGridId: Writable<number> = writable(null);
+
+export const activeUserId = writable(0);
+
+export const showHidden = writable(false);
+
 
 export const steamGames:Writable<GameStruct[]> = writable([]);
 export const nonSteamGames:Writable<GameStruct[]> = writable([]);
@@ -45,11 +53,10 @@ export const hiddenGameIds:Writable<number[]> = writable([]);
 export const originalAppLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
-export const gridsCache:{ [appid: number]: SGDBImage[] } = {};
 
-export const selectedGameAppId: Writable<number> = writable(null);
-export const selectedGameName: Writable<string> = writable(null);
-export const dowloadingGridId: Writable<number> = writable(null);
+export const steamGridsCache:{ [appid: number]: SGDBImage[] } = {};
+export const nonSteamSearchCache:{ [appid: number]: SGDBGame[] } = {};
+export const nonSteamGridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
