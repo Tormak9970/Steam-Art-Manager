@@ -6,7 +6,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGame, nonSteamSearchCache, Platforms } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -14,7 +14,9 @@
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
+  import DropDown from "../../interactables/DropDown.svelte";
 
+  let selectedNonSteamSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
@@ -68,6 +70,7 @@
   }
 
   let isLoading = false;
+  let availableNames = ["None"];
   let grids: SGDBImage[] = [];
 
   /**
@@ -99,7 +102,17 @@
     if (path && path != "") AppController.setCustomArt(path as string);
   }
 
+  function onDropdownChange(value: string) {}
+
   onMount(() => {
+    selectedNonSteamSearchCacheUnsub = nonSteamSearchCache.subscribe((searchCache) => {
+      if ($currentPlatform == Platforms.STEAM) {
+        availableNames = [$selectedGameName];
+        $selectedSteamGridGame = $selectedGameName;
+      } else if ($currentPlatform == Platforms.NON_STEAM) {
+        availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
+      }
+    });
     selectedPlatformUnsub = currentPlatform.subscribe(async (platform) => {
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
@@ -108,6 +121,12 @@
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
+      if ($currentPlatform == Platforms.STEAM) {
+        availableNames = [$selectedGameName];
+        $selectedSteamGridGame = $selectedGameName;
+      } else if ($currentPlatform == Platforms.NON_STEAM) {
+        availableNames = Object.values($nonSteamSearchCache[id]).map((value) => value.name);
+      }
       isLoading = false;
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
@@ -133,6 +152,7 @@
   });
 
   onDestroy(() => {
+    if (selectedNonSteamSearchCacheUnsub) selectedNonSteamSearchCacheUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
@@ -145,8 +165,9 @@
 <Pane minSize={20}>
   <SectionTitle title="Grids" />
 
-  <div class="content">
+  <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
+      <DropDown label="Broswing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} />
       <HorizontalSpacer />
       <Button label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null} />
     </div>
@@ -155,7 +176,7 @@
     <VerticalSpacer />
   </div>
 
-  <div class="content" style="height: calc(100% - 85px);">
+  <div class="content" style="height: calc(100% - 85px);position: relative; z-index: 1;">
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
         {#if $selectedGameAppId != null}

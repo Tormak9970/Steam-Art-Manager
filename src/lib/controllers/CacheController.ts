@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, nonSteamSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, nonSteamSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGame } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -221,23 +221,18 @@ export class CacheController {
       return await this.fetchGridsForSteamGame(appId, type);
     } else if (selectedPlatform == Platforms.NON_STEAM) {
       const gameName = get(selectedGameName);
+      const nonSteamCache = get(nonSteamSearchCache);
 
-      let results = nonSteamSearchCache[appId];
+      let results = nonSteamCache[appId];
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        nonSteamSearchCache[appId] = results;
+        nonSteamCache[appId] = results;
+        nonSteamSearchCache.set(nonSteamCache);
       }
 
-      console.log(results);
-
-      // TODO: prompt user to select if results length > 1
-      if (results.length == 1) {
-        return await this.fetchGridsForNonSteamGame(results[0].id, type);
-      } else {
-
-        return [];
-      }
+      selectedSteamGridGame.set(results[0].name);
+      return await this.fetchGridsForNonSteamGame(results[0].id, type);
     }
   }
 

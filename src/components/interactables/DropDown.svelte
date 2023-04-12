@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
 
   export let label:string;
   export let options: string[];
@@ -89,14 +89,14 @@
   }
 
   onMount(() => {
-    width = `${selectedItemsDiv.scrollWidth + 80}px`;
+    // width = `${selectedItemsDiv.scrollWidth + 80}px`;
     active = false;
   });
 </script>
 
-<div class="wrapper" style="width: {width};">
+<div class="wrapper" style="width: 160px;">
   <div style="margin-right: 13px; font-size: 14px">{label}:</div>
-  <div class="custom-select" style="width: {width};">
+  <div class="custom-select" style="width:  160px;">
     <select>
       <option value="default">{value}</option>
       {#each options as val}
@@ -144,16 +144,22 @@
 
     background-color: var(--foreground);
 
-    min-width: 100px;
+    min-width: 160px;
   }
   .custom-select > select { display: none; }
 
-  .select-selected { background-color: var(--foreground); }
+  .select-selected {
+    background-color: var(--foreground);
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    width: calc(100% - 30px);
+  }
   .select-selected::after {
     position: absolute;
     content: "";
     top: 38.88%;
-    right: 9%;
+    right: 4%;
     width: 0;
     height: 0;
     border: min(1.333vw, 6px) solid transparent;
@@ -171,6 +177,8 @@
     padding: 0px 3px;
     cursor: pointer;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   .select-items > div {
     padding: 0px 2px;
