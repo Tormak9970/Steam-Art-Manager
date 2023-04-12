@@ -65,3 +65,7 @@ fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
     }
   }
 }
+
+pub fn write_shortcuts_vdf(path: &PathBuf) {
+  
+}
