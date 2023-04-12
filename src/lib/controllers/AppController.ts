@@ -266,7 +266,7 @@ export class AppController {
     LogController.log("Loading non-steam games...");
     const shortcuts = await RustInterop.readShortcutsVdf();
     steamShortcuts.set(Object.values(shortcuts));
-    console.log(Object.values(shortcuts));
+    
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
         "appid": shortcut.appid,
@@ -305,7 +305,14 @@ export class AppController {
         LogController.log("Steam games loaded.");
       } catch (err: any) {
         LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
-        // TODO: prompt user saying their profile is not visible, and to either change that, provide a SteamAPI key, or use the slow method
+        ToastController.showWarningToast("You profile is private");
+        // TODO: consider prompting user here
+        const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
+        console.log("Appinfo Games:", appinfoGames);
+        steamGames.set(appinfoGames);
+        
+        LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
+        LogController.log("Steam games loaded.");
       }
     } else {
       const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));

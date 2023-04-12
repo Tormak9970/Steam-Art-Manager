@@ -1,6 +1,7 @@
 // #![windows_subsystem = "windows"]
 
 mod reader;
+mod writer;
 mod vdf_structs;
 mod logger;
 mod steam;
