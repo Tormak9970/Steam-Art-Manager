@@ -209,10 +209,11 @@ export class CacheController {
   /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
+   * @param selectedSteamGridName Optional name of the current steamGridGame's name.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: number): Promise<SGDBImage[]> {
+  async fetchGrids(appId: number, selectedSteamGridName?: string): Promise<SGDBImage[]> {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
     const selectedPlatform = get(currentPlatform);
@@ -231,8 +232,10 @@ export class CacheController {
         nonSteamSearchCache.set(nonSteamCache);
       }
 
-      selectedSteamGridGame.set(results[0].name);
-      return await this.fetchGridsForNonSteamGame(results[0].id, type);
+      const choosenResult = selectedSteamGridName ? results.find((game) => game.name == selectedSteamGridName) : results.find((game) => game.name == gameName);
+
+      selectedSteamGridGame.set(choosenResult.name);
+      return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
     }
   }
 

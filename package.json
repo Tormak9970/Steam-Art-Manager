@@ -28,7 +28,9 @@
     "@tauri-apps/api": "^1.2.0",
     "@zerodevx/svelte-toast": "^0.8.0",
     "svelte-lazy": "^1.2.1",
-    "svelte-splitpanes": "^0.7.13"
+    "svelte-splitpanes": "^0.7.13",
+    "svelte-tippy": "^1.3.2",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.5.1",

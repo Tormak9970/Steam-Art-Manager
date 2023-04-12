@@ -17,6 +17,7 @@
   import DropDown from "../../interactables/DropDown.svelte";
 
   let selectedNonSteamSearchCacheUnsub: Unsubscriber;
+  let selectedSteamGridGameUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
@@ -106,13 +107,28 @@
 
   onMount(() => {
     selectedNonSteamSearchCacheUnsub = nonSteamSearchCache.subscribe((searchCache) => {
+      isLoading = true;
       if ($currentPlatform == Platforms.STEAM) {
         availableNames = [$selectedGameName];
         $selectedSteamGridGame = $selectedGameName;
       } else if ($currentPlatform == Platforms.NON_STEAM) {
         availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
       }
+      isLoading = false;
     });
+    selectedSteamGridGameUnsub = selectedSteamGridGame.subscribe(async (gameName) => {
+      isLoading = true;
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, gameName), $gridType, $dbFilters);
+      
+      if ($currentPlatform == Platforms.STEAM) {
+        availableNames = [$selectedGameName];
+        $selectedSteamGridGame = $selectedGameName;
+      } else if ($currentPlatform == Platforms.NON_STEAM) {
+        availableNames = Object.values($nonSteamSearchCache[$selectedGameAppId]).map((value) => value.name);
+      }
+      isLoading = false;
+    });
+
     selectedPlatformUnsub = currentPlatform.subscribe(async (platform) => {
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
@@ -121,6 +137,7 @@
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
+      
       if ($currentPlatform == Platforms.STEAM) {
         availableNames = [$selectedGameName];
         $selectedSteamGridGame = $selectedGameName;
@@ -153,6 +170,7 @@
 
   onDestroy(() => {
     if (selectedNonSteamSearchCacheUnsub) selectedNonSteamSearchCacheUnsub();
+    if (selectedSteamGridGameUnsub) selectedSteamGridGameUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
@@ -167,7 +185,7 @@
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Broswing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} />
+      <DropDown label="Broswing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} width={"200px"} />
       <HorizontalSpacer />
       <Button label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null} />
     </div>
@@ -192,7 +210,7 @@
               {:else}
                 {#if grids.length > 0}
                   <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-                    {#each grids as grid (`${grid.id}|${$gridType}`)}
+                    {#each grids as grid (`${$selectedSteamGridGame}|${grid.id}|${$gridType}`)}
                       <Grid grid={grid} widths={widths} heights={heights} />
                     {/each}
                   </div>

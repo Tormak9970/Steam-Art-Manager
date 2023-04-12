@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { afterUpdate, onMount } from "svelte";
+    import { AppController } from "../../lib/controllers/AppController";
+    import MarqueeText from "../effects/MarqueeText.svelte";
 
   export let label:string;
   export let options: string[];
   export let value: string;
   export let onChange: (value: string) => void = () => {};
-
-  let width = "auto";
-  let active = true;
+  export let width = "auto";
+  
+  let active = false;
   let selectedItemsDiv: HTMLDivElement;
 
   const body = document.getElementsByTagName("body")[0];
@@ -15,6 +16,24 @@
   if (!body.hasAttribute("data-select-close")) {
     document.addEventListener("click", closeAllSelect);
     body.setAttribute("data-select-close", "");
+  }
+
+  function margquee(selector: string, speed: number) {
+    const parentSelector = document.querySelector(selector);
+    const clone = parentSelector.innerHTML;
+    const firstElement = parentSelector.children[0] as HTMLElement;
+    let i = 0;
+    console.log(firstElement);
+    parentSelector.insertAdjacentHTML('beforeend', clone);
+    parentSelector.insertAdjacentHTML('beforeend', clone);
+
+    setInterval(function () {
+      firstElement.style.marginLeft = `-${i}px`;
+      if (i > firstElement.clientWidth) {
+        i = 0;
+      }
+      i = i + speed;
+    }, 0);
   }
 
   /**
@@ -87,16 +106,11 @@
 
     (selectDisplay as HTMLElement).click();
   }
-
-  onMount(() => {
-    // width = `${selectedItemsDiv.scrollWidth + 80}px`;
-    active = false;
-  });
 </script>
 
-<div class="wrapper" style="width: 160px;">
+<div class="wrapper" style="width: {width};">
   <div style="margin-right: 13px; font-size: 14px">{label}:</div>
-  <div class="custom-select" style="width:  160px;">
+  <div class="custom-select" style="width: {width}; min-width: {width};">
     <select>
       <option value="default">{value}</option>
       {#each options as val}
@@ -105,15 +119,15 @@
     </select>
   
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="select-selected" class:select-arrow-active={active} on:click|stopPropagation={toggleDropdown}>{value}</div>
+    <div class="select-selected" class:select-arrow-active={active} on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{content: value, placement: "left"}}>{value}</div>
     <div class="select-items" class:select-hide={!active} bind:this={selectedItemsDiv}>
       {#each options as val}
         {#if val == value}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} class="same-as-selected" on:click|stopPropagation={selectOption}>{val}</div>
+          <div id={val} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{content: val, placement: "left"}}>{val}</div>
         {:else}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} on:click|stopPropagation={selectOption}>{val}</div>
+          <div id={val} on:click|stopPropagation={selectOption} use:AppController.tippy={{content: val, placement: "left"}}>{val}</div>
         {/if}
       {/each}
     </div>
@@ -122,6 +136,10 @@
 
 <style>
   @import "/theme.css";
+
+  @keyframes loopOverflowingText {
+
+  }
 
   .wrapper {
     margin: 0px;
@@ -138,18 +156,21 @@
   .custom-select {
     user-select: none;
     position: relative;
-    padding: 0px;
-    border-radius: 1px;
-    border: 1px solid black;
+    padding: 2px;
+    border-radius: 2px;
+    border: 1px solid transparent;
 
     background-color: var(--foreground);
 
     min-width: 160px;
   }
+  .custom-select:hover {
+    background-color: var(--foreground-hover);
+    cursor: pointer;
+  }
   .custom-select > select { display: none; }
 
   .select-selected {
-    background-color: var(--foreground);
     text-overflow: ellipsis;
     overflow: hidden;
 
@@ -181,7 +202,10 @@
     overflow: hidden;
   }
   .select-items > div {
-    padding: 0px 2px;
+    padding: 2px 3px;
+    padding-top: 4px;
+
+    height: clac(22px - 7px);
     
     transition: background-color 0.15s ease-in-out;
   }
@@ -193,8 +217,9 @@
     right: 0;
     z-index: 99;
     margin-top: 2px;
-    border-radius: 1px;
-    border: 1px solid black;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    box-shadow: 3px 6px 10px 4px #0e0e0e;
   }
   .select-items > div:hover {
     background-color: var(--foreground-light);

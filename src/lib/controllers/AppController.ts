@@ -27,6 +27,12 @@ import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 import { WindowController } from "./WindowController";
 
+import { createTippy } from 'svelte-tippy';
+import { roundArrow } from "tippy.js";
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/dist/svg-arrow.css';
+import 'tippy.js/animations/scale-subtle.css';
+
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
   "wide_capsule": GridTypes.WIDE_CAPSULE,
@@ -49,6 +55,11 @@ const libraryCacheLUT = {
 export class AppController {
   private static cacheController = new CacheController();
   private static domParser = new DOMParser();
+
+  static tippy = createTippy({
+    hideOnClick: false,
+    duration: 100
+  });
 
   /**
    * Sets up the AppController.
@@ -428,11 +439,12 @@ export class AppController {
   /**
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
+   * @param selectedSteamGridName Optional name of the current steamGridGame's name.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId);
+  static async getSteamGridArt(appId: number, selectedSteamGridName?: string): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, selectedSteamGridName);
   }
 
   /**
