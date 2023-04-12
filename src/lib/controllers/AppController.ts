@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey } from "../../Stores";
+import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -265,6 +265,8 @@ export class AppController {
 
     LogController.log("Loading non-steam games...");
     const shortcuts = await RustInterop.readShortcutsVdf();
+    steamShortcuts.set(Object.values(shortcuts));
+    console.log(Object.values(shortcuts));
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
         "appid": shortcut.appid,

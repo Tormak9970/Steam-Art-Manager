@@ -46,6 +46,7 @@ export const activeUserId = writable(0);
 export const showHidden = writable(false);
 
 
+export const steamShortcuts:Writable<SteamShortcut[]> = writable([]);
 export const steamGames:Writable<GameStruct[]> = writable([]);
 export const nonSteamGames:Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds:Writable<number[]> = writable([]);

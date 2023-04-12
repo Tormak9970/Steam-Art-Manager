@@ -15,6 +15,28 @@ type GameStruct = {
   name: string,
 }
 
+type SteamShortcut = {
+  AllowDesktopConfig: number
+  AllowOverlay: number
+  AppName: string
+  Devkit: number
+  DevkitGameID: string,
+  DevkitOverrideAppID: number
+  Exe: string,
+  FlatpakAppID: string,
+  IsHidden: number,
+  LastPlayTime: number,
+  LaunchOptions: string,
+  OpenVR: number,
+  ShortcutPath: string,
+  StartDir: string,
+  appid: number,
+  icon: string,
+  tags: {
+    [key: number]: string
+  }
+}
+
 type LibraryCacheEntry = {
   "Capsule": string,
   "Wide Capsule": string,
