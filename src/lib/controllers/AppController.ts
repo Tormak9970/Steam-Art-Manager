@@ -337,7 +337,8 @@ export class AppController {
     const originalCache = get(originalAppLibraryCache);
     const libraryCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
-    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache, shortcuts);
+    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache, shortcuts, shortcutIds);
     
     if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");

@@ -216,7 +216,6 @@ impl Writer<'_> {
   }
   
   fn expand_capacity(&mut self) {
-    println!("Expanding capacity to {}.", self.data.len() * 2);
     self.data.resize(self.data.len() * 2, 0);
   }
 

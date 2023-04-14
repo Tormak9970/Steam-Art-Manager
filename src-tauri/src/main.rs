@@ -26,7 +26,7 @@ use tauri::{
 
 type GridImageCache = HashMap<String, HashMap<String, String>>;
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Clone)]
 #[allow(non_snake_case)]
 struct ChangedPath {
   appId: String,
@@ -80,6 +80,17 @@ fn filter_paths(app_handle: &AppHandle, current_paths: &GridImageCache, original
   }
 
   return res;
+}
+
+fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec<String>) -> bool {
+  for changed_path in changed_paths.into_iter() {
+    let appid = changed_path.appId;
+    if shortcut_ids.contains(&appid) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -164,7 +175,10 @@ async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String, shortcuts_str: String) -> String {
+async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String) -> String {
+  let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
+    return appid.to_owned();
+  }).collect();
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
@@ -197,8 +211,9 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
     }
   }
 
-  let should_change_shortcuts = true;
-  // TODO: check if saving shortcuts is needed
+  let should_change_shortcuts = check_for_shortcut_changes(paths_to_set.clone(), shortcut_ids);
+  println!("Should change shortcuts: {}", should_change_shortcuts);
+  
   if should_change_shortcuts {
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
     let shortcuts_vdf_path = PathBuf::from("C:/Users/Tormak/Desktop/shortcuts_write_test.vdf");
