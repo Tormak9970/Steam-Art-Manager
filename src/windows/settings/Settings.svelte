@@ -169,7 +169,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-left: 14px;
+    margin: 0px 14px;
   }
 
   .description {
