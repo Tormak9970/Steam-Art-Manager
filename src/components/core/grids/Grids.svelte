@@ -108,10 +108,10 @@
   onMount(() => {
     selectedNonSteamSearchCacheUnsub = nonSteamSearchCache.subscribe((searchCache) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.STEAM) {
+      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
         availableNames = [$selectedGameName];
         $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM) {
+      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
         availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
       }
       isLoading = false;
@@ -120,10 +120,10 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, gameName), $gridType, $dbFilters);
       
-      if ($currentPlatform == Platforms.STEAM) {
+      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
         availableNames = [$selectedGameName];
         $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM) {
+      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
         availableNames = Object.values($nonSteamSearchCache[$selectedGameAppId]).map((value) => value.name);
       }
       isLoading = false;
@@ -138,10 +138,10 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
       
-      if ($currentPlatform == Platforms.STEAM) {
+      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
         availableNames = [$selectedGameName];
         $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM) {
+      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
         availableNames = Object.values($nonSteamSearchCache[id]).map((value) => value.name);
       }
       isLoading = false;

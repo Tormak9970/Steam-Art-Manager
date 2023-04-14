@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { AppController } from "../../lib/controllers/AppController";
-    import MarqueeText from "../effects/MarqueeText.svelte";
+  import { AppController } from "../../lib/controllers/AppController";
 
   export let label:string;
   export let options: string[];
@@ -9,31 +8,12 @@
   export let width = "auto";
   
   let active = false;
-  let selectedItemsDiv: HTMLDivElement;
 
   const body = document.getElementsByTagName("body")[0];
 
   if (!body.hasAttribute("data-select-close")) {
     document.addEventListener("click", closeAllSelect);
     body.setAttribute("data-select-close", "");
-  }
-
-  function margquee(selector: string, speed: number) {
-    const parentSelector = document.querySelector(selector);
-    const clone = parentSelector.innerHTML;
-    const firstElement = parentSelector.children[0] as HTMLElement;
-    let i = 0;
-    console.log(firstElement);
-    parentSelector.insertAdjacentHTML('beforeend', clone);
-    parentSelector.insertAdjacentHTML('beforeend', clone);
-
-    setInterval(function () {
-      firstElement.style.marginLeft = `-${i}px`;
-      if (i > firstElement.clientWidth) {
-        i = 0;
-      }
-      i = i + speed;
-    }, 0);
   }
 
   /**
@@ -120,7 +100,7 @@
   
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="select-selected" class:select-arrow-active={active} on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{content: value, placement: "left"}}>{value}</div>
-    <div class="select-items" class:select-hide={!active} bind:this={selectedItemsDiv}>
+    <div class="select-items" class:select-hide={!active}>
       {#each options as val}
         {#if val == value}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
