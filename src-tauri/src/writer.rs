@@ -215,63 +215,79 @@ impl Writer<'_> {
     }
   }
   
-  fn write_i<T: HasByteConvert>(&mut self, data: T, endianness: bool) -> u8 {
+  fn expand_capacity(&mut self) {
+    self.data.resize(self.data.len() * 2, 0);
+  }
+
+  fn write_i<T: HasByteConvert>(&mut self, data: T, length: u8, endianness: bool) -> u8 {
+    if self.remaining() <= length.into() {
+      self.expand_capacity()
+    }
+
     if endianness {
       return T::to_le_bytes(self.data, data, self.offset);
     } else {
       return T::to_be_bytes(self.data, data, self.offset);
     }
   }
+
+  pub fn trim(&mut self) {
+    self.data.truncate(self.offset);
+  }
+
+  pub fn remaining(&mut self) -> usize {
+    return self.data.len() - (self.offset + 1);
+  }
   
   pub fn write_uint8(&mut self, data: u8, endianness: bool) -> u8 {
-    let res = self.write_i::<u8>(data, endianness);
+    let res = self.write_i::<u8>(data, 1, endianness);
     self.offset += 1;
     return res;
   }
   pub fn write_uint16(&mut self, data: u16, endianness: bool) -> u8 {
-    let res = self.write_i::<u16>(data, endianness);
+    let res = self.write_i::<u16>(data, 2, endianness);
     self.offset += 2;
     return res;
   }
   pub fn write_uint32(&mut self, data: u32, endianness: bool) -> u8 {
-    let res = self.write_i::<u32>(data, endianness);
+    let res = self.write_i::<u32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
   pub fn write_uint64(&mut self, data: u64, endianness: bool) -> u8 {
-    let res = self.write_i::<u64>(data, endianness);
+    let res = self.write_i::<u64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
   
   pub fn write_int8(&mut self, data: i8, endianness: bool) -> u8 {
-    let res = self.write_i::<i8>(data, endianness);
+    let res = self.write_i::<i8>(data, 1, endianness);
     self.offset += 1;
     return res;
   }
   pub fn write_int16(&mut self, data: i16, endianness: bool) -> u8 {
-    let res = self.write_i::<i16>(data, endianness);
+    let res = self.write_i::<i16>(data, 2, endianness);
     self.offset += 2;
     return res;
   }
   pub fn write_int32(&mut self, data: i32, endianness: bool) -> u8 {
-    let res = self.write_i::<i32>(data, endianness);
+    let res = self.write_i::<i32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
   pub fn write_int64(&mut self, data: i64, endianness: bool) -> u8 {
-    let res = self.write_i::<i64>(data, endianness);
+    let res = self.write_i::<i64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
   
   pub fn write_float32(&mut self, data: f32, endianness: bool) -> u8 {
-    let res = self.write_i::<f32>(data, endianness);
+    let res = self.write_i::<f32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
   pub fn write_float64(&mut self, data: f64, endianness: bool) -> u8 {
-    let res = self.write_i::<f64>(data, endianness);
+    let res = self.write_i::<f64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
@@ -286,11 +302,17 @@ impl Writer<'_> {
       length_to_return += 4;
     }
     
+    if self.remaining() <= self.data.len() {
+      self.expand_capacity()
+    }
+    
     let mut i: usize = 0;
     while i < str_bytes_len {
       self.data[self.offset + i] = str_bytes[i];
       i += 1;
     }
+
+    self.data[self.offset + str_bytes_len] = 0x00;
 
     self.offset += str_bytes_len;
 

@@ -125,8 +125,11 @@ export class RustInterop {
    * @param originalArt The original art dictionary.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<ChangedPath[] | { error: string }> {
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt) });
+  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[]): Promise<ChangedPath[] | { error: string }> {
+    const shortcutsObj = {
+      "shortcuts": {...shortcuts}
+    }
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj) });
     return JSON.parse(res);
   }
 

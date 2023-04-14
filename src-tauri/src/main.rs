@@ -12,7 +12,7 @@ mod shortcuts_vdf_parser;
 use std::{path::PathBuf, collections::HashMap, fs};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
-use shortcuts_vdf_parser::open_shortcuts_vdf;
+use shortcuts_vdf_parser::{open_shortcuts_vdf, write_shortcuts_vdf};
 
 use home::home_dir;
 
@@ -164,7 +164,7 @@ async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String) -> String {
+async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String, shortcuts_str: String) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
@@ -195,6 +195,18 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
       let err = copy_res.err().unwrap();
       return format!("{{ \"error\": \"{}\"}}", err.to_string());
     }
+  }
+
+  let should_change_shortcuts = true;
+  // TODO: check if saving shortcuts is needed
+  if should_change_shortcuts {
+    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
+    let shortcuts_vdf_path = PathBuf::from("C:/Users/Tormak/Desktop/shortcuts_write_test.vdf");
+    let shortcuts_data = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
+    write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
+    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
+  } else {
+    logger::log_to_file(app_handle.to_owned(), "No changes to shortcuts detected. Skipping...", 0);
   }
 
   let changed_res = serde_json::to_string::<Vec<ChangedPath>>(paths_to_set.as_ref());
