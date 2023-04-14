@@ -131,6 +131,10 @@
 
     selectedPlatformUnsub = currentPlatform.subscribe(async (platform) => {
       isLoading = true;
+      availableNames = ["None"];
+      $selectedGameAppId = null;
+      $selectedGameName = null;
+      $selectedSteamGridGame = "None";
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
       isLoading = false;
     });
