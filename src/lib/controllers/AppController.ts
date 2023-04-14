@@ -338,6 +338,7 @@ export class AppController {
     const libraryCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+
     const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache, shortcuts, shortcutIds);
     
     if ((changedPaths as any).error !== undefined) {
@@ -347,7 +348,7 @@ export class AppController {
       for (const changedPath of (changedPaths as ChangedPath[])) {
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
       }
-      originalAppLibraryCache.set(libraryCache);
+      originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
       appLibraryCache.set(libraryCache);
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
@@ -361,8 +362,8 @@ export class AppController {
    * ? Logging complete.
    */
   static async discardChanges(): Promise<void> {
-    const originalImgs = get(originalAppLibraryCache);
-    appLibraryCache.set({...originalImgs});
+    const originalCache = get(originalAppLibraryCache);
+    appLibraryCache.set(JSON.parse(JSON.stringify(originalCache)));
 
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
