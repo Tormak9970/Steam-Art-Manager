@@ -68,8 +68,6 @@ fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
 }
 
 pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {
-  //* The data recieved is correct.
-  // println!("Shortcuts obj: {}", serde_json::to_string_pretty(&data).unwrap());
   if data.is_object() {
     let shortcuts = data.as_object().expect("Should have been able to convert to an object.");
     
@@ -104,27 +102,25 @@ fn write_entry_map(writer: &mut Writer, map: &Map<String, Value>) {
 
 fn write_entry_field(writer: &mut Writer, key: &String, field: &Value) {
   let key_owned: String = key.to_owned();
-  println!("Key: {}", key_owned);
 
-  if field.is_object() {
-    writer.write_uint8(0x00, true);
+  if field.is_number() {
+    writer.write_uint8(0x02, true);
     writer.write_string(key_owned, false, true);
-    writer.write_uint8(0x00, true);
 
-    let field_map = field.as_object().expect("Should have been able to convert to an object.");
-    write_entry_map(writer, field_map);
+    let number: u64 = field.as_u64().expect("Should have been able to convert to a number.");
+    writer.write_uint32(number as u32, true);
   } else if field.is_string() {
     writer.write_uint8(0x01, true);
     writer.write_string(key_owned, false, true);
 
     let string: &str = field.as_str().expect("Should have been able to convert to a string.");
     writer.write_string(string.to_owned(), false, true);
-  } else if field.is_number() {
-    writer.write_uint8(0x02, true);
+  } else if field.is_object() {
+    writer.write_uint8(0x00, true);
     writer.write_string(key_owned, false, true);
 
-    let number: u64 = field.as_u64().expect("Should have been able to convert to a number.");
-    writer.write_uint32(number as u32, true);
+    let field_map = field.as_object().expect("Should have been able to convert to an object.");
+    write_entry_map(writer, field_map);
   } else {
     panic!("Value was not an object, number or string!");
   }

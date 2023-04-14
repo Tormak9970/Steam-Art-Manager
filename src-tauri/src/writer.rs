@@ -315,7 +315,7 @@ impl Writer<'_> {
 
     self.data[self.offset + str_bytes_len] = 0x00;
 
-    self.offset += str_bytes_len;
+    self.offset += str_bytes_len + 1;
 
     return length_to_return as u32;
   }
