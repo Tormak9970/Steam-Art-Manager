@@ -17,9 +17,9 @@
     padding: 3px 6px;
     width: 28px;
     
-    background-color: var(--background);
+    background-color: var(--foreground);
     border: 1px solid #000;
-    border-radius: 1px;
+    border-radius: 2px;
 
     display: flex;
     align-items: center;
@@ -31,6 +31,6 @@
     transition: background-color 0.15s ease-in-out;
   }
 
-  .button:hover { background-color: var(--background-hover); }
+  .button:hover { background-color: var(--foreground-hover); }
   .button:focus { border: 1px solid var(--highlight); }
 </style>

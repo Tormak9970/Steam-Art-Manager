@@ -35,6 +35,9 @@
 
 	--success: #36ff04;
 
+	--save: #14a101;
+	--save-hover: #27b803;
+
 	/* Toast variables */
 	--toastContainerTop: 2.5rem;
 }

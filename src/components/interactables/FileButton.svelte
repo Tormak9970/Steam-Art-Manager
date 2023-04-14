@@ -17,9 +17,9 @@
     padding: 3px 6px;
     min-width: 40px;
     
-    background-color: var(--background);
+    background-color: var(--foreground);
     border: 1px solid #000;
-    border-radius: 1px;
+    border-radius: 2px;
 
     display: flex;
     align-items: center;
@@ -32,7 +32,7 @@
   }
 
   .button:hover {
-    background-color: var(--background-hover);
+    background-color: var(--foreground-hover);
   }
 
   .button:focus {
