@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, appLibraryCache, canSave, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
+import { GridTypes, Platforms, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -265,6 +265,7 @@ export class AppController {
 
     LogController.log("Loading non-steam games...");
     const shortcuts = await RustInterop.readShortcutsVdf();
+    originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
     steamShortcuts.set(Object.values(shortcuts));
     
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
@@ -347,9 +348,16 @@ export class AppController {
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
+        if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
+          const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
+          shortcut.icon = changedPath.targetPath;
+        }
       }
       originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
       appLibraryCache.set(libraryCache);
+      
+      originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+      steamShortcuts.set(shortcuts);
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     }
@@ -364,6 +372,9 @@ export class AppController {
   static async discardChanges(): Promise<void> {
     const originalCache = get(originalAppLibraryCache);
     appLibraryCache.set(JSON.parse(JSON.stringify(originalCache)));
+
+    const originalShortcuts = get(originalSteamShortcuts);
+    steamShortcuts.set(JSON.parse(JSON.stringify(originalShortcuts)));
 
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
@@ -382,6 +393,13 @@ export class AppController {
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
     gameImages[selectedGameId][selectedGridType] = path;
+
+    if (get(currentPlatform) == Platforms.NON_STEAM) {
+      const shortcuts = get(steamShortcuts);
+      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+      shortcut.icon = path;
+      steamShortcuts.set(shortcuts);
+    }
 
     appLibraryCache.set(gameImages);
     canSave.set(true);
@@ -403,6 +421,13 @@ export class AppController {
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
     gameImages[selectedGameId][selectedGridType] = localPath;
+    
+    if (get(currentPlatform) == Platforms.NON_STEAM) {
+      const shortcuts = get(steamShortcuts);
+      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+      shortcut.icon = localPath;
+      steamShortcuts.set(shortcuts);
+    }
 
     appLibraryCache.set(gameImages);
     canSave.set(true);
