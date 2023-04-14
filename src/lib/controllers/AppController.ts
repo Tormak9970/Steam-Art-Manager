@@ -28,10 +28,8 @@ import { xml2json } from "../utils/xml2json";
 import { WindowController } from "./WindowController";
 
 import { createTippy } from 'svelte-tippy';
-import { roundArrow } from "tippy.js";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/svg-arrow.css';
-import 'tippy.js/animations/scale-subtle.css';
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
