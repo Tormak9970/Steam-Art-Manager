@@ -216,6 +216,7 @@ impl Writer<'_> {
   }
   
   fn expand_capacity(&mut self) {
+    println!("Expanding capacity to {}.", self.data.len() * 2);
     self.data.resize(self.data.len() * 2, 0);
   }
 
@@ -302,7 +303,7 @@ impl Writer<'_> {
       length_to_return += 4;
     }
     
-    if self.remaining() <= self.data.len() {
+    if self.remaining() <= str_bytes_len {
       self.expand_capacity()
     }
     

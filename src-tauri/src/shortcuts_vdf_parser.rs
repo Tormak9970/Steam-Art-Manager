@@ -68,11 +68,14 @@ fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
 }
 
 pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {
+  //* The data recieved is correct.
+  // println!("Shortcuts obj: {}", serde_json::to_string_pretty(&data).unwrap());
   if data.is_object() {
     let shortcuts = data.as_object().expect("Should have been able to convert to an object.");
     
     let mut buffer: Vec<u8> = vec![0; 1000];
     let mut writer: Writer = Writer::new(&mut buffer);
+    
     write_entry_map(&mut writer, shortcuts);
 
     writer.trim();
@@ -87,7 +90,7 @@ pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {
 
     return true;
   } else {
-    return false;
+    panic!("Error writing shortcuts: data was not an object!");
   }
 }
 
@@ -101,6 +104,7 @@ fn write_entry_map(writer: &mut Writer, map: &Map<String, Value>) {
 
 fn write_entry_field(writer: &mut Writer, key: &String, field: &Value) {
   let key_owned: String = key.to_owned();
+  println!("Key: {}", key_owned);
 
   if field.is_object() {
     writer.write_uint8(0x00, true);
