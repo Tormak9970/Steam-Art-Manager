@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -80,6 +80,13 @@ export class AppController {
     }
 
     hiddenGameIds.set(settings.hiddenGameIds);
+
+    const activeUser = await RustInterop.getActiveUser();
+    activeUserId.set(activeUser);
+    if (activeUser == 0) {
+      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
+    }
+
     LogController.log("App setup complete.");
   }
 

@@ -37,6 +37,17 @@ type SteamShortcut = {
   }
 }
 
+type SteamUser = {
+  AccountName: string,
+  PersonaName: string,
+  RememberPassword: string,
+  WantsOfflineMode: string,
+  SkipOfflineModeWarning: string,
+  AllowAutoLogin: string,
+  MostRecent: string,
+  Timestamp: string
+}
+
 type LibraryCacheEntry = {
   "Capsule": string,
   "Wide Capsule": string,

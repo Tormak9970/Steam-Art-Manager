@@ -32,6 +32,9 @@
 <div data-tauri-drag-region class="titlebar">
   <div class="info">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px;" />
+    <slot />
+  </div>
+  <div class="info">
     <!-- svelte-ignore missing-declaration -->
     <div style="margin-left: 8px; margin-right: 30px;">{title} - v{APP_VERSION}</div>
   </div>

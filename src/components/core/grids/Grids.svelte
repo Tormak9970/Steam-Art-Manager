@@ -189,7 +189,7 @@
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Broswing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} width={"200px"} />
+      <DropDown label="Browsing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} width={"200px"} />
       <HorizontalSpacer />
       <Button label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null} />
     </div>

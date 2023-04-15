@@ -34,27 +34,28 @@ export const steamKey = sharedStore("", "steamKey");
 
 export const canSave = writable(false);
 export const isOnline = writable(false);
-export const currentPlatform:Writable<Platforms> = writable(Platforms.STEAM);
-export const gridType:Writable<GridTypes> = writable(GridTypes.CAPSULE);
+export const currentPlatform: Writable<Platforms> = writable(Platforms.STEAM);
+export const gridType: Writable<GridTypes> = writable(GridTypes.CAPSULE);
 
 export const selectedGameAppId: Writable<number> = writable(null);
 export const selectedGameName: Writable<string> = writable(null);
 export const dowloadingGridId: Writable<number> = writable(null);
 
-export const activeUserId = writable(0);
-
 export const showHidden = writable(false);
 
+export const steamUsers: Writable<{ [id: string]: SteamUser }> = writable({});
+export const activeUserId = writable(0);
 
-export const originalSteamShortcuts:Writable<SteamShortcut[]> = writable([]);
-export const steamShortcuts:Writable<SteamShortcut[]> = writable([]);
 
-export const steamGames:Writable<GameStruct[]> = writable([]);
-export const nonSteamGames:Writable<GameStruct[]> = writable([]);
-export const hiddenGameIds:Writable<number[]> = writable([]);
+export const originalSteamShortcuts: Writable<SteamShortcut[]> = writable([]);
+export const steamShortcuts: Writable<SteamShortcut[]> = writable([]);
 
-export const originalAppLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
-export const appLibraryCache:Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
+export const steamGames: Writable<GameStruct[]> = writable([]);
+export const nonSteamGames: Writable<GameStruct[]> = writable([]);
+export const hiddenGameIds: Writable<number[]> = writable([]);
+
+export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
+export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
 
 export const steamGridsCache:{ [appid: number]: SGDBImage[] } = {};

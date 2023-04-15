@@ -32,11 +32,6 @@
       if (!wantsToContinue) exit(0);
     }
 
-    $activeUserId = await RustInterop.getActiveUser();
-    if ($activeUserId == 0) {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
-    }
-
     AppController.init();
 	});
 
@@ -51,7 +46,9 @@
 	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
 </div>
 <main class:dim={!isFocused}>
-	<Titlebar title="Steam Art Manager" />
+	<Titlebar title="Steam Art Manager">
+
+  </Titlebar>
 	<div class="content">
 		<Splitpanes>
 			<Filters />
