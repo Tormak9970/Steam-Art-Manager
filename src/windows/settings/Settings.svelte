@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell"
   import { onDestroy, onMount } from "svelte";
-  import { needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey } from "../../Stores";
+  import { activeUserId, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey } from "../../Stores";
 	import Titlebar from "../../components/Titlebar.svelte";
   import Button from "../../components/interactables/Button.svelte";
   import HorizontalSpacer from "../../components/spacers/HorizontalSpacer.svelte";
@@ -11,7 +11,7 @@
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import { WindowController } from "../../lib/controllers/WindowController";
 
-  let settingsFocusUnsub;
+  let settingsFocusUnsub: any;
 
   let canSave = false;
   let isFocused = false;
@@ -29,7 +29,10 @@
     
     $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
     if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
-    await SettingsManager.updateSetting("steamApiKey", steamAPIKey);
+
+    const steamUserKeyMap = (await SettingsManager.getSettings()).steamApiKeyMap;
+    steamUserKeyMap[$activeUserId] = steamAPIKey;
+    await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
 
     LogController.log("Saved settings.");
 

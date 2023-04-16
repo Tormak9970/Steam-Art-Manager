@@ -75,6 +75,12 @@ export class AppController {
    */
   static async setup(): Promise<void> {
     WindowController.mainWindow.setFocus();
+
+    const users = await RustInterop.getSteamUsers();
+    steamUsers.set(users);
+
+    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
+    activeUserId.set(parseInt(activeUser.id32));
     
     await SettingsManager.setSettingsPath();
     let settings: AppSettings = await SettingsManager.getSettings();
@@ -84,18 +90,12 @@ export class AppController {
       needsSGDBAPIKey.set(false);
     }
     
-    if (settings.steamApiKey != "") {
-      steamKey.set(settings.steamApiKey);
+    if (settings.steamApiKeyMap[activeUser.id32] && settings.steamApiKeyMap[activeUser.id32] != "") {
+      steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
       needsSteamKey.set(false);
     }
 
     hiddenGameIds.set(settings.hiddenGameIds);
-
-    const users = await RustInterop.getSteamUsers();
-    steamUsers.set(users);
-
-    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
-    activeUserId.set(parseInt(activeUser.id32));
 
     if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
@@ -562,15 +562,26 @@ export class AppController {
     const userId = parseInt(user.id32);
 
     if (userId != oldUserId) {
-      //? prompt for changes discard
-      const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?");
+      const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?", {
+        title: "Confirm user change",
+        type: "warning"
+      });
 
       if (shouldContinue) {
         await AppController.discardChanges();
 
         activeUserId.set(userId);
 
-        // TODO: get steamKey for user id
+        const settings = await SettingsManager.getSettings();
+        if (settings.steamApiKeyMap[userId] && settings.steamApiKeyMap[userId] != "") {
+          steamKey.set(settings.steamApiKeyMap[userId]);
+        } else {
+          steamKey.set("");
+          needsSteamKey.set(true);
+          await dialog.message("No Steam Key found for this user. Consider adding one in settings.", {
+            title: "Missing Steam API Key"
+          });
+        }
 
         await AppController.getUserApps();
 

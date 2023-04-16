@@ -15,6 +15,7 @@
 	import type { Unsubscriber } from "svelte/store";
 	
 	let mainFocusUnsub: any;
+	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
 	let isFocused = false;
@@ -26,9 +27,12 @@
     mainFocusUnsub = await WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = focused;
     });
+		activeUserIdUnsub = activeUserId.subscribe((id) => {
+			selectedUser = Object.values($steamUsers).find((user) => user.id32 == id.toString())?.PersonaName
+		});
 		usersUnsub = steamUsers.subscribe((sUsers) => {
 			users = Object.values(sUsers).map((user) => user.PersonaName);
-			if (!selectedUser) selectedUser = Object.values($steamUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName
+			if (!selectedUser) selectedUser = Object.values(sUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
 		});
 
     await AppController.setup();
@@ -47,6 +51,7 @@
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();
+		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});
 </script>
