@@ -2,7 +2,6 @@
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	import { RustInterop } from "../../lib/controllers/RustInterop";
 	import { Splitpanes } from 'svelte-splitpanes';
 	import Footer from "../../components/Footer.svelte";
 	import Filters from "../../components/core/filters/Filters.svelte";
@@ -10,18 +9,27 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, isOnline } from "../../Stores";
-  import { ToastController } from "../../lib/controllers/ToastController";
+  import { activeUserId, isOnline, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
+	import DropDown from "../../components/interactables/DropDown.svelte";
+	import type { Unsubscriber } from "svelte/store";
 	
 	let mainFocusUnsub: any;
+	let usersUnsub: Unsubscriber;
 
 	let isFocused = false;
+
+	let users = Object.values($steamUsers).map((user) => user.PersonaName);
+	let selectedUser = Object.values($steamUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
 
 	onMount(async () => {
     mainFocusUnsub = await WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = focused;
     });
+		usersUnsub = steamUsers.subscribe((sUsers) => {
+			users = Object.values(sUsers).map((user) => user.PersonaName);
+			if (!selectedUser) selectedUser = Object.values($steamUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName
+		});
 
     await AppController.setup();
     
@@ -39,6 +47,7 @@
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();
+		if (usersUnsub) usersUnsub();
 	});
 </script>
 
@@ -47,7 +56,7 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-
+		<DropDown label="User" options={users} value={selectedUser} onChange={AppController.changeSteamUser} width="80px" placement="right" />
   </Titlebar>
 	<div class="content">
 		<Splitpanes>

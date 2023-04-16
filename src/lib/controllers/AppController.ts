@@ -27,9 +27,10 @@ import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 import { WindowController } from "./WindowController";
 
-import { createTippy } from 'svelte-tippy';
+import { createTippy, type Tippy } from 'svelte-tippy';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/svg-arrow.css';
+import { hideAll, type Instance, type Props } from "tippy.js";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -53,11 +54,20 @@ const libraryCacheLUT = {
 export class AppController {
   private static cacheController = new CacheController();
   private static domParser = new DOMParser();
+  private static tippyInstance = null;
 
   static tippy = createTippy({
     hideOnClick: false,
     duration: 100
   });
+
+  static onTippyShow(instance: Instance<Props>): void {
+    if (AppController.tippyInstance) {
+      hideAll();
+    }
+
+    AppController.tippyInstance = instance;
+  }
 
   /**
    * Sets up the AppController.
@@ -102,7 +112,7 @@ export class AppController {
     const appIsOnline = get(isOnline);
     LogController.log(`App loaded. IsOnline: ${appIsOnline}.`);
 
-    AppController.getUserSteamApps();
+    AppController.getUserApps();
 
     if (get(needsSGDBAPIKey)) {
       WindowController.openSettingsWindow();
@@ -264,10 +274,10 @@ export class AppController {
   }
 
   /**
-   * Gets the user's steam apps.
+   * Gets the user's apps.
    * ? Logging complete.
    */
-  static async getUserSteamApps(): Promise<void> {
+  static async getUserApps(): Promise<void> {
     const online = get(isOnline);
     const needsSteamAPIKey = get(needsSteamKey);
     const id = ToastController.showLoaderToast("Loading games...");
@@ -538,5 +548,40 @@ export class AppController {
       title: "No Internet Connection",
       type: "warning"
     });
+  }
+
+  /**
+   * Changes the currently selected steam user.
+   * @param userPersonaName The name of the new user.
+   * ? Logging complete.
+   */
+  static async changeSteamUser(userPersonaName: string): Promise<void> {
+    const users = get(steamUsers);
+    const user = Object.values(users).find((user) => user.PersonaName == userPersonaName);
+    const oldUserId = get(activeUserId);
+    const userId = parseInt(user.id32);
+
+    if (userId != oldUserId) {
+      //? prompt for changes discard
+      const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?");
+
+      if (shouldContinue) {
+        await AppController.discardChanges();
+
+        activeUserId.set(userId);
+
+        // TODO: get steamKey for user id
+
+        await AppController.getUserApps();
+
+        LogController.log(`Switched user to ${user.AccountName} id: ${userId}.`);
+        ToastController.showSuccessToast("Switched User!");
+      } else {
+        LogController.log(`Cancelled user switch to ${user.AccountName} id: ${userId}.`);
+        ToastController.showGenericToast("Cancelled.");
+      }
+    } else {
+      LogController.log(`New user id ${userId} matched old id ${oldUserId}.`);
+    }
   }
 }

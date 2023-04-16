@@ -1,11 +1,13 @@
 <script lang="ts">
+  import type { Placement } from "tippy.js";
   import { AppController } from "../../lib/controllers/AppController";
 
-  export let label:string;
+  export let label:string = "";
   export let options: string[];
   export let value: string;
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
+  export let placement: Placement = "left";
   
   let active = false;
 
@@ -89,8 +91,11 @@
 </script>
 
 <div class="wrapper" style="width: {width};">
-  <div style="margin-right: 13px; font-size: 14px">{label}:</div>
-  <div class="custom-select" style="width: {width}; min-width: {width};">
+  {#if label != ""}
+    <div style="margin-right: 7px; font-size: 14px">{label}:</div>
+  {/if}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: value, placement: placement, onShow: AppController.onTippyShow}}>
     <select>
       <option value="default">{value}</option>
       {#each options as val}
@@ -98,16 +103,15 @@
       {/each}
     </select>
   
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="select-selected" class:select-arrow-active={active} on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{content: value, placement: "left"}}>{value}</div>
+    <div class="select-selected" class:select-arrow-active={active}>{value}</div>
     <div class="select-items" class:select-hide={!active}>
       {#each options as val}
         {#if val == value}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{content: val, placement: "left"}}>{val}</div>
+          <div id={val} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: val, placement: placement, onShow: AppController.onTippyShow}}>{val}</div>
         {:else}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} on:click|stopPropagation={selectOption} use:AppController.tippy={{content: val, placement: "left"}}>{val}</div>
+          <div id={val} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: val, placement: placement, onShow: AppController.onTippyShow }}>{val}</div>
         {/if}
       {/each}
     </div>
