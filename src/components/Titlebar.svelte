@@ -3,6 +3,8 @@
   import { onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
   import { WindowController } from "../lib/controllers/WindowController";
+    import { canSave } from "../Stores";
+    import { dialog } from "@tauri-apps/api";
 
   export let title: string;
 
@@ -21,7 +23,15 @@
     close.addEventListener("click", async () => {
       console.log(title);
       if (title == "Steam Art Manager") {
-        await exit(0);
+        if ($canSave) {
+          const shouldQuit = await dialog.confirm("You have unsaved changes, are you sure you want to quit?", {
+            title: "Unsaved Changes!",
+            type: "warning"
+          });
+          if (shouldQuit) await exit(0);
+        } else {
+          await exit(0);
+        }
       } else if (title == "Settings") {
         await WindowController.closeSettingsWindow();
       }
