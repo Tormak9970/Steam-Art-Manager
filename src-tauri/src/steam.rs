@@ -5,6 +5,8 @@ use std::fs;
 use std::path::{ PathBuf, Path };
 use std::u32;
 
+use serde_json::{Value, Map};
+
 #[cfg(target_os = "windows")]
 use winreg::{ enums::*, RegKey };
 
@@ -35,11 +37,10 @@ pub fn get_steam_root_dir() -> PathBuf {
 }
 
 #[tauri::command]
-pub fn get_grids_directory(app_handle: AppHandle) -> String {
+pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
   let steam_root = get_steam_root_dir();
-  let steam_active_user_id = get_active_user(app_handle.to_owned());
   let grids_dir = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
@@ -67,100 +68,91 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-pub fn get_shortcuts_path(app_handle: AppHandle) -> String {
+pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
-  let steam_active_user_id = get_active_user(app_handle.to_owned());
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
-#[tauri::command]
-pub fn get_active_user_old(app_handle: AppHandle) -> u32 {
-  logger::log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
-    
-  let steam_root = get_steam_root_dir();
-  let loginusers_vdf = steam_root.join("config/loginusers.vdf");
-  let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
-
-  let close_braces_matches: Vec<_> = contents.match_indices("}").collect();
-  let most_recent_matches: Vec<_> = contents.match_indices("\"MostRecent\"").collect();
-
-  const MOST_RECENT_LEN: usize = 12;
-  const VAL_TABS_LEN: usize = 2;
-  const START_OFFSET: usize = 11;
-
-  for (vec_index, (index, _)) in most_recent_matches.iter().enumerate() {
-    let most_recent_str: String = contents.chars().skip(index + MOST_RECENT_LEN + VAL_TABS_LEN + 1).take(1).collect();
-    let most_recent = most_recent_str.parse::<u32>().unwrap() == 1;
-
-    if most_recent {
-      let chars: String;
-
-      if vec_index == 0 {
-        chars = contents.chars().skip(START_OFFSET + 1).take(contents.len() - START_OFFSET - 2).collect();
-      } else {
-        let (brace_index, _) = close_braces_matches[vec_index];
-        chars = contents.chars().skip(brace_index + 4).take(contents.len() - brace_index - 2).collect();
-      }
-      
-      let next_quote = chars.find("\"").unwrap();
-      let user_id_64_str: String = chars.chars().take(next_quote).collect();
-
-      let big_id = user_id_64_str.parse::<u64>().unwrap() - 76561197960265728;
-      let id = u32::try_from(big_id).expect("Should have been able to convert subtracted big_id to u32.");
-
-      logger::log_to_file(app_handle.to_owned(), format!("Got current_user_id: {}", id).as_str(), 0);
-      return id;
-    }
-  }
-  
-  logger::log_to_file(app_handle, "Did not find a most recent user", 2);
-
-  return 0;
+fn read_steam_user_id(user_block: &str) -> String {
+  let quote_index = user_block.find("\"").expect("Should have been able to find a quote.");
+  let id_str = &user_block[..quote_index];
+  return id_str.to_owned();
 }
 
-#[tauri::command]
-pub fn get_active_user(app_handle: AppHandle) -> u32 {
-  logger::log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
-    
-  let steam_root = get_steam_root_dir();
-  let loginusers_vdf = steam_root.join("config/loginusers.vdf");
-  let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
+fn read_steam_user(user_id: &str, user_block: &str) -> Map<String, Value> {
+  let id_32 = user_id.parse::<u64>().unwrap() - 76561197960265728;
 
-  let close_braces_matches: Vec<_> = contents.match_indices("}").collect();
-  let most_recent_matches: Vec<_> = contents.match_indices("\"MostRecent\"").collect();
+  let mut steam_user: Map<String, Value> = Map::new();
+  steam_user.insert("id64".to_owned(), Value::String(user_id.to_owned()));
+  steam_user.insert("id32".to_owned(), Value::String(id_32.to_string()));
 
-  const MOST_RECENT_LEN: usize = 12;
-  const VAL_TABS_LEN: usize = 2;
-  const START_OFFSET: usize = 11;
+  let prop_start_matches: Vec<(usize, &str)> = user_block.match_indices("\n\t").collect();
+  let len = prop_start_matches.len();
 
-  for (vec_index, (index, _)) in most_recent_matches.iter().enumerate() {
-    let most_recent_str: String = contents.chars().skip(index + MOST_RECENT_LEN + VAL_TABS_LEN + 1).take(1).collect();
-    let most_recent = most_recent_str.parse::<u32>().unwrap() == 1;
+  for (vec_index, (index, _)) in prop_start_matches.clone().into_iter().enumerate() {
+    if vec_index < len - 1 {
+      let next_prop_start = prop_start_matches[vec_index + 1].0;
+      let prop_line = &user_block[(index + 4)..(next_prop_start - 1)];
 
-    if most_recent {
-      let chars: String;
+      let segments: Vec<&str> = prop_line.split("\"\t\t\"").collect();
+      let key = segments[0].to_owned();
+      let value = segments[1].to_owned();
 
-      if vec_index == 0 {
-        chars = contents.chars().skip(START_OFFSET + 1).take(contents.len() - START_OFFSET - 2).collect();
-      } else {
-        let (brace_index, _) = close_braces_matches[vec_index];
-        chars = contents.chars().skip(brace_index + 4).take(contents.len() - brace_index - 2).collect();
-      }
-      
-      let next_quote = chars.find("\"").unwrap();
-      let user_id_64_str: String = chars.chars().take(next_quote).collect();
-
-      let big_id = user_id_64_str.parse::<u64>().unwrap() - 76561197960265728;
-      let id = u32::try_from(big_id).expect("Should have been able to convert subtracted big_id to u32.");
-
-      logger::log_to_file(app_handle.to_owned(), format!("Got current_user_id: {}", id).as_str(), 0);
-      return id;
+      steam_user.insert(key, Value::String(value));
     }
   }
-  
-  logger::log_to_file(app_handle, "Did not find a most recent user", 2);
 
-  return 0;
+  return steam_user;
+}
+
+fn read_steam_users() -> Map<String, Value> {
+  let mut steam_users: Map<String, Value> = Map::new();
+    
+  let steam_root: PathBuf = get_steam_root_dir();
+  let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
+  let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
+
+  let id_start_matches: Vec<(usize, &str)> = contents.match_indices("\n\t\"").collect();
+  let block_end_matches: Vec<(usize, &str)> = contents.match_indices("}").collect();
+
+  for (vec_index, (index, _)) in id_start_matches.iter().enumerate() {
+    let close_brace_index: usize = block_end_matches[vec_index].0;
+    let user_block: String = contents[(*index + 3)..close_brace_index].to_owned();
+
+    let id: String = read_steam_user_id(&user_block);
+    
+    let user_map: Map<String, Value> = read_steam_user(&id, &user_block[(id.len() + 4)..]);
+
+    steam_users.insert(id.to_string(), Value::Object(user_map));
+  }
+
+  return steam_users;
+}
+
+// pub fn get_active_user_id() -> String {
+//   let steam_users = read_steam_users();
+//   let mut active_user_id: String = String::from("");
+
+//   for (id_long, steam_user) in steam_users.into_iter() {
+//     let user = steam_user.as_object().expect("Should have been able to unwrap user.");
+
+//     if user.get("MostRecent").unwrap().as_str().unwrap() == "1" {
+//       active_user_id = user.get("id32").unwrap().as_str().unwrap().to_owned();
+//     }
+//   }
+
+//   return active_user_id;
+// }
+
+#[tauri::command]
+pub fn get_steam_users(app_handle: AppHandle) -> String {
+  logger::log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
+    
+  let steam_users = read_steam_users();
+  
+  logger::log_to_file(app_handle.to_owned(), format!("Loaded {} steam users.", steam_users.len()).as_str(), 0);
+
+  return serde_json::to_string(&steam_users).unwrap();
 }

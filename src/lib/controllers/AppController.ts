@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -81,9 +81,13 @@ export class AppController {
 
     hiddenGameIds.set(settings.hiddenGameIds);
 
-    const activeUser = await RustInterop.getActiveUser();
-    activeUserId.set(activeUser);
-    if (activeUser == 0) {
+    const users = await RustInterop.getSteamUsers();
+    steamUsers.set(users);
+
+    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
+    activeUserId.set(parseInt(activeUser.id32));
+
+    if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
     }
 
@@ -175,7 +179,7 @@ export class AppController {
    * @returns A promise resolving to the image data.
    */
   private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory()));
+    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
     const filteredGrids = AppController.filterGridsDir(gridDirContents);
     LogController.log("Grids loaded.");
 
@@ -267,9 +271,12 @@ export class AppController {
     const online = get(isOnline);
     const needsSteamAPIKey = get(needsSteamKey);
     const id = ToastController.showLoaderToast("Loading games...");
+    
+    const userId = get(activeUserId);
+    const bUserId = BigInt(userId) + 76561197960265728n;
 
     LogController.log("Loading non-steam games...");
-    const shortcuts = await RustInterop.readShortcutsVdf();
+    const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
     originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
     steamShortcuts.set(Object.values(shortcuts));
     
@@ -290,9 +297,6 @@ export class AppController {
     appLibraryCache.set(filteredCache);
 
     const filteredKeys = Object.keys(filteredCache);
-    
-    const userId = await RustInterop.getActiveUser();
-    const bUserId = BigInt(userId) + 76561197960265728n;
 
     if (online && !needsSteamAPIKey) {
       const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
@@ -345,7 +349,7 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
 
-    const changedPaths = await RustInterop.saveChanges(libraryCache, originalCache, shortcuts, shortcutIds);
+    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIds);
     
     if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
@@ -446,7 +450,7 @@ export class AppController {
    */
   static async importGrids(): Promise<void> {
     LogController.log("Prompting user to grids.");
-    const succeeded = await RustInterop.importGridsFromZip();
+    const succeeded = await RustInterop.importGridsFromZip(get(activeUserId).toString());
 
     if (succeeded) {
       ToastController.showSuccessToast("Import successful!");
@@ -467,7 +471,7 @@ export class AppController {
    */
   static async exportGrids(): Promise<void> {
     LogController.log("Prompting user to export.");
-    const succeeded = await RustInterop.exportGridsToZip();
+    const succeeded = await RustInterop.exportGridsToZip(get(activeUserId).toString());
 
     if (succeeded) {
       ToastController.showSuccessToast("Export successful!");

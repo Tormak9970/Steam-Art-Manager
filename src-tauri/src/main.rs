@@ -53,8 +53,8 @@ fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
   return get_grid_filename(appid, grid_type, image_type);
 }
 
-fn filter_paths(app_handle: &AppHandle, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
-  let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned()));
+fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+  let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -95,7 +95,7 @@ fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-async fn export_grids_to_zip(app_handle: AppHandle) -> bool {
+async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
     .set_file_name("Steam_Grids_Export.zip")
@@ -108,7 +108,7 @@ async fn export_grids_to_zip(app_handle: AppHandle) -> bool {
     let zip_path = file_path.unwrap();
     logger::log_to_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
-    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned());
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
     let succeeded = zip_controller::generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path);
 
     if succeeded {
@@ -125,7 +125,7 @@ async fn export_grids_to_zip(app_handle: AppHandle) -> bool {
 }
 
 #[tauri::command]
-async fn import_grids_from_zip(app_handle: AppHandle) -> bool {
+async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
     .add_filter("zip", &["zip"])
@@ -137,7 +137,7 @@ async fn import_grids_from_zip(app_handle: AppHandle) -> bool {
     let zip_path = file_path.unwrap();
     logger::log_to_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
-    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned());
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
     let succeeded = zip_controller::set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path);
 
     if succeeded {
@@ -161,8 +161,8 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
-  let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned()));
+async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
+  let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     
   if shortcuts_path.as_path().exists() {
     logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
@@ -175,7 +175,7 @@ async fn read_shortcuts_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
-async fn save_changes(app_handle: AppHandle, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String) -> String {
+async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String) -> String {
   let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
     return appid.to_owned();
   }).collect();
@@ -183,7 +183,7 @@ async fn save_changes(app_handle: AppHandle, current_art: String, original_art: 
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
-  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, &current_art_dict, &original_art_dict);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id, &current_art_dict, &original_art_dict);
   logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
   for changed_path in (&paths_to_set).into_iter() {
@@ -265,7 +265,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       logger::clean_out_log,
       logger::log_to_file,
-      steam::get_active_user,
+      steam::get_steam_users,
       steam::get_grids_directory,
       steam::get_library_cache_directory,
       steam::get_appinfo_path,

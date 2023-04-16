@@ -38,6 +38,8 @@ type SteamShortcut = {
 }
 
 type SteamUser = {
+  id64: string,
+  id32: string,
   AccountName: string,
   PersonaName: string,
   RememberPassword: string,

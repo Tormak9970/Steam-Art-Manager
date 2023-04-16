@@ -49,10 +49,11 @@ export class RustInterop {
 
   /**
    * Gets the active steam user's grids directory.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to the active steam user's grids directory.
    */
-  static async getGridsDirectory(): Promise<string> {
-    return await invoke<string>("get_grids_directory", {});
+  static async getGridsDirectory(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_grids_directory", { steamActiveUserId: activeUserId });
   }
 
   /**
@@ -65,10 +66,11 @@ export class RustInterop {
 
   /**
    * Gets the active steam user's shortcuts.vdf path.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to the active steam user's shortcuts.vdf path.
    */
-  static async getShortcutsPath(): Promise<string> {
-    return await invoke<string>("get_shortcuts_path", {});
+  static async getShortcutsPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_shortcuts_path", { steamActiveUserId: activeUserId });
   }
 
   /**
@@ -80,27 +82,29 @@ export class RustInterop {
   }
 
   /**
-   * Gets the active steam user's id.
-   * @returns A promise resolving to the active steam user's id, or 0 if it wasn't found.
+   * Gets a list of steam users on this computer.
+   * @returns A promise resolving to the list of steam users on this computer.
    */
-  static async getActiveUser(): Promise<number> {
-    return await invoke<number>("get_active_user", {});
+  static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
+    return JSON.parse(await invoke<string>("get_steam_users", {}));
   }
 
   /**
    * Exports the active user's grids to a zip file.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", {});
+  static async exportGridsToZip(activeUserId: string): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId });
   }
 
   /**
    * Imports the active user's grids from a zip file.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async importGridsFromZip(): Promise<boolean> {
-    return await invoke<boolean>("import_grids_from_zip", {});
+  static async importGridsFromZip(activeUserId: string): Promise<boolean> {
+    return await invoke<boolean>("import_grids_from_zip", { steamActiveUserId: activeUserId });
   }
 
   /**
@@ -113,25 +117,27 @@ export class RustInterop {
 
   /**
    * Reads the current user's non steam games from the shortcuts.vdf file.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to the contents of the shortcuts.vdf file.
    */
-  static async readShortcutsVdf(): Promise<any> {
-    return JSON.parse(await invoke<string>("read_shortcuts_vdf", {}));
+  static async readShortcutsVdf(activeUserId: string): Promise<any> {
+    return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamActiveUserId: activeUserId }));
   }
 
   /**
    * Saves the user's changes.
+   * @param activeUserId The id of the active user.
    * @param currentArt The current changes.
    * @param originalArt The original art dictionary.
    * @param shortcuts The list of shortcuts.
    * @param shortcutIds The list of shortcut ids.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIds: string[]): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIds: string[]): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
       "shortcuts": {...shortcuts}
     }
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), shortcutIdsStr: shortcutIds.join(", ") });
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), shortcutIdsStr: shortcutIds.join(", "), steamActiveUserId: activeUserId });
     return JSON.parse(res);
   }
 
