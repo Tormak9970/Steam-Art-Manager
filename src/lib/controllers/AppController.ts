@@ -491,16 +491,16 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const games = get(steamGames);
 
-    const platformEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, _]) => { return [shortcutId, "nonsteam"]; });
-    platformEntries.concat(games.map((game) => { return [game.appid.toString(), "steam"]; }));
+    let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [shortcut.appid.toString(), "nonsteam"]; });
+    platformEntries = platformEntries.concat(games.map((game) => { return [game.appid.toString(), "steam"]; }));
     const platformIdMap = Object.fromEntries(platformEntries);
 
     const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcutId, shortcut.AppName]; });
     const shortcutNamesMap = Object.fromEntries(namesMapEntries);
 
-    const succeeded = await RustInterop.exportGridsToZip(get(activeUserId).toString(), platformIdMap, shortcutNamesMap);
+    const success = await RustInterop.exportGridsToZip(get(activeUserId).toString(), platformIdMap, shortcutNamesMap);
 
-    if (succeeded) {
+    if (success) {
       ToastController.showSuccessToast("Export successful!");
       LogController.log("Successfully exported user's grids.");
     } else {
