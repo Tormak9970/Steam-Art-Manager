@@ -48,6 +48,53 @@ fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, p
   return output_filename;
 }
 
+fn deconstruct_grid_export_name(filename: &String) -> (String, String, String, String) {
+  let dot_index: usize = filename.find(".").expect("File should have had a file extension");
+  let file_ext: &str = &filename[dot_index..];
+
+  let parts: Vec<&str> = filename.split("__").collect();
+
+  return (parts[0].to_owned(), parts[1].to_owned(), parts[2].to_owned(), file_ext.to_owned());
+}
+
+fn get_import_grid_name(filename: &String, ) -> String {
+  if filename.contains("__") {
+    let (platform, filename_core, grid_type, file_ext) = deconstruct_grid_export_name(filename);
+
+    let mut file_core: &str = &filename_core;
+    let mut file_grid_type: &str = "";
+
+    match grid_type.as_str() {
+      "capsule" => {
+        file_grid_type = "p";
+      },
+      "widecapsule" => {
+        file_grid_type = "";
+      },
+      "hero" => {
+        file_grid_type = "_hero";
+      },
+      "logo" => {
+        file_grid_type = "_logo";
+      },
+      "icon" => {
+        file_grid_type = "_icon";
+      },
+      _ => {
+        panic!("Unexpected grid type: {}", grid_type);
+      }
+    }
+
+    let mut output_filename: String = String::from(file_core);
+    output_filename.push_str(file_grid_type);
+    output_filename.push_str(&file_ext);
+
+    return output_filename;
+  } else {
+    return filename.to_owned();
+  }
+}
+
 #[allow(unused)]
 pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, shortcuts_name_map: &Map<String, Value>) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
