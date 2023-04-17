@@ -12,6 +12,7 @@ mod shortcuts_vdf_parser;
 use std::{path::PathBuf, collections::HashMap, fs};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
+use serde_json::{Map, Value};
 use shortcuts_vdf_parser::{open_shortcuts_vdf, write_shortcuts_vdf};
 
 use home::home_dir;
@@ -95,7 +96,7 @@ fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String) -> bool {
+async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String, platform_id_map: Map<String, Value>, shortcuts_name_map: Map<String, Value>) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
     .set_file_name("Steam_Grids_Export.zip")
@@ -109,7 +110,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
     logger::log_to_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
-    let succeeded = zip_controller::generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path);
+    let succeeded = zip_controller::generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &platform_id_map, &shortcuts_name_map);
 
     if succeeded {
       logger::log_to_file(app_handle.to_owned(), "Successfully saved the user's grids.", 0);
@@ -125,7 +126,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
 }
 
 #[tauri::command]
-async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String) -> bool {
+async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String, shortcuts_id_map: Map<String, Value>) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
     .add_filter("zip", &["zip"])
@@ -138,7 +139,7 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
     logger::log_to_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
-    let succeeded = zip_controller::set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path);
+    let succeeded = zip_controller::set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &shortcuts_id_map);
 
     if succeeded {
       logger::log_to_file(app_handle.to_owned(), "Successfully set the user's grids.", 0);

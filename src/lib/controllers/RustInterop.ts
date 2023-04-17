@@ -92,19 +92,22 @@ export class RustInterop {
   /**
    * Exports the active user's grids to a zip file.
    * @param activeUserId The id of the active user.
+   * @param platformIdMap A map of game/app ids to their platform.
+   * @param shortcutsNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(activeUserId: string): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId });
+  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, shortcutsNameMap: { [id: string]: string }): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId, platformIdMap: platformIdMap, shortcutsNameMap: shortcutsNameMap });
   }
 
   /**
    * Imports the active user's grids from a zip file.
    * @param activeUserId The id of the active user.
+   * @param shortcutIdsMap A map of shortcut names to their id.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async importGridsFromZip(activeUserId: string): Promise<boolean> {
-    return await invoke<boolean>("import_grids_from_zip", { steamActiveUserId: activeUserId });
+  static async importGridsFromZip(activeUserId: string, shortcutIdsMap: { [id: string]: string }): Promise<boolean> {
+    return await invoke<boolean>("import_grids_from_zip", { steamActiveUserId: activeUserId, shortcutIdsMap: shortcutIdsMap });
   }
 
   /**
