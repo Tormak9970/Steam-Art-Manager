@@ -34,6 +34,7 @@ export const steamKey = sharedStore("", "steamKey");
 
 export const canSave = writable(false);
 export const isOnline = writable(false);
+export const loadingGames = writable(true);
 export const currentPlatform: Writable<Platforms> = writable(Platforms.STEAM);
 export const gridType: Writable<GridTypes> = writable(GridTypes.CAPSULE);
 

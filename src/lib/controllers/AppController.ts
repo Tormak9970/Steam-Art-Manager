@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -112,7 +112,10 @@ export class AppController {
     const appIsOnline = get(isOnline);
     LogController.log(`App loaded. IsOnline: ${appIsOnline}.`);
 
-    AppController.getUserApps();
+    loadingGames.set(true);
+    AppController.getUserApps().then(() => {
+      loadingGames.set(false);
+    });
 
     if (get(needsSGDBAPIKey)) {
       WindowController.openSettingsWindow();
@@ -583,10 +586,12 @@ export class AppController {
           });
         }
 
-        await AppController.getUserApps();
-
-        LogController.log(`Switched user to ${user.AccountName} id: ${userId}.`);
-        ToastController.showSuccessToast("Switched User!");
+        loadingGames.set(true);
+        AppController.getUserApps().then(() => {
+          loadingGames.set(false);
+          LogController.log(`Switched user to ${user.AccountName} id: ${userId}.`);
+          ToastController.showSuccessToast("Switched User!");
+        });
       } else {
         LogController.log(`Cancelled user switch to ${user.AccountName} id: ${userId}.`);
         ToastController.showGenericToast("Cancelled.");
