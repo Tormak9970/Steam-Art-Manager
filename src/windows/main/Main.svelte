@@ -35,14 +35,18 @@
 			if (!selectedUser) selectedUser = Object.values(sUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
 		});
 
-    await AppController.setup();
-    
-		if (navigator.onLine) {
-      $isOnline = true;
-    } else {
-      const wantsToContinue = await AppController.promptOffline();
+		let i = 0;
+
+		while(!$isOnline && i < 4) {
+			if (navigator.onLine) $isOnline = true;
+		}
+
+		await AppController.setup();
+
+		if (!$isOnline) {
+			const wantsToContinue = await AppController.promptOffline();
       if (!wantsToContinue) exit(0);
-    }
+		}
 
     AppController.init();
 	});
