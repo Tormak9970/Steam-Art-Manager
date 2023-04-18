@@ -161,9 +161,9 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
       let mangled_name: PathBuf = zip_file.mangled_name();
       let (platform, appid, adjusted_file_name) = get_import_grid_name(mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
       
-      let dest_path = grids_dir_path.join(PathBuf::from(adjusted_file_name));
+      let dest_path = grids_dir_path.join(PathBuf::from(&adjusted_file_name));
 
-      if platform == "nonsteam" {
+      if platform == "nonsteam" && adjusted_file_name.contains("icon") {
         let dest_path_str: &str = dest_path.to_str().expect("Should have been able to convert dest path to string.");
         icon_map.insert(appid, Value::String(dest_path_str.to_owned()));
       }
