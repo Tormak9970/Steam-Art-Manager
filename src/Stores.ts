@@ -25,6 +25,13 @@ export enum Platforms {
   NON_STEAM="Non Steam"
 }
 
+export enum Theme {
+  DARK,
+  LIGHT
+}
+
+export const theme = sharedStore(Theme.DARK, "theme");
+
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 

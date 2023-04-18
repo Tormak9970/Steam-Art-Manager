@@ -3,8 +3,8 @@
   import { onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
   import { WindowController } from "../lib/controllers/WindowController";
-    import { canSave } from "../Stores";
-    import { dialog } from "@tauri-apps/api";
+  import { canSave } from "../Stores";
+  import { dialog } from "@tauri-apps/api";
 
   export let title: string;
 

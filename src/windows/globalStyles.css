@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 @font-face {
   font-family: "Raleway-Num";
   src: url("/font/Raleway-Regular.ttf") format("truetype");
@@ -49,19 +51,19 @@ body {
   width: 100%;
   height: 100%;
 
-  background-color: #1a1a1a;
-  color: rgb(231, 231, 231);
+  background-color: var(--background);
+  color: var(--font-color);
   font-family: 'Raleway-Num', 'Raleway', sans-serif;
 
   overflow: hidden;
 }
 
 a {
-  color: #00bbff;
+  color: var(--link-color);
 }
 
 a:visited {
-  color: #005eff;
+  color: var(--link-color-visited);
 }
 
 ::-webkit-scrollbar {
@@ -74,12 +76,12 @@ a:visited {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #383838;
+  background: var(--foreground-light);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #039900;
+  background: var(--foreground-light-hover);
 }
 
 ::-webkit-scrollbar-corner {

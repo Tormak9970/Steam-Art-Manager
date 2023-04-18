@@ -1,5 +1,6 @@
 type AppSettings = {
   version: string;
+  theme: number;
   steamGridDbApiKey: string;
   steamApiKeyMap: {
     [userId32: string]: string

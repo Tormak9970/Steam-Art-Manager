@@ -4,7 +4,7 @@
 	import Titlebar from "../../components/Titlebar.svelte";
 	import { Splitpanes } from 'svelte-splitpanes';
 	import Footer from "../../components/Footer.svelte";
-	import Filters from "../../components/core/filters/Filters.svelte";
+	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
@@ -69,8 +69,8 @@
   </Titlebar>
 	<div class="content">
 		<Splitpanes>
-			<Filters />
-			
+			<Options />
+
 			<Games />
 			
 			<Grids />

@@ -5,6 +5,8 @@
   import Accordion from "../../layout/Accordion.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
+    import { SettingsManager } from "../../../lib/utils/SettingsManager";
+    import { LogController } from "../../../lib/controllers/LogController";
 
   /**
    * Creates a function to update the specified filter.
@@ -34,12 +36,27 @@
       return word.substring(0,1).toUpperCase().concat(word.substring(1));
     }
   }
+
+  function onDarkModeChange(checked: boolean): void {
+    document.documentElement.setAttribute("data-theme", checked ? "dark" : "light");
+    SettingsManager.updateSetting("theme", checked ? 0 : 1);
+    LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
+  }
 </script>
 
 <Pane minSize={15} size={20}>
-  <SectionTitle title="Filters" />
+  <SectionTitle title="Options" />
+  
+  <div class="content" style="height: 36px;">
+    <div style="margin-left: 6px; display: flex; justify-content: space-between;">
+      <Toggle label="Dark Mode" onChange={onDarkModeChange}/>
+    </div>
+    
+    <div class="border" />
+    <VerticalSpacer />
+  </div>
 
-  <div class="content">
+  <div class="content" style="height: calc(100% - 85px);">
     {#each Object.keys($dbFilters[$gridType]) as section}
       <Accordion
         label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
@@ -64,7 +81,13 @@
 <style>
   .content {
     margin: 0px 6px;
+    padding: 0px 6px;
     overflow: auto;
-    max-height: calc(100% - 45px)
+    max-height: calc(100% - 65px)
+  }
+
+  .border {
+    margin-top: 10px;
+    border-bottom: 1px solid var(--foreground);
   }
 </style>

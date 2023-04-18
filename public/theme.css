@@ -24,6 +24,8 @@
 	--foreground-light: #3d3d3d;
 	--foreground-light-hover: #474747;
 
+	--shadow: #0e0e0e;
+
 	--highlight: #04e200;
 	--highlight-hover: #05FF00;
 	--highlight-dim: #039900;
@@ -33,6 +35,9 @@
 
 	--selection-color: #3891ff7a;
 
+	--link-color: #00bbff;
+	--link-color-visited: #005eff;
+
 	--success: #36ff04;
 
 	--save: #14a101;
@@ -40,6 +45,18 @@
 
 	/* Toast variables */
 	--toastContainerTop: 2.5rem;
+}
+
+[data-theme="light"] {
+	--font-color: rgb(14, 14, 14);
+	--background: #ffffff;
+	--background-hover: #e5f7e8;
+	--foreground: #cfecd2;
+	--foreground-hover: #b3d8b6;
+	--foreground-light: #8de095;
+	--foreground-light-hover: #67db72;
+
+	--shadow: #868383;
 }
 
 .splitpanes {
@@ -52,8 +69,8 @@
 
 .splitpanes__splitter {
 	background-color: var(--background-hover) !important;
-    border-left: 1px solid var(--foreground-light) !important;
-    border-right: 1px solid var(--foreground-light) !important;
+	border-left: 1px solid var(--foreground-light) !important;
+	border-right: 1px solid var(--foreground-light) !important;
 	position: relative;
 }
 .splitpanes__splitter:before {
@@ -92,7 +109,7 @@
   transition-property: transform, visibility, opacity;
 	border-radius: 2px;
 	
-	box-shadow: 3px 6px 10px 4px #0e0e0e;
+	box-shadow: 3px 6px 10px 4px var(--shadow);
 }
 
 .tippy-arrow {

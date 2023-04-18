@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell"
   import { onDestroy, onMount } from "svelte";
-  import { activeUserId, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey } from "../../Stores";
+  import { activeUserId, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey, theme } from "../../Stores";
 	import Titlebar from "../../components/Titlebar.svelte";
   import Button from "../../components/interactables/Button.svelte";
   import HorizontalSpacer from "../../components/spacers/HorizontalSpacer.svelte";
@@ -10,8 +10,10 @@
   import { LogController } from "../../lib/controllers/LogController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import { WindowController } from "../../lib/controllers/WindowController";
+  import type { Unsubscriber } from "svelte/store";
 
   let settingsFocusUnsub: any;
+  let themeUnsub: Unsubscriber;
 
   let canSave = false;
   let isFocused = false;
@@ -85,12 +87,16 @@
     settingsFocusUnsub = await WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = focused;
     });
+    themeUnsub = theme.subscribe((theme) => {
+      document.documentElement.setAttribute("data-theme", theme == 0 ? "dark" : "light");
+    });
 
     await SettingsManager.setSettingsPath();
   });
 
   onDestroy(() => {
     if (settingsFocusUnsub) settingsFocusUnsub();
+    if (themeUnsub) themeUnsub();
   });
 </script>
 

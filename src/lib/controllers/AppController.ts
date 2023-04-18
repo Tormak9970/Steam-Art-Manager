@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -94,6 +94,9 @@ export class AppController {
       steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
       needsSteamKey.set(false);
     }
+
+    theme.set(settings.theme);
+    document.documentElement.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
 
     hiddenGameIds.set(settings.hiddenGameIds);
 
