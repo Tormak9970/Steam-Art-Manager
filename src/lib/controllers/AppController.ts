@@ -362,7 +362,13 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
 
-    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIds);
+    const shortcutEntries = shortcuts.map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const shortcutIcons = Object.fromEntries(shortcutEntries);
+
+    const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const originalShortcutIcons = Object.fromEntries(originalIconEntries);
+
+    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIds, shortcutIcons, originalShortcutIcons);
     
     if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
@@ -467,11 +473,23 @@ export class AppController {
     const idsMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcut.AppName, shortcutId]; });
     const shortcutIdsMap = Object.fromEntries(idsMapEntries);
 
-    const succeeded = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
+    const [succeeded, iconsToSet] = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
 
     if (succeeded) {
+      const shortcuts = get(steamShortcuts);
+      const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+      
+      for (const [id, path] of Object.entries(iconsToSet)) {
+        if (shortcutIds.includes(id)) {
+          const shortcut = shortcuts.find((s) => s.appid.toString() == id);
+          shortcut.icon = path;
+        }
+      }
+
       ToastController.showSuccessToast("Import successful!");
       LogController.log("Successfully imported user's grids.");
+      
+      await AppController.saveChanges();
 
       const filteredCache = await AppController.getCacheData(get(nonSteamGames));
       originalAppLibraryCache.set(filteredCache);
