@@ -203,7 +203,7 @@
     margin-top: 2px;
     border-radius: 2px;
     border: 1px solid transparent;
-    box-shadow: 3px 6px 10px 4px #0e0e0e;
+    box-shadow: 3px 6px 10px 4px var(--shadow);
   }
   .select-items > div:hover {
     background-color: var(--foreground-light);

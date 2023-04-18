@@ -40,8 +40,8 @@
 
 	--success: #36ff04;
 
-	--save: #14a101;
-	--save-hover: #27b803;
+	--save: #18bb03;
+	--save-hover: #28c900;
 
 	/* Toast variables */
 	--toastContainerTop: 2.5rem;
@@ -49,13 +49,6 @@
 
 [data-theme="light"] {
 	--font-color: rgb(14, 14, 14);
-	/* --background: #ffffff;
-	--background-hover: #e5f7e8;
-	--foreground: #cfecd2;
-	--foreground-hover: #b3d8b6;
-	--foreground-light: #8de095;
-	--foreground-light-hover: #67db72; */
-
 	--shadow: #868383;
 	
 	--background: #F1FDF3;
@@ -64,6 +57,9 @@
 	--foreground-hover: #b7ebb9;
 	--foreground-light: #abe9be;
 	--foreground-light-hover: #a0e9b6;
+	
+	--save: #4ee73a;
+	--save-hover: #24fc08;
 }
 
 .splitpanes {

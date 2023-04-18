@@ -202,7 +202,7 @@
     display: flex;
     align-items: center;
     font-size: 10px;
-    opacity: 0.2;
+    opacity: 0.5;
     margin-bottom: 3px;
   }
   .btns {
