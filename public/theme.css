@@ -49,14 +49,21 @@
 
 [data-theme="light"] {
 	--font-color: rgb(14, 14, 14);
-	--background: #ffffff;
+	/* --background: #ffffff;
 	--background-hover: #e5f7e8;
 	--foreground: #cfecd2;
 	--foreground-hover: #b3d8b6;
 	--foreground-light: #8de095;
-	--foreground-light-hover: #67db72;
+	--foreground-light-hover: #67db72; */
 
 	--shadow: #868383;
+	
+	--background: #F1FDF3;
+	--background-hover: #E5F4E7;
+	--foreground: #D1E9D2;
+	--foreground-hover: #b7ebb9;
+	--foreground-light: #abe9be;
+	--foreground-light-hover: #a0e9b6;
 }
 
 .splitpanes {

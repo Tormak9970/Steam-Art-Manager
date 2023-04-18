@@ -187,7 +187,7 @@
   .message {
     width: 100%;
     text-align: center;
-    opacity: 0.1;
+    opacity: 0.5;
     padding-top: 40px;
   }
 

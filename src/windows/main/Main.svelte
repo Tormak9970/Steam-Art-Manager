@@ -25,7 +25,7 @@
 
 	onMount(async () => {
     mainFocusUnsub = await WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = focused;
+      isFocused = true; //focused;
     });
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
 			selectedUser = Object.values($steamUsers).find((user) => user.id32 == id.toString())?.PersonaName

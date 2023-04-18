@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Pane } from "svelte-splitpanes";
-  import { gridType, dbFilters } from "../../../Stores";
+  import { gridType, dbFilters, theme } from "../../../Stores";
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -49,7 +49,7 @@
   
   <div class="content" style="height: 36px;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <Toggle label="Dark Mode" onChange={onDarkModeChange}/>
+      <Toggle label="Dark Mode" checked={$theme == 0} onChange={onDarkModeChange}/>
     </div>
     
     <div class="border" />
