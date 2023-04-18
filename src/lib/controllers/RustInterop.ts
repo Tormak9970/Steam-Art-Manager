@@ -93,21 +93,22 @@ export class RustInterop {
    * Exports the active user's grids to a zip file.
    * @param activeUserId The id of the active user.
    * @param platformIdMap A map of game/app ids to their platform.
-   * @param shortcutsNameMap A map of shortcut ids to their name.
+   * @param idNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, shortcutsNameMap: { [id: string]: string }): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId, platformIdMap: platformIdMap, shortcutsNameMap: shortcutsNameMap });
+  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
   }
 
   /**
    * Imports the active user's grids from a zip file.
    * @param activeUserId The id of the active user.
-   * @param shortcutIdsMap A map of shortcut names to their id.
-   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   * @param nameIdMap A map of shortcut names to their id.
+   * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
-  static async importGridsFromZip(activeUserId: string, shortcutIdsMap: { [id: string]: string }): Promise<boolean> {
-    return await invoke<boolean>("import_grids_from_zip", { steamActiveUserId: activeUserId, shortcutIdsMap: shortcutIdsMap });
+  static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
+    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
+    return res;
   }
 
   /**

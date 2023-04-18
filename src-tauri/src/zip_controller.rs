@@ -25,14 +25,14 @@ fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
   }
 }
 
-fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, platform: &str, shortcuts_name_map: &Map<String, Value>) -> String {
+fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, platform: &str, id_name_map: &Map<String, Value>) -> String {
   let dot_index: usize = filename.find(".").expect("File should have had a file extension");
   let file_ext: &str = &filename[dot_index..];
 
   let mut filename_core: String = id.to_owned();
 
-  if platform == "nonsteam" && shortcuts_name_map.contains_key(id) {
-    let shortcut_name_value: &Value = shortcuts_name_map.get(id).expect("Shortcut name map should have contained shortcut id.");
+  if platform == "nonsteam" && id_name_map.contains_key(id) {
+    let shortcut_name_value: &Value = id_name_map.get(id).expect("Shortcut name map should have contained shortcut id.");
     let shortcut_name: &str = shortcut_name_value.as_str().expect("Should have been able to convert shortcut name value to str.");
 
     filename_core = shortcut_name.to_owned();
@@ -48,21 +48,22 @@ fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, p
   return output_filename;
 }
 
-fn deconstruct_grid_export_name(filename: &String) -> (String, String, String, String) {
+fn deconstruct_grid_export_name(filename: &str) -> (String, String, String, String) {
   let dot_index: usize = filename.find(".").expect("File should have had a file extension");
   let file_ext: &str = &filename[dot_index..];
 
   let parts: Vec<&str> = filename.split("__").collect();
+  let grid_type: &str = &parts[2][..(parts[2].len() - file_ext.len())];
 
-  return (parts[0].to_owned(), parts[1].to_owned(), parts[2].to_owned(), file_ext.to_owned());
+  return (parts[0].to_owned(), parts[1].to_owned(), grid_type.to_owned(), file_ext.to_owned());
 }
 
-fn get_import_grid_name(filename: &String, ) -> String {
+fn get_import_grid_name(filename: &str, name_id_map: &Map<String, Value>) -> (String, String, String) {
   if filename.contains("__") {
     let (platform, filename_core, grid_type, file_ext) = deconstruct_grid_export_name(filename);
 
     let mut file_core: &str = &filename_core;
-    let mut file_grid_type: &str = "";
+    let file_grid_type: &str;
 
     match grid_type.as_str() {
       "capsule" => {
@@ -85,18 +86,25 @@ fn get_import_grid_name(filename: &String, ) -> String {
       }
     }
 
+    if platform == "nonsteam" && name_id_map.contains_key(file_core){
+      let shortcut_id_value: &Value = name_id_map.get(file_core).expect("Should have been able to get shortcut id from name map");
+      file_core = shortcut_id_value.as_str().expect("Should have been able to convert shortcut name to id.");
+    }
+
     let mut output_filename: String = String::from(file_core);
     output_filename.push_str(file_grid_type);
     output_filename.push_str(&file_ext);
 
-    return output_filename;
+    return (platform.to_owned(), String::from(file_core), output_filename);
   } else {
-    return filename.to_owned();
+    let dot_index: usize = filename.find(".").expect("File should have had a file extension");
+    let appid: &str = &filename[..dot_index];
+    return (String::from(""), appid.to_owned(), filename.to_owned());
   }
 }
 
 #[allow(unused)]
-pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, shortcuts_name_map: &Map<String, Value>) -> bool {
+pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, id_name_map: &Map<String, Value>) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file: File = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
   let mut zip_writer: zip::ZipWriter<File> = zip::ZipWriter::new(zip_file);
@@ -117,8 +125,7 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
         let platform_value: &Value = platform_id_map.get(&id).expect("Platform map should have contained game/shortcut id.");
         let platform: &str = platform_value.as_str().expect("Should have been able to convert platform to string.");
 
-        let modified_filename = construct_grid_export_name(filename_str, &id, &grid_type, platform, shortcuts_name_map);
-        println!("Modified filename: {}", modified_filename);
+        let modified_filename = construct_grid_export_name(filename_str, &id, &grid_type, platform, id_name_map);
         in_zip_filename = modified_filename;
       }
 
@@ -135,21 +142,31 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
   return true;
 }
 
-pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, shortcuts_id_map: &Map<String, Value>) -> bool {
+pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, name_id_map: &Map<String, Value>) -> (bool, Map<String, Value>) {
+  let mut icon_map: Map<String, Value> = Map::new();
+
   let zip_file = File::open(zip_file_path).expect("File should have existed since user picked it.");
   let buffer_reader = BufReader::new(zip_file);
   let mut zip_reader = zip::ZipArchive::new(buffer_reader).expect("Should have been able to create reader because file existed.");
 
   if zip_reader.is_empty() {
     logger::log_to_file(app_handle.to_owned(), "No entries in zip.", 0);
-    return false;
+    return (false, icon_map);
   }
 
   for i in 0..zip_reader.len() {
     let mut zip_file = zip_reader.by_index(i).unwrap();
 
     if zip_file.is_file() {
-      let dest_path = grids_dir_path.join(zip_file.mangled_name());
+      let mangled_name: PathBuf = zip_file.mangled_name();
+      let (platform, appid, adjusted_file_name) = get_import_grid_name(mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
+      
+      let dest_path = grids_dir_path.join(PathBuf::from(adjusted_file_name));
+
+      if platform == "nonsteam" {
+        let dest_path_str: &str = dest_path.to_str().expect("Should have been able to convert dest path to string.");
+        icon_map.insert(appid, Value::String(dest_path_str.to_owned()));
+      }
       
       let mut outfile = File::create(&dest_path).unwrap();
       io::copy(&mut zip_file, &mut outfile).expect("Should have been able to write file.");
@@ -159,5 +176,5 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
     }
   }
 
-  return true;
+  return (true, icon_map);
 }
