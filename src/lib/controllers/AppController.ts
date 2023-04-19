@@ -102,10 +102,6 @@ export class AppController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
     }
 
-    console.log("Testing Appinfo parser...");
-    const appinfos = await RustInterop.readAppinfoVdf();
-    console.log("AppInfos:", appinfos);
-
     LogController.log("App setup complete.");
   }
 
@@ -276,7 +272,7 @@ export class AppController {
     return vdf.entries.map((game: any) => {
       return {
         "appid": game.id,
-        "name": game.entries.common.name.replace(/[^\x00-\x7F]/g, "")
+        "name": game.common.name.replace(/[^\x00-\x7F]/g, "")
       } as GameStruct;
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }

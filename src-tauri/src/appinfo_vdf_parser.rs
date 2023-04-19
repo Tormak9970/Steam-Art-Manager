@@ -52,23 +52,18 @@ fn read_app_sections(reader: &mut Reader, skip: u8) -> Vec<Value> {
     let mut entry: Map<String, Value> = read_entry_map(reader);
     entry.insert(String::from("name"), Value::String(name));
     entry.insert(String::from("id"), Value::Number(id.into()));
-
-    // let entry: Map<String, Value> = read_app_section(reader, id);
-    // let entry_entries_val: &Value = entry.get("entries").expect("Entry should have contained entries.");
-    // let entry_entries: &Map<String, Value> = entry_entries_val.as_object().expect("Should have been able to convert entries to Map<String, Value>.");
   
-    // if entry_entries.contains_key("common") {
-    //   let common_val: &Value = entry_entries.get("common").expect("Should have been able to get \"common\".");
-    //   let common = common_val.as_object().expect("Common should have been an object.");
+    if entry.contains_key("common") {
+      let common_val: &Value = entry.get("common").expect("Should have been able to get \"common\".");
+      let common = common_val.as_object().expect("Common should have been an object.");
       
-    //   let type_val: &Value = common.get("type").expect("Should have been able to get \"common\".\"type\".");
-    //   let type_str: &str = type_val.as_str().expect("Should have been able to convert type to str");
+      let type_val: &Value = common.get("type").expect("Should have been able to get \"common\".\"type\".");
+      let type_str: &str = type_val.as_str().expect("Should have been able to convert type to str");
 
-    //   if type_str == "Game" {
-    //     entries.push(Value::Object(entry));
-    //   }
-    // }
-    entries.push(Value::Object(entry));
+      if type_str == "Game" || type_str == "game" {
+        entries.push(Value::Object(entry));
+      }
+    }
 
     reader.seek(1, 1);
     id = reader.read_uint32(true);
