@@ -16,7 +16,7 @@
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
 
-  let selectedNonSteamSearchCacheUnsub: Unsubscriber;
+  let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedSteamGridGameUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
@@ -103,10 +103,8 @@
     if (path && path != "") AppController.setCustomArt(path as string);
   }
 
-  function onDropdownChange(value: string) {}
-
   onMount(() => {
-    selectedNonSteamSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
+    steamGridSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
       isLoading = true;
       if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
         availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
@@ -120,6 +118,7 @@
       if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
         availableNames = Object.values($steamGridSearchCache[$selectedGameAppId]).map((value) => value.name);
       }
+      console.log("Selected SteamGridGame:", gameName);
       isLoading = false;
     });
 
@@ -164,7 +163,7 @@
   });
 
   onDestroy(() => {
-    if (selectedNonSteamSearchCacheUnsub) selectedNonSteamSearchCacheUnsub();
+    if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
     if (selectedSteamGridGameUnsub) selectedSteamGridGameUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
@@ -180,7 +179,7 @@
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Browsing" options={availableNames} onChange={onDropdownChange} bind:value={$selectedSteamGridGame} width={"200px"} />
+      <DropDown label="Browsing" options={availableNames} width={"200px"} bind:value={$selectedSteamGridGame} />
       <HorizontalSpacer />
       <Button label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null} />
     </div>

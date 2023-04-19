@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGame, showHidden, steamGames } from "../../../Stores";
+  import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, nonSteamGames, showHidden, steamGames } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";

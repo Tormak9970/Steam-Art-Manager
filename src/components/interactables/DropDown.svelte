@@ -92,7 +92,7 @@
 
 <div class="wrapper" style="width: {width};">
   {#if label != ""}
-    <div style="margin-right: 7px; font-size: 14px">{label}:</div>
+    <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: value, placement: placement, onShow: AppController.onTippyShow}}>
@@ -103,7 +103,9 @@
       {/each}
     </select>
   
-    <div class="select-selected" class:select-arrow-active={active}>{value}</div>
+    {#key value}
+      <div class="select-selected" class:select-arrow-active={active}>{value}</div>
+    {/key}
     <div class="select-items" class:select-hide={!active}>
       {#each options as val}
         {#if val == value}

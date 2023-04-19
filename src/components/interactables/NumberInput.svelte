@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let label: string;
+  export let label: string = "";
   export let value: number;
   export let onChange: (e: Event, fieldName: string) => void;
 
@@ -38,7 +38,9 @@
 
 <div class="input">
   <!-- svelte-ignore a11y-label-has-associated-control -->
-  <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+  {#if label != ""}
+    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+  {/if}
   <input
     type="text"
     placeholder={value.toString()}

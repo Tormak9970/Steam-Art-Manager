@@ -5,7 +5,7 @@
   import Lazy from "svelte-lazy";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId, selectedGameName, selectedSteamGridGame } from "../../../Stores";
+  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId, selectedGameName } from "../../../Stores";
 
   export let game: GameStruct;
   export let widths: any;

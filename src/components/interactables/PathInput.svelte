@@ -2,7 +2,7 @@
   import { dialog, path } from "@tauri-apps/api";
   import FileButton from "./FileButton.svelte";
 
-  export let label:string;
+  export let label:string = "";
   export let fieldPrompt:string;
   export let defaultPath:string;
   export let value:string;
@@ -39,7 +39,9 @@
 
 <div class="input">
   <!-- svelte-ignore a11y-label-has-associated-control -->
-  <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+  {#if label != ""}
+    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+  {/if}
   <input style="flex: 1; margin-right: 7px" type="text" placeholder="{value}" value="{value}" on:change="{wrapper}" bind:this={inputElem}>
 
   <FileButton onClick={openDialog} />

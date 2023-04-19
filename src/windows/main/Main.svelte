@@ -18,15 +18,17 @@
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
-	let isFocused = false;
+	let isFocused = true;
 
 	let users = Object.values($steamUsers).map((user) => user.PersonaName);
 	let selectedUser = Object.values($steamUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
 
 	onMount(async () => {
-    mainFocusUnsub = await WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = true; //focused;
-    });
+    WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
+      isFocused = focused;
+    }).then((unsub) => {
+			mainFocusUnsub = unsub;
+		});
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
 			selectedUser = Object.values($steamUsers).find((user) => user.id32 == id.toString())?.PersonaName
 		});
