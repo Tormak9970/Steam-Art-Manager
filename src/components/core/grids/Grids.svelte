@@ -106,7 +106,7 @@
   onMount(() => {
     steamGridSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
       isLoading = true;
-      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && searchCache[$selectedGameAppId]) {
         availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
       }
       isLoading = false;
@@ -115,7 +115,7 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, gameName), $gridType, $dbFilters);
       
-      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && $steamGridSearchCache[$selectedGameAppId]) {
         availableNames = Object.values($steamGridSearchCache[$selectedGameAppId]).map((value) => value.name);
       }
       console.log("Selected SteamGridGame:", gameName);
@@ -135,7 +135,7 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
       
-      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && $steamGridSearchCache[id]) {
         availableNames = Object.values($steamGridSearchCache[id]).map((value) => value.name);
       }
       isLoading = false;
