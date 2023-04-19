@@ -165,8 +165,8 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
 
 #[tauri::command]
 async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
-  let appinfo_path = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned()));
-  let appinfo_vdf = open_appinfo_vdf(&appinfo_path);
+  let appinfo_path: PathBuf = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned()));
+  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 }
 

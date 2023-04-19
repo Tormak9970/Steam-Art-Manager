@@ -3,6 +3,7 @@ use std::{path::PathBuf, fs};
 use std::io::Read;
 
 use serde::{Serialize, Deserialize};
+use serde_json::{Value, Map};
 
 use crate::reader::Reader;
 
@@ -24,7 +25,7 @@ pub struct AppInfoVdf {
   entries: Vec<AppInfoVdfEntry>,
 }
 
-pub fn open_appinfo_vdf(path: &PathBuf) -> AppInfoVdf {
+pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
   let metadata = fs::metadata(path).expect("unable to read metadata");
@@ -37,7 +38,7 @@ pub fn open_appinfo_vdf(path: &PathBuf) -> AppInfoVdf {
   return read(&mut reader);
 }
 
-fn read(reader: &mut Reader) -> AppInfoVdf {
+fn read(reader: &mut Reader) -> Map<String, Value> {
   reader.seek(1, 0);
 
   let sig_a = reader.read_uint8(true);
@@ -61,23 +62,27 @@ fn read(reader: &mut Reader) -> AppInfoVdf {
 
   reader.seek(8, 0);
 
-  let entries = read_app_entries(reader, skip);
+  let entries: Vec<Value> = read_app_entries(reader, skip);
 
-  return AppInfoVdf { entries };
+  let mut res: Map<String, Value> = Map::new();
+  res.insert(String::from("entries"), Value::Array(entries));
+
+  return res;
 }
 
-fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<AppInfoVdfEntry> {
-  let mut entries = vec![];
+fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<Value> {
+  let mut entries: Vec<Value> = vec![];
   let mut id = reader.read_uint32(true);
 
   while id != 0x00000000 {
     let entry = read_app_entry(reader, id, skip);
   
-    if entry.entries.contains_key("common") {
-      if entry.entries.get("common").unwrap().r#type == "game" || entry.entries.get("common").unwrap().r#type == "Game" {
-        entries.push(entry);
-      }
-    }
+    // if entry.entries.contains_key("common") {
+    //   if entry.entries.get("common").unwrap().r#type == "game" || entry.entries.get("common").unwrap().r#type == "Game" {
+    //     entries.push(Value::Object(entry));
+    //   }
+    // }
+    entries.push(Value::Object(entry));
 
     id = reader.read_uint32(true);
   }
@@ -85,38 +90,33 @@ fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<AppInfoVdfEntry> {
   return entries;
 }
 
-fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> AppInfoVdfEntry {
+fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> Map<String, Value> {
+  let mut props: Map<String, Value> = Map::new();
   reader.seek(skip.into(), 1); // Skip a bunch of fields we don't care about
   
   let name = reader.read_string(None).to_owned();
-  let vdf_common = read_entries(reader, true);
-  let mut entries = HashMap::new();
+  let entries = read_entries(reader, true);
 
-  if vdf_common.is_some() {
-    entries.insert("common".to_owned(), vdf_common.unwrap());
-  }
+  // if vdf_common.is_some() {
+  //   entries.insert("common".to_owned(), vdf_common.unwrap());
+  // }
 
-  return AppInfoVdfEntry { name, id, entries };
+  props.insert(String::from("name"), Value::String(name));
+  props.insert(String::from("id"), Value::Number(id.into()));
+  props.insert(String::from("entries"), entries);
+
+
+  return props;
 }
 
-fn read_entries(reader: &mut Reader, should_read_last: bool) -> Option<AppInfoVdfCommon> {
-  let mut name: String = String::from("");
-  let mut r#type: String = String::from("");
+fn read_entries(reader: &mut Reader, should_read_last: bool) -> Value {
+  let mut props: Map<String, Value> = Map::new();
 
   let mut data_type = reader.read_uint8(true);
   while data_type != 0x08 {
     let (key, val) = read_entry(reader, data_type);
 
-    if key == "name".to_owned() {
-      name = val.unwrap();
-    } else if key == "type".to_owned() {
-      r#type = val.unwrap();
-    } else if key == "common".to_owned() {
-      let unwrapped = val.unwrap();
-      let vals: Vec<&str> = unwrapped.split("||").collect();
-      name = vals[0].to_owned();
-      r#type = vals[1].to_owned();
-    }
+    props.insert(key, val);
 
     data_type = reader.read_uint8(true);
   }
@@ -125,32 +125,30 @@ fn read_entries(reader: &mut Reader, should_read_last: bool) -> Option<AppInfoVd
     reader.seek(1, 1);
   }
 
-  if name != "".to_owned() && r#type != "".to_owned() {
-    return Some(AppInfoVdfCommon { name, r#type });
-  } else {
-    return None;
-  }
+  return Value::Object(props);
 }
 
-fn read_entry(reader: &mut Reader, data_type: u8) -> (String, Option<String>) {
+fn read_entry(reader: &mut Reader, data_type: u8) -> (String, Value) {
   let key = reader.read_string(None).to_owned();
   
   match data_type {
     0x00 => {
       let entries = read_entries(reader, false);
-      if key == "common" && entries.is_some() {
-        let vdf_common = entries.unwrap();
-        return (key, Some(format!("{}||{}", vdf_common.name, vdf_common.r#type)));
-      } else {
-        return (key, None);
-      }
+      // TODO: will filter this once everything works
+      // if key == "common" {
+      //   let vdf_common = entries.unwrap();
+      //   return (key, Some(format!("{}||{}", vdf_common.name, vdf_common.r#type)));
+      // } else {
+      //   return (key, None);
+      // }
+      return (key, entries);
     },
     0x01 => {
-      return (key, Some(reader.read_string(None).to_owned()));
+      return (key, Value::String(reader.read_string(None).to_owned()));
     },
     0x02 => {
-      _ = reader.read_uint32(true);
-      return (key, None);
+      // TODO: will ignore this once everything works
+      return (key, Value::Number(reader.read_uint32(true).into()));
     },
     _ => {
       panic!("Unhandled entry type: {}", data_type);
