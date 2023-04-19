@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, nonSteamSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGame } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGame } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -218,18 +218,16 @@ export class CacheController {
     const type = get(gridType);
     const selectedPlatform = get(currentPlatform);
     
-    if (selectedPlatform == Platforms.STEAM) {
-      return await this.fetchGridsForSteamGame(appId, type);
-    } else if (selectedPlatform == Platforms.NON_STEAM) {
+    if (selectedPlatform == Platforms.STEAM || selectedPlatform == Platforms.NON_STEAM) {
       const gameName = get(selectedGameName);
-      const nonSteamCache = get(nonSteamSearchCache);
+      const searchCache = get(steamGridSearchCache);
 
-      let results = nonSteamCache[appId];
+      let results = searchCache[appId];
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        nonSteamCache[appId] = results;
-        nonSteamSearchCache.set(nonSteamCache);
+        searchCache[appId] = results;
+        steamGridSearchCache.set(searchCache);
       }
 
       const choosenResult = selectedSteamGridName ? results.find((game) => game.name == selectedSteamGridName) : results.find((game) => game.name == gameName);

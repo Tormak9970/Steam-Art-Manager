@@ -67,7 +67,7 @@ export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> =
 
 
 export const steamGridsCache:{ [appid: number]: SGDBImage[] } = {};
-export const nonSteamSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = writable({});
+export const steamGridSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = writable({});
 export const nonSteamGridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
 export const selectedSteamGridGame = writable("None");
 

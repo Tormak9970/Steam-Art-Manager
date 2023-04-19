@@ -6,7 +6,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGame, nonSteamSearchCache, Platforms } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGame, steamGridSearchCache, Platforms } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -106,12 +106,9 @@
   function onDropdownChange(value: string) {}
 
   onMount(() => {
-    selectedNonSteamSearchCacheUnsub = nonSteamSearchCache.subscribe((searchCache) => {
+    selectedNonSteamSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
-        availableNames = [$selectedGameName];
-        $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
         availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
       }
       isLoading = false;
@@ -120,11 +117,8 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, gameName), $gridType, $dbFilters);
       
-      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
-        availableNames = [$selectedGameName];
-        $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
-        availableNames = Object.values($nonSteamSearchCache[$selectedGameAppId]).map((value) => value.name);
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
+        availableNames = Object.values($steamGridSearchCache[$selectedGameAppId]).map((value) => value.name);
       }
       isLoading = false;
     });
@@ -142,11 +136,8 @@
       isLoading = true;
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
       
-      if ($currentPlatform == Platforms.STEAM && $selectedGameName) {
-        availableNames = [$selectedGameName];
-        $selectedSteamGridGame = $selectedGameName;
-      } else if ($currentPlatform == Platforms.NON_STEAM && $selectedGameName) {
-        availableNames = Object.values($nonSteamSearchCache[id]).map((value) => value.name);
+      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName) {
+        availableNames = Object.values($steamGridSearchCache[id]).map((value) => value.name);
       }
       isLoading = false;
     });
