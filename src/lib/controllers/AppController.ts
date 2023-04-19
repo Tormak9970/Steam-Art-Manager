@@ -74,8 +74,6 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
-    WindowController.mainWindow.setFocus();
-
     const users = await RustInterop.getSteamUsers();
     steamUsers.set(users);
 
