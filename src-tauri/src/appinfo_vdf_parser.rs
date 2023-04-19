@@ -19,30 +19,18 @@ pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
 }
 
 fn read(reader: &mut Reader) -> Map<String, Value> {
-  reader.seek(1, 0);
-
-  let sig_a = reader.read_uint8(true);
-  let sig_b = reader.read_uint8(true);
-  if sig_a != 0x44 || sig_b != 0x56 {
-    panic!("Invalid File Signature {sig_a} {sig_b}");
-  }
-
-  reader.seek(0, 0);
-
-  let skip;
   let magic = reader.read_uint32(true);
+  let _universe = reader.read_uint32(true); //always 1
+
+  let entries: Vec<Value>;
 
   if magic == 0x07564428 {
-    skip = 65;
+    entries = read_app_sections(reader, 64);
   } else if magic == 0x07564427 {
-    skip = 45;
+    entries = read_app_sections(reader, 44);
   } else {
-    panic!("Magic header is unknown");
+    panic!("Magic header is unknown. Expected 0x07564428 or 0x07564427 but got {magic}");
   }
-
-  reader.seek(8, 0);
-
-  let entries: Vec<Value> = read_app_entries(reader, skip);
 
   let mut res: Map<String, Value> = Map::new();
   res.insert(String::from("entries"), Value::Array(entries));
@@ -50,34 +38,36 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
   return res;
 }
 
-fn read_app_entries(reader: &mut Reader, skip: u8) -> Vec<Value> {
+fn read_app_sections(reader: &mut Reader, skip: u8) -> Vec<Value> {
   let mut entries: Vec<Value> = vec![];
   let mut id: u32 = reader.read_uint32(true);
 
   while id != 0x00000000 {
-    let entry: Map<String, Value> = read_app_entry(reader, id, skip);
-    let entry_entries_val: &Value = entry.get("entries").expect("Entry should have contained entries.");
-    let entry_entries: &Map<String, Value> = entry_entries_val.as_object().expect("Should have been able to convert entries to Map<String, Value>.");
+    let entry: Map<String, Value> = read_app_section(reader, id, skip);
+    // let entry_entries_val: &Value = entry.get("entries").expect("Entry should have contained entries.");
+    // let entry_entries: &Map<String, Value> = entry_entries_val.as_object().expect("Should have been able to convert entries to Map<String, Value>.");
   
-    if entry_entries.contains_key("common") {
-      let common_val: &Value = entry_entries.get("common").expect("Should have been able to get \"common\".");
-      let common = common_val.as_object().expect("Common should have been an object.");
+    // if entry_entries.contains_key("common") {
+    //   let common_val: &Value = entry_entries.get("common").expect("Should have been able to get \"common\".");
+    //   let common = common_val.as_object().expect("Common should have been an object.");
       
-      let type_val: &Value = common.get("type").expect("Should have been able to get \"common\".\"type\".");
-      let type_str: &str = type_val.as_str().expect("Should have been able to convert type to str");
+    //   let type_val: &Value = common.get("type").expect("Should have been able to get \"common\".\"type\".");
+    //   let type_str: &str = type_val.as_str().expect("Should have been able to convert type to str");
 
-      if type_str == "Game" {
-        entries.push(Value::Object(entry));
-      }
-    }
+    //   if type_str == "Game" {
+    //     entries.push(Value::Object(entry));
+    //   }
+    // }
+    entries.push(Value::Object(entry));
 
+    reader.read_uint8(true);
     id = reader.read_uint32(true);
   }
 
   return entries;
 }
 
-fn read_app_entry(reader: &mut Reader, id: u32, skip: u8) -> Map<String, Value> {
+fn read_app_section(reader: &mut Reader, id: u32, skip: u8) -> Map<String, Value> {
   let mut props: Map<String, Value> = Map::new();
   reader.seek(skip.into(), 1); // Skip a bunch of fields we don't care about
   
@@ -109,9 +99,9 @@ fn read_entries(reader: &mut Reader, should_read_last: bool) -> Map<String, Valu
     data_type = reader.read_uint8(true);
   }
 
-  if should_read_last {
-    reader.seek(1, 1);
-  }
+  // if should_read_last {
+  //   reader.seek(1, 1);
+  // }
 
   return props;
 }
