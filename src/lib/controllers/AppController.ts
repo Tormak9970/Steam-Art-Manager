@@ -104,6 +104,10 @@ export class AppController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
     }
 
+    console.log("Testing Appinfo parser...");
+    const appinfos = await RustInterop.readAppinfoVdf();
+    console.log("AppInfos:", appinfos);
+
     LogController.log("App setup complete.");
   }
 
