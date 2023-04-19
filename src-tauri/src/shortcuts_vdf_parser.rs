@@ -4,6 +4,7 @@ use std::io::{Read, Write};
 use serde_json::{ Value, Map };
 
 use crate::reader::Reader;
+use crate::vdf_reader::read_entry_map;
 use crate::writer::Writer;
 
 pub fn open_shortcuts_vdf(path: &PathBuf) -> Value {
@@ -28,43 +29,7 @@ fn read(reader: &mut Reader) -> Value {
     panic!("Invalid Shortcuts File! File started with {} instead of \"shortcuts\"", fake_header);
   }
 
-  return read_entry_map(reader);
-}
-
-fn read_entry_map(reader: &mut Reader) -> Value {
-  let mut props = Map::new();
-
-  let mut field_type = reader.read_uint8(true);
-
-  while field_type != 0x08 {
-    let key = reader.read_string(None);
-    let value = read_entry_field(reader, field_type);
-
-    props.insert(key, value);
-
-    field_type = reader.read_uint8(true);
-  }
-
-  return Value::Object(props);
-}
-
-fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
-  match field_type {
-    0x00 => { //? map
-      return read_entry_map(reader);
-    },
-    0x01 => { //? string
-      let value = reader.read_string(None);
-      return Value::String(value);
-    },
-    0x02 => { //? number
-      let value = reader.read_uint32(true);
-      return Value::Number(value.into());
-    },
-    _ => {
-      panic!("Unexpected field type {}!", field_type);
-    }
-  }
+  return Value::Object(read_entry_map(reader));
 }
 
 pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {

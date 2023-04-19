@@ -8,6 +8,7 @@ mod steam;
 mod zip_controller;
 mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
+mod vdf_reader;
 
 use std::{path::PathBuf, collections::HashMap, fs};
 
