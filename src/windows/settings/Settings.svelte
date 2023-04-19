@@ -84,8 +84,10 @@
     steamGridKey = $steamGridDBKey;
     steamAPIKey = $steamKey;
 
-    settingsFocusUnsub = await WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
+    WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = focused;
+    }).then((unsub) => {
+      settingsFocusUnsub = unsub;
     });
     themeUnsub = theme.subscribe((theme) => {
       document.documentElement.setAttribute("data-theme", theme == 0 ? "dark" : "light");
