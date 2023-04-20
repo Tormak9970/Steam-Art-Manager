@@ -421,6 +421,12 @@ export class AppController {
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
+
+    if (!gameImages[selectedGameId]) {
+      // @ts-ignore
+      gameImages[selectedGameId] = {};
+    }
+    
     gameImages[selectedGameId][selectedGridType] = path;
 
     if (get(currentPlatform) == Platforms.NON_STEAM) {
@@ -449,6 +455,12 @@ export class AppController {
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
+
+    if (!gameImages[selectedGameId]) {
+      // @ts-ignore
+      gameImages[selectedGameId] = {};
+    }
+
     gameImages[selectedGameId][selectedGridType] = localPath;
     
     if (get(currentPlatform) == Platforms.NON_STEAM) {

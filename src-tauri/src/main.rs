@@ -61,7 +61,12 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
 
   for (appid, grids_map) in current_paths.into_iter() {
     for (grid_type, source_path) in grids_map.into_iter() {
-      let grid_path: &String = original_paths.get(appid.as_str()).unwrap().get(grid_type.as_str()).unwrap();
+      let mut grid_path: &String = &String::from("");
+
+      if original_paths.get(appid.as_str()).is_some() && original_paths.get(appid.as_str()).unwrap().get(grid_type.as_str()).is_some() {
+        grid_path = original_paths.get(appid.as_str()).unwrap().get(grid_type.as_str()).unwrap();
+      }
+
       let grid_path_owned = grid_path.to_owned();
       let source_path_owned = source_path.to_owned();
 

@@ -237,11 +237,17 @@ export class CacheController {
         steamGridSteamAppIdMap[appId] = gameId;
       }
       
-      const choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.id.toString() == gameId);
+      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.id.toString() == gameId);
+      if (!choosenResult && results.length > 0) choosenResult = results[0];
 
-      selectedSteamGridGameId.set(choosenResult.id.toString());
-      steamGridSearchCache.set(searchCache);
-      return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+      if (choosenResult?.id) {
+        selectedSteamGridGameId.set(choosenResult.id.toString());
+        steamGridSearchCache.set(searchCache);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+      } else {
+        LogController.log(`No results for ${type} for ${gameName}.`);
+        return [];
+      }
     } else if (selectedPlatform == Platforms.NON_STEAM) {
       const gameName = get(selectedGameName);
       const searchCache = get(steamGridSearchCache);
@@ -253,11 +259,17 @@ export class CacheController {
         searchCache[appId] = results;
       }
 
-      const choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.name == gameName);
+      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.name == gameName);
+      if (!choosenResult && results.length > 0) choosenResult = results[0];
 
-      selectedSteamGridGameId.set(choosenResult.id.toString());
-      steamGridSearchCache.set(searchCache);
-      return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+      if (choosenResult?.id) {
+        selectedSteamGridGameId.set(choosenResult.id.toString());
+        steamGridSearchCache.set(searchCache);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+      } else {
+        LogController.log(`No results for ${type} for ${gameName}.`);
+        return [];
+      }
     }
   }
 
