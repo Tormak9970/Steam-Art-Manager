@@ -48,9 +48,6 @@
         if ($appLibraryCache[game.appid][type]) {
           showImage = true;
           imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-        } else if (type == GridTypes.WIDE_CAPSULE) {
-          showImage = true;
-          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][GridTypes.CAPSULE]);
         } else {
           showImage = false;
         }
@@ -61,9 +58,6 @@
         if (cache[game.appid][$gridType]) {
           showImage = true;
           imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
-        } else if ($gridType == GridTypes.WIDE_CAPSULE) {
-          showImage = true;
-          imagePath = tauri.convertFileSrc(cache[game.appid][GridTypes.CAPSULE]);
         } else {
           showImage = false;
         }
@@ -98,7 +92,7 @@
         <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
       </Lazy>
     {:else}
-      <div>No {$gridType} image for game</div>
+      <div style="text-align: center;">No {$gridType} image for game</div>
     {/if}
   </div>
   <div class="name">{game.name}</div>
