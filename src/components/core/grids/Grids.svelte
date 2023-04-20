@@ -46,7 +46,7 @@
   function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
     const targetFilters = filters[type];
     const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-    const dimensions = type != GridTypes.LOGO ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
+    const dimensions = (type != GridTypes.LOGO && type != GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
     const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
     const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
     const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
@@ -54,7 +54,7 @@
 
     const resGrids = allGrids.filter((grid: SGDBImage) => {
       return gridStyles.includes(grid.style)
-        && dimensions.includes(`${grid.width}x${grid.height}`)
+        && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
         && imageFormats.includes(grid.mime)
         && (grid.epilepsy ? epilepsyAllowed : true)
         && (grid.nsfw ? nsfwAllowed : true);

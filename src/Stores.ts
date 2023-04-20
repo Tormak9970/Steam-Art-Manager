@@ -85,8 +85,8 @@ export const dbFilters:Writable<DBFilters> = writable({
       "600x900": true,
       "342x482": true,
       "660x930": true,
-      "512x512": true,
-      "1024x1024": true,
+      "512x512": false,
+      "1024x1024": false,
     },
     "mimes": {
       "image/png": true,
@@ -115,8 +115,8 @@ export const dbFilters:Writable<DBFilters> = writable({
     "dimensions": {
       "460x215": true,
       "920x430": true,
-      "512x512": true,
-      "1024x1024": true,
+      "512x512": false,
+      "1024x1024": false,
     },
     "mimes": {
       "image/png": true,
@@ -188,13 +188,10 @@ export const dbFilters:Writable<DBFilters> = writable({
       "official": true,
       "custom": true,
     },
-    "dimensions": {
-      "8": true,
-      "10": true,
-    },
     "mimes": {
       "image/png": true,
       "image/webp": true,
+      "image/vnd.microsoft.icon": true
     },
     "types": {
       "static": true,
