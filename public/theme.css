@@ -17,10 +17,13 @@
  */
 :root {
 	--font-color: rgb(231, 231, 231);
+
 	--background: #1a1a1a;
 	--background-hover: #222222;
+
 	--foreground: #252525;
 	--foreground-hover: #303030;
+
 	--foreground-light: #3d3d3d;
 	--foreground-light-hover: #474747;
 
@@ -28,8 +31,10 @@
 
 	--highlight: #04e200;
 	--highlight-hover: #05FF00;
+
 	--highlight-dim: #039900;
 	--highlight-dim-hover: #04aa02;
+
 	--warning: #e24a4a;
 	--warning-hover: #e13525;
 
@@ -52,11 +57,13 @@
 	--shadow: #868383;
 	
 	--background: #F1FDF3;
-	--background-hover: #E5F4E7;
-	--foreground: #D1E9D2;
-	--foreground-hover: #b7ebb9;
-	--foreground-light: #abe9be;
-	--foreground-light-hover: #a0e9b6;
+	--background-hover: #e2e2e2;
+
+	--foreground: #d3d3d3;
+	--foreground-hover: #bebebe;
+	
+	--foreground-light: #aaaaaa;
+	--foreground-light-hover: #979797;
 	
 	--save: #4ee73a;
 	--save-hover: #24fc08;
