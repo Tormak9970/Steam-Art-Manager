@@ -1,13 +1,16 @@
 <script lang="ts">
   import type { Placement } from "tippy.js";
   import { AppController } from "../../lib/controllers/AppController";
+  import { afterUpdate } from "svelte";
 
   export let label:string = "";
-  export let options: string[];
+  export let options: {label: string, data: any}[];
   export let value: string;
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
   export let placement: Placement = "left";
+
+  let internalValue = options.find((opt) => opt.data == value)?.label;
   
   let active = false;
 
@@ -83,11 +86,17 @@
       }
     }
 
-    onChange(targetElement.innerHTML);
-    value = targetElement.innerHTML;
+    onChange(targetElement.id);
+    value = targetElement.id;
+    internalValue = targetElement.innerHTML;
 
     (selectDisplay as HTMLElement).click();
   }
+
+  afterUpdate(() => {
+    // if (options.find((opt) => opt.data == value)) internalValue = options.find((opt) => opt.data == value)?.label;
+    internalValue = options.find((opt) => opt.data == value)?.label;
+  });
 </script>
 
 <div class="wrapper" style="width: {width};">
@@ -95,25 +104,25 @@
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: value, placement: placement, onShow: AppController.onTippyShow}}>
+  <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: placement, onShow: AppController.onTippyShow}}>
     <select>
-      <option value="default">{value}</option>
-      {#each options as val}
-        <option value={val.toLowerCase()}>{val}</option>
+      <option value="default">{internalValue}</option>
+      {#each options as opt}
+        <option value={opt.data}>{opt.label}</option>
       {/each}
     </select>
   
     {#key value}
-      <div class="select-selected" class:select-arrow-active={active}>{value}</div>
+      <div class="select-selected" class:select-arrow-active={active}>{internalValue}</div>
     {/key}
     <div class="select-items" class:select-hide={!active}>
-      {#each options as val}
-        {#if val == value}
+      {#each options as opt}
+        {#if opt.data == value}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: val, placement: placement, onShow: AppController.onTippyShow}}>{val}</div>
+          <div id={opt.data} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
         {:else}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={val} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: val, placement: placement, onShow: AppController.onTippyShow }}>{val}</div>
+          <div id={opt.data} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow }}>{opt.label}</div>
         {/if}
       {/each}
     </div>

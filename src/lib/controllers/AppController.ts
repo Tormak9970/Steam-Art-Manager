@@ -531,12 +531,12 @@ export class AppController {
   /**
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
-   * @param selectedSteamGridName Optional name of the current steamGridGame's name.
+   * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, selectedSteamGridName?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, selectedSteamGridName);
+  static async getSteamGridArt(appId: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, selectedSteamGridId);
   }
 
   /**
@@ -588,14 +588,13 @@ export class AppController {
 
   /**
    * Changes the currently selected steam user.
-   * @param userPersonaName The name of the new user.
+   * @param userId The id of the new user.
    * ? Logging complete.
    */
-  static async changeSteamUser(userPersonaName: string): Promise<void> {
+  static async changeSteamUser(userId: string): Promise<void> {
     const users = get(steamUsers);
-    const user = Object.values(users).find((user) => user.PersonaName == userPersonaName);
-    const oldUserId = get(activeUserId);
-    const userId = parseInt(user.id32);
+    const user = Object.values(users).find((user) => user.id32 == userId);
+    const oldUserId = get(activeUserId).toString();
 
     if (userId != oldUserId) {
       const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?", {
@@ -606,7 +605,7 @@ export class AppController {
       if (shouldContinue) {
         await AppController.discardChanges();
 
-        activeUserId.set(userId);
+        activeUserId.set(parseInt(userId));
 
         const settings = await SettingsManager.getSettings();
         if (settings.steamApiKeyMap[userId] && settings.steamApiKeyMap[userId] != "") {

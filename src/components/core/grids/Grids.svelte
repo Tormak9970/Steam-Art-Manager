@@ -6,7 +6,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGame, steamGridSearchCache, Platforms } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -17,7 +17,6 @@
   import DropDown from "../../interactables/DropDown.svelte";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
-  let selectedSteamGridGameUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
@@ -26,6 +25,7 @@
   let apiKeyUnsub: Unsubscriber;
 
   const padding = 20;
+  let oldSelectedGameId = null;
 
   const widths = {
     "Capsule": 100,
@@ -71,7 +71,7 @@
   }
 
   let isLoading = false;
-  let availableNames = ["None"];
+  let availableSteamGridGames = [{ label: "None", data: "None"}];
   let grids: SGDBImage[] = [];
 
   /**
@@ -103,32 +103,32 @@
     if (path && path != "") AppController.setCustomArt(path as string);
   }
 
+  async function onDropdownChange(id: string) {
+    if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, id), $gridType, $dbFilters);
+    oldSelectedGameId = id;
+  }
+
   onMount(() => {
     steamGridSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
       isLoading = true;
       if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && searchCache[$selectedGameAppId]) {
-        availableNames = Object.values(searchCache[$selectedGameAppId]).map((value) => value.name);
+        availableSteamGridGames = Object.values(searchCache[$selectedGameAppId]).map((value) => {
+          return {
+            "label": value.name,
+            "data": value.id.toString()
+          }
+        });
       }
-      isLoading = false;
-    });
-    selectedSteamGridGameUnsub = selectedSteamGridGame.subscribe(async (gameName) => {
-      isLoading = true;
-      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, gameName), $gridType, $dbFilters);
-      
-      if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && $steamGridSearchCache[$selectedGameAppId]) {
-        availableNames = Object.values($steamGridSearchCache[$selectedGameAppId]).map((value) => value.name);
-      }
-      console.log("Selected SteamGridGame:", gameName);
       isLoading = false;
     });
 
     selectedPlatformUnsub = currentPlatform.subscribe(async (platform) => {
       isLoading = true;
-      availableNames = ["None"];
+      availableSteamGridGames = [{ label: "None", data: "None"}];
       $selectedGameAppId = null;
       $selectedGameName = null;
-      $selectedSteamGridGame = "None";
-      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      $selectedSteamGridGameId = "None";
+      grids = [];
       isLoading = false;
     });
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
@@ -136,8 +136,14 @@
       if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
       
       if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && $steamGridSearchCache[id]) {
-        availableNames = Object.values($steamGridSearchCache[id]).map((value) => value.name);
+        availableSteamGridGames = Object.values($steamGridSearchCache[id]).map((value) => {
+          return {
+            "label": value.name,
+            "data": value.id.toString()
+          }
+        });
       }
+
       isLoading = false;
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
@@ -152,7 +158,11 @@
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
       isLoading = true;
-      if ($isOnline && key != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      if ($isOnline && key != "" && $selectedGameAppId != null) {
+        grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      } else {
+        grids = [];
+      }
       isLoading = false;
     });
     dbFiltersUnsub = dbFilters.subscribe(async (filters) => {
@@ -164,7 +174,6 @@
 
   onDestroy(() => {
     if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
-    if (selectedSteamGridGameUnsub) selectedSteamGridGameUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
@@ -179,7 +188,7 @@
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Browsing" options={availableNames} width={"200px"} bind:value={$selectedSteamGridGame} />
+      <DropDown label="Browsing" options={availableSteamGridGames} onChange={onDropdownChange} width={"200px"} bind:value={$selectedSteamGridGameId} />
       <HorizontalSpacer />
       <Button label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null} />
     </div>
@@ -204,7 +213,7 @@
               {:else}
                 {#if grids.length > 0}
                   <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-                    {#each grids as grid (`${$selectedSteamGridGame}|${grid.id}|${$gridType}`)}
+                    {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                       <Grid grid={grid} widths={widths} heights={heights} />
                     {/each}
                   </div>

@@ -20,8 +20,13 @@
 
 	let isFocused = true;
 
-	let users = Object.values($steamUsers).map((user) => user.PersonaName);
-	let selectedUser = Object.values($steamUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
+	let users = Object.values($steamUsers).map((user) => {
+		return {
+			"label": user.PersonaName,
+			"data": user.id32
+		}
+	});
+	let selectedUserId = $activeUserId.toString();
 
 	onMount(async () => {
     WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
@@ -30,11 +35,16 @@
 			mainFocusUnsub = unsub;
 		});
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
-			selectedUser = Object.values($steamUsers).find((user) => user.id32 == id.toString())?.PersonaName
+			selectedUserId = id.toString();
 		});
 		usersUnsub = steamUsers.subscribe((sUsers) => {
-			users = Object.values(sUsers).map((user) => user.PersonaName);
-			if (!selectedUser) selectedUser = Object.values(sUsers).find((user) => user.id32 == $activeUserId.toString())?.PersonaName;
+			users = Object.values(sUsers).map((user) => {
+				return {
+					"label": user.PersonaName,
+					"data": user.id32
+				}
+			});
+			if (!selectedUserId) selectedUserId = $activeUserId.toString();
 		});
 
 		let i = 0;
@@ -67,7 +77,7 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUser} onChange={AppController.changeSteamUser} width="80px" placement="right" />
+		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" placement="right" />
   </Titlebar>
 	<div class="content">
 		<Splitpanes>

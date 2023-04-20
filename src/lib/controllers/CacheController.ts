@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGame } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -209,16 +209,16 @@ export class CacheController {
   /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
-   * @param selectedSteamGridName Optional name of the current steamGridGame's name.
+   * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: number, selectedSteamGridName?: string): Promise<SGDBImage[]> {
+  async fetchGrids(appId: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
     const selectedPlatform = get(currentPlatform);
     
-    if (selectedPlatform == Platforms.STEAM || selectedPlatform == Platforms.NON_STEAM) {
+    if (selectedPlatform == Platforms.STEAM) {
       const gameName = get(selectedGameName);
       const searchCache = get(steamGridSearchCache);
 
@@ -227,12 +227,36 @@ export class CacheController {
       if (!results) {
         results = await this.client.searchGame(gameName);
         searchCache[appId] = results;
-        steamGridSearchCache.set(searchCache);
       }
 
-      const choosenResult = selectedSteamGridName ? results.find((game) => game.name == selectedSteamGridName) : results.find((game) => game.name == gameName);
+      let gameId = steamGridSteamAppIdMap[appId];
 
-      selectedSteamGridGame.set(choosenResult.name);
+      if (!gameId) {
+        const gameInfo = await this.client.getGameBySteamAppId(appId);
+        gameId = gameInfo.id.toString();
+        steamGridSteamAppIdMap[appId] = gameId;
+      }
+      
+      const choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.id.toString() == gameId);
+
+      selectedSteamGridGameId.set(choosenResult.id.toString());
+      steamGridSearchCache.set(searchCache);
+      return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+    } else if (selectedPlatform == Platforms.NON_STEAM) {
+      const gameName = get(selectedGameName);
+      const searchCache = get(steamGridSearchCache);
+
+      let results = searchCache[appId];
+
+      if (!results) {
+        results = await this.client.searchGame(gameName);
+        searchCache[appId] = results;
+      }
+
+      const choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.name == gameName);
+
+      selectedSteamGridGameId.set(choosenResult.id.toString());
+      steamGridSearchCache.set(searchCache);
       return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
     }
   }
