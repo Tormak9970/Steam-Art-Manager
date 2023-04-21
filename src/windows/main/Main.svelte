@@ -30,7 +30,7 @@
 
 	onMount(async () => {
     WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = true; //focused;
+      isFocused = focused;
     }).then((unsub) => {
 			mainFocusUnsub = unsub;
 		});
