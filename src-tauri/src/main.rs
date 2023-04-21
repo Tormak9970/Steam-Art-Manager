@@ -290,53 +290,26 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  if !FsScope::is_allowed(&fs_scope, steam_parent_dir) {
-    let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
+  let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
+  let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
 
-    if fs_res.is_err() {
-      let err = fs_res.err().unwrap();
-      logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
-    } else {
-      logger::log_to_file(app_handle.to_owned(), "Added Steam directory to FS scope.", 0);
-    }
+  if fs_res.is_ok() && asset_res.is_ok() {
+    logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
+  } else if fs_res.is_err() {
+    let err = fs_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+  } else if asset_res.is_err() {
+    let err = asset_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
   } else {
-    logger::log_to_file(app_handle.to_owned(), "Steam directory already allowed in FS scope.", 0);
+    let fs_err = fs_res.err().unwrap();
+    let asset_err = asset_res.err().unwrap();
+    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
   }
-
-  if !FsScope::is_allowed(&asset_scope, steam_parent_dir) {
-    let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
-
-    if asset_res.is_err() {
-      let err = asset_res.err().unwrap();
-      logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
-    } else {
-      logger::log_to_file(app_handle.to_owned(), "Added Steam directory to Asset scope.", 0);
-    }
-  } else {
-    logger::log_to_file(app_handle.to_owned(), "Steam directory already allowed in Asset scope.", 0);
-  }
-
-  // let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
-  // let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
-
-  // if fs_res.is_ok() && asset_res.is_ok() {
-  //   logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
-  // } else if fs_res.is_err() {
-  //   let err = fs_res.err().unwrap();
-  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
-  // } else if asset_res.is_err() {
-  //   let err = asset_res.err().unwrap();
-  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
-  // } else {
-  //   let fs_err = fs_res.err().unwrap();
-  //   let asset_err = asset_res.err().unwrap();
-  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
-  // }
 }
 
 fn main() {
   tauri::Builder::default()
-    .plugin(tauri_plugin_persisted_scope::init())
     .invoke_handler(tauri::generate_handler![
       logger::clean_out_log,
       logger::log_to_file,
