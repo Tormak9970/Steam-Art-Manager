@@ -33,7 +33,7 @@
   @import "/theme.css";
 
   .grid {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
     border-radius: 4px;
@@ -53,7 +53,7 @@
     transition: transform 0.2s ease-in-out, background-color 0.15s ease-in-out;
   }
   .grid:hover {
-    background-color: var(--foreground-light);
+    background-color: var(--foreground-hover);
     transform: scale(1.1);
   }
 

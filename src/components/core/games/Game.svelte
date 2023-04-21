@@ -102,7 +102,7 @@
   @import "/theme.css";
 
   .game {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
     border-radius: 4px;
@@ -122,7 +122,7 @@
     transition: transform 0.2s ease-in-out, background-color 0.15s ease-in-out;
   }
   .game:hover {
-    background-color: var(--foreground-light);
+    background-color: var(--foreground-hover);
     transform: scale(1.1);
   }
 
@@ -133,7 +133,7 @@
   }
 
   .selected {
-    background-color: var(--foreground-light-hover);
+    background-color: var(--foreground-light);
     transform: scale(1.1);
   }
   .selected:hover { background-color: var(--foreground-light-hover); }
@@ -165,7 +165,7 @@
 
     fill: var(--font-color);
 
-    background-color: var(--foreground);
+    background-color: var(--background);
 
     opacity: 0.8;
 

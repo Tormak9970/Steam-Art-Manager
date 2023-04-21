@@ -51,7 +51,7 @@ body {
   width: 100%;
   height: 100%;
 
-  background-color: var(--background);
+  background-color: var(--background-dark);
   color: var(--font-color);
   font-family: 'Raleway-Num', 'Raleway', sans-serif;
 
