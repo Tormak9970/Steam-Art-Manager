@@ -25,6 +25,7 @@ use tauri::{
   api::dialog::blocking::FileDialogBuilder,
   FsScope, Manager
 };
+use keyvalues_parser::Vdf;
 
 type GridImageCache = HashMap<String, HashMap<String, String>>;
 
@@ -198,6 +199,33 @@ async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String)
 }
 
 #[tauri::command]
+async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
+  let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_active_user_id));
+    
+  if localconfig_path.as_path().exists() {
+    logger::log_to_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
+    let localconfig_contents: String = fs::read_to_string(localconfig_path).expect("localconfig.vdf should have existed.").parse().expect("File should have been a text file.");
+    let vdf = Vdf::parse(&localconfig_contents).unwrap();
+    let software = vdf.value.get_obj().unwrap().get_key_value("Software").unwrap();
+    let valve = software.1[0].get_obj().unwrap().get_key_value("Valve").unwrap();
+    let steam = valve.1[0].get_obj().unwrap().get_key_value("Steam").unwrap();
+    let apps = steam.1[0].get_obj().unwrap().get_key_value("apps").unwrap();
+
+    let app_entries = &apps.1[0];
+    let mut appids: Vec<String> = Vec::new();
+
+    for (_, appid) in app_entries.get_obj().unwrap().keys().enumerate() {
+      appids.push(appid.to_string());
+    }
+
+    return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
+  } else {
+    logger::log_to_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
+    return "{}".to_owned();
+  }
+}
+
+#[tauri::command]
 async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
   let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
     return appid.to_owned();
@@ -318,10 +346,12 @@ fn main() {
       steam::get_library_cache_directory,
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
+      steam::get_localconfig_path,
       export_grids_to_zip,
       import_grids_from_zip,
       read_appinfo_vdf,
       read_shortcuts_vdf,
+      read_localconfig_vdf,
       save_changes,
       write_shortcuts
     ])

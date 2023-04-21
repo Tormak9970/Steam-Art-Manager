@@ -74,6 +74,15 @@ export class RustInterop {
   }
 
   /**
+   * Gets the active steam user's localconfig.vdf path.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the active steam user's localconfig.vdf path.
+   */
+  static async getLocalconfigPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_localconfig_path", { steamActiveUserId: activeUserId });
+  }
+
+  /**
    * Gets the active steam user's library cache directory.
    * @returns A promise resolving to the active steam user's library cache directory.
    */
@@ -126,6 +135,15 @@ export class RustInterop {
    */
   static async readShortcutsVdf(activeUserId: string): Promise<any> {
     return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamActiveUserId: activeUserId }));
+  }
+
+  /**
+   * Reads the current user's non steam games from the localconfig.vdf file.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the contents of the localconfig.vdf file.
+   */
+  static async readLocalconfigVdf(activeUserId: string): Promise<any> {
+    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamActiveUserId: activeUserId }));
   }
 
   /**

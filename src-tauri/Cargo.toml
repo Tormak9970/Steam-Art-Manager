@@ -20,6 +20,7 @@ tauri = { version = "1.1", features = ["dialog-all", "fs-all", "http-request", "
 chrono = "0.4.23"
 home = "0.5.4"
 vdf-serde = "0.3.0"
+keyvalues-parser = "0.1.0"
 zip = "0.6.4"
 
 [target.'cfg(windows)'.dependencies]

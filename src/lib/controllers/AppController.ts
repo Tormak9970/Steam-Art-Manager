@@ -102,6 +102,9 @@ export class AppController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
     }
 
+    const localConfigContents = await RustInterop.readLocalconfigVdf(activeUser.id32);
+    console.log("LocalConfig contents:", localConfigContents);
+
     LogController.log("App setup complete.");
   }
 

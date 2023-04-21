@@ -74,6 +74,14 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
+#[tauri::command]
+pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
+  logger::log_to_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
+  
+  let steam_root = get_steam_root_dir();
+  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+}
+
 fn read_steam_user_id(user_block: &str) -> String {
   let quote_index = user_block.find("\"").expect("Should have been able to find a quote.");
   let id_str = &user_block[..quote_index];
@@ -129,21 +137,6 @@ fn read_steam_users() -> Map<String, Value> {
 
   return steam_users;
 }
-
-// pub fn get_active_user_id() -> String {
-//   let steam_users = read_steam_users();
-//   let mut active_user_id: String = String::from("");
-
-//   for (id_long, steam_user) in steam_users.into_iter() {
-//     let user = steam_user.as_object().expect("Should have been able to unwrap user.");
-
-//     if user.get("MostRecent").unwrap().as_str().unwrap() == "1" {
-//       active_user_id = user.get("id32").unwrap().as_str().unwrap().to_owned();
-//     }
-//   }
-
-//   return active_user_id;
-// }
 
 #[tauri::command]
 pub fn get_steam_users(app_handle: AppHandle) -> String {
