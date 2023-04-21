@@ -423,18 +423,15 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.STEAM) {
-      appCache[appId] = originalCache[appId];
-      appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
-    } else if (platform == Platforms.NON_STEAM) {
+    if (platform == Platforms.NON_STEAM) {
       let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
       const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid == appId);
       shortcutToEdit = targetShortcut;
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
-      
-      appCache[appId] = originalCache[appId];
-      appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
     }
+    
+    appCache[appId] = originalCache[appId];
+    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
 
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
@@ -447,25 +444,63 @@ export class AppController {
    * @param appId The id of the app to clear art for.
    */
   static async clearCustomArtForGame(appId: number): Promise<void> {
+    const appCache = get(appLibraryCache);
+    const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.STEAM) {
-      const games = get(steamGames);
-
-      // TODO: delete images in grids folder for game
-      // TODO: update libraryCache in memory
-
-    } else if (platform == Platforms.NON_STEAM) {
-      const games = get(nonSteamGames);
-
-      // TODO: delete images in grids folder for game
-      // TODO: set shortcut's icon prop to ""
-      // TODO: update libraryCache in memory
-
+    if (platform == Platforms.NON_STEAM) {
+      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
+      shortcutToEdit.icon = "";
+      steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
+
+    appCache[appId] = {
+      "Capsule": "REMOVE",
+      "Wide Capsule": "REMOVE",
+      "Hero": "REMOVE",
+      "Logo": "REMOVE",
+      "Icon": "REMOVE"
+    };
+    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
 
     ToastController.showSuccessToast("Cleared!");
     LogController.log(`Cleared grids for ${appId}.`);
+    
+    canSave.set(true);
+  }
+
+  /**
+   * Clears all custom grids.
+   */
+  static async clearAllGrids(): Promise<void> {
+    const sGames = get(steamGames);
+    const nonSGames = get(steamShortcuts);
+    const games = [...sGames, ...nonSGames];
+
+    const appCache = get(appLibraryCache);
+    const shortcuts = get(steamShortcuts);
+    const platform = get(currentPlatform);
+
+    for (const game of games) {
+      if (platform == Platforms.NON_STEAM) {
+        let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == game.appid);
+        shortcutToEdit.icon = "";
+      }
+  
+      appCache[game.appid] = {
+        "Capsule": "REMOVE",
+        "Wide Capsule": "REMOVE",
+        "Hero": "REMOVE",
+        "Logo": "REMOVE",
+        "Icon": "REMOVE"
+      };
+    }
+    
+    steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+
+    ToastController.showSuccessToast("Cleared all grids!");
+    LogController.log(`Cleared all grids.`);
     
     canSave.set(true);
   }
