@@ -9,10 +9,11 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, isOnline, steamUsers } from "../../Stores";
+  import { activeUserId, gridModalInfo, isOnline, showGridModal, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
+    import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -28,9 +29,14 @@
 	});
 	let selectedUserId = $activeUserId.toString();
 
+	function onGridModalClose() {
+		$showGridModal = false;
+		$gridModalInfo = null;
+	}
+
 	onMount(async () => {
     WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = focused;
+      isFocused = true; //focused;
     }).then((unsub) => {
 			mainFocusUnsub = unsub;
 		});
@@ -80,6 +86,7 @@
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" placement="right" />
   </Titlebar>
 	<div class="content">
+		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
 		<Splitpanes>
 			<Options />
 

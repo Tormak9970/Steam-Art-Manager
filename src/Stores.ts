@@ -72,6 +72,9 @@ export const steamGridSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = wr
 export const nonSteamGridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
 export const selectedSteamGridGameId = writable("None");
 
+export const showGridModal = writable(false);
+export const gridModalInfo: Writable<SGDBImage> = writable(null);
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
