@@ -411,8 +411,71 @@ export class AppController {
     canSave.set(false);
   }
 
-  static async discardChangesForGame(appId: string): Promise<void> {
+  /**
+   * Discard changes for a given app.
+   * @param appId The id of the app to clear changes for.
+   */
+  static async discardChangesForGame(appId: number): Promise<void> {
+    const originalCache = get(originalAppLibraryCache);
+    const originalShortcuts = get(originalSteamShortcuts);
+
+    const appCache = get(appLibraryCache);
+    const shortcuts = get(steamShortcuts);
+    const platform = get(currentPlatform);
+
+    if (platform == Platforms.STEAM) {
+      appCache[appId] = originalCache[appId];
+      appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    } else if (platform == Platforms.NON_STEAM) {
+      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
+      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid == appId);
+      shortcutToEdit = targetShortcut;
+      steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+      
+      appCache[appId] = originalCache[appId];
+      appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    }
+
+    ToastController.showSuccessToast("Discarded!");
+    LogController.log(`Discarded changes for ${appId}.`);
     
+    canSave.set(!(JSON.stringify(originalCache) == JSON.stringify(appCache)));
+  }
+
+  /**
+   * Clears all custom grids for a given app.
+   * @param appId The id of the app to clear art for.
+   */
+  static async clearCustomArtForGame(appId: number): Promise<void> {
+    const platform = get(currentPlatform);
+
+    if (platform == Platforms.STEAM) {
+      const games = get(steamGames);
+
+      // TODO: delete images in grids folder for game
+      // TODO: update libraryCache in memory
+
+    } else if (platform == Platforms.NON_STEAM) {
+      const games = get(nonSteamGames);
+
+      // TODO: delete images in grids folder for game
+      // TODO: set shortcut's icon prop to ""
+      // TODO: update libraryCache in memory
+
+    }
+
+    ToastController.showSuccessToast("Cleared!");
+    LogController.log(`Cleared grids for ${appId}.`);
+    
+    canSave.set(true);
+  }
+
+  /**
+   * Opens a SteamGridDB image for viewing.
+   * @param grid The grid info of the grid to view.
+   */
+  static async viewSteamGridImage(grid: SGDBImage): Promise<void> {
+
   }
 
   /**
