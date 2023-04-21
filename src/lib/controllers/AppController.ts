@@ -411,6 +411,10 @@ export class AppController {
     canSave.set(false);
   }
 
+  static async discardChangesForGame(appId: string): Promise<void> {
+    
+  }
+
   /**
    * Sets the provided art for the current game and grid type.
    * @param path The path of the new art.
