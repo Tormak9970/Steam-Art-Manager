@@ -71,8 +71,15 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
       let source_path_owned = source_path.to_owned();
 
       if source_path_owned != grid_path_owned {
-        let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
-        let target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+        let target_path;
+
+        if source_path != "REMOVE" {
+          let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
+          target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+        } else {
+          target_path = String::from("REMOVE");
+        }
+
         let changed_path = ChangedPath {
           appId: appid.to_owned(),
           gridType: grid_type.to_owned(),
@@ -206,24 +213,33 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     let source = changed_path.sourcePath.to_owned();
     let target = changed_path.targetPath.to_owned();
 
-    if changed_path.oldPath.contains("grid") {
+    if target == String::from("REMOVE") {
       let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
       if remove_res.is_err() {
         let err = remove_res.err().unwrap();
         return format!("{{ \"error\": \"{}\"}}", err.to_string());
       }
-    }
-
-    fs::File::create(target.clone()).unwrap();
-    
-    let copy_res = fs::copy(source.clone(), target.clone());
-
-    if copy_res.is_ok() {
-      logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
+      logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
     } else {
-      logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
-      let err = copy_res.err().unwrap();
-      return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      if changed_path.oldPath.contains("grid") {
+        let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
+        if remove_res.is_err() {
+          let err = remove_res.err().unwrap();
+          return format!("{{ \"error\": \"{}\"}}", err.to_string());
+        }
+      }
+  
+      fs::File::create(target.clone()).unwrap();
+      
+      let copy_res = fs::copy(source.clone(), target.clone());
+  
+      if copy_res.is_ok() {
+        logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
+      } else {
+        logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
+        let err = copy_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
     }
   }
 
@@ -274,22 +290,48 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
-  let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+  if !FsScope::is_allowed(&fs_scope, steam_parent_dir) {
+    let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
 
-  if fs_res.is_ok() && asset_res.is_ok() {
-    logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
-  } else if fs_res.is_err() {
-    let err = fs_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
-  } else if asset_res.is_err() {
-    let err = asset_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    if fs_res.is_err() {
+      let err = fs_res.err().unwrap();
+      logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+    } else {
+      logger::log_to_file(app_handle.to_owned(), "Added Steam directory to FS scope.", 0);
+    }
   } else {
-    let fs_err = fs_res.err().unwrap();
-    let asset_err = asset_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+    logger::log_to_file(app_handle.to_owned(), "Steam directory already allowed in FS scope.", 0);
   }
+
+  if !FsScope::is_allowed(&asset_scope, steam_parent_dir) {
+    let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+
+    if asset_res.is_err() {
+      let err = asset_res.err().unwrap();
+      logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    } else {
+      logger::log_to_file(app_handle.to_owned(), "Added Steam directory to Asset scope.", 0);
+    }
+  } else {
+    logger::log_to_file(app_handle.to_owned(), "Steam directory already allowed in Asset scope.", 0);
+  }
+
+  // let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
+  // let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+
+  // if fs_res.is_ok() && asset_res.is_ok() {
+  //   logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
+  // } else if fs_res.is_err() {
+  //   let err = fs_res.err().unwrap();
+  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+  // } else if asset_res.is_err() {
+  //   let err = asset_res.err().unwrap();
+  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+  // } else {
+  //   let fs_err = fs_res.err().unwrap();
+  //   let asset_err = asset_res.err().unwrap();
+  //   logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+  // }
 }
 
 fn main() {

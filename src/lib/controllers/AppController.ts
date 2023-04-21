@@ -376,10 +376,10 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath;
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
         if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
           const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
-          shortcut.icon = changedPath.targetPath;
+          shortcut.icon = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
         }
       }
       originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
