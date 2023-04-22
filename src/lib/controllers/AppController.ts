@@ -102,9 +102,6 @@ export class AppController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
     }
 
-    const localConfigContents = await RustInterop.readLocalconfigVdf(activeUser.id32);
-    console.log("LocalConfig contents:", localConfigContents);
-
     LogController.log("App setup complete.");
   }
 
@@ -281,6 +278,20 @@ export class AppController {
   }
 
   /**
+   * Gets the current user's steam games by reading the localconfig.vdf.
+   * @returns A promise resolving to a list of steam games.
+   * ? Logging complete.
+   */
+  private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
+    LogController.log(`Loading games from localconfig.vdf...`);
+
+    const userId = get(activeUserId);
+    const appInfoGames = await AppController.getGamesFromAppinfo();
+    const localConfigContents = await RustInterop.readLocalconfigVdf(userId.toString());
+    return appInfoGames.filter((game) => localConfigContents.includes(game.appid.toString()));
+  }
+
+  /**
    * Gets the user's apps.
    * ? Logging complete.
    */
@@ -342,11 +353,11 @@ export class AppController {
         LogController.log("Steam games loaded.");
       }
     } else {
-      const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Appinfo Games:", appinfoGames);
-      steamGames.set(appinfoGames);
+      const localconfigGames = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
+      console.log("Localconfig Games:", localconfigGames);
+      steamGames.set(localconfigGames);
       
-      LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
+      LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
       LogController.log("Steam games loaded.");
     }
     
