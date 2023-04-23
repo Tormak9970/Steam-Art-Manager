@@ -37,7 +37,7 @@
   {/if}
   <div class="img" style="height: {heights[$gridType]}px;">
     <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-      <img src="{grid.url.toString()}" alt="{grid.author}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+      <img src="{grid.url.toString()}" alt="{grid.author.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
     </Lazy>
   </div>
   <div class="author">By {grid.author.name}</div>

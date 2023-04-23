@@ -49,6 +49,9 @@
       if ($appLibraryCache[game.appid]) {
         if ($appLibraryCache[game.appid][type] && $appLibraryCache[game.appid][type] != "REMOVE") {
           showImage = true;
+
+          // TODO: check if ico and convert to base64
+
           imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
         } else {
           showImage = false;
