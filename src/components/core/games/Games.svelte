@@ -31,7 +31,7 @@
 
   const heights = {
     "Capsule": 150,
-    "Wide Capsule": 133,
+    "Wide Capsule": 97,
     "Hero": 114,
     "Logo": 134,
     "Icon": 60,

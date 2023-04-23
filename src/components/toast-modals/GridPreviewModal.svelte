@@ -17,9 +17,10 @@
  -->
 <script lang="ts">
   import Lazy from "svelte-lazy";
-  import { gridModalInfo, gridType, nonSteamGames, selectedGameAppId, steamGames } from "../../Stores";
+  import { GridTypes, gridModalInfo, gridType, nonSteamGames, selectedGameAppId, showGridModal, steamGames } from "../../Stores";
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
-    import Button from "../interactables/Button.svelte";
+  import Button from "../interactables/Button.svelte";
+  import { AppController } from "../../lib/controllers/AppController";
 
   export let show: boolean = false;
   export let onClose: () => void;
@@ -28,22 +29,22 @@
 
   const widths = {
     "Capsule": 300,
-    "Wide Capsule": 200,
-    "Hero": 353,
+    "Wide Capsule": 600,
+    "Hero": 956,
     "Logo": 200,
     "Icon": 60,
   };
 
   const heights = {
     "Capsule": 450,
-    "Wide Capsule": 133,
-    "Hero": 114,
+    "Wide Capsule": 291,
+    "Hero": 342,
     "Logo": 134,
     "Icon": 60,
   };
 
   function applyGrid() {
-
+    AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
   }
 </script>
 
@@ -73,10 +74,14 @@
           <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
           <VerticalSpacer />
           <VerticalSpacer />
-          <div class="label">Notes:</div>
-          <div class="border" />
-          <VerticalSpacer />
-          <div class="notes">{$gridModalInfo}</div>
+          {#if $gridType == GridTypes.CAPSULE}
+            <div class="label">Notes:</div>
+            <div class="border" />
+            <VerticalSpacer />
+            <div class="notes">{$gridModalInfo}</div>
+          {:else}
+            <div class="border" />
+          {/if}
         </div>
         <div class="buttons">
           <Button label="Apply" onClick={applyGrid} width="100%" />
@@ -124,7 +129,6 @@
     flex-direction: row;
     height: calc(100% - 38px);
   }
-
   .capsule .info {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -137,7 +141,6 @@
     flex-direction: column;
     justify-content: space-between;
   }
-
   .capsule .info > .info-cont {
     min-width: 200px;
 
@@ -145,9 +148,31 @@
     flex-direction: column;
   }
 
-  .img-cont {
-    padding: 10px;
+  .wide-capsule .info {
+    margin-bottom: 10px;
+    margin-left: 14px;
+    margin-right: 10px;
+    min-width: 200px;
+    min-height: calc(100% - 20px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
+
+  .hero .info {
+    margin-bottom: 10px;
+    margin-left: 14px;
+    margin-right: 10px;
+    min-width: 200px;
+    min-height: calc(100% - 20px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .img-cont { padding: 10px; }
 
   .img-cont > .img {
     border-radius: 2px;
@@ -174,13 +199,9 @@
   .label {
     font-size: 16px;
   }
-  .label-small {
-    font-size: 14px;
-  }
+  .label-small { font-size: 14px; }
 
-  .notes {
-    font-size: 14px;
-  }
+  .notes { font-size: 14px; }
 
   .buttons {
     margin-top: 14px;
