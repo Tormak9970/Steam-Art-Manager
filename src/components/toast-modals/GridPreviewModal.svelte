@@ -21,9 +21,17 @@
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
+  
+  import MarkDownIt from "markdown-it";
+    import { open } from "@tauri-apps/api/shell";
 
   export let show: boolean = false;
   export let onClose: () => void;
+
+  const mdIt = new MarkDownIt({ //try "commonmark"
+    html: true,
+    linkify: true
+  });
   
   $: games = [...$steamGames, ...$nonSteamGames];
 
@@ -46,11 +54,31 @@
   function applyGrid() {
     AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
   }
+
+  /**
+   * Handles click events to redirect to the browser.
+   * @param e The click event.
+   */
+  function clickListener(e: Event) {
+    const origin = (e.target as Element).closest(`a`);
+  
+    if (origin) {
+      e.preventDefault();
+      const href = origin.href;
+      open(href);
+    }
+  }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="background" class:show on:click={onClose}>
   <div class="modal-body" on:click|stopPropagation>
+    <div class="close-btn" on:click={onClose}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+        <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+      </svg>
+    </div>
     <div class="header">{games.find((game) => game.appid == $selectedGameAppId)?.name} - {$gridType} #{$gridModalInfo?.id}</div>
     <div class="border" />
     <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
@@ -78,7 +106,7 @@
             <div class="label">Notes:</div>
             <div class="border" />
             <VerticalSpacer />
-            <div class="notes">{$gridModalInfo?.notes}</div>
+            <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
           {:else}
             <div class="border" />
           {/if}
@@ -110,6 +138,29 @@
     border-bottom: 1px solid var(--foreground);
   }
 
+  .close-btn {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    fill: var(--font-color);
+
+    top: 4px;
+    right: 4px;
+
+    background-color: var(--background);
+    padding: 3px;
+    border-radius: 2px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .close-btn:hover {
+    cursor: pointer;
+    background-color: var(--background-hover);
+  }
+
   .show { display: flex; }
 
   .modal-body {
@@ -117,6 +168,7 @@
     background-color: var(--background);
     border-radius: 2px;
     border: 1px solid var(--shadow); /* consider removing this */
+    position: relative;
   }
 
   .header {
@@ -164,6 +216,7 @@
     display: flex;
     flex-direction: row;
     height: calc(100% - 38px);
+    max-width: 550px;
   }
   .icon .info {
     margin-top: 10px;

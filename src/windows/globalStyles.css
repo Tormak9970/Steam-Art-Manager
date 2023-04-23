@@ -2,10 +2,30 @@
 
 @font-face {
   font-family: "Raleway-Num";
-  src: url("/font/Raleway-Regular.ttf") format("truetype");
+  src: url("/font/Roboto-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
-  size-adjust: 125%;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-Italic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-BoldItalic.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
   unicode-range: U+30-39;
 }
 
@@ -15,28 +35,24 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "Raleway";
   src: url("/font/Raleway-Italic.ttf") format("truetype");
   font-weight: normal;
   font-style: italic;
 }
-
 @font-face {
   font-family: "Raleway";
   src: url("/font/Raleway-Bold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }
-
 @font-face {
   font-family: "Raleway";
   src: url("/font/Raleway-BoldItalic.ttf") format("truetype");
   font-weight: bold;
   font-style: italic;
 }
-
 @font-face {
   font-family: "Raleway";
   src: url("/font/Raleway-LightItalic.ttf") format("truetype");
