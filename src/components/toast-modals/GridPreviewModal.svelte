@@ -36,7 +36,7 @@
   $: games = [...$steamGames, ...$nonSteamGames];
 
   const widths = {
-    "Capsule": 300,
+    "Capsule": 400,
     "Wide Capsule": 600,
     "Hero": 956,
     "Logo": 600,
@@ -44,7 +44,7 @@
   };
 
   const heights = {
-    "Capsule": 450,
+    "Capsule": 600,
     "Wide Capsule": 291,
     "Hero": 342,
     "Logo": 402,
@@ -125,11 +125,10 @@
   .background {
     font-size: 12px;
     z-index: 3;
-    top: 30px;
     position: absolute;
     background-color: rgba(0, 0, 0, 0.6);
     width: 100%;
-    height: 100%;
+    height: calc(100% - 30px);
     display: none;
   }
 
