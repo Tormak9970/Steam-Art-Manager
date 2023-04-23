@@ -42,6 +42,8 @@ export interface SGDBImage {
   height: number;
   epilepsy: boolean;
   nsfw: boolean;
+  language: string;
+  notes: string|null;
 }
 
 export interface SGDBOptions {
