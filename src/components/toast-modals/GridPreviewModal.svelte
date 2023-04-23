@@ -32,7 +32,7 @@
     "Wide Capsule": 600,
     "Hero": 956,
     "Logo": 600,
-    "Icon": 60,
+    "Icon": 256,
   };
 
   const heights = {
@@ -40,7 +40,7 @@
     "Wide Capsule": 291,
     "Hero": 342,
     "Logo": 402,
-    "Icon": 60,
+    "Icon": 256,
   };
 
   function applyGrid() {
@@ -55,7 +55,7 @@
     <div class="border" />
     <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
       <div class="img-cont">
-        <div class="img" class:img-background={$gridType == GridTypes.LOGO} style="max-height: {heights[$gridType]}px;">
+        <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
           <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
             <img src="{$gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
           </Lazy>
@@ -148,7 +148,7 @@
     flex-direction: column;
   }
 
-  .wide-capsule .info {
+  .wide-capsule .info, .hero .info, .logo .info {
     margin-bottom: 10px;
     margin-left: 14px;
     margin-right: 10px;
@@ -160,9 +160,15 @@
     justify-content: space-between;
   }
 
-  .hero .info {
+  .icon {
+    display: flex;
+    flex-direction: row;
+    height: calc(100% - 38px);
+  }
+  .icon .info {
+    margin-top: 10px;
     margin-bottom: 10px;
-    margin-left: 14px;
+    margin-left: 4px;
     margin-right: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
@@ -171,17 +177,11 @@
     flex-direction: column;
     justify-content: space-between;
   }
-
-  .logo .info {
-    margin-bottom: 10px;
-    margin-left: 14px;
-    margin-right: 10px;
+  .icon .info > .info-cont {
     min-width: 200px;
-    min-height: calc(100% - 20px);
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
   }
 
   .img-cont { padding: 10px; }
@@ -189,13 +189,26 @@
   .img-cont > .img {
     border-radius: 2px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
-  .img-background {
+  .logo-background {
     border-radius: 8px;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
     padding: 5px;
+  }
+
+  .icon-background {
+    border-radius: 8px;
+    background-color: #a3a3a3;
+    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    padding: 5px;
+    height: 256px;
+    width: 256px;
   }
 
   .author {
