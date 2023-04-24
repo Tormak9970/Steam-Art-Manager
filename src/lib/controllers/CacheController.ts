@@ -193,7 +193,7 @@ export class CacheController {
         return nonSteamGridsCache[appId.toString()][type];
       } else {
         LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], true, true);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any");
         nonSteamGridsCache[appId.toString()][type] = grids;
         return grids;
       }
