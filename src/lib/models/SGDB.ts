@@ -44,6 +44,8 @@ export interface SGDBImage {
   nsfw: boolean;
   language: string;
   notes: string|null;
+  // is_animated: boolean;
+  // is_deleted: boolean;
 }
 
 export interface SGDBOptions {
@@ -139,6 +141,7 @@ export class SGDB {
         params[queryParam] = options[queryParam];
       }
     });
+    
     return params;
   }
 
@@ -163,7 +166,8 @@ export class SGDB {
 
     let response = await http.fetch<any>(`${this.baseURL}${url}`, options);
 
-    console.log(response);
+    console.log("Options:", options);
+    console.log("Response:", response);
 
     if (response.ok) {
       if (response?.data.success) {
@@ -230,6 +234,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired game matching the provided filters.
    */
   async getGridsById(
@@ -239,7 +244,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getGrids({
       type: "game",
@@ -249,7 +255,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -262,6 +269,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired steam game matching the provided filters.
    */
   async getGridsBySteamAppId(
@@ -271,7 +279,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getGrids({
       type: "steam",
@@ -281,7 +290,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -301,8 +311,9 @@ export class SGDB {
    * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
    * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor images
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getHeroesById(
@@ -312,7 +323,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getHeroes({
       type: "game",
@@ -322,7 +334,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -333,8 +346,9 @@ export class SGDB {
    * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
    * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor images
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired steam game matching the provided filters.
    */
   async getHeroesBySteamAppId(
@@ -344,7 +358,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getHeroes({
       type: "steam",
@@ -354,7 +369,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -376,6 +392,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getIconsById(
@@ -385,7 +402,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getIcons({
       type: "game",
@@ -395,7 +413,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -408,6 +427,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of icons for the desired steam game matching the provided filters.
    */
   async getIconsBySteamAppId(
@@ -417,7 +437,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getIcons({
       type: "steam",
@@ -427,7 +448,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -449,6 +471,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired game matching the provided filters.
    */
   async getLogosById(
@@ -458,7 +481,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getLogos({
       type: "game",
@@ -468,7 +492,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page
     });
   }
 
@@ -481,6 +506,7 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired steam game matching the provided filters.
    */
   async getLogosBySteamAppId(
@@ -490,7 +516,8 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getLogos({
       type: "steam",
@@ -500,7 +527,8 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      page: page,
     });
   }
 

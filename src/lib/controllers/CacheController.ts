@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, steamGridResultPage } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -185,23 +185,35 @@ export class CacheController {
    */
   private async fetchGridsForNonSteamGame(appId: number, type: GridTypes): Promise<SGDBImage[]> {
     const gridCacheKeys = Object.keys(nonSteamGridsCache);
+    const page = get(steamGridResultPage);
     if (gridCacheKeys.includes(appId.toString())) {
       const types = Object.keys(nonSteamGridsCache[appId.toString()]);
 
       if (types.includes(type)) {
-        LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
-        return nonSteamGridsCache[appId.toString()][type];
+        const pages = Object.keys(nonSteamGridsCache[appId.toString()][type]);
+
+        if (pages.includes(page.toString())) {
+          LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
+          return nonSteamGridsCache[appId.toString()][type][page];
+        } else {
+          LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
+          nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
+          return grids;
+        }
       } else {
         LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any");
-        nonSteamGridsCache[appId.toString()][type] = grids;
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
+        nonSteamGridsCache[appId.toString()][type] = {};
+        nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
         return grids;
       }
     } else {
       LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId);
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
       nonSteamGridsCache[appId.toString()] = {};
-      nonSteamGridsCache[appId.toString()][type] = grids;
+      nonSteamGridsCache[appId.toString()][type] = {};
+      nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
       return grids;
     }
   }
