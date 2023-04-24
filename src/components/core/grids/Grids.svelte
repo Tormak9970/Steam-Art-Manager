@@ -15,6 +15,7 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
+    import { heights, widths } from "../imageDimensions";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
@@ -26,22 +27,6 @@
 
   const padding = 20;
   let oldSelectedGameId = null;
-
-  const widths = {
-    "Capsule": 100,
-    "Wide Capsule": 200,
-    "Hero": 353,
-    "Logo": 200,
-    "Icon": 60,
-  };
-
-  const heights = {
-    "Capsule": 150,
-    "Wide Capsule": 97,
-    "Hero": 114,
-    "Logo": 134,
-    "Icon": 60,
-  };
 
   function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
     const targetFilters = filters[type];
@@ -214,7 +199,7 @@
                 {#if grids.length > 0}
                   <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
                     {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                      <Grid grid={grid} widths={widths} heights={heights} />
+                      <Grid grid={grid} />
                     {/each}
                   </div>
                 {:else}

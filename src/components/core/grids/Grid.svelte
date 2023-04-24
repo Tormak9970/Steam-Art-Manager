@@ -6,10 +6,11 @@
 
   import { dowloadingGridId, gridType } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import GridImage from "../GridImage.svelte";
 
   export let grid: SGDBImage;
-  export let widths: any;
-  export let heights: any;
+
+  let imagePath = grid.url.toString();
 
   function selectGame() {
     AppController.setSteamGridArt(grid.id, grid.url);
@@ -27,6 +28,16 @@
       <path d="M344 0H488c13.3 0 24 10.7 24 24V168c0 9.7-5.8 18.5-14.8 22.2s-19.3 1.7-26.2-5.2l-39-39-87 87c-9.4 9.4-24.6 9.4-33.9 0l-32-32c-9.4-9.4-9.4-24.6 0-33.9l87-87L327 41c-6.9-6.9-8.9-17.2-5.2-26.2S334.3 0 344 0zM168 512H24c-13.3 0-24-10.7-24-24V344c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2l39 39 87-87c9.4-9.4 24.6-9.4 33.9 0l32 32c9.4 9.4 9.4 24.6 0 33.9l-87 87 39 39c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8z"/>
     </svg>
   </div>
+  <!-- {#if grid?.style == ""}
+    <div class="image-control show-notes" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow}}>
+      
+    </div>
+  {/if}
+  {#if grid?.nsfw}
+    <div class="image-control show-notes" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow}}>
+      
+    </div>
+  {/if} -->
   {#if grid?.notes}
     <div class="image-control show-notes" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow}}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -35,11 +46,7 @@
       </svg>
     </div>
   {/if}
-  <div class="img" style="height: {heights[$gridType]}px;">
-    <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-      <img src="{grid.url.toString()}" alt="{grid.author.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
-    </Lazy>
-  </div>
+  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Unable to display grid" />
   <div class="author">By {grid.author.name}</div>
 </div>
 
@@ -69,12 +76,6 @@
   .grid:hover {
     background-color: var(--foreground-hover);
     transform: scale(1.1);
-  }
-
-  .img {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
   .author {

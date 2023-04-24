@@ -143,8 +143,8 @@
     width: 20px;
     fill: var(--font-color);
 
-    top: 4px;
-    right: 4px;
+    top: 2px;
+    right: 2px;
 
     background-color: var(--background);
     padding: 3px;
@@ -166,13 +166,14 @@
     margin: auto;
     background-color: var(--background);
     border-radius: 2px;
-    border: 1px solid var(--shadow); /* consider removing this */
+    border: 1px solid var(--shadow);
     position: relative;
   }
 
   .header {
     text-align: center;
     font-size: 20px;
+    margin-top: 4px;
   }
 
   .capsule {

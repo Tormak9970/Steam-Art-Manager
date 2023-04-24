@@ -10,6 +10,7 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Game from "./Game.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
+    import { heights, widths } from "../imageDimensions";
 
   let steamGamesUnsub: Unsubscriber;
   let nonSteamGamesUnsub: Unsubscriber;
@@ -20,22 +21,6 @@
   let isLoading = true;
 
   const padding = 20;
-
-  const widths = {
-    "Capsule": 100,
-    "Wide Capsule": 200,
-    "Hero": 353,
-    "Logo": 200,
-    "Icon": 60,
-  };
-
-  const heights = {
-    "Capsule": 150,
-    "Wide Capsule": 97,
-    "Hero": 114,
-    "Logo": 134,
-    "Icon": 60,
-  };
 
   let searchQuery = "";
   let games: GameStruct[] = [];
@@ -131,7 +116,7 @@
           {#if games.length > 0}
             <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
               {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-                <Game game={game} widths={widths} heights={heights} />
+                <Game game={game} />
               {/each}
             </div>
           {:else}

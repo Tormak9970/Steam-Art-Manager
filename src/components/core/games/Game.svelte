@@ -2,15 +2,13 @@
   import { tauri } from "@tauri-apps/api"
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
-  import Lazy from "svelte-lazy";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
+  import GridImage from "../GridImage.svelte";
 
   export let game: GameStruct;
-  export let widths: any;
-  export let heights: any;
 
   let gridTypeUnsub: Unsubscriber;
   let libraryCacheUnsub: Unsubscriber;
@@ -44,15 +42,35 @@
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
   }
 
+  async function getIcoImage(src: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let dataURL: any;
+        canvas.height = img.naturalHeight;
+        canvas.width = img.naturalWidth;
+        ctx.drawImage(img, 0, 0);
+        dataURL = canvas.toDataURL();
+        resolve(dataURL);
+      };
+      img.src = src;
+    });
+  }
+
   onMount(() => {
-    gridTypeUnsub = gridType.subscribe((type) => {
+    gridTypeUnsub = gridType.subscribe(async (type) => {
       if ($appLibraryCache[game.appid]) {
         if ($appLibraryCache[game.appid][type] && $appLibraryCache[game.appid][type] != "REMOVE") {
           showImage = true;
 
           // TODO: check if ico and convert to base64
-
           imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+          // if ($appLibraryCache[game.appid][type].endsWith(".ico")) {
+          //   const icoData = await getIcoImage(imagePath);
+          //   imagePath = icoData;
+          // }
         } else {
           showImage = false;
         }
@@ -103,15 +121,7 @@
       </svg>
     </div>
   {/if}
-  <div class="img" style="height: {heights[$gridType]}px;">
-    {#if showImage}
-      <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-        <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
-      </Lazy>
-    {:else}
-      <div style="text-align: center;">No {$gridType} image for game</div>
-    {/if}
-  </div>
+  <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="No {$gridType} image for game" />
   <div class="name">{game.name}</div>
 </div>
 
@@ -141,12 +151,6 @@
   .game:hover {
     background-color: var(--foreground-hover);
     transform: scale(1.1);
-  }
-
-  .img {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
   .selected {
