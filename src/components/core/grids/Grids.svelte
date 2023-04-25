@@ -15,7 +15,7 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
-    import { heights, widths } from "../imageDimensions";
+  import { heights, widths } from "../imageDimensions";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
@@ -42,7 +42,7 @@
       return gridStyles.includes(grid.style)
         && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
         && imageFormats.includes(grid.mime)
-        && (grid.isAnimated ? animationTypes.includes("animated") : true)
+        && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
         && (grid.humor ? humorAllowed : true)
         && (grid.epilepsy ? epilepsyAllowed : true)
         && (grid.nsfw ? nsfwAllowed : true);
