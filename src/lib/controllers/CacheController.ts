@@ -197,20 +197,20 @@ export class CacheController {
           return nonSteamGridsCache[appId.toString()][type][page];
         } else {
           LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
+          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
           nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
           return grids;
         }
       } else {
         LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
         nonSteamGridsCache[appId.toString()][type] = {};
         nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
         return grids;
       }
     } else {
       LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
-      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", page);
+      const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
       nonSteamGridsCache[appId.toString()] = {};
       nonSteamGridsCache[appId.toString()][type] = {};
       nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;

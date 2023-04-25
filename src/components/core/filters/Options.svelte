@@ -5,8 +5,8 @@
   import Accordion from "../../layout/Accordion.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
-    import { SettingsManager } from "../../../lib/utils/SettingsManager";
-    import { LogController } from "../../../lib/controllers/LogController";
+  import { SettingsManager } from "../../../lib/utils/SettingsManager";
+  import { LogController } from "../../../lib/controllers/LogController";
 
   /**
    * Creates a function to update the specified filter.

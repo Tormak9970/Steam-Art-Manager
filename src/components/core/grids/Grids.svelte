@@ -34,6 +34,7 @@
     const dimensions = (type != GridTypes.LOGO && type != GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
     const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
     const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
+    const humorAllowed = targetFilters.oneoftag.humor;
     const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
     const nsfwAllowed = targetFilters.oneoftag.nsfw;
 
@@ -41,6 +42,8 @@
       return gridStyles.includes(grid.style)
         && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
         && imageFormats.includes(grid.mime)
+        && (grid.isAnimated ? animationTypes.includes("animated") : true)
+        && (grid.humor ? humorAllowed : true)
         && (grid.epilepsy ? epilepsyAllowed : true)
         && (grid.nsfw ? nsfwAllowed : true);
     });
