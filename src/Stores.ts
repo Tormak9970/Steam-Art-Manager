@@ -37,7 +37,7 @@ export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
 export const steamGridDBKey = sharedStore("", "steamGridDBKey");
 export const steamKey = sharedStore("", "steamKey");
-export const steamGridResultPage = writable(0);
+export const selectedResultPage = writable(0);
 
 
 export const canSave = writable(false);

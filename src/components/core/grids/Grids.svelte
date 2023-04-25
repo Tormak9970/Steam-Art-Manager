@@ -6,7 +6,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import Button from "../../interactables/Button.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -16,11 +16,13 @@
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
   import { heights, widths } from "../imageDimensions";
+  import Pages from "../../layout/pagination/Pages.svelte";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
+  let sgdbPageUnsub: Unsubscriber;
   let gridTypeUnsub: Unsubscriber;
   let onlineUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
@@ -92,7 +94,7 @@
   }
 
   async function onDropdownChange(id: string) {
-    if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, id), $gridType, $dbFilters);
+    if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
     oldSelectedGameId = id;
   }
 
@@ -121,7 +123,7 @@
     });
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
-      if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id), $gridType, $dbFilters);
+      if ($isOnline && $steamGridDBKey != "" && id != null) grids = filterGrids(await AppController.getSteamGridArt(id, $selectedResultPage), $gridType, $dbFilters);
       
       if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && $steamGridSearchCache[id]) {
         availableSteamGridGames = Object.values($steamGridSearchCache[id]).map((value) => {
@@ -136,18 +138,23 @@
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
       isLoading = true;
-      if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+      if (online && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage), $gridType, $dbFilters);
+      isLoading = false;
+    });
+    sgdbPageUnsub = selectedResultPage.subscribe(async (page) => {
+      isLoading = true;
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, page, $selectedSteamGridGameId), $gridType, $dbFilters);
       isLoading = false;
     });
     gridTypeUnsub = gridType.subscribe(async (type) => {
       isLoading = true;
-      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId), type, $dbFilters);
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, $selectedSteamGridGameId), type, $dbFilters);
       isLoading = false;
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
       isLoading = true;
       if ($isOnline && key != "" && $selectedGameAppId != null) {
-        grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId), $gridType, $dbFilters);
+        grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage), $gridType, $dbFilters);
       } else {
         grids = [];
       }
@@ -155,7 +162,7 @@
     });
     dbFiltersUnsub = dbFilters.subscribe(async (filters) => {
       isLoading = true;
-      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId), $gridType, filters);
+      if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, $selectedSteamGridGameId), $gridType, filters);
       isLoading = false;
     });
   });
@@ -189,7 +196,7 @@
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
         {#if $selectedGameAppId != null}
-          <ListTabs tabs={Object.values(GridTypes)} height="calc(100% - 45px)" bind:selected={$gridType}>
+          <Pages numPages={3} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
             <div class="grids-cont">
               <VerticalSpacer />
               <VerticalSpacer />
@@ -215,7 +222,7 @@
               <VerticalSpacer />
               <VerticalSpacer />
             </div>
-          </ListTabs>
+          </Pages>
         {:else}
           <div class="message">
             Select a game to start managing your art!

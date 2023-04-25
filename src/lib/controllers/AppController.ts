@@ -660,12 +660,13 @@ export class AppController {
   /**
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
+   * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, selectedSteamGridId);
+  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, page, selectedSteamGridId);
   }
 
   /**

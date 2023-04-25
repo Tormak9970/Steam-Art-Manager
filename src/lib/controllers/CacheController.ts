@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, steamGridResultPage } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage } from "../../Stores";
 import { LogController } from "./LogController";
 
 /**
@@ -180,12 +180,12 @@ export class CacheController {
    * Gets the grids for a non steam game.
    * @param appId The id of the app to get.
    * @param type The selected grid type.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes): Promise<SGDBImage[]> {
+  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes, page: number): Promise<SGDBImage[]> {
     const gridCacheKeys = Object.keys(nonSteamGridsCache);
-    const page = get(steamGridResultPage);
     if (gridCacheKeys.includes(appId.toString())) {
       const types = Object.keys(nonSteamGridsCache[appId.toString()]);
 
@@ -221,11 +221,12 @@ export class CacheController {
   /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
+   * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
+  async fetchGrids(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
     LogController.log(`Fetching grids for game ${appId}...`);
     const type = get(gridType);
     const selectedPlatform = get(currentPlatform);
@@ -255,7 +256,7 @@ export class CacheController {
       if (choosenResult?.id) {
         selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page);
       } else {
         LogController.log(`No results for ${type} for ${gameName}.`);
         return [];
@@ -277,7 +278,7 @@ export class CacheController {
       if (choosenResult?.id) {
         selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page);
       } else {
         LogController.log(`No results for ${type} for ${gameName}.`);
         return [];
