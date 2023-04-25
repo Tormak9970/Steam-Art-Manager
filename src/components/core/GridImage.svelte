@@ -9,14 +9,19 @@
   export let missingMessage: string;
   export let isVideo: boolean = false;
 
-  let videoElement: HTMLVideoElement;
+  function onEnter(e: Event) {
+    (e.target as HTMLVideoElement).play();
+  }
+  function onLeave(e: Event) {
+    (e.target as HTMLVideoElement).pause();
+  }
 </script>
 
 <div class="grid-img" style="height: {heights[$gridType]}px;">
   {#if showImage}
     <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
       {#if isVideo}
-        <video src="{imagePath}" muted class="vid" loop on:mouseenter={() => { videoElement.play(); }} on:mouseleave={() => { videoElement.pause(); }} bind:this={videoElement} />
+        <video src="{imagePath}" muted loop autoplay={false} style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
       {:else}
         <img src="{imagePath}" alt="{altText}" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
       {/if}

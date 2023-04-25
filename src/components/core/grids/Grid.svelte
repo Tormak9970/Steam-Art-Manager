@@ -9,7 +9,7 @@
 
   export let grid: SGDBImage;
 
-  let imagePath = grid.url.toString();
+  let imagePath = grid.thumb.toString();
 
   function selectGame() {
     AppController.setSteamGridArt(grid.id, grid.url);
