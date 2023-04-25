@@ -7,17 +7,16 @@
   export let altText: string;
   export let showImage: boolean = true;
   export let missingMessage: string;
+  export let isVideo: boolean = false;
 
-  const videoExts = [".webp"]
-
-  $: isVideo = videoExts.some((ext) => imagePath.endsWith(ext));
+  let videoElement: HTMLVideoElement;
 </script>
 
 <div class="grid-img" style="height: {heights[$gridType]}px;">
   {#if showImage}
     <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
       {#if isVideo}
-        <div>its a video</div>
+        <video src="{imagePath}" muted class="vid" loop on:mouseenter={() => { videoElement.play(); }} on:mouseleave={() => { videoElement.pause(); }} bind:this={videoElement} />
       {:else}
         <img src="{imagePath}" alt="{altText}" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
       {/if}

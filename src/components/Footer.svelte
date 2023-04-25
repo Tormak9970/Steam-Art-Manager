@@ -39,7 +39,7 @@
     height: 30px;
     width: 100%;
 
-    background: var(--foreground-light);
+    background: var(--foreground-hover);
     user-select: none;
     display: inline-flex;
     align-items: center;

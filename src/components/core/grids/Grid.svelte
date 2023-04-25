@@ -43,7 +43,7 @@
       </svg>
     </div>
   {/if}
-  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Unable to display grid" />
+  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Unable to display grid" isVideo={grid.isAnimated} />
   <div class="author">By {grid.author.name}</div>
 </div>
 
