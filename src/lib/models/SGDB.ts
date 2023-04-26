@@ -21,6 +21,7 @@ export interface SGDBGame {
   name: string;
   types: string[];
   verified: boolean;
+  numResultPages: number;
 }
 
 export interface SGDBAuthor {

@@ -239,6 +239,10 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
+        results = results.map((game) => {
+          game.numResultPages = 3;
+          return game;
+        });
         searchCache[appId] = results;
       }
 
@@ -269,6 +273,10 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
+        results = results.map((game) => {
+          game.numResultPages = 3;
+          return game;
+        });
         searchCache[appId] = results;
       }
 

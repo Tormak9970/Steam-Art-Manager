@@ -8,8 +8,6 @@
   import type { SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
-  import Button from "../../interactables/Button.svelte";
-  import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
@@ -17,7 +15,7 @@
   import DropDown from "../../interactables/DropDown.svelte";
   import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
-    import IconButton from "../../interactables/IconButton.svelte";
+  import IconButton from "../../interactables/IconButton.svelte";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
@@ -65,6 +63,7 @@
   let availableSteamGridGames = [{ label: "None", data: "None"}];
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let grids: SGDBImage[] = [];
+  let numPages = 3;
 
   /**
    * Prompts the user to select their custom game art.
@@ -96,7 +95,11 @@
   }
 
   async function onDropdownChange(id: string) {
-    if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
+    if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) {
+      grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
+      numPages = $steamGridSearchCache[$selectedGameAppId]?.find((game) => game.id.toString() == id)?.numResultPages ?? 3;
+    }
+    
     oldSelectedGameId = id;
   }
 
@@ -110,7 +113,10 @@
             "data": value.id.toString()
           }
         });
+        
+        numPages = searchCache[$selectedGameAppId]?.find((game) => game.id.toString() == $selectedSteamGridGameId)?.numResultPages ?? 3;
       }
+
       isLoading = false;
     });
 
@@ -134,6 +140,8 @@
             "data": value.id.toString()
           }
         });
+        
+        numPages = $steamGridSearchCache[id]?.find((game) => game.id.toString() == $selectedSteamGridGameId)?.numResultPages ?? 3;
       }
 
       isLoading = false;
@@ -205,7 +213,7 @@
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
         {#if $selectedGameAppId != null}
-          <Pages numPages={3} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
+          <Pages numPages={numPages} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
             <div class="grids-cont">
               <VerticalSpacer />
               <VerticalSpacer />
