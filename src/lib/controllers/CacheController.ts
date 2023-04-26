@@ -19,7 +19,7 @@ import { fs, http, path } from "@tauri-apps/api";
 import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
-import { SGDB, type SGDBImage } from "../models/SGDB";
+import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
 import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage } from "../../Stores";
 import { LogController } from "./LogController";
 
@@ -219,6 +219,20 @@ export class CacheController {
   }
 
   /**
+   * ! Need to implement this.
+   * Gets the number of result pages for each game in the results list.
+   * @param results The SGDBGame array.
+   * @param platform The platform of the games.
+   * ! Logging Needed.
+   */
+  private async getNumPages(results: SGDBGame[], platform: Platforms): Promise<void> {
+    results = results.map((game) => {
+      game.numResultPages = 3;
+      return game;
+    });
+  }
+
+  /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
    * @param page The page of results to get.
@@ -239,10 +253,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        results = results.map((game) => {
-          game.numResultPages = 3;
-          return game;
-        });
+        await this.getNumPages(results, Platforms.STEAM);
         searchCache[appId] = results;
       }
 
@@ -273,10 +284,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        results = results.map((game) => {
-          game.numResultPages = 3;
-          return game;
-        });
+        await this.getNumPages(results, Platforms.NON_STEAM);
         searchCache[appId] = results;
       }
 
