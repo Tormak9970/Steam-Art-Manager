@@ -129,6 +129,8 @@
     opacity: 0.8;
 
     display: none;
+
+    z-index: 2;
   }
   .image-control:hover {
     cursor: pointer;
