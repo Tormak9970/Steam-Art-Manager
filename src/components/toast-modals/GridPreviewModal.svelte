@@ -85,7 +85,7 @@
       <div class="img-cont">
         <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
           <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-            <img src="{$gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+            <img src="{$gridType == GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
           </Lazy>
         </div>
       </div>
@@ -93,7 +93,7 @@
         <div class="info-cont">
           <div class="author">
             <div class="pfp">
-              <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author}'s profile picture" />
+              <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author?.name}'s profile picture" />
             </div>
             <div class="name">{$gridModalInfo?.author?.name}</div>
           </div>
