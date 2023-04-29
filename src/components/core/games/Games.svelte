@@ -25,6 +25,19 @@
   let searchQuery = "";
   let games: GameStruct[] = [];
 
+  let setSearchFocus: () => void;
+
+  /**
+   * Overwrites the default search function.
+   * @param e The keyboard event.
+   */
+  function overwriteCtrlF(e: Event) {
+    if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key == "f") {
+      e.preventDefault();
+      setSearchFocus();
+    }
+  }
+
   function getGamesForPlatform(platform: Platforms): GameStruct[] {
     switch (platform) {
       case Platforms.STEAM:
@@ -89,13 +102,15 @@
   });
 </script>
 
+<svelte:window on:keydown={overwriteCtrlF} />
+
 <Pane minSize={20}>
   <SectionTitle title="Games" />
 
   <div class="content">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
       <Toggle label="Show hidden" bind:checked={$showHidden}/>
-      <SearchBar label="Search Library" onChange={onSearchChange} interval={800} />
+      <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
     </div>
     
     <div class="border" />

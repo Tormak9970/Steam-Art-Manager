@@ -6,9 +6,14 @@
   export let width = "200px";
   export let interval = 300;
   export let onChange: (query:string) => void = () => {};
+  export const setSearchFocus = () => {
+    searchInput.focus();
+  }
 
   let searching = false;
   let timeout:NodeJS.Timeout|null;
+
+  let searchInput:HTMLInputElement;
 
   /**
    * Wraps the onChange handler.
@@ -32,7 +37,7 @@
   <div class="spinner-cont" class:showing={searching}>
     <LoadingSpinner width="20px" height="20px" />
   </div>
-  <input style="width: {width}px;" type="text" placeholder="{label}" on:input="{handleSearch}" bind:value={value}>
+  <input style="width: {width}px;" type="text" placeholder="{label}" on:input="{handleSearch}" bind:value={value} bind:this={searchInput}>
 </div>
 
 <style>
