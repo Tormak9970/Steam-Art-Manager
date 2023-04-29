@@ -77,12 +77,13 @@
     padding: 3px;
     max-width: 140px;
     
-    transition: background-color 0.15s ease-in-out, outline 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }
   .input > input:hover {
     background-color: var(--foreground-hover);
   }
   .input > input:focus {
-    outline: 1px solid var(--highlight);
+    outline: none;
+    border: 1px solid var(--highlight);
   }
 </style>

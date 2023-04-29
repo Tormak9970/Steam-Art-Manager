@@ -33,7 +33,7 @@
 
     color: var(--font-color);
 
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }
 
   .button:hover {
