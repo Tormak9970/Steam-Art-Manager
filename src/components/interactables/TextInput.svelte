@@ -1,6 +1,8 @@
 <script lang="ts">
   export let label:string = "";
   export let value:string;
+  export let placeholder:string = "";
+
   export let width:number = 140;
   export let onChange:(e:Event, fieldName:string)=>void;
 
@@ -18,7 +20,7 @@
   {#if label != ""}
     <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   {/if}
-  <input style="width: {width}px;" type="text" placeholder="{value}" value="{value}" on:change="{wrapper}">
+  <input style="width: {width}px;" type="text" placeholder="{placeholder != "" ? placeholder : value}" value="{value}" on:change="{wrapper}">
 </div>
 
 <style>

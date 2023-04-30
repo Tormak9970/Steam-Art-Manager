@@ -16,14 +16,14 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
 <script lang="ts">
+  import MarkDownIt from "markdown-it";
+  import { open } from "@tauri-apps/api/shell";
+
   import Lazy from "svelte-lazy";
   import { GridTypes, gridModalInfo, gridType, nonSteamGames, selectedGameAppId, showGridModal, steamGames } from "../../Stores";
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
-  
-  import MarkDownIt from "markdown-it";
-    import { open } from "@tauri-apps/api/shell";
 
   export let show: boolean = false;
   export let onClose: () => void;

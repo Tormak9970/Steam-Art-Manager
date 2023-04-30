@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell"
   import { onDestroy, onMount } from "svelte";
   import { activeUserId, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamKey, theme } from "../../Stores";
 	import Titlebar from "../../components/Titlebar.svelte";
   import Button from "../../components/interactables/Button.svelte";
   import HorizontalSpacer from "../../components/spacers/HorizontalSpacer.svelte";
-  import TextInput from "../../components/interactables/TextInput.svelte";
   import VerticalSpacer from "../../components/spacers/VerticalSpacer.svelte";
   import { LogController } from "../../lib/controllers/LogController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import { WindowController } from "../../lib/controllers/WindowController";
   import type { Unsubscriber } from "svelte/store";
+  import Setting from "./Setting.svelte";
 
   let settingsFocusUnsub: any;
   let themeUnsub: Unsubscriber;
@@ -107,32 +106,22 @@
 	<div class="content">
     <VerticalSpacer />
     <VerticalSpacer />
-    <div class="setting">
-      <TextInput label="SteamGrid Api key" value={steamGridKey} onChange={onGridKeyChange} width="{220}" />
-      <!-- svelte-ignore a11y-invalid-attribute -->
-      <div class="description">
-        <b>Usage:</b> Needed to load art from SteamGridDB.com.<br/>
-        <VerticalSpacer />
-        <b>Required:</b> Yes<br/>
-        <VerticalSpacer />
-        <b>Instructions:</b> To create one, go to <a href="" on:click={() => open("https://www.steamgriddb.com")}>Steamgrid</a>, sign in and go to preferences, then API.
-      </div>
-    </div>
+    <Setting
+      label="SteamGrid Api Key"
+      description={`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}
+      value={steamGridKey}
+      onChange={onGridKeyChange}
+      required
+    />
     <VerticalSpacer />
     <VerticalSpacer />
-    <div class="setting">
-      <TextInput label="Steam Api key" value={steamAPIKey} onChange={onSteamKeyChange} width="{220}" />
-      <!-- svelte-ignore a11y-invalid-attribute -->
-      <div class="description">
-        <b>Usage:</b> Used to load your games using Steam's web API (It's much faster).<br/>
-        <VerticalSpacer />
-        <b>Required:</b> No, but recommended if you have a large library.<br/>
-        <VerticalSpacer />
-        <b>Instructions:</b> To create one, go to Steam's <a href="" on:click={() => open("https://steamcommunity.com/dev/apikey")}>key registration</a> page, sign in and create an api key.<br/>
-        <VerticalSpacer />
-        <b>Important:</b> It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com"
-      </div>
-    </div>
+    <Setting
+      label="Steam Api key"
+      description={`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}
+      notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
+      value={steamAPIKey}
+      onChange={onSteamKeyChange}
+    />
 	</div>
   <div class="footer">
     <div class="info">
@@ -175,23 +164,6 @@
 		justify-content: flex-start;
 		align-items: center;
 	}
-
-  .setting {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 0px 14px;
-
-    background-color: var(--background);
-    padding: 6px;
-    border-radius: 2px;
-  }
-
-  .description {
-    line-height: 18px;
-    font-size: 14px;
-    margin: 7px 0px;
-  }
 
   .footer {
     height: 30px;
