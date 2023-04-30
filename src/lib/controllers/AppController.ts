@@ -272,7 +272,7 @@ export class AppController {
     return vdf.entries.map((game: any) => {
       return {
         "appid": game.id,
-        "name": game.common.name.replace(/[^\x00-\x7F]/g, "")
+        "name": typeof game.common.name == "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
       } as GameStruct;
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
