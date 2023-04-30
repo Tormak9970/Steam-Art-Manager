@@ -218,18 +218,53 @@ export class CacheController {
     }
   }
 
+  // /**
+  //  * ! Need to implement this.
+  //  * Gets the number of result pages for each game in the results list.
+  //  * @param results The SGDBGame array.
+  //  * @param platform The platform of the games.
+  //  * ! Logging Needed.
+  //  */
+  // private async getNumPages(results: SGDBGame[], platform: Platforms): Promise<void> {
+  //   results = results.map((game) => {
+  //     game.numResultPages = 3;
+  //     return game;
+  //   });
+  // }
+
   /**
-   * ! Need to implement this.
    * Gets the number of result pages for each game in the results list.
    * @param results The SGDBGame array.
    * @param platform The platform of the games.
-   * ! Logging Needed.
+   * @param type The type of grids to get.
+   * ? Logging complete.
    */
-  private async getNumPages(results: SGDBGame[], platform: Platforms): Promise<void> {
-    results = results.map((game) => {
-      game.numResultPages = 3;
+  private async cacheAllGridsForGame(results: SGDBGame[], platform: Platforms, type: GridTypes): Promise<void> {
+    LogController.log(`Caching all grids for results and determining numPages...`);
+
+    results = await Promise.all(results.map(async (game) => {
+      let numPages = 0;
+
+      while (true) {
+        try {
+          const grids = await this.fetchGridsForNonSteamGame(game.id, type, numPages);
+          if (grids.length > 0) {
+            numPages++;
+          } else {
+            break;
+          }
+        } catch (e: any) {
+          console.log(e);
+          break;
+        }
+      }
+
+      game.numResultPages = numPages;
+      LogController.log(`Found ${numPages} pages for ${game.name}.`);
       return game;
-    });
+    }));
+
+    LogController.log(`Cached all grids for results and determined numPages.`);
   }
 
   /**
@@ -253,7 +288,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        await this.getNumPages(results, Platforms.STEAM);
+        await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
@@ -284,7 +319,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        await this.getNumPages(results, Platforms.NON_STEAM);
+        await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
