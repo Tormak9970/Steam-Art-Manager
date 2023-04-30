@@ -10,9 +10,12 @@
   import { WindowController } from "../../lib/controllers/WindowController";
   import type { Unsubscriber } from "svelte/store";
   import Setting from "./Setting.svelte";
+    import { ToastController } from "../../lib/controllers/ToastController";
 
   let settingsFocusUnsub: any;
   let themeUnsub: Unsubscriber;
+  let sgdbKeyUnsub: Unsubscriber;
+  let steamKeyUnsub: Unsubscriber;
 
   let canSave = false;
   let isFocused = false;
@@ -38,6 +41,8 @@
     LogController.log("Saved settings.");
 
     canSave = false;
+
+    ToastController.showSuccessToast("Settings saved!");
   }
 
   function cancel() {
@@ -80,8 +85,14 @@
   }
 
   onMount(async () => {
-    steamGridKey = $steamGridDBKey;
-    steamAPIKey = $steamKey;
+    sgdbKeyUnsub = steamGridDBKey.subscribe((value) => {
+      steamGridKey = value;
+      console.log("SGDB Key:", value);
+    });
+    steamKeyUnsub = steamKey.subscribe((value) => {
+      steamAPIKey = value;
+      console.log("Steam Key:", value);
+    });
 
     WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = focused;
