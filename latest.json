@@ -1,15 +1,15 @@
 {
-  "version": "1.4.5",
+  "version": "2.0.0",
   "notes": "Check Github for the release notes!",
-  "pub_date": "2023-04-07T11:43:16.231Z",
+  "pub_date": "2023-05-01T16:47:19.019Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWh0ejhMZTJtUnB4SGxFTTI4MGswZFhLbEkxdkZkMGJkNWhkb1NmTWxRaVhaK3gzTm9UMjdqak5weUdlRE1VMkhWUDNuRzlJZlJZTjM3a1hlb2xaTVFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwODY3NDI0CWZpbGU6c3RlYW0tYXJ0LW1hbmFnZXJfMS40LjVfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CmJnajFsWjBUdDZvYkZhVWh6OEZycnVEdDBOdlkrajRWeXNZdDZoZjNjcGtlbDM1ZmVpVWR1QkNOcUJMdnFIRzF6eG8veFlQVFQvZWZiUVJhcXZwM0NRPT0K",
-      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v1.4.5/steam-art-manager_1.4.5_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWluSWZwYzZZaDdZSGVwZUN5Y3UyME1BNEtOdGFIZnpQc2lPNTh0a0pDYjhrdm5COW0zbE1hdVBEOFNNRmlTUkdXb2YrZDM3cHZTRlZSUEVCWGhkTndNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgyOTU5NDk5CWZpbGU6c3RlYW0tYXJ0LW1hbmFnZXJfMi4wLjBfYW1kNjQuQXBwSW1hZ2UudGFyLmd6Clh5K2lESXVZOEJ3dTB4N3ZkNEtuUitVbCt1am93R0RFb2FOSk5UMWZhdURIdEJmNUgzSTBjeXdWSy9lZnNVMElCNG92bDJEWlVYNlFZTGgxS2EwTEFBPT0K",
+      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v2.0.0/steam-art-manager_2.0.0_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWhYeENHd3lHRDhHVzJmcC93ZlpIWjUyZS9QeUtRQVhHdHB0dzhWeEZraGpSYzhldEVzU3MzRk9oL3pjY2l3dVBSSXN0SkcrVkIvVWswVXlyemZTQkFBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwODY3NzkwCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMS40LjVfeDY0X2VuLVVTLm1zaS56aXAKMzNwT052OXcwS1lGZGV3M0RwZ0ZwTGxWWElLUkdSR0Rwc3JaN3cydjkybVp2TjdtK0hPTnB3cURDSFBSb0JnZUkrc1FIYXVYRUFCWWZSdnRvTmptQ3c9PQo=",
-      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v1.4.5/Steam.Art.Manager_1.4.5_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWlhSDlXY2hoVXAxb3JFdDhNWk5sTmRDQ0NZdkh6bCtNQThxckZFcFpJRzdIRHFTTzZocFBOaytPMldDZjR6RE9GYTcxQ1JBamtTSkhhbUhvd2hlMVE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgyOTU5NjMxCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMi4wLjBfeDY0X2VuLVVTLm1zaS56aXAKZlowMFlRMVhZbmFKL3lYaWZjbExCYlkrU243NVErbm4rOGFXTHQrczdLT1RjUHdOeEVubkw0V2tnZ2JnNkxKbHdYOHRta0E4b0paWWNFWFk1NWczQUE9PQo=",
+      "url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v2.0.0/Steam.Art.Manager_2.0.0_x64_en-US.msi.zip"
     }
   }
 }
