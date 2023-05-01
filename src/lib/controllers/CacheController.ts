@@ -135,8 +135,16 @@ export class CacheController {
         method: "GET",
         responseType: 3
       });
+      // const imageData = await fetch(imageURL, {
+      //   method: "GET",
+      //   headers: {
+      //     "Access-Control-Allow-Origin": "https://*.steamgriddb.com",
+      //     "Content-Type": "application/x-binary"
+      //   }
+      // });
       
       await fs.writeBinaryFile(localImagePath, imageData.data);
+      // await fs.writeBinaryFile(localImagePath, await imageData.arrayBuffer());
       
       dowloadingGridId.set(null);
     } else {
