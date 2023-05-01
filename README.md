@@ -1,7 +1,7 @@
 # Steam Art Manager
 A tool for setting the artwork of your Steam library.
 
-![Steam Art Manager's Main UI](public/final-sarm-ui.png)
+![Steam Art Manager's Main UI](public/sarm-2.0.0-ui-final.png)
 
 <br/>
 
