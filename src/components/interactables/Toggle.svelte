@@ -43,6 +43,9 @@
     border: none;
     cursor: pointer;
   }
+  .toggle button:hover {
+    background: var(--foreground-light-hover);
+  }
 
   .toggle button::before {
     content: "";

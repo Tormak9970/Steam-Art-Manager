@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import sveltePreprocess from "svelte-preprocess";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -32,6 +33,13 @@ export default defineConfig(async () => ({
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'src/windows/main/main.html'),
+        settings: resolve(__dirname, 'src/windows/settings/settings.html')
+      },
+    },
   },
   define: {
     'APP_VERSION': JSON.stringify(process.env.npm_package_version),

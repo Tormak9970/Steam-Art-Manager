@@ -200,14 +200,19 @@ impl Reader<'_> {
     }
 
     let u8_vec = self.data[self.offset..self.offset+len].to_vec();
-    let u16_vec: Vec<u16> = u8_vec.iter().map(| char_code | {
-      return char_code.to_owned() as u16;
-    }).collect();
-    let char_codes = &u16_vec[..];
-
-    let res = String::from_utf16(char_codes).unwrap();
+    
+    let utf8_res = String::from_utf8(u8_vec.clone());
     self.offset += len + 1;
 
-    return res;
+    if utf8_res.is_ok() {
+      return utf8_res.unwrap();
+    } else {
+      let u16_vec: Vec<u16> = u8_vec.iter().map(| char_code | {
+        return char_code.to_owned() as u16;
+      }).collect();
+      let char_codes = &u16_vec[..];
+  
+      return String::from_utf16(char_codes).unwrap();
+    }
   }
 }

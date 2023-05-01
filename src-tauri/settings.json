@@ -1,5 +1,7 @@
 {
   "version": "",
+  "theme": 0,
   "steamGridDbApiKey": "",
+  "steamApiKeyMap": {},
   "hiddenGameIds": []
 }

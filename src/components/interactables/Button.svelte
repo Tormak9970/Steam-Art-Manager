@@ -20,9 +20,9 @@
     padding: 3px 6px;
     min-width: 40px;
         
-    background-color: var(--background);
+    background-color: var(--foreground);
     border: 1px solid #000;
-    border-radius: 1px;
+    border-radius: 2px;
 
     display: flex;
     align-items: center;
@@ -31,13 +31,13 @@
     font-size: 12px;
     cursor: pointer;
 
-    color: rgb(231, 231, 231);
+    color: var(--font-color);
 
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }
 
   .button:hover {
-    background-color: var(--background-hover);
+    background-color: var(--foreground-hover);
   }
 
   .button:focus {
@@ -50,8 +50,8 @@
     opacity: 0.7;
   }
 
-  .highlight { background-color: var(--highlight-dim); }
-  .highlight:hover { background-color: var(--highlight-dim-hover); }
+  .highlight { background-color: var(--save); }
+  .highlight:hover { background-color: var(--save-hover); }
 
   .warn { background-color: var(--warning); }
   .warn:hover { background-color: var(--warning-hover); }

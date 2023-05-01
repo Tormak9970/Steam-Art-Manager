@@ -65,7 +65,7 @@
   .content {
     padding: 0px 6px;
     width: calc(100% - 12px);
-    background-color: var(--foreground);
+    background-color: var(--background);
   }
 
 	svg { transition: transform 0.2s ease-in; margin-right: 3px; }

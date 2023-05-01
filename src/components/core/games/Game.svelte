@@ -2,14 +2,13 @@
   import { tauri } from "@tauri-apps/api"
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
-  import Lazy from "svelte-lazy";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, GridTypes, hiddenGameIds, selectedGameAppId, selectedGameName } from "../../../Stores";
+  import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName } from "../../../Stores";
+  import { AppController } from "../../../lib/controllers/AppController";
+  import GridImage from "../GridImage.svelte";
 
-  export let game: SteamGame;
-  export let widths: any;
-  export let heights: any;
+  export let game: GameStruct;
 
   let gridTypeUnsub: Unsubscriber;
   let libraryCacheUnsub: Unsubscriber;
@@ -17,10 +16,11 @@
   let showImage = true;
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
+  $: canDiscard = $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType];
 
   function selectGame() {
-    $selectedGameAppId = game.appid;
     $selectedGameName = game.name;
+    $selectedGameAppId = game.appid;
   }
 
   function hide() {
@@ -42,27 +42,48 @@
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
   }
 
+  async function getIcoImage(src: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let dataURL: any;
+        canvas.height = img.naturalHeight;
+        canvas.width = img.naturalWidth;
+        ctx.drawImage(img, 0, 0);
+        dataURL = canvas.toDataURL();
+        resolve(dataURL);
+      };
+      img.src = src;
+    });
+  }
+
   onMount(() => {
-    gridTypeUnsub = gridType.subscribe((type) => {
-      if ($appLibraryCache[game.appid][type]) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-      } else if (type == GridTypes.WIDE_CAPSULE) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][GridTypes.CAPSULE]);
-      } else {
-        showImage = false;
+    gridTypeUnsub = gridType.subscribe(async (type) => {
+      if ($appLibraryCache[game.appid]) {
+        if ($appLibraryCache[game.appid][type] && $appLibraryCache[game.appid][type] != "REMOVE") {
+          showImage = true;
+
+          // TODO: check if ico and convert to base64
+          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+          // if ($appLibraryCache[game.appid][type].endsWith(".ico")) {
+          //   const icoData = await getIcoImage(imagePath);
+          //   imagePath = icoData;
+          // }
+        } else {
+          showImage = false;
+        }
       }
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      if (cache[game.appid][$gridType]) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
-      } else if ($gridType == GridTypes.WIDE_CAPSULE) {
-        showImage = true;
-        imagePath = tauri.convertFileSrc(cache[game.appid][GridTypes.CAPSULE]);
-      } else {
-        showImage = false;
+      if (cache[game.appid]) {
+        if (cache[game.appid][$gridType] && cache[game.appid][$gridType] != "REMOVE") {
+          showImage = true;
+          imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+        } else {
+          showImage = false;
+        }
       }
     });
   });
@@ -75,7 +96,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="game" class:selected={$selectedGameAppId == game.appid} on:click={selectGame}>
-  <div class="show-hide" on:click={isHidden ? unHide : hide}>
+  <div class="image-control show-hide" on:click|stopPropagation={isHidden ? unHide : hide} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow}}>
     {#if isHidden}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
         <!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -88,15 +109,19 @@
       </svg>
     {/if}
   </div>
-  <div class="img" style="height: {heights[$gridType]}px;">
-    {#if showImage}
-      <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-        <img src="{imagePath}" alt="{game.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
-      </Lazy>
-    {:else}
-      <div>No {$gridType} image for game</div>
-    {/if}
+  <div class="image-control show-clear" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow}}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/>
+    </svg>
   </div>
+  {#if canDiscard}
+    <div class="image-control show-discard" on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid); }} use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow}}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H463.5c0 0 0 0 0 0h.4c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1V448c0 17.7 14.3 32 32 32s32-14.3 32-32V396.9l17.6 17.5 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352H176c17.7 0 32-14.3 32-32s-14.3-32-32-32H48.4c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/>
+      </svg>
+    </div>
+  {/if}
+  <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="No {$gridType} image for game" />
   <div class="name">{game.name}</div>
 </div>
 
@@ -121,21 +146,14 @@
 
     user-select: none;
 
-    transition: transform 0.2s ease-in-out, background-color 0.15s ease-in-out;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
   }
   .game:hover {
     background-color: var(--foreground-hover);
-    transform: scale(1.1);
-  }
-
-  .img {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
   .selected {
-    background-color: var(--foreground-light-hover);
+    background-color: var(--foreground-light);
     transform: scale(1.1);
   }
   .selected:hover { background-color: var(--foreground-light-hover); }
@@ -152,31 +170,36 @@
     text-align: center;
   }
 
-  .show-hide {
+  .image-control {
     position: absolute;
 
-    border-radius: 10px;
+    border-radius: 50%;
 
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
 
     padding: 5px;
 
-    top: 0px;
-    right: 0px;
+    left: 2px;
 
     fill: var(--font-color);
 
-    background-color: var(--foreground-light);
+    background-color: var(--background);
 
     opacity: 0.8;
 
     display: none;
+
+    z-index: 2;
   }
-  .show-hide:hover {
+  .image-control:hover {
     cursor: pointer;
     opacity: 1;
   }
 
-  .game:hover > .show-hide { display: flex; }
+  .show-hide { top: 2px; }
+  .show-clear { top: 30px; }
+  .show-discard { top: 58px; }
+
+  .game:hover > .image-control { display: flex; }
 </style>
