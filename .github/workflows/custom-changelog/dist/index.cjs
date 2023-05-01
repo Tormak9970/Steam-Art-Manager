@@ -250,7 +250,7 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
     });
     let versions = currentVersion.split(".");
     let featsAdd = Math.ceil(numFeats / 10);
-    return `${isMajorChange ? versions[0] + 1 : versions[0]}.${!isMajorChange ? (parseInt(versions[1]) + featsAdd) : 0}.${(!isMajorChange && featsAdd == 0) ? (parseInt(versions[2]) + Math.ceil(numFixes / 10)) : 0}`;
+    return `${isMajorChange ? parseInt(versions[0]) + 1 : versions[0]}.${!isMajorChange ? (parseInt(versions[1]) + featsAdd) : 0}.${(!isMajorChange && featsAdd == 0) ? (parseInt(versions[2]) + Math.ceil(numFixes / 10)) : 0}`;
 }
 function filterChangeLog(changelog) {
     let output = [];
