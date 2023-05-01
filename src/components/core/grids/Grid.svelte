@@ -68,11 +68,10 @@
 
     user-select: none;
 
-    transition: transform 0.2s ease-in-out, background-color 0.15s ease-in-out;
+    transition: background-color 0.2s ease-in-out;
   }
   .grid:hover {
     background-color: var(--foreground-hover);
-    transform: scale(1.1);
   }
 
   .author {
