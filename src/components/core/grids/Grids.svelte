@@ -63,7 +63,7 @@
   let availableSteamGridGames = [{ label: "None", data: "None"}];
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let grids: SGDBImage[] = [];
-  let numPages = 3;
+  let numPages = 1;
 
   /**
    * Prompts the user to select their custom game art.
