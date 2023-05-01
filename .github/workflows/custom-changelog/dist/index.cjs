@@ -234,9 +234,13 @@ const generateChangelog_1 = __nccwpck_require__(9937);
 const gitHelpers_1 = __nccwpck_require__(9601);
 const git = new gitHelpers_1.Git();
 function calcTrueNewVersionFromLog(currentVersion, changelog) {
+    let isMajorChange = false;
     let numFixes = 0;
     let numFeats = 0;
     changelog.split("\n").forEach((logLine) => {
+        if (logLine.includes("* feat: major release")) {
+          isMajorChange = true;
+        }
         if (logLine.includes("* feat:")) {
             numFeats++;
         }
@@ -246,7 +250,7 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
     });
     let versions = currentVersion.split(".");
     let featsAdd = Math.ceil(numFeats / 10);
-    return `${versions[0]}.${parseInt(versions[1]) + featsAdd}.${featsAdd == 0 ? parseInt(versions[2]) + Math.ceil(numFixes / 10) : 0}`;
+    return `${isMajorChange ? versions[0] + 1 : versions[0]}.${!isMajorChange ? (parseInt(versions[1]) + featsAdd) : 0}.${(!isMajorChange && featsAdd == 0) ? (parseInt(versions[2]) + Math.ceil(numFixes / 10)) : 0}`;
 }
 function filterChangeLog(changelog) {
     let output = [];
