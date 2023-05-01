@@ -22,6 +22,7 @@ import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
 import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage } from "../../Stores";
 import { LogController } from "./LogController";
+import { RustInterop } from "./RustInterop";
 
 /**
  * Controller class for handling caching of requests.
@@ -131,20 +132,13 @@ export class CacheController {
       LogController.log(`Fetching image from API.`);
 
       dowloadingGridId.set(appId);
-      const imageData = await http.fetch<Uint8Array>(imageURL, {
-        method: "GET",
-        responseType: 3
-      });
-      // const imageData = await fetch(imageURL, {
-      //   method: "GET",
-      //   headers: {
-      //     "Access-Control-Allow-Origin": "https://*.steamgriddb.com",
-      //     "Content-Type": "application/x-binary"
-      //   }
-      // });
-      
-      await fs.writeBinaryFile(localImagePath, imageData.data);
-      // await fs.writeBinaryFile(localImagePath, await imageData.arrayBuffer());
+      const success = await RustInterop.downloadGrid(imageURL, localImagePath);
+
+      if (success) {
+        console.log("download worked!");
+      } else {
+        console.log("download failed");
+      }
       
       dowloadingGridId.set(null);
     } else {

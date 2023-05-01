@@ -1,4 +1,7 @@
-// #![windows_subsystem = "windows"]
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
 
 mod reader;
 mod writer;
@@ -10,7 +13,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -19,6 +22,7 @@ use shortcuts_vdf_parser::{open_shortcuts_vdf, write_shortcuts_vdf};
 use home::home_dir;
 
 use serde;
+use reqwest;
 use steam::get_steam_root_dir;
 use tauri::{
   AppHandle,
@@ -311,6 +315,26 @@ async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, sh
   }
 }
 
+#[tauri::command]
+async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String) -> bool {
+  logger::log_to_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
+
+  let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
+  let response = reqwest::get(grid_url.clone()).await.expect("Should have been able to await request.");
+  let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+
+  let write_res = dest_file.write_all(&response_bytes);
+
+  if write_res.is_ok() {
+    logger::log_to_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
+    return true;
+  } else {
+    let err = write_res.err().expect("Request failed, error should have existed.");
+    logger::log_to_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
+    return false;
+  }
+}
+
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
   let steam_parent_dir = steam_path.parent().unwrap();
@@ -353,7 +377,8 @@ fn main() {
       read_shortcuts_vdf,
       read_localconfig_vdf,
       save_changes,
-      write_shortcuts
+      write_shortcuts,
+      download_grid
     ])
     .setup(| app | {
       let app_handle = app.handle();

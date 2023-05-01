@@ -178,4 +178,14 @@ export class RustInterop {
     const res = await invoke<string>("write_shortcuts", { shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
     return JSON.parse(res);
   }
+
+  /**
+   * Downloads a file to the provided destination from a given url.
+   * @param gridUrl The url of the grid to download.
+   * @param destPath The path to write the file to.
+   * @returns A promise resolving to true if the file was successfully downloaded.
+   */
+  static async downloadGrid(gridUrl: string, destPath: string): Promise<boolean> {
+    return await invoke<boolean>("download_grid", { gridUrl: gridUrl, destPath: destPath });
+  }
 }
