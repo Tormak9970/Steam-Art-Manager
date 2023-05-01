@@ -218,19 +218,20 @@ export class CacheController {
     }
   }
 
-  // /**
-  //  * ! Need to implement this.
-  //  * Gets the number of result pages for each game in the results list.
-  //  * @param results The SGDBGame array.
-  //  * @param platform The platform of the games.
-  //  * ! Logging Needed.
-  //  */
-  // private async getNumPages(results: SGDBGame[], platform: Platforms): Promise<void> {
-  //   results = results.map((game) => {
-  //     game.numResultPages = 3;
-  //     return game;
-  //   });
-  // }
+  /**
+   * ! Placeholder until SGDB API V3 is live.
+   * Gets the number of result pages for each game in the results list.
+   * @param results The SGDBGame array.
+   * @param platform The platform of the games.
+   * @param type The type of grids to get.
+   * ! Logging Needed?
+   */
+  private async getNumPages(results: SGDBGame[], platform: Platforms, type: GridTypes): Promise<void> {
+    results = results.map((game) => {
+      game.numResultPages = 1;
+      return game;
+    });
+  }
 
   /**
    * Gets the number of result pages for each game in the results list.
@@ -288,7 +289,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
+        await this.getNumPages(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
@@ -319,7 +320,7 @@ export class CacheController {
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
+        await this.getNumPages(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
