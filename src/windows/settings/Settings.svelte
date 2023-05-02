@@ -99,10 +99,6 @@
 
   onMount(async () => {
     window.addEventListener("error", onError);
-    
-    setTimeout(() => {
-      throw new Error("Testing error handling");
-    }, 2000);
 
     sgdbKeyUnsub = steamGridDBKey.subscribe((value) => {
       steamGridKey = value;

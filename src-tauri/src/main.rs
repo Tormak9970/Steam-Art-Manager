@@ -28,6 +28,12 @@ use tauri::{
 };
 use keyvalues_parser::Vdf;
 
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+  args: Vec<String>,
+  cwd: String,
+}
+
 type GridImageCache = HashMap<String, HashMap<String, String>>;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Clone)]
@@ -393,6 +399,11 @@ fn main() {
       add_steam_to_scope(&app_handle);
       Ok(())
     })
+    .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+      logger::log_to_file(app.app_handle().to_owned(), format!("{}, {argv:?}, {cwd}", app.package_info().name).as_str(), 0);
+
+      app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+    }))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
