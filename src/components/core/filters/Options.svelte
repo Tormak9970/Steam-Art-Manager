@@ -37,9 +37,14 @@
     }
   }
 
+  /**
+   * Function to run on theme change.
+   * @param checked Whether or not darkmode is enabled.
+   */
   function onDarkModeChange(checked: boolean): void {
-    document.documentElement.setAttribute("data-theme", checked ? "dark" : "light");
+    document.body.setAttribute("data-theme", checked ? "dark" : "light");
     SettingsManager.updateSetting("theme", checked ? 0 : 1);
+    $theme = checked ? 0 : 1;
     LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
   }
 </script>

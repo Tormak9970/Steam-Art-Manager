@@ -13,7 +13,7 @@
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
-    import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+  import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;

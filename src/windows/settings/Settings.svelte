@@ -99,8 +99,9 @@
     }).then((unsub) => {
       settingsFocusUnsub = unsub;
     });
-    themeUnsub = theme.subscribe((theme) => {
-      document.documentElement.setAttribute("data-theme", theme == 0 ? "dark" : "light");
+    themeUnsub = theme.subscribe((value) => {
+      console.log("Theme changed to:", value);
+      document.body.setAttribute("data-theme", value == 0 ? "dark" : "light");
     });
 
     await SettingsManager.setSettingsPath();

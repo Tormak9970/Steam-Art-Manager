@@ -94,7 +94,7 @@ export class AppController {
     }
 
     theme.set(settings.theme);
-    document.documentElement.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
+    document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
 
     hiddenGameIds.set(settings.hiddenGameIds);
 
