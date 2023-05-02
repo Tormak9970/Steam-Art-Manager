@@ -14,6 +14,7 @@
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+    import { LogController } from "../../lib/controllers/LogController";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -34,7 +35,22 @@
 		$gridModalInfo = null;
 	}
 
+  /**
+   * Handler for all main window errors.
+   * @param e The error event.
+   */
+  function onError(e: ErrorEvent): void {
+    const message = e.message;
+    const fileName = e.filename;
+    const columnNumber = e.colno;
+    const lineNumber = e.lineno;
+
+    LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
 	onMount(async () => {
+    window.addEventListener("error", onError);
+
     WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = true; //focused;
     }).then((unsub) => {
@@ -70,6 +86,7 @@
 	});
 
 	onDestroy(async () => {
+    window.removeEventListener("error", onError);
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();

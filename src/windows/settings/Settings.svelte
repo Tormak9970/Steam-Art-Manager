@@ -84,7 +84,26 @@
     }
   }
 
+  /**
+   * Handler for all settings window errors.
+   * @param e The error event.
+   */
+  function onError(e: ErrorEvent): void {
+    const message = e.message;
+    const fileName = e.filename;
+    const columnNumber = e.colno;
+    const lineNumber = e.lineno;
+
+    LogController.error(`SettingsWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
   onMount(async () => {
+    window.addEventListener("error", onError);
+    
+    setTimeout(() => {
+      throw new Error("Testing error handling");
+    }, 2000);
+
     sgdbKeyUnsub = steamGridDBKey.subscribe((value) => {
       steamGridKey = value;
       console.log("SGDB Key:", value);
@@ -108,6 +127,7 @@
   });
 
   onDestroy(() => {
+    window.removeEventListener("error", onError);
     if (settingsFocusUnsub) settingsFocusUnsub();
     if (themeUnsub) themeUnsub();
   });
