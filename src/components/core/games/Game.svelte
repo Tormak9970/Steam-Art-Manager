@@ -4,7 +4,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName } from "../../../Stores";
+  import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
   import GridImage from "../GridImage.svelte";
 
@@ -60,27 +60,29 @@
   }
 
   onMount(() => {
-    gridTypeUnsub = gridType.subscribe(async (type) => {
+    gridTypeUnsub = gridType.subscribe((type) => {
       if ($appLibraryCache[game.appid]) {
-        if ($appLibraryCache[game.appid][type] && $appLibraryCache[game.appid][type] != "REMOVE") {
+        if ($appLibraryCache[game.appid][type]) {
           showImage = true;
-
-          // TODO: check if ico and convert to base64
-          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-          // if ($appLibraryCache[game.appid][type].endsWith(".ico")) {
-          //   const icoData = await getIcoImage(imagePath);
-          //   imagePath = icoData;
-          // }
-        } else {
+          if ($appLibraryCache[game.appid][type] == "REMOVE") {
+            imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
+          } else {
+            imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
+          }
+        }  else {
           showImage = false;
         }
       }
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
       if (cache[game.appid]) {
-        if (cache[game.appid][$gridType] && cache[game.appid][$gridType] != "REMOVE") {
+        if (cache[game.appid][$gridType]) {
           showImage = true;
-          imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+          if (cache[game.appid][$gridType] == "REMOVE") {
+            imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][$gridType]);
+          } else {
+            imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
+          }
         } else {
           showImage = false;
         }

@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -183,6 +183,7 @@ export class AppController {
     }
 
     const entries = Object.entries(res);
+    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(res)));
     const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
     return Object.fromEntries(filtered);
   }

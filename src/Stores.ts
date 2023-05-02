@@ -63,6 +63,7 @@ export const steamGames: Writable<GameStruct[]> = writable([]);
 export const nonSteamGames: Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds: Writable<number[]> = writable([]);
 
+export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 
