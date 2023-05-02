@@ -27,9 +27,9 @@
 	.tabs {
 		padding: 10px;
     padding-bottom: 5px;
-    border-top: 2px solid var(--foreground-light);
+    border-top: 2px solid var(--foreground-light-hover);
     
-    background-color: var(--foreground);
+    background-color: var(--background);
 	}
 
   ul {
@@ -47,7 +47,7 @@
 
     justify-content: center;
 
-    border-right: 2px solid var(--foreground);
+    border-right: 2px solid var(--foreground-hover);
   }
   li:last-child { border-right: none; }
 
@@ -57,12 +57,13 @@
     padding: 4px 6px;
     cursor: pointer;
 
-    background-color: var(--background-hover);
+    background-color: var(--foreground);
 
     transition: background-color 0.15s ease-in-out;
   }
 
   li.active > span { background-color: var(--foreground-light); }
 
-  span:hover {background-color: var(--foreground-light-hover) !important; }
+  li.active > span:hover { background-color: var(--foreground-light-hover) !important; }
+  span:hover { background-color: var(--foreground-hover) !important; }
 </style>

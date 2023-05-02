@@ -21,6 +21,7 @@ export interface SGDBGame {
   name: string;
   types: string[];
   verified: boolean;
+  numResultPages: number;
 }
 
 export interface SGDBAuthor {
@@ -30,18 +31,32 @@ export interface SGDBAuthor {
 }
 
 export interface SGDBImage {
+  author: SGDBAuthor;
+
   id: number;
-  score: number;
-  style: string;
-  mime: string;
   url: URL;
   thumb: URL;
-  tags: string[];
-  author: SGDBAuthor;
   width: number;
   height: number;
+  language: string;
+
+  style: string;
+  mime: string;
+  tags: string[];
+  humor: boolean;
   epilepsy: boolean;
   nsfw: boolean;
+  notes: string|null;
+  
+  isAnimated: boolean;
+
+  score: number;
+  downvotes: number;
+  upvotes: number;
+
+  lock: boolean;
+  // is_animated: boolean;
+  // is_deleted: boolean;
 }
 
 export interface SGDBOptions {
@@ -111,6 +126,7 @@ export class SGDB {
 
     if (this.key) {
       this.headers.Authorization = `Bearer ${this.key}`;
+      this.headers.Accept = 'application/json';
     } else {
       process.emitWarning("API Key not provided, some methods won't work.");
     }
@@ -137,6 +153,7 @@ export class SGDB {
         params[queryParam] = options[queryParam];
       }
     });
+    
     return params;
   }
 
@@ -149,17 +166,28 @@ export class SGDB {
    * @returns A promise resolving to the request's result.
    */
   async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null): Promise<any> {
+    let strParams: string;
+
+    if (Object.entries(params).length > 0) {
+      strParams = "";
+      Object.entries(params).forEach(([param, val]) => {
+        strParams = strParams.concat(`&${param}=${val}`);
+      });
+      strParams = strParams.substring(1);
+    } else {
+      strParams = null;
+    }
+
     let options = {
       headers: this.headers,
-      method,
-      params: params
+      method
     };
 
     if (formData) {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await http.fetch<any>(`${this.baseURL}${url}`, options);
+    let response = await http.fetch<any>(`${this.baseURL}${url}${strParams ? `?${strParams}` : ""}`, options);
 
     if (response.ok) {
       if (response?.data.success) {
@@ -214,7 +242,10 @@ export class SGDB {
    * @returns A promise resolving to the game's grids.
    */
   async getGrids(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return await this.handleRequest("GET", `/grids/${options.type}/${options.id}`, this.buildQuery(options));
+    return (await this.handleRequest("GET", `/grids/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
+      return img;
+    });
   }
 
   /**
@@ -226,6 +257,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired game matching the provided filters.
    */
   async getGridsById(
@@ -235,7 +268,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getGrids({
       type: "game",
@@ -245,7 +280,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -258,6 +295,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired steam game matching the provided filters.
    */
   async getGridsBySteamAppId(
@@ -267,7 +306,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getGrids({
       type: "steam",
@@ -277,7 +318,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -287,7 +330,10 @@ export class SGDB {
    * @returns A promise resolving to the game's heros.
    */
   async getHeroes(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options));
+    return (await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
+      return img;
+    });
   }
 
   /**
@@ -297,8 +343,10 @@ export class SGDB {
    * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
    * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor images
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getHeroesById(
@@ -308,7 +356,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getHeroes({
       type: "game",
@@ -318,7 +368,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -329,8 +381,10 @@ export class SGDB {
    * @param dimensions List of dimensions to include.
    * @param mimes List of mimes to include.
    * @param types List of types to include.
-   * @param nsfw Whether the result should include nsfw images
-   * @param humor Whether the result should include humor images
+   * @param nsfw Whether the result should include nsfw images.
+   * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired steam game matching the provided filters.
    */
   async getHeroesBySteamAppId(
@@ -340,7 +394,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getHeroes({
       type: "steam",
@@ -350,7 +406,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -360,7 +418,10 @@ export class SGDB {
    * @returns A promise resolving to the game's icons.
    */
   async getIcons(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options));
+    return (await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
+      return img;
+    });
   }
 
   /**
@@ -372,6 +433,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
   async getIconsById(
@@ -381,7 +444,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getIcons({
       type: "game",
@@ -391,7 +456,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -404,6 +471,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of icons for the desired steam game matching the provided filters.
    */
   async getIconsBySteamAppId(
@@ -413,7 +482,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getIcons({
       type: "steam",
@@ -423,7 +494,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -433,7 +506,10 @@ export class SGDB {
    * @returns A promise resolving to the game's logos.
    */
   async getLogos(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options));
+    return (await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
+      return img;
+    });
   }
 
   /**
@@ -445,6 +521,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired game matching the provided filters.
    */
   async getLogosById(
@@ -454,7 +532,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getLogos({
       type: "game",
@@ -464,7 +544,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page
     });
   }
 
@@ -477,6 +559,8 @@ export class SGDB {
    * @param types List of types to include.
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
+   * @param epilepsy Whether the result should include epilepsy images.
+   * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired steam game matching the provided filters.
    */
   async getLogosBySteamAppId(
@@ -486,7 +570,9 @@ export class SGDB {
     mimes?: string[],
     types?: string[],
     nsfw?: string,
-    humor?: string
+    humor?: string,
+    epilepsy?: string,
+    page?: number
   ): Promise<SGDBImage[]> {
     return this.getLogos({
       type: "steam",
@@ -496,7 +582,9 @@ export class SGDB {
       mimes: mimes,
       types: types,
       nsfw: nsfw,
-      humor: humor
+      humor: humor,
+      epilepsy: epilepsy,
+      page: page,
     });
   }
 

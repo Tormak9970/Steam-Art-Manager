@@ -39,7 +39,9 @@
 				"request": true,
 				"scope": [
 					"https://*.steamgriddb.com/api/*",
-					"https://*.steamgriddb.com/file/*"
+					"https://*.steamgriddb.com/file/*",
+					"http://api.steampowered.com/IPlayerService/GetOwnedGames/*",
+					"https://steamcommunity.com/profiles/*"
 				]
 			},
 			"protocol": {
@@ -133,13 +135,27 @@
 				"label": "main",
 				"fullscreen": false,
 				"height": 800,
+				"minHeight": 740,
 				"resizable": true,
 				"title": "Steam Art Manager",
 				"width": 1300,
+				"minWidth": 1150,
 				"decorations": false,
 				"center": true,
 				"visible": true,
-				"url": "index.html"
+				"url": "src/windows/main/main.html"
+			},
+			{
+				"label": "settings",
+				"fullscreen": false,
+				"height": 485,
+				"resizable": true,
+				"title": "Settings",
+				"width": 600,
+				"decorations": false,
+				"center": true,
+				"visible": false,
+				"url": "src/windows/settings/settings.html"
 			}
 		]
 	}

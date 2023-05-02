@@ -49,10 +49,11 @@ export class RustInterop {
 
   /**
    * Gets the active steam user's grids directory.
+   * @param activeUserId The id of the active user.
    * @returns A promise resolving to the active steam user's grids directory.
    */
-  static async getGridsDirectory(): Promise<string> {
-    return await invoke<string>("get_grids_directory", {});
+  static async getGridsDirectory(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_grids_directory", { steamActiveUserId: activeUserId });
   }
 
   /**
@@ -64,6 +65,24 @@ export class RustInterop {
   }
 
   /**
+   * Gets the active steam user's shortcuts.vdf path.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the active steam user's shortcuts.vdf path.
+   */
+  static async getShortcutsPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_shortcuts_path", { steamActiveUserId: activeUserId });
+  }
+
+  /**
+   * Gets the active steam user's localconfig.vdf path.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the active steam user's localconfig.vdf path.
+   */
+  static async getLocalconfigPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_localconfig_path", { steamActiveUserId: activeUserId });
+  }
+
+  /**
    * Gets the active steam user's library cache directory.
    * @returns A promise resolving to the active steam user's library cache directory.
    */
@@ -72,53 +91,101 @@ export class RustInterop {
   }
 
   /**
-   * Gets the active steam user's id.
-   * @returns A promise resolving to the active steam user's id, or 0 if it wasn't found.
+   * Gets a list of steam users on this computer.
+   * @returns A promise resolving to the list of steam users on this computer.
    */
-  static async getActiveUser(): Promise<number> {
-    return await invoke<number>("get_active_user", {});
+  static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
+    return JSON.parse(await invoke<string>("get_steam_users", {}));
   }
 
   /**
    * Exports the active user's grids to a zip file.
+   * @param activeUserId The id of the active user.
+   * @param platformIdMap A map of game/app ids to their platform.
+   * @param idNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", {});
+  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
   }
 
   /**
    * Imports the active user's grids from a zip file.
-   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   * @param activeUserId The id of the active user.
+   * @param nameIdMap A map of shortcut names to their id.
+   * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
-  static async importGridsFromZip(): Promise<boolean> {
-    return await invoke<boolean>("import_grids_from_zip", {});
+  static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
+    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
+    return res;
   }
 
   /**
-   * Imports the active user's grids from a zip file.
-   * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
+   * Reads the current user's apps from the appinfo.vdf file.
+   * @returns A promise resolving to the contents of the appinfo.vdf file.
    */
   static async readAppinfoVdf(): Promise<any> {
     return JSON.parse(await invoke<string>("read_appinfo_vdf", {}));
   }
 
   /**
+   * Reads the current user's non steam games from the shortcuts.vdf file.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the contents of the shortcuts.vdf file.
+   */
+  static async readShortcutsVdf(activeUserId: string): Promise<any> {
+    return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamActiveUserId: activeUserId }));
+  }
+
+  /**
+   * Reads the current user's non steam games from the localconfig.vdf file.
+   * @param activeUserId The id of the active user.
+   * @returns A promise resolving to the contents of the localconfig.vdf file.
+   */
+  static async readLocalconfigVdf(activeUserId: string): Promise<any> {
+    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamActiveUserId: activeUserId }));
+  }
+
+  /**
    * Saves the user's changes.
+   * @param activeUserId The id of the active user.
    * @param currentArt The current changes.
    * @param originalArt The original art dictionary.
+   * @param shortcuts The list of shortcuts.
+   * @param shortcutIds The list of shortcut ids.
+   * @param shortcutIcons The map of shortcutIds to updated icons.
+   * @param originalShortcutIcons The map of shortcutIds to original icons.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }): Promise<ChangedPath[] | { error: string }> {
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt) });
+  static async saveChanges(activeUserId: string, currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIds: string[], shortcutIcons: { [id: string]: string }, originalShortcutIcons: { [id: string]: string }): Promise<ChangedPath[] | { error: string }> {
+    const shortcutsObj = {
+      "shortcuts": {...shortcuts}
+    }
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), shortcutIdsStr: shortcutIds.join(", "), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
     return JSON.parse(res);
   }
 
   /**
-   * Adds the steam directory to the fsScope.
-   * @returns Whether the scope was successfully added.
+   * Writes changes to the steam shortcuts.
+   * @param activeUserId The id of the active user.
+   * @param shortcuts The list of shortcuts.
+   * @returns A promise resolving to true if the write was successful.
    */
-  static async addSteamToScope(): Promise<boolean> {
-    return await invoke<boolean>("add_steam_to_scope", {});
+  static async writeShortcuts(activeUserId: string, shortcuts: SteamShortcut[]): Promise<boolean> {
+    const shortcutsObj = {
+      "shortcuts": {...shortcuts}
+    }
+    const res = await invoke<string>("write_shortcuts", { shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
+    return JSON.parse(res);
+  }
+
+  /**
+   * Downloads a file to the provided destination from a given url.
+   * @param gridUrl The url of the grid to download.
+   * @param destPath The path to write the file to.
+   * @returns A promise resolving to true if the file was successfully downloaded.
+   */
+  static async downloadGrid(gridUrl: string, destPath: string): Promise<boolean> {
+    return await invoke<boolean>("download_grid", { gridUrl: gridUrl, destPath: destPath });
   }
 }

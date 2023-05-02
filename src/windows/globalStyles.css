@@ -1,0 +1,114 @@
+@import "/theme.css";
+
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-Italic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  unicode-range: U+30-39;
+}
+@font-face {
+  font-family: "Raleway-Num";
+  src: url("/font/Roboto-BoldItalic.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
+  unicode-range: U+30-39;
+}
+
+@font-face {
+  font-family: "Raleway";
+  src: url("/font/Raleway-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("/font/Raleway-Italic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("/font/Raleway-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("/font/Raleway-BoldItalic.ttf") format("truetype");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("/font/Raleway-LightItalic.ttf") format("truetype");
+  font-weight: lighter;
+  font-style: italic;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+
+  background-color: var(--background-dark);
+  color: var(--font-color);
+  font-family: 'Raleway-Num', 'Raleway', sans-serif;
+
+  overflow: hidden;
+}
+
+a {
+  color: var(--link-color);
+}
+
+a:visited {
+  color: var(--link-color-visited);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--foreground-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-light-hover);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+#entryPoint {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

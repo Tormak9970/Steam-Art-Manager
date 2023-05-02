@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AppController } from "../lib/controllers/AppController";
+  import { WindowController } from "../lib/controllers/WindowController";
   import { canSave, isOnline } from "../Stores";
   import Button from "./interactables/Button.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
@@ -21,11 +22,13 @@
       <HorizontalSpacer />
     {/if}
     
+    <Button label="Reload" onClick={AppController.reload} width="auto" height="20px" />
+    <HorizontalSpacer />
     <Button label="Import" onClick={AppController.importGrids} width="auto" height="20px" />
     <HorizontalSpacer />
     <Button label="Export" onClick={AppController.exportGrids} width="auto" height="20px" />
     <HorizontalSpacer />
-    <Button label="Add SteamGrid Key" onClick={AppController.showApiKeyToast} width="auto" height="20px" />
+    <Button label="Settings" onClick={WindowController.openSettingsWindow} width="auto" height="20px" />
   </div>
 </div>
 
@@ -36,7 +39,7 @@
     height: 30px;
     width: 100%;
 
-    background: var(--foreground-light);
+    background: var(--foreground-hover);
     user-select: none;
     display: inline-flex;
     align-items: center;
@@ -47,7 +50,7 @@
     display: flex;
     align-items: center;
     font-size: 10px;
-    opacity: 0.2;
+    opacity: 0.5;
     margin-bottom: 3px;
   }
   .btns {
