@@ -52,7 +52,7 @@ const libraryCacheLUT = {
  * The main controller for the application
  */
 export class AppController {
-  private static cacheController = new CacheController();
+  private static cacheController = null;
   private static domParser = new DOMParser();
   private static tippyInstance = null;
 
@@ -74,6 +74,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
+    AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
     steamUsers.set(users);
 
