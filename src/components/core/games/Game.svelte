@@ -17,6 +17,7 @@
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
   $: canDiscard = $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType];
+  $: hasCustomArt = $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType];
 
   function selectGame() {
     $selectedGameName = game.name;
@@ -40,23 +41,6 @@
     tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
     $hiddenGameIds = [...tmp];
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
-  }
-
-  async function getIcoImage(src: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        let dataURL: any;
-        canvas.height = img.naturalHeight;
-        canvas.width = img.naturalWidth;
-        ctx.drawImage(img, 0, 0);
-        dataURL = canvas.toDataURL();
-        resolve(dataURL);
-      };
-      img.src = src;
-    });
   }
 
   onMount(() => {
@@ -111,11 +95,13 @@
       </svg>
     {/if}
   </div>
-  <div class="image-control show-clear" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow}}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-      <path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/>
-    </svg>
-  </div>
+  {#if hasCustomArt}
+    <div class="image-control show-clear" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow}}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/>
+      </svg>
+    </div>
+  {/if}
   {#if canDiscard}
     <div class="image-control show-discard" on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid); }} use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow}}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">

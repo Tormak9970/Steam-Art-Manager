@@ -164,9 +164,13 @@ export class AppController {
    * ? Logging complete.
    */
   private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcuts: GameStruct[]): { [appid: string]: LibraryCacheEntry } {
-    let resKeys = Object.keys(gridsInfos);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+
+    let resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
+
+    let unfilteredKeys = [];
+    const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of libraryCacheContents) {
       const firstUnderscore = fileEntry.name.indexOf("_");
@@ -178,12 +182,18 @@ export class AppController {
           resKeys.push(appId);
           res[appId] = {} as LibraryCacheEntry;
         }
+        if (!unfilteredKeys.includes(appId)) {
+          unfilteredKeys.push(appId);
+          unfiltered[appId] = {} as LibraryCacheEntry;
+        }
+        
         if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
+        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path
       }
     }
 
     const entries = Object.entries(res);
-    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(res)));
+    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
     const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
     return Object.fromEntries(filtered);
   }
