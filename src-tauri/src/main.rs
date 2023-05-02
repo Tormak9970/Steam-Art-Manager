@@ -82,13 +82,21 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
           target_path = String::from("REMOVE");
         }
 
-        let changed_path = ChangedPath {
+        let mut changed_path = ChangedPath {
           appId: appid.to_owned(),
           gridType: grid_type.to_owned(),
           oldPath: grid_path_owned.replace("\\", "/"),
           targetPath: target_path.to_owned(),
           sourcePath: source_path_owned.replace("\\", "/")
         };
+
+        if changed_path.targetPath.ends_with(".webp") {
+          let target: String = changed_path.targetPath;
+          let mut jpg_target: String = target[..target.len() - 5].to_owned();
+          jpg_target.push_str(".jpg");
+
+          changed_path.targetPath = String::from(jpg_target.to_owned());
+        }
 
         res.push(changed_path);
       }
@@ -240,7 +248,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 
   for changed_path in (&paths_to_set).into_iter() {
     let source = changed_path.sourcePath.to_owned();
-    let mut target = changed_path.targetPath.to_owned();
+    let target = changed_path.targetPath.to_owned();
 
     if target == String::from("REMOVE") {
       if changed_path.oldPath.contains("grid") {
@@ -258,14 +266,6 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
           let err = remove_res.err().unwrap();
           return format!("{{ \"error\": \"{}\"}}", err.to_string());
         }
-      }
-
-      // TODO: move this to path checking function so it is properly reflected on the frontend.
-      if target.ends_with(".webp") {
-        let mut jpg_target = target[..target.len()-5].to_owned();
-        jpg_target.push_str(".jpg");
-
-        target = String::from(jpg_target.to_owned());
       }
   
       fs::File::create(target.clone()).unwrap();
