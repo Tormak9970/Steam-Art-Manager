@@ -240,15 +240,17 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 
   for changed_path in (&paths_to_set).into_iter() {
     let source = changed_path.sourcePath.to_owned();
-    let target = changed_path.targetPath.to_owned();
+    let mut target = changed_path.targetPath.to_owned();
 
     if target == String::from("REMOVE") {
-      let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
-      if remove_res.is_err() {
-        let err = remove_res.err().unwrap();
-        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      if changed_path.oldPath.contains("grid") {
+        let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
+        if remove_res.is_err() {
+          let err = remove_res.err().unwrap();
+          return format!("{{ \"error\": \"{}\"}}", err.to_string());
+        }
+        logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
       }
-      logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
     } else {
       if changed_path.oldPath.contains("grid") {
         let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
@@ -256,6 +258,14 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
           let err = remove_res.err().unwrap();
           return format!("{{ \"error\": \"{}\"}}", err.to_string());
         }
+      }
+
+      // TODO: move this to path checking function so it is properly reflected on the frontend.
+      if target.ends_with(".webp") {
+        let mut jpg_target = target[..target.len()-5].to_owned();
+        jpg_target.push_str(".jpg");
+
+        target = String::from(jpg_target.to_owned());
       }
   
       fs::File::create(target.clone()).unwrap();
