@@ -323,9 +323,10 @@ export class AppController {
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
         "appid": shortcut.appid,
-        "name": shortcut.AppName
+        "name": shortcut.AppName ?? shortcut.appname
       };
     });
+    console.log(structuredShortcuts);
     nonSteamGames.set(structuredShortcuts);
     LogController.log("Loaded non-steam games.");
 
