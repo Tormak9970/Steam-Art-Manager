@@ -326,7 +326,6 @@ export class AppController {
         "name": shortcut.AppName ?? shortcut.appname
       };
     });
-    console.log(structuredShortcuts);
     nonSteamGames.set(structuredShortcuts);
     LogController.log("Loaded non-steam games.");
 
