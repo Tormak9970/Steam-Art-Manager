@@ -10,7 +10,7 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Game from "./Game.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
-    import { heights, widths } from "../imageDimensions";
+  import { heights, widths } from "../imageDimensions";
 
   let steamGamesUnsub: Unsubscriber;
   let nonSteamGamesUnsub: Unsubscriber;
@@ -38,6 +38,11 @@
     }
   }
 
+  /**
+   * Gets the games based on the provided platform.
+   * @param platform The platform to get games for.
+   * @returns The list of games for the provided platform.
+   */
   function getGamesForPlatform(platform: Platforms): GameStruct[] {
     switch (platform) {
       case Platforms.STEAM:
@@ -47,7 +52,14 @@
     }
   }
 
-  const filterSteamGames = (platform: Platforms, hiddenIds: number[], showHidden: boolean) => {
+  /**
+   * Filters the games for the current platform based on if they are hidden, and the current searchQuery.
+   * @param platform The platform to get games form.
+   * @param hiddenIds The list of hidden appids.
+   * @param showHidden Whether or not to show hidden games.
+   * @returns The list of filtered games.
+   */
+  function filterSteamGames(platform: Platforms, hiddenIds: number[], showHidden: boolean): GameStruct[] {
     let allGames = getGamesForPlatform(platform);
     let selectedGames: GameStruct[] = [];
 
@@ -60,7 +72,11 @@
     return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery));
   }
 
-  function onSearchChange(query: string) {
+  /**
+   * Updates the game list based on the provided search query.
+   * @param query The search query.
+   */
+  function onSearchChange(query: string): void {
     searchQuery = query.toLowerCase();
     games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
   }

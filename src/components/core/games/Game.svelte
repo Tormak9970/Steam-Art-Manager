@@ -4,7 +4,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
+  import { GridTypes, appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
   import GridImage from "../GridImage.svelte";
 
@@ -19,12 +19,18 @@
   $: canDiscard = $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType];
   $: hasCustomArt = $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType];
 
-  function selectGame() {
+  /**
+   * Selects this game.
+   */
+  function selectGame(): void {
     $selectedGameName = game.name;
     $selectedGameAppId = game.appid;
   }
 
-  function hide() {
+  /**
+   * Hides this game.
+   */
+  function hide(): void {
     const tmp = $hiddenGameIds;
     tmp.push(game.appid);
     $hiddenGameIds = [...tmp];
@@ -36,41 +42,42 @@
     }
   }
 
-  function unHide() {
+  /**
+   * Unhides this game.
+   */
+  function unHide(): void {
     const tmp = $hiddenGameIds;
     tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
     $hiddenGameIds = [...tmp];
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
   }
 
+  /**
+   * Handles updating this game's image path when state changes.
+   * @param libraryCache The library cache object.
+   * @param type The selected grid type.
+   */
+  function updateOnStateChange(libraryCache: { [appid: string]: LibraryCacheEntry}, type: GridTypes): void {
+    if (libraryCache[game.appid]) {
+      if (libraryCache[game.appid][type]) {
+        showImage = true;
+        if (libraryCache[game.appid][type] == "REMOVE") {
+          imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
+        } else {
+          imagePath = tauri.convertFileSrc(libraryCache[game.appid][type]);
+        }
+      }  else {
+        showImage = false;
+      }
+    }
+  }
+
   onMount(() => {
     gridTypeUnsub = gridType.subscribe((type) => {
-      if ($appLibraryCache[game.appid]) {
-        if ($appLibraryCache[game.appid][type]) {
-          showImage = true;
-          if ($appLibraryCache[game.appid][type] == "REMOVE") {
-            imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
-          } else {
-            imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-          }
-        }  else {
-          showImage = false;
-        }
-      }
+      updateOnStateChange($appLibraryCache, type);
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      if (cache[game.appid]) {
-        if (cache[game.appid][$gridType]) {
-          showImage = true;
-          if (cache[game.appid][$gridType] == "REMOVE") {
-            imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][$gridType]);
-          } else {
-            imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
-          }
-        } else {
-          showImage = false;
-        }
-      }
+      updateOnStateChange(cache, $gridType);
     });
   });
 

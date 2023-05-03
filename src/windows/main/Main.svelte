@@ -14,7 +14,7 @@
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
-    import { LogController } from "../../lib/controllers/LogController";
+  import { LogController } from "../../lib/controllers/LogController";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -30,6 +30,9 @@
 	});
 	let selectedUserId = $activeUserId.toString();
 
+  /**
+   * Function to run when the grid preview modal is closed.
+   */
 	function onGridModalClose() {
 		$showGridModal = false;
 		$gridModalInfo = null;

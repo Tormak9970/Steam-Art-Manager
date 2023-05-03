@@ -5,6 +5,7 @@
   import { WindowController } from "../lib/controllers/WindowController";
   import { canSave } from "../Stores";
   import { dialog } from "@tauri-apps/api";
+  import { LogController } from "../lib/controllers/LogController";
 
   export let title: string;
 
@@ -30,7 +31,8 @@
           });
           if (shouldQuit) await exit(0);
         } else {
-          await exit(0);
+          const success = await exit(0);
+          LogController.log(`Program exited: ${success}`);
         }
       } else if (title == "Settings") {
         await WindowController.closeSettingsWindow();
