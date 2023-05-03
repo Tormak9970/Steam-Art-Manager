@@ -13,7 +13,8 @@
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
-    import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+  import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+  import { LogController } from "../../lib/controllers/LogController";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -29,12 +30,30 @@
 	});
 	let selectedUserId = $activeUserId.toString();
 
+  /**
+   * Function to run when the grid preview modal is closed.
+   */
 	function onGridModalClose() {
 		$showGridModal = false;
 		$gridModalInfo = null;
 	}
 
+  /**
+   * Handler for all main window errors.
+   * @param e The error event.
+   */
+  function onError(e: ErrorEvent): void {
+    const message = e.message;
+    const fileName = e.filename;
+    const columnNumber = e.colno;
+    const lineNumber = e.lineno;
+
+    LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
 	onMount(async () => {
+    window.addEventListener("error", onError);
+
     WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
       isFocused = true; //focused;
     }).then((unsub) => {
@@ -70,6 +89,7 @@
 	});
 
 	onDestroy(async () => {
+    window.removeEventListener("error", onError);
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();

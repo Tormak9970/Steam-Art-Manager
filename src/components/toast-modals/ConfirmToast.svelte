@@ -9,7 +9,11 @@
   export let confirmMessage: string;
   export let onConfirm: () => void;
 
-  const clicked = (saved: boolean) => {
+  /**
+   * The function to run when a user interacts with one of the modal's options.
+   * @param saved Whether or not the response was the positive or negative interaction.
+   */
+  function onUserInput(saved: boolean) {
     toast.pop(toastId);
     if (saved) {
       ToastController.showWarningToast(confirmMessage);
@@ -20,13 +24,13 @@
   };
 </script>
 
-<svelte:window on:keyup={onlyOnKey("Escape", () => clicked(false))} />
+<svelte:window on:keyup={onlyOnKey("Escape", () => onUserInput(false))} />
 
 <div class="comfirm-toast">
   <div style="text-align: center; line-height: 20px;">{message}</div>
   <div class="btn-cont">
-    <Button label="Cancel" onClick={() => clicked(true)} highlight={true} width="auto" />
-    <Button label="Delete" onClick={() => clicked(false)} warn={true} width="auto" />
+    <Button label="Cancel" onClick={() => onUserInput(true)} highlight={true} width="auto" />
+    <Button label="Delete" onClick={() => onUserInput(false)} warn={true} width="auto" />
   </div>
 </div>
 

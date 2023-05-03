@@ -51,6 +51,9 @@
     "Icon": 256,
   };
 
+  /**
+   * Apply the grid being previewed.
+   */
   function applyGrid() {
     AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
   }

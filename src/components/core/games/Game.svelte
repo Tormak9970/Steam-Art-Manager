@@ -4,7 +4,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName } from "../../../Stores";
+  import { GridTypes, appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
   import GridImage from "../GridImage.svelte";
 
@@ -17,13 +17,20 @@
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
   $: canDiscard = $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType];
+  $: hasCustomArt = $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType];
 
-  function selectGame() {
+  /**
+   * Selects this game.
+   */
+  function selectGame(): void {
     $selectedGameName = game.name;
     $selectedGameAppId = game.appid;
   }
 
-  function hide() {
+  /**
+   * Hides this game.
+   */
+  function hide(): void {
     const tmp = $hiddenGameIds;
     tmp.push(game.appid);
     $hiddenGameIds = [...tmp];
@@ -35,56 +42,42 @@
     }
   }
 
-  function unHide() {
+  /**
+   * Unhides this game.
+   */
+  function unHide(): void {
     const tmp = $hiddenGameIds;
     tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
     $hiddenGameIds = [...tmp];
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
   }
 
-  async function getIcoImage(src: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        let dataURL: any;
-        canvas.height = img.naturalHeight;
-        canvas.width = img.naturalWidth;
-        ctx.drawImage(img, 0, 0);
-        dataURL = canvas.toDataURL();
-        resolve(dataURL);
-      };
-      img.src = src;
-    });
+  /**
+   * Handles updating this game's image path when state changes.
+   * @param libraryCache The library cache object.
+   * @param type The selected grid type.
+   */
+  function updateOnStateChange(libraryCache: { [appid: string]: LibraryCacheEntry}, type: GridTypes): void {
+    if (libraryCache[game.appid]) {
+      if (libraryCache[game.appid][type]) {
+        showImage = true;
+        if (libraryCache[game.appid][type] == "REMOVE") {
+          imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
+        } else {
+          imagePath = tauri.convertFileSrc(libraryCache[game.appid][type]);
+        }
+      }  else {
+        showImage = false;
+      }
+    }
   }
 
   onMount(() => {
-    gridTypeUnsub = gridType.subscribe(async (type) => {
-      if ($appLibraryCache[game.appid]) {
-        if ($appLibraryCache[game.appid][type] && $appLibraryCache[game.appid][type] != "REMOVE") {
-          showImage = true;
-
-          // TODO: check if ico and convert to base64
-          imagePath = tauri.convertFileSrc($appLibraryCache[game.appid][type]);
-          // if ($appLibraryCache[game.appid][type].endsWith(".ico")) {
-          //   const icoData = await getIcoImage(imagePath);
-          //   imagePath = icoData;
-          // }
-        } else {
-          showImage = false;
-        }
-      }
+    gridTypeUnsub = gridType.subscribe((type) => {
+      updateOnStateChange($appLibraryCache, type);
     });
     libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      if (cache[game.appid]) {
-        if (cache[game.appid][$gridType] && cache[game.appid][$gridType] != "REMOVE") {
-          showImage = true;
-          imagePath = tauri.convertFileSrc(cache[game.appid][$gridType]);
-        } else {
-          showImage = false;
-        }
-      }
+      updateOnStateChange(cache, $gridType);
     });
   });
 
@@ -109,11 +102,13 @@
       </svg>
     {/if}
   </div>
-  <div class="image-control show-clear" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow}}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-      <path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/>
-    </svg>
-  </div>
+  {#if hasCustomArt}
+    <div class="image-control show-clear" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow}}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/>
+      </svg>
+    </div>
+  {/if}
   {#if canDiscard}
     <div class="image-control show-discard" on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid); }} use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow}}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -122,7 +117,7 @@
     </div>
   {/if}
   <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="No {$gridType} image for game" />
-  <div class="name">{game.name}</div>
+  <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow}}>{game.name}</div>
 </div>
 
 <style>

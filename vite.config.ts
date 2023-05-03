@@ -2,6 +2,36 @@ import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import sveltePreprocess from "svelte-preprocess";
 import { resolve } from "path";
+import { rmdirSync } from "fs";
+
+type ExcludeOptions = {
+  directories: string[]
+}
+
+/**
+ * Removes the provided directories from build.
+ * @param config The plugin's configuration options.
+ * @returns A Vite plugin.
+ */
+function excludeDirectories(config?: ExcludeOptions) {
+  return {
+    name: 'remove-progress-images',
+    resolveId (source: string) {
+      return source === 'virtual-module' ? source : null;
+    },
+    renderStart (outputOptions: any, inputOptions: any) {
+      const outDir = outputOptions.dir;
+      
+      if (config) {
+        for (const directory of config.directories) {
+          const directoryPath = resolve(outDir, directory);
+          rmdirSync(directoryPath, { recursive: true });
+          console.log(`Deleted ${directoryPath}`);
+        }
+      }
+    }
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -13,6 +43,9 @@ export default defineConfig(async () => ({
         }),
       ],
     }),
+    excludeDirectories({
+      directories: ["progress-images"]
+    })
   ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -39,6 +72,9 @@ export default defineConfig(async () => ({
         main: resolve(__dirname, 'src/windows/main/main.html'),
         settings: resolve(__dirname, 'src/windows/settings/settings.html')
       },
+      external: [
+        "/public/progress-images"
+      ],
     },
   },
   define: {
