@@ -100,7 +100,7 @@ export class AppController {
     hiddenGameIds.set(settings.hiddenGameIds);
 
     if (activeUser.id32 == "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
+      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
     }
 
     LogController.log("App setup complete.");

@@ -106,8 +106,6 @@ export class CacheController {
     }
 
     this.apiKeyUnsub = steamGridDBKey.subscribe((key) => {
-      console.log("key changed to:", key);
-      
       if (key != "") {
         this.client = new SGDB(key);
         this.key = key;
@@ -207,20 +205,20 @@ export class CacheController {
           LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
           return nonSteamGridsCache[appId.toString()][type][page];
         } else {
-          LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+          LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
           const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
           nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
           return grids;
         }
       } else {
-        LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+        LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
         const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
         nonSteamGridsCache[appId.toString()][type] = {};
         nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
         return grids;
       }
     } else {
-      LogController.log(`Need to fetch nonSteam ${gridType} for ${appId}.`);
+      LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
       const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
       nonSteamGridsCache[appId.toString()] = {};
       nonSteamGridsCache[appId.toString()][type] = {};
@@ -301,6 +299,7 @@ export class CacheController {
       if (!results) {
         results = await this.client.searchGame(gameName);
         await this.getNumPages(results, Platforms.STEAM, type);
+        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
@@ -332,6 +331,7 @@ export class CacheController {
       if (!results) {
         results = await this.client.searchGame(gameName);
         await this.getNumPages(results, Platforms.STEAM, type);
+        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
         searchCache[appId] = results;
       }
 
