@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -52,7 +52,7 @@ const libraryCacheLUT = {
  * The main controller for the application
  */
 export class AppController {
-  private static cacheController = new CacheController();
+  private static cacheController = null;
   private static domParser = new DOMParser();
   private static tippyInstance = null;
 
@@ -74,6 +74,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
+    AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
     steamUsers.set(users);
 
@@ -94,12 +95,12 @@ export class AppController {
     }
 
     theme.set(settings.theme);
-    document.documentElement.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
+    document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
 
     hiddenGameIds.set(settings.hiddenGameIds);
 
     if (activeUser.id32 == "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager")
+      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
     }
 
     LogController.log("App setup complete.");
@@ -164,9 +165,13 @@ export class AppController {
    * ? Logging complete.
    */
   private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcuts: GameStruct[]): { [appid: string]: LibraryCacheEntry } {
-    let resKeys = Object.keys(gridsInfos);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+
+    let resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
+
+    let unfilteredKeys = [];
+    const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of libraryCacheContents) {
       const firstUnderscore = fileEntry.name.indexOf("_");
@@ -178,11 +183,18 @@ export class AppController {
           resKeys.push(appId);
           res[appId] = {} as LibraryCacheEntry;
         }
+        if (!unfilteredKeys.includes(appId)) {
+          unfilteredKeys.push(appId);
+          unfiltered[appId] = {} as LibraryCacheEntry;
+        }
+        
         if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
+        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path
       }
     }
 
     const entries = Object.entries(res);
+    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
     const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
     return Object.fromEntries(filtered);
   }
@@ -761,5 +773,13 @@ export class AppController {
     } else {
       LogController.log(`New user id ${userId} matched old id ${oldUserId}.`);
     }
+  }
+
+  /**
+   * Checks if the sgdb api client is initialized.
+   * @returns True if the sgdb api client is initialized.
+   */
+  static sgdbClientInitialized(): boolean {
+    return !!AppController.cacheController?.client;
   }
 }

@@ -5,6 +5,7 @@
   import { WindowController } from "../lib/controllers/WindowController";
   import { canSave } from "../Stores";
   import { dialog } from "@tauri-apps/api";
+  import { LogController } from "../lib/controllers/LogController";
 
   export let title: string;
 
@@ -30,7 +31,8 @@
           });
           if (shouldQuit) await exit(0);
         } else {
-          await exit(0);
+          const success = await exit(0);
+          LogController.log(`Program exited: ${success}`);
         }
       } else if (title == "Settings") {
         await WindowController.closeSettingsWindow();
@@ -40,7 +42,7 @@
 </script>
 
 <div data-tauri-drag-region class="titlebar">
-  <div class="info">
+  <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />
   </div>

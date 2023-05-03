@@ -28,6 +28,12 @@ use tauri::{
 };
 use keyvalues_parser::Vdf;
 
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+  args: Vec<String>,
+  cwd: String,
+}
+
 type GridImageCache = HashMap<String, HashMap<String, String>>;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, PartialEq, Clone)]
@@ -82,13 +88,21 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
           target_path = String::from("REMOVE");
         }
 
-        let changed_path = ChangedPath {
+        let mut changed_path = ChangedPath {
           appId: appid.to_owned(),
           gridType: grid_type.to_owned(),
           oldPath: grid_path_owned.replace("\\", "/"),
           targetPath: target_path.to_owned(),
           sourcePath: source_path_owned.replace("\\", "/")
         };
+
+        if changed_path.targetPath.ends_with(".webp") {
+          let target: String = changed_path.targetPath;
+          let mut jpg_target: String = target[..target.len() - 5].to_owned();
+          jpg_target.push_str(".jpg");
+
+          changed_path.targetPath = String::from(jpg_target.to_owned());
+        }
 
         res.push(changed_path);
       }
@@ -243,12 +257,14 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     let target = changed_path.targetPath.to_owned();
 
     if target == String::from("REMOVE") {
-      let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
-      if remove_res.is_err() {
-        let err = remove_res.err().unwrap();
-        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      if changed_path.oldPath.contains("grid") {
+        let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
+        if remove_res.is_err() {
+          let err = remove_res.err().unwrap();
+          return format!("{{ \"error\": \"{}\"}}", err.to_string());
+        }
+        logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
       }
-      logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
     } else {
       if changed_path.oldPath.contains("grid") {
         let remove_res = fs::remove_file(changed_path.oldPath.to_owned());
@@ -334,13 +350,12 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
-  let steam_parent_dir = steam_path.parent().unwrap();
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
-  let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+  let fs_res = FsScope::allow_directory(&fs_scope, &steam_path, true);
+  let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
 
   if fs_res.is_ok() && asset_res.is_ok() {
     logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
@@ -377,6 +392,11 @@ fn main() {
       write_shortcuts,
       download_grid
     ])
+    .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+      println!("{}, {argv:?}, {cwd}", app.package_info().name);
+
+      app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+    }))
     .setup(| app | {
       let app_handle = app.handle();
       logger::clean_out_log(app_handle.clone());

@@ -11,6 +11,9 @@
 
   let imagePath = grid.thumb.toString();
 
+  /**
+   * Sets this grid to be the current grid for the selected game.
+   */
   function selectGame() {
     AppController.setSteamGridArt(grid.id, grid.url);
   }

@@ -9,9 +9,18 @@
   export let missingMessage: string;
   export let isVideo: boolean = false;
 
+  /**
+   * Function to run when the user starts hovering over a video.
+   * @param e The associated MouseEvent.
+   */
   function onEnter(e: Event) {
     (e.target as HTMLVideoElement).play();
   }
+
+  /**
+   * Function to run when the user stops hovering over a video.
+   * @param e The associated MouseEvent.
+   */
   function onLeave(e: Event) {
     (e.target as HTMLVideoElement).pause();
   }

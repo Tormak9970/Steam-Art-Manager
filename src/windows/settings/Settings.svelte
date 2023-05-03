@@ -10,7 +10,7 @@
   import { WindowController } from "../../lib/controllers/WindowController";
   import type { Unsubscriber } from "svelte/store";
   import Setting from "./Setting.svelte";
-    import { ToastController } from "../../lib/controllers/ToastController";
+  import { ToastController } from "../../lib/controllers/ToastController";
 
   let settingsFocusUnsub: any;
   let themeUnsub: Unsubscriber;
@@ -84,14 +84,27 @@
     }
   }
 
+  /**
+   * Handler for all settings window errors.
+   * @param e The error event.
+   */
+  function onError(e: ErrorEvent): void {
+    const message = e.message;
+    const fileName = e.filename;
+    const columnNumber = e.colno;
+    const lineNumber = e.lineno;
+
+    LogController.error(`SettingsWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
   onMount(async () => {
+    window.addEventListener("error", onError);
+
     sgdbKeyUnsub = steamGridDBKey.subscribe((value) => {
       steamGridKey = value;
-      console.log("SGDB Key:", value);
     });
     steamKeyUnsub = steamKey.subscribe((value) => {
       steamAPIKey = value;
-      console.log("Steam Key:", value);
     });
 
     WindowController.settingsWindow.onFocusChanged(({ payload: focused }) => {
@@ -99,14 +112,15 @@
     }).then((unsub) => {
       settingsFocusUnsub = unsub;
     });
-    themeUnsub = theme.subscribe((theme) => {
-      document.documentElement.setAttribute("data-theme", theme == 0 ? "dark" : "light");
+    themeUnsub = theme.subscribe((value) => {
+      document.body.setAttribute("data-theme", value == 0 ? "dark" : "light");
     });
 
     await SettingsManager.setSettingsPath();
   });
 
   onDestroy(() => {
+    window.removeEventListener("error", onError);
     if (settingsFocusUnsub) settingsFocusUnsub();
     if (themeUnsub) themeUnsub();
   });
