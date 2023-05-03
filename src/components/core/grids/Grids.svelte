@@ -189,9 +189,13 @@
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
       isLoading = true;
-      if (key != "") {
+      if (key != "" && AppController.sgdbClientInitialized()) {
         await filterGridsOnStateChange(key, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters);
       } else {
+        availableSteamGridGames = [{ label: "None", data: "None"}];
+        $selectedGameAppId = null;
+        $selectedGameName = null;
+        $selectedSteamGridGameId = "None";
         grids = [];
       }
       isLoading = false;

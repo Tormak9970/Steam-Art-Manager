@@ -774,4 +774,12 @@ export class AppController {
       LogController.log(`New user id ${userId} matched old id ${oldUserId}.`);
     }
   }
+
+  /**
+   * Checks if the sgdb api client is initialized.
+   * @returns True if the sgdb api client is initialized.
+   */
+  static sgdbClientInitialized(): boolean {
+    return !!AppController.cacheController?.client;
+  }
 }
