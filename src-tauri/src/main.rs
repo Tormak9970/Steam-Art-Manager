@@ -350,7 +350,6 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
-  // let steam_parent_dir = steam_path.parent().unwrap();
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
