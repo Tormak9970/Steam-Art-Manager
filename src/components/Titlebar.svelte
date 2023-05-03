@@ -42,7 +42,7 @@
 </script>
 
 <div data-tauri-drag-region class="titlebar">
-  <div class="info">
+  <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />
   </div>
