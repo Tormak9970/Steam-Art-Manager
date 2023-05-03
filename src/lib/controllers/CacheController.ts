@@ -106,6 +106,8 @@ export class CacheController {
     }
 
     this.apiKeyUnsub = steamGridDBKey.subscribe((key) => {
+      console.log("key changed to:", key);
+      
       if (key != "") {
         this.client = new SGDB(key);
         this.key = key;
@@ -139,6 +141,13 @@ export class CacheController {
       } else {
         console.log("download failed");
       }
+
+      // const imageData = await http.fetch<Uint8Array>(imageURL, {
+      //   method: "GET",
+      //   responseType: 3
+      // });
+      
+      // await fs.writeBinaryFile(localImagePath, imageData.data);
       
       dowloadingGridId.set(null);
     } else {
