@@ -350,13 +350,13 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
-  let steam_parent_dir = steam_path.parent().unwrap();
+  // let steam_parent_dir = steam_path.parent().unwrap();
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  let fs_res = FsScope::allow_directory(&fs_scope, steam_parent_dir, true);
-  let asset_res = FsScope::allow_directory(&asset_scope, steam_parent_dir, true);
+  let fs_res = FsScope::allow_directory(&fs_scope, &steam_path, true);
+  let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
 
   if fs_res.is_ok() && asset_res.is_ok() {
     logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
@@ -393,17 +393,17 @@ fn main() {
       write_shortcuts,
       download_grid
     ])
+    .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+      println!("{}, {argv:?}, {cwd}", app.package_info().name);
+
+      app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+    }))
     .setup(| app | {
       let app_handle = app.handle();
       logger::clean_out_log(app_handle.clone());
       add_steam_to_scope(&app_handle);
       Ok(())
     })
-    .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-      logger::log_to_file(app.app_handle().to_owned(), format!("{}, {argv:?}, {cwd}", app.package_info().name).as_str(), 0);
-
-      app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
-    }))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
