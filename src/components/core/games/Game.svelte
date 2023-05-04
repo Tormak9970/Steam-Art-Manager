@@ -16,8 +16,8 @@
   let showImage = true;
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
-  $: canDiscard = ($currentPlatform == Platforms.STEAM) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false;
-  $: hasCustomArt = ($currentPlatform == Platforms.STEAM) ? $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType] : false;
+  $: canDiscard = ($currentPlatform == Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false;
+  $: hasCustomArt = ($currentPlatform == Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType] : false;
 
   /**
    * Selects this game.
