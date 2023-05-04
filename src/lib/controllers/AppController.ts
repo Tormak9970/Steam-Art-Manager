@@ -395,27 +395,34 @@ export class AppController {
     const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
+    console.log("Library Cache:", libraryCache);
+    console.log("Original Cache:", originalCache);
+    console.log("Shortcuts:", shortcuts);
+    console.log("Shortcut Ids:", shortcutIds);
+    console.log("Shortcut Icons:", shortcutIcons);
+    console.log("Original Shortcuts Icons:", originalShortcutIcons);
+
     const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIds, shortcutIcons, originalShortcutIcons);
     
-    if ((changedPaths as any).error !== undefined) {
-      ToastController.showSuccessToast("Changes failed.");
-      LogController.log("Changes failed.");
-    } else {
-      for (const changedPath of (changedPaths as ChangedPath[])) {
-        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
-        if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
-          shortcut.icon = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
-        }
-      }
-      originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
-      appLibraryCache.set(libraryCache);
+    // if ((changedPaths as any).error !== undefined) {
+    //   ToastController.showSuccessToast("Changes failed.");
+    //   LogController.log("Changes failed.");
+    // } else {
+    //   for (const changedPath of (changedPaths as ChangedPath[])) {
+    //     libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
+    //     if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
+    //       const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
+    //       shortcut.icon = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
+    //     }
+    //   }
+    //   originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
+    //   appLibraryCache.set(libraryCache);
       
-      originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
-      steamShortcuts.set(shortcuts);
-      ToastController.showSuccessToast("Changes saved!");
-      LogController.log("Saved changes.");
-    }
+    //   originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+    //   steamShortcuts.set(shortcuts);
+    //   ToastController.showSuccessToast("Changes saved!");
+    //   LogController.log("Saved changes.");
+    // }
 
     canSave.set(false);
   }

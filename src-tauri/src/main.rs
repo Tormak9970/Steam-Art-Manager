@@ -262,6 +262,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 
   logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
   let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
+  let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (entry.appId.to_owned(), entry.to_owned())).collect();
   logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
   for changed_path in (&paths_to_set).into_iter() {
@@ -301,11 +302,32 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
   }
 
   let should_change_shortcuts = check_for_shortcut_changes(paths_to_set.clone(), shortcut_ids, &shortcut_icons, &original_shortcut_icons);
-  println!("Should change shortcuts: {}", should_change_shortcuts);
   
   if should_change_shortcuts {
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
-    let shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
+    let mut shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
+
+    let shortcuts_obj_map: &mut Value = shortcuts_data.get_mut("shortcuts").expect("key: shortcuts should have existed.");
+    let shortcuts_map: &mut Map<String, Value> = shortcuts_obj_map.as_object_mut().expect("Should have been able to convert shortcuts to map");
+
+    for (_, shortcut) in shortcuts_map.into_iter() {
+      let shortcut_map: &mut Map<String, Value> = shortcut.as_object_mut().expect("should have been able to convert shortcut to map.");
+      let shortcut_appid_val: &Value = shortcut_map.get("appid").expect("shortcut should have had an appid");
+      let shortcut_appid_num: i64 = shortcut_appid_val.as_i64().expect("should have been able to convert shortcut appid to str.");
+      let shortcut_appid: String = shortcut_appid_num.to_string();
+
+      if paths_id_map.contains_key(&shortcut_appid) {
+        let changed_path: &ChangedPath = paths_id_map.get(&shortcut_appid).expect("entry should have existed.");
+        shortcut_map.insert(String::from("icon"), Value::String(changed_path.targetPath.to_owned()));
+      }
+    }
+
+    let mut modified_shortcuts_data: Map<String, Value> = Map::new();
+    modified_shortcuts_data.insert(String::from("shortcuts"), shortcuts_obj_map.to_owned());
+    shortcuts_data = Value::Object(modified_shortcuts_data);
+    
+    println!("shortcuts data: {}", serde_json::to_string_pretty(&shortcuts_data).unwrap());
+
     let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
@@ -319,7 +341,8 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     return changed_res.unwrap();
   } else {
     let err = changed_res.err().unwrap();
-    panic!("{}", err.to_string());
+    logger::log_to_file(app_handle, format!("{}", err.to_string()).as_str(), 2);
+    return String::from("[]");
   }
 }
 
