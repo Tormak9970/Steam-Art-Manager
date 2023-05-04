@@ -4,7 +4,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { GridTypes, appLibraryCache, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
+  import { GridTypes, Platforms, appLibraryCache, currentPlatform, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
   import GridImage from "../GridImage.svelte";
 
@@ -16,8 +16,8 @@
   let showImage = true;
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
-  $: canDiscard = $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType];
-  $: hasCustomArt = $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType];
+  $: canDiscard = ($currentPlatform == Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false;
+  $: hasCustomArt = ($currentPlatform == Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType] : false;
 
   /**
    * Selects this game.

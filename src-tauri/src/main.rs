@@ -46,23 +46,29 @@ struct ChangedPath {
   sourcePath: String
 }
 
-fn get_grid_filename(appid: &str, grid_type: &str, image_type: &str) -> String {
+/// Gets a grid's file name based on its type.
+fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image_type: &str) -> String {
   match grid_type {
     "Capsule" => return format!("{}p{}", appid, image_type),
     "Wide Capsule" => return format!("{}{}", appid, image_type),
     "Hero" => return format!("{}_hero{}", appid, image_type),
     "Logo" => return format!("{}_logo{}", appid, image_type),
     "Icon" => return format!("{}_icon{}", appid, image_type),
-    _ => panic!("Unexpected grid type {}", grid_type)
+    _ => {
+      logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
+      panic!("Unexpected grid type {}", grid_type);
+    }
   }
 }
 
-fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
+/// Adjusts the path of a grid based on its type.
+fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str) -> String {
   let format_start_index = path.rfind(".").expect("Path should have had a file extension.");
   let image_type = &path[format_start_index..];
-  return get_grid_filename(appid, grid_type, image_type);
+  return get_grid_filename(app_handle, appid, grid_type, image_type);
 }
 
+/// Filters the grid paths based on which have change.
 fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
   let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
   let mut res:Vec<ChangedPath> = Vec::new();
@@ -82,7 +88,7 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
         let target_path;
 
         if source_path != "REMOVE" {
-          let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
+          let adjusted_path = adjust_path(app_handle, appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
           target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
         } else {
           target_path = String::from("REMOVE");
@@ -112,14 +118,8 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
   return res;
 }
 
-fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec<String>, shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
-  for changed_path in changed_paths.into_iter() {
-    let appid = changed_path.appId;
-    if shortcut_ids.contains(&appid) {
-      return true;
-    }
-  }
-
+/// Checks for shortcut grid changes.
+fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
   for (shortcut_id, icon) in shortcut_icons.to_owned().into_iter() {
     let icon: &str = icon.as_str().expect("Should have been able to convert icon to &str.");
     let original_icon: &str = original_shortcut_icons.get(&shortcut_id).expect("Original hortcut should have had an icon.").as_str().expect("Should have been able to convert original icon to &str.");
@@ -132,8 +132,8 @@ fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec
   return false;
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
+/// Exports the users grids to a Grids zip file.
 async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
@@ -164,6 +164,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
 }
 
 #[tauri::command]
+/// Sets the users grids from a Grids zip file.
 async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
@@ -193,6 +194,7 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
 }
 
 #[tauri::command]
+/// Reads the user's appinfo.vdf file.
 async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
   let appinfo_path: PathBuf = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned()));
   let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
@@ -200,6 +202,7 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
+/// Reads the user's shortcuts.vdf file.
 async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
   let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     
@@ -214,6 +217,7 @@ async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String)
 }
 
 #[tauri::command]
+/// Reads the user's localconfig.vdf file.
 async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
   let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_active_user_id));
     
@@ -241,15 +245,14 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
 }
 
 #[tauri::command]
-async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
-  let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
-    return appid.to_owned();
-  }).collect();
+/// Applies the changes the user has made.
+async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
   let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
+  let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
   logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
   for changed_path in (&paths_to_set).into_iter() {
@@ -288,12 +291,33 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     }
   }
 
-  let should_change_shortcuts = check_for_shortcut_changes(paths_to_set.clone(), shortcut_ids, &shortcut_icons, &original_shortcut_icons);
-  println!("Should change shortcuts: {}", should_change_shortcuts);
+  let should_change_shortcuts = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
   
   if should_change_shortcuts {
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
-    let shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
+    let mut shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
+
+    let shortcuts_obj_map: &mut Value = shortcuts_data.get_mut("shortcuts").expect("key: shortcuts should have existed.");
+    let shortcuts_map: &mut Map<String, Value> = shortcuts_obj_map.as_object_mut().expect("Should have been able to convert shortcuts to map");
+
+    for (_, shortcut) in shortcuts_map.into_iter() {
+      let shortcut_map: &mut Map<String, Value> = shortcut.as_object_mut().expect("should have been able to convert shortcut to map.");
+      let shortcut_appid_val: &Value = shortcut_map.get("appid").expect("shortcut should have had an appid");
+      let shortcut_appid_num: i64 = shortcut_appid_val.as_i64().expect("should have been able to convert shortcut appid to str.");
+      let shortcut_appid: String = shortcut_appid_num.to_string();
+
+      let path_key: String = format!("{}_icon", shortcut_appid.to_owned()).to_string();
+
+      if paths_id_map.contains_key(&path_key) {
+        let changed_path: &ChangedPath = paths_id_map.get(&path_key).expect("entry should have existed.");
+        shortcut_map.insert(String::from("icon"), Value::String(changed_path.targetPath.to_owned()));
+      }
+    }
+
+    let mut modified_shortcuts_data: Map<String, Value> = Map::new();
+    modified_shortcuts_data.insert(String::from("shortcuts"), shortcuts_obj_map.to_owned());
+    shortcuts_data = Value::Object(modified_shortcuts_data);
+
     let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
@@ -307,11 +331,13 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     return changed_res.unwrap();
   } else {
     let err = changed_res.err().unwrap();
-    panic!("{}", err.to_string());
+    logger::log_to_file(app_handle, format!("{}", err.to_string()).as_str(), 2);
+    return String::from("[]");
   }
 }
 
 #[tauri::command]
+/// Writes the user's shortcuts.vdf file.
 async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, shortcuts_str: String) -> bool {
   logger::log_to_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
   let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
@@ -329,6 +355,7 @@ async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, sh
 }
 
 #[tauri::command]
+/// Downloads a file from a url.
 async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String) -> bool {
   logger::log_to_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
 
@@ -348,6 +375,7 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   }
 }
 
+/// Adds the user's steam directory to Tauri FS and Asset scope.
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
 
@@ -372,6 +400,8 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   }
 }
 
+
+/// This app's main function.
 fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![

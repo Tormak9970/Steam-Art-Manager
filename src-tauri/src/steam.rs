@@ -15,6 +15,7 @@ use tauri::AppHandle;
 use home::home_dir;
 
 #[cfg(target_os = "windows")]
+/// Gets the steam root dir for windows systems.
 pub fn get_steam_root_dir() -> PathBuf {
   let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
 
@@ -25,6 +26,7 @@ pub fn get_steam_root_dir() -> PathBuf {
 }
 
 #[cfg(target_os = "linux")]
+/// Gets the steam root dir for linux systems.
 pub fn get_steam_root_dir() -> PathBuf {
   let pc_home_dir = home_dir().expect("Couldn't get user's home dir.");
 
@@ -36,6 +38,7 @@ pub fn get_steam_root_dir() -> PathBuf {
 }
 
 #[tauri::command]
+/// Gets the steam grids directory.
 pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
@@ -51,6 +54,7 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) 
 }
 
 #[tauri::command]
+/// Gets the steam library cache directory.
 pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
   
@@ -59,6 +63,7 @@ pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
+/// Gets the steam appinfo.vdf path.
 pub fn get_appinfo_path(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
@@ -67,6 +72,7 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
+/// Gets the steam shortcuts.vdf path.
 pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
@@ -75,6 +81,7 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -
 }
 
 #[tauri::command]
+/// Gets the steam localconfig.vdf path.
 pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
   
@@ -82,12 +89,14 @@ pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String)
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
+/// Reads a steam user's id.
 fn read_steam_user_id(user_block: &str) -> String {
   let quote_index = user_block.find("\"").expect("Should have been able to find a quote.");
   let id_str = &user_block[..quote_index];
   return id_str.to_owned();
 }
 
+/// Reads a steam user.
 fn read_steam_user(user_id: &str, user_block: &str) -> Map<String, Value> {
   let id_32 = user_id.parse::<u64>().unwrap() - 76561197960265728;
 
@@ -114,6 +123,7 @@ fn read_steam_user(user_id: &str, user_block: &str) -> Map<String, Value> {
   return steam_user;
 }
 
+/// Reads the steam users.
 fn read_steam_users() -> Map<String, Value> {
   let mut steam_users: Map<String, Value> = Map::new();
     
@@ -139,6 +149,7 @@ fn read_steam_users() -> Map<String, Value> {
 }
 
 #[tauri::command]
+/// Gets all steam users that have logged in on this computer.
 pub fn get_steam_users(app_handle: AppHandle) -> String {
   logger::log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
     
