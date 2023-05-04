@@ -200,11 +200,15 @@ pub struct Writer<'a> {
 
 #[allow(dead_code)]
 impl Writer<'_> {
+  /// Gets the underlying data of the writer.
   pub fn get_data(&self) -> &[u8] { return &self.data[..]; }
+  /// Gets the offset of the writer.
   pub fn get_offset(&self) -> usize { return self.offset; }
 
+  /// Creates a new Writer from the provided buffer.
   pub fn new(buf: &mut Vec<u8>) -> Writer { return Writer { data: buf, offset: 0 }; }
 
+  /// Seek to a new offset, from 0 (start), 1 (current), or 2 (end) of the buffer.
   pub fn seek(&mut self, offset: usize, position: u8) {
     if position == 0 {
       self.offset = offset;
@@ -215,10 +219,12 @@ impl Writer<'_> {
     }
   }
   
+  /// Expands the capacity of the underlying buffer.
   fn expand_capacity(&mut self) {
     self.data.resize(self.data.len() * 2, 0);
   }
 
+  /// Data writing interface.
   fn write_i<T: HasByteConvert>(&mut self, data: T, length: u8, endianness: bool) -> u8 {
     if self.remaining() <= length.into() {
       self.expand_capacity()
@@ -231,67 +237,80 @@ impl Writer<'_> {
     }
   }
 
+  /// Trims any excess bytes from the underlying buffer.
   pub fn trim(&mut self) {
     self.data.truncate(self.offset);
   }
 
+  /// Gets the remaining length of the buffer.
   pub fn remaining(&mut self) -> usize {
     return self.data.len() - (self.offset + 1);
   }
   
+  /// Writes an 8 bit unsigned int to the buffer.
   pub fn write_uint8(&mut self, data: u8, endianness: bool) -> u8 {
     let res = self.write_i::<u8>(data, 1, endianness);
     self.offset += 1;
     return res;
   }
+  /// Writes a 16 bit unsigned int to the buffer.
   pub fn write_uint16(&mut self, data: u16, endianness: bool) -> u8 {
     let res = self.write_i::<u16>(data, 2, endianness);
     self.offset += 2;
     return res;
   }
+  /// Writes a 32 bit unsigned int to the buffer.
   pub fn write_uint32(&mut self, data: u32, endianness: bool) -> u8 {
     let res = self.write_i::<u32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
+  /// Writes a 64 bit unsigned int to the buffer.
   pub fn write_uint64(&mut self, data: u64, endianness: bool) -> u8 {
     let res = self.write_i::<u64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
   
+  /// Writes an 8 bit signed int to the buffer.
   pub fn write_int8(&mut self, data: i8, endianness: bool) -> u8 {
     let res = self.write_i::<i8>(data, 1, endianness);
     self.offset += 1;
     return res;
   }
+  /// Writes a 16 bit signed int to the buffer.
   pub fn write_int16(&mut self, data: i16, endianness: bool) -> u8 {
     let res = self.write_i::<i16>(data, 2, endianness);
     self.offset += 2;
     return res;
   }
+  /// Writes a 32 bit signed int to the buffer.
   pub fn write_int32(&mut self, data: i32, endianness: bool) -> u8 {
     let res = self.write_i::<i32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
+  /// Writes a 64 bit signed int to the buffer.
   pub fn write_int64(&mut self, data: i64, endianness: bool) -> u8 {
     let res = self.write_i::<i64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
   
+  /// Writes a 32 bit float to the buffer.
   pub fn write_float32(&mut self, data: f32, endianness: bool) -> u8 {
     let res = self.write_i::<f32>(data, 4, endianness);
     self.offset += 4;
     return res;
   }
+  /// Writes a 64 bit float to the buffer.
   pub fn write_float64(&mut self, data: f64, endianness: bool) -> u8 {
     let res = self.write_i::<f64>(data, 8, endianness);
     self.offset += 8;
     return res;
   }
 
+  /// Writes a string to the buffer, optionally prefixing it with its length.
   pub fn write_string(&mut self, data: String, prefix_with_length: bool, endianness: bool) -> u32 {
     let str_bytes = data.into_bytes();
     let str_bytes_len = str_bytes.len();

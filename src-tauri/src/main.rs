@@ -46,23 +46,29 @@ struct ChangedPath {
   sourcePath: String
 }
 
-fn get_grid_filename(appid: &str, grid_type: &str, image_type: &str) -> String {
+/// Gets a grid's file name based on its type.
+fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image_type: &str) -> String {
   match grid_type {
     "Capsule" => return format!("{}p{}", appid, image_type),
     "Wide Capsule" => return format!("{}{}", appid, image_type),
     "Hero" => return format!("{}_hero{}", appid, image_type),
     "Logo" => return format!("{}_logo{}", appid, image_type),
     "Icon" => return format!("{}_icon{}", appid, image_type),
-    _ => panic!("Unexpected grid type {}", grid_type)
+    _ => {
+      logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
+      panic!("Unexpected grid type {}", grid_type);
+    }
   }
 }
 
-fn adjust_path(appid: &str, path: &str, grid_type: &str) -> String {
+/// Adjusts the path of a grid based on its type.
+fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str) -> String {
   let format_start_index = path.rfind(".").expect("Path should have had a file extension.");
   let image_type = &path[format_start_index..];
-  return get_grid_filename(appid, grid_type, image_type);
+  return get_grid_filename(app_handle, appid, grid_type, image_type);
 }
 
+/// Filters the grid paths based on which have change.
 fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
   let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
   let mut res:Vec<ChangedPath> = Vec::new();
@@ -82,7 +88,7 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
         let target_path;
 
         if source_path != "REMOVE" {
-          let adjusted_path = adjust_path(appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
+          let adjusted_path = adjust_path(app_handle, appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
           target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
         } else {
           target_path = String::from("REMOVE");
@@ -112,6 +118,7 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
   return res;
 }
 
+/// Checks for shortcut grid changes.
 fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec<String>, shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
   for changed_path in changed_paths.into_iter() {
     let appid = changed_path.appId;
@@ -132,8 +139,8 @@ fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec
   return false;
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
+/// Exports the users grids to a Grids zip file.
 async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
@@ -164,6 +171,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
 }
 
 #[tauri::command]
+/// Sets the users grids from a Grids zip file.
 async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
@@ -193,6 +201,7 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
 }
 
 #[tauri::command]
+/// Reads the user's appinfo.vdf file.
 async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
   let appinfo_path: PathBuf = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned()));
   let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
@@ -200,6 +209,7 @@ async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
 }
 
 #[tauri::command]
+/// Reads the user's shortcuts.vdf file.
 async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
   let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     
@@ -214,6 +224,7 @@ async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String)
 }
 
 #[tauri::command]
+/// Reads the user's localconfig.vdf file.
 async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
   let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_active_user_id));
     
@@ -241,6 +252,7 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
 }
 
 #[tauri::command]
+/// Applies the changes the user has made.
 async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
   let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
     return appid.to_owned();
@@ -312,6 +324,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 }
 
 #[tauri::command]
+/// Writes the user's shortcuts.vdf file.
 async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, shortcuts_str: String) -> bool {
   logger::log_to_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
   let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
@@ -329,6 +342,7 @@ async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, sh
 }
 
 #[tauri::command]
+/// Downloads a file from a url.
 async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String) -> bool {
   logger::log_to_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
 
@@ -348,6 +362,7 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   }
 }
 
+/// Adds the user's steam directory to Tauri FS and Asset scope.
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
 
@@ -372,6 +387,8 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   }
 }
 
+
+/// This app's main function.
 fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![

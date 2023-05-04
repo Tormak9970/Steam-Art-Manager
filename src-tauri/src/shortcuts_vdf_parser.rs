@@ -7,6 +7,7 @@ use crate::reader::Reader;
 use crate::vdf_reader::read_entry_map;
 use crate::writer::Writer;
 
+/// Opens the shortcuts.vdf file and returns the values as JSON.
 pub fn open_shortcuts_vdf(path: &PathBuf) -> Value {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
@@ -20,6 +21,7 @@ pub fn open_shortcuts_vdf(path: &PathBuf) -> Value {
   return read(&mut reader);
 }
 
+/// Reads the shortcuts.vdf file and returns the values as JSON.
 fn read(reader: &mut Reader) -> Value {
   reader.seek(1, 0);
 
@@ -32,6 +34,7 @@ fn read(reader: &mut Reader) -> Value {
   return Value::Object(read_entry_map(reader));
 }
 
+/// Writes the shortcuts.vdf file from JSON.
 pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {
   if data.is_object() {
     let shortcuts = data.as_object().expect("Should have been able to convert to an object.");
@@ -57,6 +60,7 @@ pub fn write_shortcuts_vdf(path: &PathBuf, data: Value) -> bool {
   }
 }
 
+/// Writes a shortcuts.vdf entry map from JSON.
 fn write_entry_map(writer: &mut Writer, map: &Map<String, Value>) {
   for (key, val) in map.into_iter() {
     write_entry_field(writer, key, val);
@@ -65,6 +69,7 @@ fn write_entry_map(writer: &mut Writer, map: &Map<String, Value>) {
   writer.write_uint8(0x08, true);
 }
 
+/// Writes a shortcuts.vdf entry field from JSON.
 fn write_entry_field(writer: &mut Writer, key: &String, field: &Value) {
   let key_owned: String = key.to_owned();
 

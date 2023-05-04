@@ -101,12 +101,17 @@ pub struct Reader<'a> {
 
 #[allow(dead_code)]
 impl Reader<'_> {
+  /// Gets the underlying data of the reader.
   pub fn get_data(&self) -> &[u8] { return self.data; }
+  /// Gets the offset of the reader.
   pub fn get_offset(&self) -> usize { return self.offset; }
+  /// Gets the length of the reader.
   pub fn get_length(&self) -> u64 { return self.length; }
 
+  /// Creates a new Reader from the provided buffer.
   pub fn new(buf: &[u8]) -> Reader { return Reader { data: buf, offset: 0, length: buf.len() as u64 }; }
 
+  /// Seek to a new offset, from 0 (start), 1 (current), or 2 (end) of the buffer.
   pub fn seek(&mut self, offset: usize, position: u8) {
     if position == 0 {
       self.offset = offset;
@@ -117,8 +122,10 @@ impl Reader<'_> {
     }
   }
   
+  /// Gets the remaining length of the buffer.
   pub fn remaining(&mut self) -> u64 { return self.length - (self.offset as u64); }
 
+  /// Data reading interface.
   fn read_i<T: HasByteConvert>(&mut self, endianness: bool) -> T {
     if endianness {
       return T::from_le_bytes(self.data, self.offset);
@@ -127,63 +134,75 @@ impl Reader<'_> {
     }
   }
   
+  /// Reads the next char from the buffer.
   pub fn read_char(&mut self, endianness: bool) -> char {
     return self.read_uint8(endianness) as char;
   }
   
+  /// Reads the next 8 bit unsigned int from the buffer.
   pub fn read_uint8(&mut self, endianness: bool) -> u8 {
     let res = self.read_i::<u8>(endianness);
     self.offset += 1;
     return res;
   }
+  /// Reads the next 16 bit unsigned int from the buffer.
   pub fn read_uint16(&mut self, endianness: bool) -> u16 {
     let res = self.read_i::<u16>(endianness);
     self.offset += 2;
     return res;
   }
+  /// Reads the next 32 bit unsigned int from the buffer.
   pub fn read_uint32(&mut self, endianness: bool) -> u32 {
     let res = self.read_i::<u32>(endianness);
     self.offset += 4;
     return res;
   }
+  /// Reads the next 64 bit unsigned int from the buffer.
   pub fn read_uint64(&mut self, endianness: bool) -> u64 {
     let res = self.read_i::<u64>(endianness);
     self.offset += 8;
     return res;
   }
   
+  /// Reads the next 8 bit signed int from the buffer.
   pub fn read_int8(&mut self, endianness: bool) -> i8 {
     let res = self.read_i::<i8>(endianness);
     self.offset += 1;
     return res;
   }
+  /// Reads the next 16 bit signed int from the buffer.
   pub fn read_int16(&mut self, endianness: bool) -> i16 {
     let res = self.read_i::<i16>(endianness);
     self.offset += 2;
     return res;
   }
+  /// Reads the next 32 bit signed int from the buffer.
   pub fn read_int32(&mut self, endianness: bool) -> i32 {
     let res = self.read_i::<i32>(endianness);
     self.offset += 4;
     return res;
   }
+  /// Reads the next 64 bit signed int from the buffer.
   pub fn read_int64(&mut self, endianness: bool) -> i64 {
     let res = self.read_i::<i64>(endianness);
     self.offset += 8;
     return res;
   }
   
+  /// Reads the next 32 bit float from the buffer.
   pub fn read_float32(&mut self, endianness: bool) -> f32 {
     let res = self.read_i::<f32>(endianness);
     self.offset += 4;
     return res;
   }
+  /// Reads the next 64 bit float from the buffer.
   pub fn read_float64(&mut self, endianness: bool) -> f64 {
     let res = self.read_i::<f64>(endianness);
     self.offset += 8;
     return res;
   }
 
+  /// Reads the next string from the buffer, using the provided length or reading till next 00 byte.
   pub fn read_string(&mut self, length: Option<u32>) -> String {
     let mut len: usize = 0;
 

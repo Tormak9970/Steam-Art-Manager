@@ -2,6 +2,7 @@ use serde_json::{Value, Map};
 
 use crate::reader::Reader;
 
+/// Reads a vdf entry map to JSON.
 pub fn read_entry_map(reader: &mut Reader) -> Map<String, Value> {
   let mut props = Map::new();
 
@@ -19,6 +20,7 @@ pub fn read_entry_map(reader: &mut Reader) -> Map<String, Value> {
   return props;
 }
 
+/// Reads a vdf entry field to JSON.
 pub fn read_entry_field(reader: &mut Reader, field_type: u8) -> Value {
   match field_type {
     0x00 => { //? map

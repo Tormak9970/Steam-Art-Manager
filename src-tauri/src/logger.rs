@@ -9,6 +9,7 @@ use std::fs::{
 use tauri::AppHandle;
 use chrono::prelude::*;
 
+/// Gets the log file path for this app.
 pub fn get_log_path(app_handle: &AppHandle) -> PathBuf {
   let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
 
@@ -20,6 +21,7 @@ pub fn get_log_path(app_handle: &AppHandle) -> PathBuf {
 }
 
 #[tauri::command]
+/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err).
 pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
   let log_path: PathBuf = get_log_path(&app_handle);
 
@@ -48,6 +50,7 @@ pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
 }
 
 #[tauri::command]
+/// Cleans the log file for a new launch of the app.
 pub fn clean_out_log(app_handle: AppHandle) {
   let log_path: PathBuf = get_log_path(&app_handle);
 
