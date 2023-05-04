@@ -119,14 +119,7 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
 }
 
 /// Checks for shortcut grid changes.
-fn check_for_shortcut_changes(changed_paths: Vec<ChangedPath>, shortcut_ids: Vec<String>, shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
-  for changed_path in changed_paths.into_iter() {
-    let appid = changed_path.appId;
-    if shortcut_ids.contains(&appid) {
-      return true;
-    }
-  }
-
+fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
   for (shortcut_id, icon) in shortcut_icons.to_owned().into_iter() {
     let icon: &str = icon.as_str().expect("Should have been able to convert icon to &str.");
     let original_icon: &str = original_shortcut_icons.get(&shortcut_id).expect("Original hortcut should have had an icon.").as_str().expect("Should have been able to convert original icon to &str.");
@@ -253,16 +246,13 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
 
 #[tauri::command]
 /// Applies the changes the user has made.
-async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_ids_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
-  let shortcut_ids: Vec<String> = shortcut_ids_str.split(", ").map(| appid | {
-    return appid.to_owned();
-  }).collect();
+async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
   let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
-  let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (entry.appId.to_owned(), entry.to_owned())).collect();
+  let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
   logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
   for changed_path in (&paths_to_set).into_iter() {
@@ -301,7 +291,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     }
   }
 
-  let should_change_shortcuts = check_for_shortcut_changes(paths_to_set.clone(), shortcut_ids, &shortcut_icons, &original_shortcut_icons);
+  let should_change_shortcuts = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
   
   if should_change_shortcuts {
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
@@ -316,8 +306,10 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
       let shortcut_appid_num: i64 = shortcut_appid_val.as_i64().expect("should have been able to convert shortcut appid to str.");
       let shortcut_appid: String = shortcut_appid_num.to_string();
 
-      if paths_id_map.contains_key(&shortcut_appid) {
-        let changed_path: &ChangedPath = paths_id_map.get(&shortcut_appid).expect("entry should have existed.");
+      let path_key: String = format!("{}_icon", shortcut_appid.to_owned()).to_string();
+
+      if paths_id_map.contains_key(&path_key) {
+        let changed_path: &ChangedPath = paths_id_map.get(&path_key).expect("entry should have existed.");
         shortcut_map.insert(String::from("icon"), Value::String(changed_path.targetPath.to_owned()));
       }
     }
@@ -325,8 +317,6 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     let mut modified_shortcuts_data: Map<String, Value> = Map::new();
     modified_shortcuts_data.insert(String::from("shortcuts"), shortcuts_obj_map.to_owned());
     shortcuts_data = Value::Object(modified_shortcuts_data);
-    
-    println!("shortcuts data: {}", serde_json::to_string_pretty(&shortcuts_data).unwrap());
 
     let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);

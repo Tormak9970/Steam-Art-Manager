@@ -152,16 +152,15 @@ export class RustInterop {
    * @param currentArt The current changes.
    * @param originalArt The original art dictionary.
    * @param shortcuts The list of shortcuts.
-   * @param shortcutIds The list of shortcut ids.
    * @param shortcutIcons The map of shortcutIds to updated icons.
    * @param originalShortcutIcons The map of shortcutIds to original icons.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(activeUserId: string, currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIds: string[], shortcutIcons: { [id: string]: string }, originalShortcutIcons: { [id: string]: string }): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIcons: { [id: string]: string }, originalShortcutIcons: { [id: string]: string }): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
       "shortcuts": {...shortcuts}
     }
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), shortcutIdsStr: shortcutIds.join(", "), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
     return JSON.parse(res);
   }
 
