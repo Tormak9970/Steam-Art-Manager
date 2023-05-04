@@ -6,6 +6,7 @@ use serde_json::{Value, Map};
 use crate::reader::Reader;
 use crate::vdf_reader::read_entry_map;
 
+/// Opens the appinfo.vdf file and returns the values as JSON.
 pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
   let mut file = fs::File::open(path).expect("Path should have existed.");
 
@@ -19,6 +20,7 @@ pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
   return read(&mut reader);
 }
 
+/// Reads the appinfo.vdf file and returns the values as JSON.
 fn read(reader: &mut Reader) -> Map<String, Value> {
   let magic = reader.read_uint32(true);
   let _universe = reader.read_uint32(true); //always 1
@@ -39,6 +41,7 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
   return res;
 }
 
+/// Reads the appinfo.vdf app sections to a JSON array.
 fn read_app_sections(reader: &mut Reader, skip: u8) -> Vec<Value> {
   let mut entries: Vec<Value> = vec![];
   let mut id: u32 = reader.read_uint32(true);

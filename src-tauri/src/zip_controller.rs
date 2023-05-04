@@ -6,6 +6,7 @@ use serde_json::{Map, Value};
 use tauri::AppHandle;
 use zip;
 
+/// Gets the id for a grid from its name.
 fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
   let dot_index: usize = grid_name.find(".").expect("File should have had a file extension");
   let underscore_index_res = grid_name.find("_");
@@ -25,6 +26,7 @@ fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
   }
 }
 
+/// Constructs the export names for grids.
 fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, platform: &str, id_name_map: &Map<String, Value>) -> String {
   let dot_index: usize = filename.find(".").expect("File should have had a file extension");
   let file_ext: &str = &filename[dot_index..];
@@ -48,6 +50,7 @@ fn construct_grid_export_name(filename: &str, id: &String, grid_type: &String, p
   return output_filename;
 }
 
+/// Pulls the necessary information from a grid's export name.
 fn deconstruct_grid_export_name(filename: &str) -> (String, String, String, String) {
   let dot_index: usize = filename.find(".").expect("File should have had a file extension");
   let file_ext: &str = &filename[dot_index..];
@@ -58,7 +61,8 @@ fn deconstruct_grid_export_name(filename: &str) -> (String, String, String, Stri
   return (parts[0].to_owned(), parts[1].to_owned(), grid_type.to_owned(), file_ext.to_owned());
 }
 
-fn get_import_grid_name(filename: &str, name_id_map: &Map<String, Value>) -> (String, String, String) {
+/// Get the proper name for a grid when importing.
+fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Map<String, Value>) -> (String, String, String) {
   if filename.contains("__") {
     let (platform, filename_core, grid_type, file_ext) = deconstruct_grid_export_name(filename);
 
@@ -82,6 +86,7 @@ fn get_import_grid_name(filename: &str, name_id_map: &Map<String, Value>) -> (St
         file_grid_type = "_icon";
       },
       _ => {
+        logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);
         panic!("Unexpected grid type: {}", grid_type);
       }
     }
@@ -104,6 +109,7 @@ fn get_import_grid_name(filename: &str, name_id_map: &Map<String, Value>) -> (St
 }
 
 #[allow(unused)]
+/// Generates a Grids zip file export.
 pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, id_name_map: &Map<String, Value>) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file: File = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
@@ -142,6 +148,7 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
   return true;
 }
 
+/// Sets the users grids from a Grids zip file.
 pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, name_id_map: &Map<String, Value>) -> (bool, Map<String, Value>) {
   let mut icon_map: Map<String, Value> = Map::new();
 
@@ -159,7 +166,7 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
 
     if zip_file.is_file() {
       let mangled_name: PathBuf = zip_file.mangled_name();
-      let (platform, appid, adjusted_file_name) = get_import_grid_name(mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
+      let (platform, appid, adjusted_file_name) = get_import_grid_name(app_handle, mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
       
       let dest_path = grids_dir_path.join(PathBuf::from(&adjusted_file_name));
 
