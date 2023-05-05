@@ -32,7 +32,7 @@
       {#if isVideo}
         <video src="{imagePath}" muted loop autoplay={false} style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
       {:else}
-        <img src="{imagePath}" alt="{altText}" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+        <img src="{imagePath}" alt="{altText}" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" draggable="false" />
       {/if}
     </Lazy>
   {:else}
