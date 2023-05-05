@@ -143,7 +143,7 @@
    */
   async function filterGridsOnStateChange(sgdbApiKey: string, online: boolean, selectedAppId: number, selectedGridType: GridTypes, resultsPage: number, filters: DBFilters): Promise<void> {
     if (online && sgdbApiKey != "" && selectedAppId != null) {
-      const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage);
+      const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage, $selectedSteamGridGameId);
       grids = filterGrids(unfilteredGrids, selectedGridType, filters);
     }
   }
