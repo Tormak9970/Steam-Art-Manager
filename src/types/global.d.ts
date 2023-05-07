@@ -68,3 +68,11 @@ type ChangedPath = {
   targetPath: string,
   sourcePath: string
 }
+
+type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter';
+
+interface LogoPosition {
+  pinnedPosition: LogoPinPositions;
+  nWidthPct: number;
+  nHeightPct: number;
+};
