@@ -38,7 +38,7 @@
       if (element == selectedOptions[i]) {
         sameAsSelected.push(i);
       } else {
-        selectedOptions[i].classList.remove("select-arrow-active");
+        active = false;
       }
     }
 
