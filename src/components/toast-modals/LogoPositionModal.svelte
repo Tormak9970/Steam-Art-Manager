@@ -74,10 +74,12 @@
       heroPath = "";
     }
 
-    if ($appLibraryCache[$selectedGameAppId].Logo == "REMOVE") {
-      logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
-    } else {
-      logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
+    if ($appLibraryCache[$selectedGameAppId]?.Logo) {
+      if ($appLibraryCache[$selectedGameAppId].Logo == "REMOVE") {
+        logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
+      } else {
+        logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
+      }
     }
   });
 </script>
