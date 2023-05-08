@@ -10,44 +10,19 @@
   export let width = "auto";
   export let placement: Placement = "left";
 
+  let customSelectElem: HTMLDivElement;
+  let customSelectElemWrapper: HTMLDivElement;
   let internalValue = options.find((opt) => opt.data == value)?.label;
   
   let active = false;
 
-  const body = document.getElementsByTagName("body")[0];
-
-  if (!body.hasAttribute("data-select-close")) {
-    document.addEventListener("click", closeAllSelect);
-    body.setAttribute("data-select-close", "");
-  }
-
   /**
-   * Closes all select elements.
-   * @param element The element that was selected.
+   * Closes all dropdowns.
+   * @param e The click event.
    */
-  function closeAllSelect(element: any): void {
-    let sameAsSelected = [];
-
-    let selectedItems = document.getElementsByClassName("select-items") as HTMLCollectionOf<Element>;
-    let selectedItemsLength = selectedItems.length;
-
-    let selectedOptions = document.getElementsByClassName("select-selected") as HTMLCollectionOf<Element>;
-    let selectedOptionsLength = selectedOptions.length;
-
-    for (let i = 0; i < selectedOptionsLength; i++) {
-      if (element == selectedOptions[i]) {
-        sameAsSelected.push(i);
-      } else {
-        // active = false;
-        selectedOptions[i].classList.remove("select-arrow-active");
-      }
-    }
-
-    for (let i = 0; i < selectedItemsLength; i++) {
-      if (sameAsSelected.indexOf(i)) {
-        selectedItems[i].classList.add("select-hide");
-      }
-    }
+  function closeDropdowns(e: Event): void {
+    const target = <HTMLDivElement>e.target;
+    if (target != customSelectElem && target != customSelectElemWrapper) active = false;
   }
 
   /**
@@ -55,8 +30,6 @@
    * @param e The associated event.
    */
   function toggleDropdown(e: Event): void {
-    const target = <HTMLDivElement>e.currentTarget;
-    closeAllSelect(target);
     active = !active;
   }
 
@@ -95,17 +68,18 @@
   }
 
   afterUpdate(() => {
-    // if (options.find((opt) => opt.data == value)) internalValue = options.find((opt) => opt.data == value)?.label;
     internalValue = options.find((opt) => opt.data == value)?.label;
   });
 </script>
+
+<svelte:body on:click={closeDropdowns} />
 
 <div class="wrapper" style="width: {width};">
   {#if label != ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: placement, onShow: AppController.onTippyShow}}>
+  <div class="custom-select" style="width: {width}; min-width: {width};" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: placement, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
     <select>
       <option value="default">{internalValue}</option>
       {#each options as opt}
@@ -114,7 +88,7 @@
     </select>
   
     {#key value}
-      <div class="select-selected" class:select-arrow-active={active}>{internalValue}</div>
+      <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
     {/key}
     <div class="select-items" class:select-hide={!active}>
       {#each options as opt}
