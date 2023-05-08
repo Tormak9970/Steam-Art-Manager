@@ -27,9 +27,8 @@
 
   /**
    * Toggles the dropdown.
-   * @param e The associated event.
    */
-  function toggleDropdown(e: Event): void {
+  function toggleDropdown(): void {
     active = !active;
   }
 
@@ -39,32 +38,12 @@
    */
   function selectOption(e: Event): void {
     const targetElement = <HTMLElement>e.currentTarget;
-    let select = targetElement.parentElement.parentElement.parentElement.getElementsByTagName("select")[0];
-    let numOptions = select.length;
-    let selectDisplay = targetElement.parentElement.previousElementSibling;
-
-    for (let i = 0; i < numOptions; i++) {
-      if (select.options[i].innerHTML == targetElement.innerHTML) {
-        select.selectedIndex = i;
-        selectDisplay.innerHTML = targetElement.innerHTML;
-
-        let y = targetElement.parentElement.getElementsByClassName("same-as-selected");
-        let yl = y.length;
-        for (let k = 0; k < yl; k++) {
-          y[k].classList.toggle("same-as-selected");
-        }
-
-        targetElement.classList.toggle("same-as-selected");
-
-        break;
-      }
-    }
-
+    
     onChange(targetElement.id);
     value = targetElement.id;
     internalValue = targetElement.innerHTML;
 
-    (selectDisplay as HTMLElement).click();
+    toggleDropdown();
   }
 
   afterUpdate(() => {
@@ -92,13 +71,8 @@
     {/key}
     <div class="select-items" class:select-hide={!active}>
       {#each options as opt}
-        {#if opt.data == value}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
-        {:else}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow }}>{opt.label}</div>
-        {/if}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
       {/each}
     </div>
   </div>
