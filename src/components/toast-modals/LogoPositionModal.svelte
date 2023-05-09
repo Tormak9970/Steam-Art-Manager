@@ -25,6 +25,7 @@
   import DropDown from "../interactables/DropDown.svelte";
     import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
     import Slider from "../interactables/Slider.svelte";
+    import { fade } from "svelte/transition";
 
   export let show: boolean = false;
   export let onClose: () => void;
@@ -48,11 +49,15 @@
   $: game = games.find((game) => game.appid == $selectedGameAppId);
   let heroPath = "";
   let logoPath = "";
-  let currentLogoPosition = "CenterCenter"; // This needs to be grabbed dynamically
+
   let canSave = false;
 
   let logoWidth = 44; //used as percent of the width of the background
   let logoHeight = 26; //used as percent of the height of the background
+
+  
+  let currentLogoPosition: LogoPinPositions = "CenterCenter"; // This needs to be grabbed dynamically
+  let currentCssStyles: LogoCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
 
   const widths = {
     "Hero": 956,
@@ -101,15 +106,21 @@
   }
 
   function onWidthChange(newWidth: number): void {
-
+    logoWidth = newWidth;
+    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
+    canSave = true;
   }
 
   function onHeightChange(newHeight: number): void {
-
+    logoHeight = newHeight;
+    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
+    canSave = true;
   }
 
   function onPositionChange(position: LogoPinPositions): void {
-
+    currentLogoPosition = position;
+    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
+    canSave = true;
   }
 
   /**
@@ -162,11 +173,9 @@
             {/if}
           </div>
         </div>
-        <div class="logo-cont">
-          <div class="img" style="max-height: {heights.Logo}px;">
-            <Lazy height="{heights.Logo}px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{logoPath}" alt="Logo image for {game?.name}" style="max-width: {widths.Logo}px; max-height: {heights.Logo}px; width: auto; height: auto;" />
-            </Lazy>
+        <div class="logo-cont" style="height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
+          <div style="height: 100%; width: 100%;" in:fade={{delay: 500, duration: 1000}}>
+            <img src="{logoPath}" alt="Logo image for {game?.name}" style="max-width: 100%; max-height: 100%; width: auto; height: auto;" />
           </div>
         </div>
       </div>
@@ -258,16 +267,10 @@
   .view {
     width: calc(100% - 20px);
     position: relative;
-    padding: 10px;
+    margin: 10px;
   }
 
-  .hero-cont {
-    /* padding: 10px; */
-  }
-  .logo-cont {
-    position: absolute;
-    top: 10px;
-  }
+  .logo-cont { position: absolute; }
 
   .hero-cont > .img {
     border-radius: 2px;
@@ -293,11 +296,6 @@
     display: flex;
   }
 
-  .logo-size {
-    width: 220px;
-  }
-
-  .logo-position {
-    width: 220px;
-  }
+  .logo-size { width: 220px; }
+  .logo-position { width: 220px; }
 </style>
