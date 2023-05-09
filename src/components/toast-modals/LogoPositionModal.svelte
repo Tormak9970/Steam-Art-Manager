@@ -23,9 +23,18 @@
   import { afterUpdate } from "svelte";
   import { tauri } from "@tauri-apps/api";
   import DropDown from "../interactables/DropDown.svelte";
+    import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
+    import Slider from "../interactables/Slider.svelte";
 
   export let show: boolean = false;
   export let onClose: () => void;
+
+  type LogoCssStyles = {
+    top: number,
+    bottom: number,
+    right: number,
+    left: number
+  }
 
   const anchorPos: LogoPinPositions[] = ['BottomLeft', 'UpperLeft', 'UpperCenter', 'CenterCenter', 'BottomCenter'];
   const dropdownOptions = anchorPos.map((anchorPos: LogoPinPositions) => {
@@ -42,6 +51,9 @@
   let currentLogoPosition = "CenterCenter"; // This needs to be grabbed dynamically
   let canSave = false;
 
+  let logoWidth = 44; //used as percent of the width of the background
+  let logoHeight = 26; //used as percent of the height of the background
+
   const widths = {
     "Hero": 956,
     "Logo": 600
@@ -51,6 +63,50 @@
     "Hero": 342,
     "Logo": 402
   };
+
+  function getLogoPosition(pos: LogoPinPositions, heightPct: number, widthPct: number): LogoCssStyles {
+    const positions = {
+      BottomLeft: {
+        bottom: 0,
+        top: 100 - heightPct,
+        left: 0,
+        right: 100 - widthPct,
+      },
+      UpperLeft: {
+        bottom: 100 - heightPct,
+        top: 0,
+        left: 0,
+        right: 100 - widthPct,
+      },
+      CenterCenter: {
+        bottom: (100 - heightPct) / 2,
+        top: (100 - heightPct) / 2,
+        left: (100 - widthPct) / 2,
+        right: (100 - widthPct) / 2,
+      },
+      UpperCenter: {
+        bottom: 100 - heightPct,
+        top: 0,
+        left: (100 - widthPct) / 2,
+        right: (100 - widthPct) / 2,
+      },
+      BottomCenter: {
+        bottom: 0,
+        top: 100 - heightPct,
+        left: (100 - widthPct) / 2,
+        right: (100 - widthPct) / 2,
+      },
+    };
+    return positions[pos];
+  }
+
+  function onWidthChange(newWidth: number): void {
+
+  }
+
+  function onHeightChange(newHeight: number): void {
+
+  }
 
   function onPositionChange(position: LogoPinPositions): void {
 
@@ -98,32 +154,33 @@
     <div class="content">
       <div class="view">
         <div class="hero-cont">
-          <div class="img" class:missing-background={heroPath == ""} style="max-height: 342px;">
+          <div class="img" class:missing-background={heroPath == ""} style="max-height: {heights.Hero}px;">
             {#if heroPath != ""}
-              <Lazy height="342px" fadeOption={{delay: 500, duration: 1000}}>
-                <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: 956px; max-height: 342px; width: auto; height: auto;" />
+              <Lazy height="{heights.Hero}px" fadeOption={{delay: 500, duration: 1000}}>
+                <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
               </Lazy>
             {/if}
           </div>
         </div>
         <div class="logo-cont">
-          <div class="img" style="max-height: 402px;">
-            <Lazy height="402px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{logoPath}" alt="Logo image for {game?.name}" style="max-width: 600px; max-height: 402px; width: auto; height: auto;" />
+          <div class="img" style="max-height: {heights.Logo}px;">
+            <Lazy height="{heights.Logo}px" fadeOption={{delay: 500, duration: 1000}}>
+              <img src="{logoPath}" alt="Logo image for {game?.name}" style="max-width: {widths.Logo}px; max-height: {heights.Logo}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
       </div>
-      <div class="options">
+      <div class="interactables">
         <div class="logo-size">
-          <div>TODO: size slider</div>
+          <Slider label="Width" width="200px" onChange={onWidthChange} bind:value={logoWidth} />
+        </div>
+        <div class="logo-size">
+          <Slider label="Height" width="200px" onChange={onHeightChange} bind:value={logoHeight} />
         </div>
         <div class="logo-position">
           <DropDown label="Position" options={dropdownOptions} onChange={onPositionChange} bind:value={currentLogoPosition} width="140px" />
         </div>
-        <div class="buttons">
-          <Button label="Save" onClick={applyChanges} width="100%" />
-        </div>
+        <Button label="Save" onClick={applyChanges} width="300px" />
       </div>
     </div>
   </div>
@@ -229,7 +286,7 @@
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
   }
 
-  .options {
+  .interactables {
     width: calc(100% - 20px);
     padding: 0px 10px;
 
@@ -237,19 +294,10 @@
   }
 
   .logo-size {
-    width: 130px;
-  }
-
-  .logo-position {
-    margin: 0px 14px;
     width: 220px;
   }
 
-  .buttons {
-    margin-top: 14px;
-    width: calc(100% - 400px);
-    display: flex;
-    justify-content: space-around;
-    justify-self: flex-end;
+  .logo-position {
+    width: 220px;
   }
 </style>
