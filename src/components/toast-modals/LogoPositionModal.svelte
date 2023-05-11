@@ -23,9 +23,8 @@
   import { afterUpdate } from "svelte";
   import { tauri } from "@tauri-apps/api";
   import DropDown from "../interactables/DropDown.svelte";
-    import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
-    import Slider from "../interactables/Slider.svelte";
-    import { fade } from "svelte/transition";
+  import Slider from "../interactables/Slider.svelte";
+  import { fade } from "svelte/transition";
 
   export let show: boolean = false;
   export let onClose: () => void;
@@ -52,8 +51,8 @@
 
   let canSave = false;
 
-  let logoWidth = 44; //used as percent of the width of the background
-  let logoHeight = 26; //used as percent of the height of the background
+  let logoWidth = 50; //used as percent of the width of the background
+  let logoHeight = 50; //used as percent of the height of the background
 
   
   let currentLogoPosition: LogoPinPositions = "CenterCenter"; // This needs to be grabbed dynamically
@@ -173,10 +172,8 @@
             {/if}
           </div>
         </div>
-        <div class="logo-cont" style="height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
-          <div style="height: 100%; width: 100%;" in:fade={{delay: 500, duration: 1000}}>
-            <img src="{logoPath}" alt="Logo image for {game?.name}" style="max-width: 100%; max-height: 100%; width: auto; height: auto;" />
-          </div>
+        <div class="logo-cont" style="justify-content: {currentLogoPosition.includes("Bottom") ? "flex-end" : (currentLogoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {currentLogoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
+          <img in:fade={{delay: 500, duration: 1000}} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
         </div>
       </div>
       <div class="interactables">
@@ -270,7 +267,12 @@
     margin: 10px;
   }
 
-  .logo-cont { position: absolute; }
+  .logo-cont {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid red;
+  }
 
   .hero-cont > .img {
     border-radius: 2px;
