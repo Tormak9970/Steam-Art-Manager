@@ -104,18 +104,6 @@
     return positions[pos];
   }
 
-  function onWidthChange(newWidth: number): void {
-    logoWidth = newWidth;
-    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
-    canSave = true;
-  }
-
-  function onHeightChange(newHeight: number): void {
-    logoHeight = newHeight;
-    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
-    canSave = true;
-  }
-
   function onPositionChange(position: LogoPinPositions): void {
     currentLogoPosition = position;
     currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
@@ -147,6 +135,9 @@
         logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
     }
+
+    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
+    canSave = true;
   });
 </script>
 
@@ -178,10 +169,10 @@
       </div>
       <div class="interactables">
         <div class="logo-size">
-          <Slider label="Width" width="200px" onChange={onWidthChange} bind:value={logoWidth} />
+          <Slider label="Width" width="200px" bind:value={logoWidth} />
         </div>
         <div class="logo-size">
-          <Slider label="Height" width="200px" onChange={onHeightChange} bind:value={logoHeight} />
+          <Slider label="Height" width="200px" bind:value={logoHeight} />
         </div>
         <div class="logo-position">
           <DropDown label="Position" options={dropdownOptions} onChange={onPositionChange} bind:value={currentLogoPosition} width="140px" />

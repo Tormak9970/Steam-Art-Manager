@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { afterUpdate, createEventDispatcher } from "svelte";
   import { fly, fade } from "svelte/transition";
 
   // Props
@@ -51,15 +51,18 @@
 
   function onDragStart(e:any) {
     // If mouse event add a pointer events shield
-    if (e.type === "mousedown") document.body.append(mouseEventShield);
+    if (e.type === "mousedown") {
+      document.body.append(mouseEventShield);
+    }
     currentThumb = thumb;
   }
 
   function onDragEnd(e:any) {
     // If using mouse - remove pointer event shield
     if (e.type === "mouseup") {
-      if (document.body.contains(mouseEventShield))
+      if (document.body.contains(mouseEventShield)) {
         document.body.removeChild(mouseEventShield);
+      }
       // Needed to check whether thumb and mouse overlap after shield removed
       if (isMouseInElement(e, thumb)) thumbHover = true;
     }
@@ -102,12 +105,17 @@
     accelerationTimer = setTimeout(() => (keydownAcceleration = 1), 100);
   }
 
+  /**
+   * Calculates the slider's new value.
+   * @param clientX The x coordinate of the events mouse.
+   * ? Verified this is working properly.
+   */
   function calculateNewValue(clientX:number) {
     // Find distance between cursor and element's left cord (20px / 2 = 10px) - Center of thumb
-    let delta = clientX - (elementX + 10);
+    let delta = clientX - (elementX + 8);
 
     // Use width of the container minus (5px * 2 sides) offset for percent calc
-    let percent = (delta * 100) / (container.clientWidth - 10);
+    let percent = (delta * 100) / (container.clientWidth - 16);
 
     // Limit percent 0 -> 100
     percent = percent < 0 ? 0 : percent > 100 ? 100 : percent;
@@ -119,17 +127,17 @@
   // Handles both dragging of touch/mouse as well as simple one-off click/touches
   function updateValueOnEvent(e:any) {
     // touchstart && mousedown are one-off updates, otherwise expect a currentPointer node
-    if (!currentThumb && e.type !== "touchstart" && e.type !== "mousedown")
+    if (!currentThumb && e.type !== "touchstart" && e.type !== "mousedown") {
       return false;
+    }
 
     if (e.stopPropagation) e.stopPropagation();
     if (e.preventDefault) e.preventDefault();
 
     // Get client's x cord either touch or mouse
-    const clientX =
-      e.type === "touchmove" || e.type === "touchstart"
-        ? e.touches[0].clientX
-        : e.clientX;
+    const clientX = (e.type === "touchmove" || e.type === "touchstart") ? e.touches[0].clientX : e.clientX;
+    
+    console.log("ClientX:", clientX);
 
     calculateNewValue(clientX);
   }
@@ -147,7 +155,7 @@
     value = value < max ? value : max;
 
     let percent = ((value - min) * 100) / (max - min);
-    let offsetLeft = (container.clientWidth - 10) * (percent / 100) + 5;
+    let offsetLeft = (container.clientWidth - 16) * (percent / 100) + 8;
 
     // Update thumb position + active range track width
     thumb.style.left = `${offsetLeft}px`;
