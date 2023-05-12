@@ -17,7 +17,7 @@
  -->
  <script lang="ts">
   import Lazy from "svelte-lazy";
-  import { appLibraryCache, nonSteamGames, selectedGameAppId, showLogoPositionModal, steamGames, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, nonSteamGames, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -26,7 +26,6 @@
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
 
-  export let show: boolean = false;
   export let onClose: () => void;
 
   type LogoCssStyles = {
@@ -50,12 +49,16 @@
   let logoPath = "";
 
   let canSave = false;
-
-  let logoWidth = 50; //used as percent of the width of the background
-  let logoHeight = 50; //used as percent of the height of the background
   
-  let currentLogoPosition: LogoPinPositions = "CenterCenter"; // This needs to be grabbed dynamically
-  let currentCssStyles: LogoCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
+  let originalWidth = 0;
+  let originalHeight = 0;
+  let originalPosition: LogoPinPositions = "CenterCenter";
+
+  let logoWidth = 0;
+  let logoHeight = 0;
+  let logoPosition: LogoPinPositions = "CenterCenter";
+
+  let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
 
   const widths = {
     "Hero": 956,
@@ -103,21 +106,20 @@
     return positions[pos];
   }
 
-  function onPositionChange(position: LogoPinPositions): void {
-    currentLogoPosition = position;
-    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
-    canSave = true;
-  }
-
   /**
    * Apply the logo position changes.
    */
   async function applyChanges() {
-    await AppController.setLogoPosition($selectedGameAppId, currentLogoPosition, logoHeight, logoWidth);
+    await AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
   }
 
   afterUpdate(() => {
+    currentCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
+    canSave = (originalHeight != logoHeight) || (originalWidth != logoWidth) || (originalPosition != logoPosition);
+  });
+
+  onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
       if ($appLibraryCache[$selectedGameAppId].Hero == "REMOVE") {
         heroPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
@@ -136,19 +138,26 @@
       }
     }
 
-    currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
-    canSave = true;
-  });
+    const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
 
-  onMount(() => {
-    setTimeout(() => {
-      $showLogoPositionModal = false;
-    });
+    if (gameLogoPos) {
+      originalHeight = gameLogoPos.logoPosition.nHeightPct;
+      originalWidth = gameLogoPos.logoPosition.nWidthPct;
+      originalPosition = gameLogoPos.logoPosition.pinnedPosition;
+    } else {
+      originalHeight = 50;
+      originalWidth = 50;
+      originalPosition = "CenterCenter";
+    }
+
+    logoHeight = originalHeight;
+    logoWidth = originalWidth;
+    logoPosition = originalPosition;
   });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="background" class:show on:click={onClose}>
+<div class="background" on:click={onClose}>
   <div class="modal-body" on:click|stopPropagation>
     <div class="close-btn" on:click={onClose}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
@@ -169,19 +178,19 @@
             {/if}
           </div>
         </div>
-        <div class="logo-cont" style="justify-content: {currentLogoPosition.includes("Bottom") ? "flex-end" : (currentLogoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {currentLogoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
+        <div class="logo-cont" style="justify-content: {logoPosition.includes("Bottom") ? "flex-end" : (logoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {logoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
           <img in:fade={{delay: 500, duration: 1000}} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
         </div>
       </div>
       <div class="interactables">
         <div class="logo-size">
-          <Slider label="Width" width="200px" bind:value={logoWidth} />
+          <Slider label="Width" bind:value={logoWidth} width="200px" />
         </div>
         <div class="logo-size">
-          <Slider label="Height" width="200px" bind:value={logoHeight} />
+          <Slider label="Height" bind:value={logoHeight} width="200px" />
         </div>
         <div class="logo-position">
-          <DropDown label="Position" options={dropdownOptions} onChange={onPositionChange} bind:value={currentLogoPosition} width="140px" />
+          <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" />
         </div>
         <Button label="Save" onClick={applyChanges} width="300px" />
       </div>
@@ -199,7 +208,7 @@
     background-color: rgba(0, 0, 0, 0.6);
     width: 100%;
     height: calc(100% - 30px);
-    display: none;
+    display: flex;
   }
 
   .border {
@@ -229,8 +238,6 @@
     cursor: pointer;
     background-color: var(--background-hover);
   }
-
-  .show { display: flex; }
 
   .modal-body {
     margin: auto;

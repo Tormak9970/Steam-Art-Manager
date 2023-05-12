@@ -115,7 +115,9 @@
   </Titlebar>
 	<div class="content">
 		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
-		<LogoPositionModal show={$showLogoPositionModal} onClose={onLogoPositionModalClose} />
+    {#if $showLogoPositionModal}
+		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+    {/if}
 		<Splitpanes>
 			<Options />
 

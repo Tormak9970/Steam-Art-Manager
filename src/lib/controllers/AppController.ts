@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -123,6 +123,30 @@ export class AppController {
       WindowController.openSettingsWindow();
     }
   }
+
+  /**
+   * Caches the steam game logo configs.
+   * @param logoConfigs The list of logoConfig files.
+   * ? Logging complete.
+   */
+  private static async cacheLogoConfigs(logoConfigs: fs.FileEntry[]): Promise<void> {
+    const configs = {};
+
+    for (const logoConfig of logoConfigs) {
+      const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
+
+      if (!isNaN(id)) {
+        const contents = await fs.readTextFile(logoConfig.path);
+        const jsonContents = JSON.parse(contents);
+        configs[id] = jsonContents;
+      }
+    }
+
+    originalLogoPositions.set(JSON.parse(JSON.stringify(configs)));
+    steamLogoPositions.set(JSON.parse(JSON.stringify(configs)));
+
+    LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
+  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
@@ -130,30 +154,35 @@ export class AppController {
    * @returns The filtered and structured grids dir.
    * ? Logging complete.
    */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): { [appid: string]: LibraryCacheEntry } {
+  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
     let resKeys = [];
+    const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of gridsDirContents) {
-      const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
-      const appId = fileEntry.name.substring(0, firstUnderscore);
-      let type = "";
-      if (fileEntry.name.indexOf("_") > 0) {
-        type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
+      if (fileEntry.name.endsWith(".json")) {
+        logoConfigs.push(fileEntry);
       } else {
-        type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
-      }
-
-      if (gridTypeLUT[type]) {
-        if (!resKeys.includes(appId)) {
-          resKeys.push(appId);
-          res[appId] = {} as LibraryCacheEntry;
+        const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
+        const appId = fileEntry.name.substring(0, firstUnderscore);
+        let type = "";
+        if (fileEntry.name.indexOf("_") > 0) {
+          type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
+        } else {
+          type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
         }
-        res[appId][gridTypeLUT[type]] = fileEntry.path;
+
+        if (gridTypeLUT[type]) {
+          if (!resKeys.includes(appId)) {
+            resKeys.push(appId);
+            res[appId] = {} as LibraryCacheEntry;
+          }
+          res[appId][gridTypeLUT[type]] = fileEntry.path;
+        }
       }
     }
 
-    return res;
+    return [res, logoConfigs];
   }
 
   /**
@@ -206,12 +235,14 @@ export class AppController {
    */
   private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
-    const filteredGrids = AppController.filterGridsDir(gridDirContents);
+    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents);
     LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
     const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcuts);
     LogController.log("Library Cache loaded.");
+
+    await AppController.cacheLogoConfigs(logoConfigs);
 
     return filteredCache;
   }
@@ -613,9 +644,26 @@ export class AppController {
    * @param pinPosition The position of the logo.
    * @param heightPct The height percentage.
    * @param widthPct The width percentage.
+   * ? Logging complete.
    */
   static async setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): Promise<void> {
+    const logoPositions = get(steamLogoPositions);
 
+    const currentPos = logoPositions[appId];
+    logoPositions[appId] = {
+      nVersion: currentPos.nVersion,
+      logoPosition: {
+        pinnedPosition: pinPosition,
+        nHeightPct: heightPct,
+        nWidthPct: widthPct
+      }
+    }
+
+    steamLogoPositions.set(logoPositions);
+
+    canSave.set(true);
+
+    LogController.log(`Updated logo position for game ${appId}`);
   }
 
   /**

@@ -71,8 +71,13 @@ type ChangedPath = {
 
 type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter';
 
-interface LogoPosition {
-  pinnedPosition: LogoPinPositions;
-  nWidthPct: number;
-  nHeightPct: number;
+type LogoPosition = {
+  pinnedPosition: LogoPinPositions,
+  nWidthPct: number,
+  nHeightPct: number,
 };
+
+type SteamLogoConfig = {
+  nVersion: number,
+  logoPosition: LogoPosition,
+}
