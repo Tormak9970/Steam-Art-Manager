@@ -462,6 +462,9 @@ export class AppController {
     const originalShortcuts = get(originalSteamShortcuts);
     steamShortcuts.set(JSON.parse(JSON.stringify(originalShortcuts)));
 
+    const originalPositions = get(originalLogoPositions);
+    steamLogoPositions.set(JSON.parse(JSON.stringify(originalPositions)));
+
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
     
@@ -474,9 +477,11 @@ export class AppController {
    */
   static async discardChangesForGame(appId: number): Promise<void> {
     const originalCache = get(originalAppLibraryCache);
+    const originalLogoCache = get(originalLogoPositions);
     const originalShortcuts = get(originalSteamShortcuts);
 
     const appCache = get(appLibraryCache);
+    const logoPositionCache = get(steamLogoPositions);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
@@ -489,6 +494,9 @@ export class AppController {
     
     appCache[appId] = originalCache[appId];
     appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    
+    logoPositionCache[appId] = originalLogoPositions[appId];
+    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
 
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
