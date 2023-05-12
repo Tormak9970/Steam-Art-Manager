@@ -17,10 +17,10 @@
  -->
  <script lang="ts">
   import Lazy from "svelte-lazy";
-  import { appLibraryCache, nonSteamGames, selectedGameAppId, steamGames, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, nonSteamGames, selectedGameAppId, showLogoPositionModal, steamGames, unfilteredLibraryCache } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
-  import { afterUpdate } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import { tauri } from "@tauri-apps/api";
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
@@ -53,7 +53,6 @@
 
   let logoWidth = 50; //used as percent of the width of the background
   let logoHeight = 50; //used as percent of the height of the background
-
   
   let currentLogoPosition: LogoPinPositions = "CenterCenter"; // This needs to be grabbed dynamically
   let currentCssStyles: LogoCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
@@ -113,8 +112,9 @@
   /**
    * Apply the logo position changes.
    */
-  function applyChanges() {
-    
+  async function applyChanges() {
+    await AppController.setLogoPosition($selectedGameAppId, currentLogoPosition, logoHeight, logoWidth);
+    onClose();
   }
 
   afterUpdate(() => {
@@ -138,6 +138,12 @@
 
     currentCssStyles = getLogoPosition(currentLogoPosition, logoHeight, logoWidth);
     canSave = true;
+  });
+
+  onMount(() => {
+    setTimeout(() => {
+      $showLogoPositionModal = false;
+    });
   });
 </script>
 
@@ -262,7 +268,8 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    border: 2px solid red;
+    border: 2px solid var(--highlight-transparent);
+    border-radius: 2px;
   }
 
   .hero-cont > .img {

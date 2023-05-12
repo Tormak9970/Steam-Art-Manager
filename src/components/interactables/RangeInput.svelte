@@ -111,10 +111,10 @@
    * ? Verified this is working properly.
    */
   function calculateNewValue(clientX:number) {
-    // Find distance between cursor and element's left cord (20px / 2 = 10px) - Center of thumb
+    // Find distance between cursor and element's left cord (17px / 2 ~= 8px) - Center of thumb
     let delta = clientX - (elementX + 8);
 
-    // Use width of the container minus (5px * 2 sides) offset for percent calc
+    // Use width of the container minus (8px * 2 sides) offset for percent calc
     let percent = (delta * 100) / (container.clientWidth - 16);
 
     // Limit percent 0 -> 100
@@ -136,14 +136,12 @@
 
     // Get client's x cord either touch or mouse
     const clientX = (e.type === "touchmove" || e.type === "touchstart") ? e.touches[0].clientX : e.clientX;
-    
-    console.log("ClientX:", clientX);
 
     calculateNewValue(clientX);
   }
 
   // React to left position of element relative to window
-  $: if (element) elementX = element.getBoundingClientRect().left;
+  $: if (element) elementX = element?.getBoundingClientRect()?.left;
 
   // Set a class based on if dragging
   $: holding = Boolean(currentThumb);

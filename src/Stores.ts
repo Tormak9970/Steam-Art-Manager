@@ -77,7 +77,7 @@ export const selectedSteamGridGameId = writable("None");
 export const showGridModal = writable(false);
 export const gridModalInfo: Writable<SGDBImage> = writable(null);
 
-export const showLogoPositionModal = writable(false);
+export const showLogoPositionModal = writable(true);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {

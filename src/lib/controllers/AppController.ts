@@ -608,6 +608,17 @@ export class AppController {
   }
 
   /**
+   * Sets the logo position for the provided game.
+   * @param appId The id of the app to save the logo position for.
+   * @param pinPosition The position of the logo.
+   * @param heightPct The height percentage.
+   * @param widthPct The width percentage.
+   */
+  static async setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): Promise<void> {
+
+  }
+
+  /**
    * Prompts the user to select a .zip file containing steam game art.
    * ? Logging complete.
    */
