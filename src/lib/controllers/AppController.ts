@@ -501,7 +501,7 @@ export class AppController {
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
     
-    canSave.set(!(JSON.stringify(originalCache) == JSON.stringify(appCache)));
+    canSave.set(!((JSON.stringify(originalCache) == JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) == JSON.stringify(logoPositionCache))));
   }
 
   /**
