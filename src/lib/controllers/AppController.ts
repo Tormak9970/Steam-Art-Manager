@@ -431,10 +431,10 @@ export class AppController {
     const logoPosStrings = {};
 
     for (const [appid, steamLogo] of Object.entries(steamLogoPos)) {
-      const originalPos = originalLogoPos[appid].logoPosition;
+      const originalPos = originalLogoPos[appid]?.logoPosition;
       const logoPos = steamLogo.logoPosition;
 
-      if (logoPos.nHeightPct != originalPos.nHeightPct || logoPos.nWidthPct != originalPos.nWidthPct || logoPos.pinnedPosition != originalPos.pinnedPosition) {
+      if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
         logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
       }
     }
@@ -680,7 +680,7 @@ export class AppController {
 
     const currentPos = logoPositions[appId];
     logoPositions[appId] = {
-      nVersion: currentPos.nVersion,
+      nVersion: currentPos?.nVersion ?? 1,
       logoPosition: {
         pinnedPosition: pinPosition,
         nHeightPct: heightPct,

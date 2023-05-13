@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File, write}, io::Write};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -291,7 +291,34 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     }
   }
 
-  let should_change_shortcuts = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
+  let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id.clone()));
+  for (appid, steam_logo_str_val) in changed_logo_positions.into_iter() {
+    let steam_logo_str: &str = steam_logo_str_val.as_str().expect("Should have been able to convert steamLogo pos into str.");
+    let logo_config_path: PathBuf = grids_directory.join(format!("{}.json", appid));
+
+    if steam_logo_str == "Remove" {
+      let remove_res = fs::remove_file(logo_config_path);
+      if remove_res.is_err() {
+        let err = remove_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
+      logger::log_to_file(app_handle.to_owned(), format!("Removed logo position config for {}.", appid).as_str(), 0);
+    } else {
+      // let config_file = fs::File::create(&logo_config_path).expect("Should have been able to create or truncate logo pos config file.");
+      
+      let write_res = write(&logo_config_path, steam_logo_str);
+  
+      if write_res.is_ok() {
+        logger::log_to_file(app_handle.to_owned(), format!("Wrote logo pos to config for {}.", appid).as_str(), 0);
+      } else {
+        logger::log_to_file(app_handle.to_owned(), format!("Failed to write logo pos to config for {}.", appid).as_str(), 2);
+        let err = write_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
+    }
+  }
+
+  let should_change_shortcuts: bool = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
   
   if should_change_shortcuts {
     logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
