@@ -426,7 +426,20 @@ export class AppController {
     const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
-    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons);
+    const originalLogoPos = get(originalLogoPositions);
+    const steamLogoPos = get(steamLogoPositions);
+    const logoPosStrings = {};
+
+    for (const [appid, steamLogo] of Object.entries(steamLogoPos)) {
+      const originalPos = originalLogoPos[appid].logoPosition;
+      const logoPos = steamLogo.logoPosition;
+
+      if (logoPos.nHeightPct != originalPos.nHeightPct || logoPos.nWidthPct != originalPos.nWidthPct || logoPos.pinnedPosition != originalPos.pinnedPosition) {
+        logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
+      }
+    }
+
+    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons, logoPosStrings);
     
     if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
@@ -444,6 +457,14 @@ export class AppController {
       
       originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
       steamShortcuts.set(shortcuts);
+
+      let logoPosEntries = Object.entries(steamLogoPos);
+      logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
+        return logoPos.logoPosition.pinnedPosition != "REMOVE"
+      });
+
+      originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
+      steamLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     }

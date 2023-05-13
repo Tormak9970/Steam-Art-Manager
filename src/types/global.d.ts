@@ -69,7 +69,7 @@ type ChangedPath = {
   sourcePath: string
 }
 
-type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter';
+type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter' | "REMOVE";
 
 type LogoPosition = {
   pinnedPosition: LogoPinPositions,
