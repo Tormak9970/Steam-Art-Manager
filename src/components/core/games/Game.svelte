@@ -4,7 +4,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { GridTypes, Platforms, appLibraryCache, currentPlatform, gridType, hiddenGameIds, originalAppLibraryCache, selectedGameAppId, selectedGameName, unfilteredLibraryCache } from "../../../Stores";
+  import { GridTypes, Platforms, appLibraryCache, currentPlatform, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../Stores";
   import { AppController } from "../../../lib/controllers/AppController";
   import GridImage from "../GridImage.svelte";
 
@@ -16,7 +16,10 @@
   let showImage = true;
   let imagePath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
-  $: canDiscard = ($currentPlatform == Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false;
+  $: originalLogoPos = $originalLogoPositions[game.appid]?.logoPosition;
+  $: steamLogoPos = $steamLogoPositions[game.appid]?.logoPosition;
+  $: canDiscard = (($currentPlatform == Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false)
+                  || (steamLogoPos ? (steamLogoPos.nHeightPct != originalLogoPos.nHeightPct || steamLogoPos.nWidthPct != originalLogoPos.nWidthPct || steamLogoPos.pinnedPosition != originalLogoPos.pinnedPosition) : false);
   $: hasCustomArt = ($currentPlatform == Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType] : false;
 
   /**
