@@ -22,7 +22,11 @@ fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
     let id = &name[0..(name.len() - 1)];
     return (id.to_owned(), "capsule".to_owned());
   } else {
-    return (name.to_owned(), "widecapsule".to_owned());
+    if &grid_name[(dot_index+1)..] == "json" {
+      return (name.to_owned(), "logoposition".to_owned());
+    } else {
+      return (name.to_owned(), "widecapsule".to_owned());
+    }
   }
 }
 
@@ -84,6 +88,9 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
       },
       "icon" => {
         file_grid_type = "_icon";
+      },
+      "logoposition" => {
+        file_grid_type = "";
       },
       _ => {
         logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);

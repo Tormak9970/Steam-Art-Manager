@@ -311,7 +311,8 @@ export class CacheController {
         steamGridSteamAppIdMap[appId] = gameId;
       }
       
-      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.id.toString() == gameId);
+      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : null;
+      choosenResult ||= results.find((game) => game.id.toString() == gameId);
       if (!choosenResult && results.length > 0) choosenResult = results[0];
 
       if (choosenResult?.id) {

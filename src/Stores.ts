@@ -53,7 +53,7 @@ export const dowloadingGridId: Writable<number> = writable(null);
 export const showHidden = writable(false);
 
 export const steamUsers: Writable<{ [id: string]: SteamUser }> = writable({});
-export const activeUserId = writable(0);
+export const activeUserId = sharedStore(0, "activeUserId");
 
 
 export const originalSteamShortcuts: Writable<SteamShortcut[]> = writable([]);
@@ -76,6 +76,12 @@ export const selectedSteamGridGameId = writable("None");
 
 export const showGridModal = writable(false);
 export const gridModalInfo: Writable<SGDBImage> = writable(null);
+
+export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
+export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
+export const showLogoPositionModal = writable(false);
+
+export const showBatchApplyModal = writable(false);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
