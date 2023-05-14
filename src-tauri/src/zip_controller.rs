@@ -23,7 +23,7 @@ fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
     return (id.to_owned(), "capsule".to_owned());
   } else {
     if &grid_name[(dot_index+1)..] == "json" {
-      return (name.to_owned(), "logoconfig".to_owned());
+      return (name.to_owned(), "logoposition".to_owned());
     } else {
       return (name.to_owned(), "widecapsule".to_owned());
     }
@@ -89,7 +89,7 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
       "icon" => {
         file_grid_type = "_icon";
       },
-      "logoconfig" => {
+      "logoposition" => {
         file_grid_type = "";
       },
       _ => {

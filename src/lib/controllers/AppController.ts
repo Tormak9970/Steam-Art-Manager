@@ -476,7 +476,7 @@ export class AppController {
    * Discards the current changes
    * ? Logging complete.
    */
-  static async discardChanges(): Promise<void> {
+  static discardChanges(): void {
     const originalCache = get(originalAppLibraryCache);
     appLibraryCache.set(JSON.parse(JSON.stringify(originalCache)));
 
@@ -496,7 +496,7 @@ export class AppController {
    * Discard changes for a given app.
    * @param appId The id of the app to clear changes for.
    */
-  static async discardChangesForGame(appId: number): Promise<void> {
+  static discardChangesForGame(appId: number): void {
     const originalCache = get(originalAppLibraryCache);
     const originalLogoCache = get(originalLogoPositions);
     const originalShortcuts = get(originalSteamShortcuts);
@@ -529,7 +529,7 @@ export class AppController {
    * Clears all custom grids for a given app.
    * @param appId The id of the app to clear art for.
    */
-  static async clearCustomArtForGame(appId: number): Promise<void> {
+  static clearCustomArtForGame(appId: number): void {
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
@@ -556,9 +556,24 @@ export class AppController {
   }
 
   /**
+   * Clears the logo position for a given app.
+   * @param appid The id of the app to clear the logo position of.
+   */
+  static clearLogoPosition(appid: number): void {
+    const logoPositionCache = get(steamLogoPositions);
+
+    logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
+    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
+
+    LogController.log(`Cleared logo position for ${appid}`);
+
+    canSave.set(true);
+  }
+
+  /**
    * Clears all custom grids.
    */
-  static async clearAllGrids(): Promise<void> {
+  static clearAllGrids(): void {
     const sGames = get(steamGames);
     const nonSGames = get(steamShortcuts);
     const games = [...sGames, ...nonSGames];
@@ -595,7 +610,7 @@ export class AppController {
    * Opens a SteamGridDB image for viewing.
    * @param grid The grid info of the grid to view.
    */
-  static async viewSteamGridImage(grid: SGDBImage): Promise<void> {
+  static viewSteamGridImage(grid: SGDBImage): void {
     showGridModal.set(true);
     gridModalInfo.set(grid);
   }
@@ -605,7 +620,7 @@ export class AppController {
    * @param path The path of the new art.
    * ? Logging complete.
    */
-  static async setCustomArt(path: string): Promise<void> {
+  static setCustomArt(path: string): void {
     const type = get(gridType);
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
@@ -675,7 +690,7 @@ export class AppController {
    * @param widthPct The width percentage.
    * ? Logging complete.
    */
-  static async setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): Promise<void> {
+  static setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): void {
     const logoPositions = get(steamLogoPositions);
 
     const currentPos = logoPositions[appId];
@@ -784,7 +799,7 @@ export class AppController {
    * Checks if the app can go online, goes online if so, otherwise notifies the user.
    * ? Logging complete.
    */
-  static async tryGoOnline(): Promise<void> {
+  static tryGoOnline(): void {
     LogController.log("Attempting to go online...");
     if (navigator.onLine) {
       isOnline.set(true);

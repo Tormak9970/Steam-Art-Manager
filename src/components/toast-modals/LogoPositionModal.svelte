@@ -17,7 +17,7 @@
  -->
  <script lang="ts">
   import Lazy from "svelte-lazy";
-  import { appLibraryCache, nonSteamGames, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -25,6 +25,7 @@
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
+    import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
 
   export let onClose: () => void;
 
@@ -59,6 +60,8 @@
   let logoPosition: LogoPinPositions = "CenterCenter";
 
   let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
+  
+  $: canClear = !!$originalLogoPositions[game.appid];
 
   const widths = {
     "Hero": 956,
@@ -109,9 +112,16 @@
   /**
    * Apply the logo position changes.
    */
-  async function applyChanges() {
-    await AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
+  function applyChanges() {
+    AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
+  }
+
+  /**
+   * Clears any changes made to the logo position.
+   */
+  function clearLogoPosition() {
+    AppController.clearLogoPosition($selectedGameAppId);
   }
 
   afterUpdate(() => {
@@ -190,7 +200,14 @@
         <div class="logo-position">
           <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" />
         </div>
-        <Button label="Save" onClick={applyChanges} width="300px" />
+        {#if canClear}
+          <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
+          <HorizontalSpacer />
+          <HorizontalSpacer />
+          <Button label="Reset" onClick={clearLogoPosition} width="102px" />
+        {:else}
+          <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
+        {/if}
       </div>
     </div>
   </div>
