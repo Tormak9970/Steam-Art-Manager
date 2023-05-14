@@ -3,7 +3,7 @@
   import { AppController } from "../../lib/controllers/AppController";
 
   export let label: string;
-  export let tooltipPosition: Placement = "left";
+  export let tooltipPosition: Placement = "top-end";
   export let width = "22px";
   export let height = "22px";
   export let onClick: (e: MouseEvent) => void;

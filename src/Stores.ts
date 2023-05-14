@@ -81,6 +81,8 @@ export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }
 export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
 export const showLogoPositionModal = writable(false);
 
+export const showBatchApplyModal = writable(false);
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
