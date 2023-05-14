@@ -172,9 +172,7 @@
         <div class="hero-cont">
           <div class="img" class:missing-background={heroPath == ""} style="max-height: {heights.Hero}px;">
             {#if heroPath != ""}
-              <Lazy height="{heights.Hero}px" fadeOption={{delay: 500, duration: 1000}}>
-                <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
-              </Lazy>
+              <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
             {/if}
           </div>
         </div>
