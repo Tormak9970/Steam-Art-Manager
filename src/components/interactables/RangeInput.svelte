@@ -115,7 +115,7 @@
     let delta = clientX - (elementX + 8);
 
     // Use width of the container minus (8px * 2 sides) offset for percent calc
-    let percent = (delta * 100) / (container.clientWidth - 16);
+    let percent = (delta * 100) / (container.clientWidth); //(container.clientWidth - 16)
 
     // Limit percent 0 -> 100
     percent = percent < 0 ? 0 : percent > 100 ? 100 : percent;
