@@ -53,7 +53,7 @@ export const dowloadingGridId: Writable<number> = writable(null);
 export const showHidden = writable(false);
 
 export const steamUsers: Writable<{ [id: string]: SteamUser }> = writable({});
-export const activeUserId = writable(0);
+export const activeUserId = sharedStore(0, "activeUserId");
 
 
 export const originalSteamShortcuts: Writable<SteamShortcut[]> = writable([]);
