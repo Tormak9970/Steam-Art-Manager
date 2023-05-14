@@ -47,6 +47,7 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) 
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
   if dir_create_res.is_err() {
+    logger::log_to_file(app_handle.to_owned(), "Should have been able to create the grids dir!", 2);
     panic!("Should have been able to create the grids dir!");
   }
 
