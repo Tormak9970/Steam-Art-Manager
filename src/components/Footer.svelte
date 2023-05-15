@@ -14,13 +14,13 @@
   </div>
   <div class="btns">
     {#if $canSave}
-      <Button label="Save" onClick={AppController.saveChanges} highlight={true} width="auto" height="20px" />
+      <Button label="Save" onClick={AppController.saveChanges} highlight={true} width="auto" height="22px" />
       <HorizontalSpacer />
-      <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="20px" />
+      <Button label="Cancel" onClick={AppController.discardChanges} width="auto" height="22px" />
       <HorizontalSpacer />
     {/if}
     {#if !$isOnline}
-      <Button label="Go Online" onClick={AppController.tryGoOnline} width="auto" height="20px" />
+      <Button label="Go Online" onClick={AppController.tryGoOnline} width="auto" height="22px" />
       <HorizontalSpacer />
     {/if}
     

@@ -296,8 +296,6 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     let steam_logo_str: &str = steam_logo_str_val.as_str().expect("Should have been able to convert steamLogo pos into str.");
     let logo_config_path: PathBuf = grids_directory.join(format!("{}.json", appid));
 
-    println!("logo config str: {}", steam_logo_str);
-    println!("Is remove {}", steam_logo_str == "REMOVE");
     if steam_logo_str == "REMOVE" {
       let remove_res = fs::remove_file(logo_config_path);
       if remove_res.is_err() {

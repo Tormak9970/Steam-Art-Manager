@@ -61,7 +61,7 @@
 
   let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
   
-  $: canClear = !!$originalLogoPositions[game.appid];
+  $: canClear = !!$originalLogoPositions[game.appid] && $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition != "REMOVE";
 
   const widths = {
     "Hero": 956,
@@ -122,11 +122,14 @@
    */
   function clearLogoPosition() {
     AppController.clearLogoPosition($selectedGameAppId);
+    onClose();
   }
 
   afterUpdate(() => {
     currentCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
-    canSave = (originalHeight != logoHeight) || (originalWidth != logoWidth) || (originalPosition != logoPosition);
+    const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
+    canSave = ((originalHeight != logoHeight) || (originalWidth != logoWidth) || (originalPosition != logoPosition))
+      || ((originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition));
   });
 
   onMount(() => {
@@ -150,7 +153,7 @@
 
     const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
 
-    if (gameLogoPos) {
+    if (gameLogoPos && gameLogoPos.logoPosition.pinnedPosition != "REMOVE") {
       originalHeight = gameLogoPos.logoPosition.nHeightPct;
       originalWidth = gameLogoPos.logoPosition.nWidthPct;
       originalPosition = gameLogoPos.logoPosition.pinnedPosition;
@@ -163,6 +166,9 @@
     logoHeight = originalHeight;
     logoWidth = originalWidth;
     logoPosition = originalPosition;
+    
+    const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
+    canSave = (originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition);
   });
 </script>
 
