@@ -204,7 +204,7 @@
           <Slider label="Height" bind:value={logoHeight} width="200px" />
         </div>
         <div class="logo-position">
-          <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" />
+          <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
         </div>
         {#if canClear}
           <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
