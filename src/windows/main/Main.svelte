@@ -9,13 +9,14 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, gridModalInfo, isOnline, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
+  import { activeUserId, gridModalInfo, isOnline, showBatchApplyModal, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
     import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
+    import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -37,6 +38,13 @@
 	function onGridModalClose() {
 		$showGridModal = false;
 		$gridModalInfo = null;
+	}
+
+  /**
+   * Function to run when the batch apply modal is closed.
+   */
+	function onBatchApplyModalClose() {
+		$showBatchApplyModal = false;
 	}
 
   /**
@@ -115,6 +123,9 @@
   </Titlebar>
 	<div class="content">
 		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
+    {#if $showBatchApplyModal}
+		  <BatchApplyModal onClose={onBatchApplyModalClose} />
+    {/if}
     {#if $showLogoPositionModal}
 		  <LogoPositionModal onClose={onLogoPositionModalClose} />
     {/if}
