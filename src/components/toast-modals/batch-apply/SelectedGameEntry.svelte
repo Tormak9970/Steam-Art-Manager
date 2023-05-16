@@ -1,9 +1,8 @@
 <script lang="ts">
-  import type { Platforms } from "../../../Stores";
   import Checkbox from "../../interactables/Checkbox.svelte";
 
   export let game: GameStruct;
-  export let platform: Platforms;
+  export let platform: string;
   export let isChecked: boolean;
   export let onChange: (appid: number, isChecked: boolean) => void = () => {};
 </script>
@@ -20,7 +19,7 @@
   @import "/theme.css";
 
   .selected-game-entry {
-    width: calc(100% - 14px);
+    width: calc(100% - 20px);
     
     padding: 3px 7px;
     margin-bottom: 7px;
@@ -31,18 +30,20 @@
     background-color: var(--foreground);
   }
 
-  .checkbox {
-
-  }
-
   .name {
     font-size: 12px;
-    margin-left: 7px;
     user-select: none;
+
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    margin-left: 10px;
   }
 
   .platform {
-    margin-left: auto;
+    margin-left: 85px;
     margin-right: 7px;
     
     font-size: 12px;
