@@ -29,26 +29,51 @@ export class LogController {
   }
 
   /**
-   * Logs a message with level [INFO] to the app's log file.
+   * Logs a message with level [INFO] to the core log file.
    * @param message Message to log.
    */
   static async log(message:string): Promise<void> {
-    await RustInterop.logToFile(message, LogLevel.INFO);
+    await RustInterop.logToCoreFile(message, LogLevel.INFO);
   }
 
   /**
-   * Logs a message with level [WARNING] to the app's log file.
+   * Logs a message with level [WARNING] to the core log file.
    * @param message Message to log.
    */
   static async warn(message:string): Promise<void> {
-    await RustInterop.logToFile(message, LogLevel.WARN);
+    await RustInterop.logToCoreFile(message, LogLevel.WARN);
   }
 
   /**
-   * Logs a message with level [ERROR] to the app's log file.
+   * Logs a message with level [ERROR] to the core log file.
    * @param message Message to log.
    */
   static async error(message:string): Promise<void> {
-    await RustInterop.logToFile(message, LogLevel.ERROR);
+    await RustInterop.logToCoreFile(message, LogLevel.ERROR);
+  }
+
+
+  /**
+   * Logs a message with level [INFO] to the batch apply log file.
+   * @param message Message to log.
+   */
+  static async batchApplyLog(message:string): Promise<void> {
+    await RustInterop.logToBatchApplyFile(message, LogLevel.INFO);
+  }
+
+  /**
+   * Logs a message with level [WARNING] to the batch apply log file.
+   * @param message Message to log.
+   */
+  static async batchApplyWarn(message:string): Promise<void> {
+    await RustInterop.logToBatchApplyFile(message, LogLevel.WARN);
+  }
+
+  /**
+   * Logs a message with level [ERROR] to the batch apply log file.
+   * @param message Message to log.
+   */
+  static async batchApplyError(message:string): Promise<void> {
+    await RustInterop.logToBatchApplyFile(message, LogLevel.ERROR);
   }
 }

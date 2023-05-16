@@ -93,7 +93,7 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
         file_grid_type = "";
       },
       _ => {
-        logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);
         panic!("Unexpected grid type: {}", grid_type);
       }
     }
@@ -144,14 +144,14 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
 
       zip_writer.start_file(in_zip_filename, entry_options);
       zip_writer.write(&contents);
-      logger::log_to_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
+      logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
     } else {
-      logger::log_to_file(app_handle.to_owned(), format!("Zip entry {} is a directory, skipping...", entry.file_name().to_str().unwrap()).as_str(), 1);
+      logger::log_to_core_file(app_handle.to_owned(), format!("Zip entry {} is a directory, skipping...", entry.file_name().to_str().unwrap()).as_str(), 1);
     }
   }
 
   zip_writer.finish();
-  logger::log_to_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
   return true;
 }
 
@@ -164,7 +164,7 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
   let mut zip_reader = zip::ZipArchive::new(buffer_reader).expect("Should have been able to create reader because file existed.");
 
   if zip_reader.is_empty() {
-    logger::log_to_file(app_handle.to_owned(), "No entries in zip.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "No entries in zip.", 0);
     return (false, icon_map);
   }
 
@@ -184,9 +184,9 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
       
       let mut outfile = File::create(&dest_path).unwrap();
       io::copy(&mut zip_file, &mut outfile).expect("Should have been able to write file.");
-      logger::log_to_file(app_handle.to_owned(), format!("Wrote zip entry {}.", zip_file.name()).as_str(), 0);
+      logger::log_to_core_file(app_handle.to_owned(), format!("Wrote zip entry {}.", zip_file.name()).as_str(), 0);
     } else {
-      logger::log_to_file(app_handle.to_owned(), format!("Zip entry {} is a directory, skipping...", zip_file.name()).as_str(), 1);
+      logger::log_to_core_file(app_handle.to_owned(), format!("Zip entry {} is a directory, skipping...", zip_file.name()).as_str(), 1);
     }
   }
 

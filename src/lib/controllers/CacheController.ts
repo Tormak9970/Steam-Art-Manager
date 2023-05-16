@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { fs, http, path } from "@tauri-apps/api";
+import { fs, path } from "@tauri-apps/api";
 import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, batchApplyWasCancelled, canSave, appLibraryCache, showBatchApplyProgress, batchApplyProgress, batchApplyMessage, steamGames, nonSteamGames, steamShortcuts, dbFilters } from "../../Stores";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
+import { ToastController } from "./ToastController";
+import { filterGrids } from "../utils/Utils";
 
 /**
  * Controller class for handling caching of requests.
@@ -134,12 +136,6 @@ export class CacheController {
       dowloadingGridId.set(appId);
       const success = await RustInterop.downloadGrid(imageURL, localImagePath);
 
-      if (success) {
-        console.log("download worked!");
-      } else {
-        console.log("download failed");
-      }
-
       // const imageData = await http.fetch<Uint8Array>(imageURL, {
       //   method: "GET",
       //   responseType: 3
@@ -190,10 +186,11 @@ export class CacheController {
    * @param appId The id of the app to get.
    * @param type The selected grid type.
    * @param page The page of results to get.
+   * @param useCoreFile Whether or not to use the core log file.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes, page: number): Promise<SGDBImage[]> {
+  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<SGDBImage[]> {
     const gridCacheKeys = Object.keys(nonSteamGridsCache);
     if (gridCacheKeys.includes(appId.toString())) {
       const types = Object.keys(nonSteamGridsCache[appId.toString()]);
@@ -202,23 +199,39 @@ export class CacheController {
         const pages = Object.keys(nonSteamGridsCache[appId.toString()][type]);
 
         if (pages.includes(page.toString())) {
-          LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
+          if (useCoreFile) {
+            LogController.log(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
+          } else {
+            LogController.batchApplyLog(`Using in memory cache for nonSteam ${appId}'s ${type}.`);
+          }
           return nonSteamGridsCache[appId.toString()][type][page];
         } else {
-          LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+          if (useCoreFile) {
+            LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+          } else {
+            LogController.batchApplyLog(`Need to fetch nonSteam ${type} for ${appId}.`);
+          }
           const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
           nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
           return grids;
         }
       } else {
-        LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+        if (useCoreFile) {
+          LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+        } else {
+          LogController.batchApplyLog(`Need to fetch nonSteam ${type} for ${appId}.`);
+        }
         const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
         nonSteamGridsCache[appId.toString()][type] = {};
         nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
         return grids;
       }
     } else {
-      LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+      if (useCoreFile) {
+        LogController.log(`Need to fetch nonSteam ${type} for ${appId}.`);
+      } else {
+        LogController.batchApplyLog(`Need to fetch nonSteam ${type} for ${appId}.`);
+      }
       const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
       nonSteamGridsCache[appId.toString()] = {};
       nonSteamGridsCache[appId.toString()][type] = {};
@@ -247,9 +260,10 @@ export class CacheController {
    * @param results The SGDBGame array.
    * @param platform The platform of the games.
    * @param type The type of grids to get.
+   * @param useCoreFile Whether or not to use the core log file.
    * ? Logging complete.
    */
-  private async cacheAllGridsForGame(results: SGDBGame[], platform: Platforms, type: GridTypes): Promise<void> {
+  private async cacheAllGridsForGame(results: SGDBGame[], platform: Platforms, type: GridTypes, useCoreFile: boolean): Promise<void> {
     LogController.log(`Caching all grids for results and determining numPages...`);
 
     results = await Promise.all(results.map(async (game) => {
@@ -257,7 +271,7 @@ export class CacheController {
 
       while (true) {
         try {
-          const grids = await this.fetchGridsForNonSteamGame(game.id, type, numPages);
+          const grids = await this.fetchGridsForNonSteamGame(game.id, type, numPages, useCoreFile);
           if (grids.length > 0) {
             numPages++;
           } else {
@@ -281,12 +295,18 @@ export class CacheController {
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
    * @param page The page of results to get.
+   * @param useCoreFile Whether or not to use the core log file.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    LogController.log(`Fetching grids for game ${appId}...`);
+  async fetchGrids(appId: number, page: number, useCoreFile: boolean, selectedSteamGridId?: string): Promise<SGDBImage[]> {
+    if (useCoreFile) {
+      LogController.log(`Fetching grids for game ${appId}...`);
+    } else {
+      LogController.batchApplyLog(`Fetching grids for game ${appId}...`);
+    }
+
     const type = get(gridType);
     const selectedPlatform = get(currentPlatform);
     
@@ -299,7 +319,7 @@ export class CacheController {
       if (!results) {
         results = await this.client.searchGame(gameName);
         await this.getNumPages(results, Platforms.STEAM, type);
-        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
+        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
         searchCache[appId] = results;
       }
 
@@ -318,9 +338,13 @@ export class CacheController {
       if (choosenResult?.id) {
         selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page, useCoreFile);
       } else {
-        LogController.log(`No results for ${type} for ${gameName}.`);
+        if (useCoreFile) {
+          LogController.log(`No results for ${type} for ${gameName}.`);
+        } else {
+          LogController.batchApplyLog(`No results for ${type} for ${gameName}.`);
+        }
         return [];
       }
     } else if (selectedPlatform == Platforms.NON_STEAM) {
@@ -332,7 +356,7 @@ export class CacheController {
       if (!results) {
         results = await this.client.searchGame(gameName);
         await this.getNumPages(results, Platforms.STEAM, type);
-        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type);
+        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
         searchCache[appId] = results;
       }
 
@@ -342,11 +366,108 @@ export class CacheController {
       if (choosenResult?.id) {
         selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page);
+        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page, useCoreFile);
       } else {
-        LogController.log(`No results for ${type} for ${gameName}.`);
+        if (useCoreFile) {
+          LogController.log(`No results for ${type} for ${gameName}.`);
+        } else {
+          LogController.batchApplyLog(`No results for ${type} for ${gameName}.`);
+        }
         return [];
       }
+    }
+  }
+
+  /**
+   * Batch applies grids to the provided games.
+   * @param appIds The list of ids.
+   * ? Logging Complete.
+   */
+  async batchApplyGrids(appIds: string[]): Promise<void> {
+    LogController.batchApplyLog(`\n`);
+    
+    const steamGameList = [...get(steamGames), ...get(nonSteamGames)];
+    const steamGameNameEntries = steamGameList.map((game: GameStruct) => [game.appid, game.name]);
+    const steamGameNameMap = Object.fromEntries(steamGameNameEntries);
+
+    const nonSteamGamesList = [...get(steamGames), ...get(nonSteamGames)];
+    const nonSteamGameNameEntries = nonSteamGamesList.map((game: GameStruct) => [game.appid, game.name]);
+    const nonSteamGameNameMap = Object.fromEntries(nonSteamGameNameEntries);
+
+    const gridsCopy = get(appLibraryCache);
+    const shortcutsCopy = get(steamShortcuts);
+    const selectedGridType = get(gridType);
+    const filters = get(dbFilters);
+
+    let numFinished = 0;
+    let shortcutsNeedUpdate = false;
+
+    for (const appid of appIds) {
+      if (get(batchApplyWasCancelled)) {
+        break;
+      } else {
+        const appidInt = parseInt(appid);
+        let gameName: string;
+        let isSteamGame = true;
+        let message: string;
+
+        if (steamGameNameMap[appid]) {
+          gameName = steamGameNameMap[appid];
+        } else {
+          isSteamGame = false;
+          gameName = nonSteamGameNameMap[appid];
+        }
+
+        const grids = await this.fetchGrids(appidInt, 0, false);
+        const filtered = filterGrids(grids, selectedGridType, filters, gameName, false);
+        
+        if (filtered.length > 0) {
+          const grid = filtered[0];
+
+          // @ts-ignore
+          if (!gridsCopy[appid]) gridsCopy[appid] = {};
+          
+          const localPath = await this.getGridImage(appidInt, grid.url.toString());
+          
+          if (!isSteamGame && selectedGridType == GridTypes.ICON) {
+            shortcutsNeedUpdate = true;
+            const shortcut = shortcutsCopy.find((s) => s.appid == appidInt);
+            shortcut.icon = localPath;
+          }
+
+          gridsCopy[appid][selectedGridType] = localPath;
+
+          message = `Applied ${selectedGridType} to ${gameName}.`;
+        } else {
+          message = `No ${selectedGridType == GridTypes.HERO ? `${selectedGridType}e` : selectedGridType}s with these filters for ${gameName}.`;
+        }
+
+        batchApplyMessage.set(message);
+        LogController.batchApplyLog(message);
+        LogController.batchApplyLog(`\n`);
+
+        numFinished++;
+        batchApplyProgress.set(numFinished);
+      }
+    }
+
+    if (get(batchApplyWasCancelled)) {
+      ToastController.showGenericToast("Batch Apply Cancelled.");
+      LogController.batchApplyLog(`Batch Apply Cancelled.`);
+      showBatchApplyProgress.set(false);
+      batchApplyProgress.set(0);
+      batchApplyMessage.set("Starting batch job...");
+      batchApplyWasCancelled.set(false);
+    } else {
+      appLibraryCache.set(gridsCopy);
+      
+      if (shortcutsNeedUpdate) steamShortcuts.set(shortcutsCopy);
+
+      canSave.set(true);
+
+      ToastController.showSuccessToast("Batch Apply Complete!");
+      LogController.batchApplyLog(`\n`);
+      LogController.batchApplyLog(`Finished batch apply for ${appIds.length} games.`);
     }
   }
 

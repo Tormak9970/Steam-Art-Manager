@@ -656,7 +656,6 @@ export class AppController {
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
     const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
     
-    const type = get(gridType);
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
@@ -669,7 +668,7 @@ export class AppController {
 
     gameImages[selectedGameId][selectedGridType] = localPath;
     
-    if (get(currentPlatform) == Platforms.NON_STEAM && type == GridTypes.ICON) {
+    if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
       const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
       shortcut.icon = localPath;
@@ -708,6 +707,17 @@ export class AppController {
     canSave.set(true);
 
     LogController.log(`Updated logo position for game ${appId}`);
+  }
+
+  /**
+   * Batch applies grids to the provided games.
+   * @param appIds The list of game ids.
+   * ? Logging Complete.
+   */
+  static async batchApplyGrids(appIds: string[]): Promise<void> {
+    ToastController.showGenericToast("Starting Batch Apply...");
+    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
+    await AppController.cacheController.batchApplyGrids(appIds);
   }
 
   /**
@@ -783,7 +793,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, page, selectedSteamGridId);
+    return await AppController.cacheController.fetchGrids(appId, page, true, selectedSteamGridId);
   }
 
   /**

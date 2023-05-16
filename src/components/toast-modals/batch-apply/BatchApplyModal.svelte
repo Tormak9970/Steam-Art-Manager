@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GridTypes, Platforms, appLibraryCache, gridType, nonSteamGames, steamGames } from "../../../Stores";
+  import { GridTypes, Platforms, appLibraryCache, gridType, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
@@ -51,6 +51,9 @@
    */
   function batchApply() {
     const selectedGameIds = Object.keys(selectedGames).filter((appid) => !!selectedGames[appid]);
+    AppController.batchApplyGrids(selectedGameIds);
+    $showBatchApplyProgress = true;
+    onClose();
   }
 
   /**
