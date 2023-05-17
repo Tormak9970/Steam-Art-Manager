@@ -9,53 +9,27 @@
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
   export let placement: Placement = "left";
+  export let direction: "UP" | "DOWN" = "DOWN";
 
+  let customSelectElem: HTMLDivElement;
+  let customSelectElemWrapper: HTMLDivElement;
   let internalValue = options.find((opt) => opt.data == value)?.label;
   
   let active = false;
 
-  const body = document.getElementsByTagName("body")[0];
-
-  if (!body.hasAttribute("data-select-close")) {
-    document.addEventListener("click", closeAllSelect);
-    body.setAttribute("data-select-close", "");
-  }
-
   /**
-   * Closes all select elements.
-   * @param element The element that was selected.
+   * Closes all dropdowns.
+   * @param e The click event.
    */
-  function closeAllSelect(element: any): void {
-    let sameAsSelected = [];
-
-    let selectedItems = document.getElementsByClassName("select-items") as HTMLCollectionOf<Element>;
-    let selectedItemsLength = selectedItems.length;
-
-    let selectedOptions = document.getElementsByClassName("select-selected") as HTMLCollectionOf<Element>;
-    let selectedOptionsLength = selectedOptions.length;
-
-    for (let i = 0; i < selectedOptionsLength; i++) {
-      if (element == selectedOptions[i]) {
-        sameAsSelected.push(i);
-      } else {
-        selectedOptions[i].classList.remove("select-arrow-active");
-      }
-    }
-
-    for (let i = 0; i < selectedItemsLength; i++) {
-      if (sameAsSelected.indexOf(i)) {
-        selectedItems[i].classList.add("select-hide");
-      }
-    }
+  function closeDropdowns(e: Event): void {
+    const target = <HTMLDivElement>e.target;
+    if (target != customSelectElem && target != customSelectElemWrapper) active = false;
   }
 
   /**
    * Toggles the dropdown.
-   * @param e The associated event.
    */
-  function toggleDropdown(e: Event): void {
-    const target = <HTMLDivElement>e.currentTarget;
-    closeAllSelect(target);
+  function toggleDropdown(): void {
     active = !active;
   }
 
@@ -65,46 +39,27 @@
    */
   function selectOption(e: Event): void {
     const targetElement = <HTMLElement>e.currentTarget;
-    let select = targetElement.parentElement.parentElement.parentElement.getElementsByTagName("select")[0];
-    let numOptions = select.length;
-    let selectDisplay = targetElement.parentElement.previousElementSibling;
-
-    for (let i = 0; i < numOptions; i++) {
-      if (select.options[i].innerHTML == targetElement.innerHTML) {
-        select.selectedIndex = i;
-        selectDisplay.innerHTML = targetElement.innerHTML;
-
-        let y = targetElement.parentElement.getElementsByClassName("same-as-selected");
-        let yl = y.length;
-        for (let k = 0; k < yl; k++) {
-          y[k].classList.toggle("same-as-selected");
-        }
-
-        targetElement.classList.toggle("same-as-selected");
-
-        break;
-      }
-    }
-
+    
     onChange(targetElement.id);
     value = targetElement.id;
     internalValue = targetElement.innerHTML;
 
-    (selectDisplay as HTMLElement).click();
+    toggleDropdown();
   }
 
   afterUpdate(() => {
-    // if (options.find((opt) => opt.data == value)) internalValue = options.find((opt) => opt.data == value)?.label;
     internalValue = options.find((opt) => opt.data == value)?.label;
   });
 </script>
+
+<svelte:window on:click={closeDropdowns} />
 
 <div class="wrapper" style="width: {width};">
   {#if label != ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="custom-select" style="width: {width}; min-width: {width};" on:click|stopPropagation={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: placement, onShow: AppController.onTippyShow}}>
+  <div class="custom-select" style="width: {width}; min-width: {width};" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: placement, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
     <select>
       <option value="default">{internalValue}</option>
       {#each options as opt}
@@ -113,17 +68,12 @@
     </select>
   
     {#key value}
-      <div class="select-selected" class:select-arrow-active={active}>{internalValue}</div>
+      <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
     {/key}
-    <div class="select-items" class:select-hide={!active}>
+    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 15 }%;" class:select-hide={!active}>
       {#each options as opt}
-        {#if opt.data == value}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} class="same-as-selected" on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
-        {:else}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow }}>{opt.label}</div>
-        {/if}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
       {/each}
     </div>
   </div>
@@ -207,18 +157,29 @@
   .select-items {
     position: absolute;
     background-color: var(--foreground);
-    top: 100%;
+    top: 102%;
     left: 0;
     right: 0;
     z-index: 99;
     margin-top: 2px;
     border-radius: 2px;
     border: 1px solid transparent;
-    box-shadow: 3px 6px 10px 4px var(--shadow);
+    box-shadow: 3px 6px 12px -2px var(--shadow);
   }
   .select-items > div:hover {
     background-color: var(--foreground-light);
     cursor: pointer;
+  }
+  
+  .open-up {
+    top: var(--top-percentage);
+    left: 0;
+    right: 0;
+    z-index: 99;
+    margin-top: 2px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    box-shadow: -3px -6px 26px -2px var(--shadow);
   }
 
   .select-hide { display: none; }

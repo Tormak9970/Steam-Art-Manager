@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http } from "@tauri-apps/api";
+import { dialog, fs, http, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -123,6 +123,30 @@ export class AppController {
       WindowController.openSettingsWindow();
     }
   }
+
+  /**
+   * Caches the steam game logo configs.
+   * @param logoConfigs The list of logoConfig files.
+   * ? Logging complete.
+   */
+  private static async cacheLogoConfigs(logoConfigs: fs.FileEntry[]): Promise<void> {
+    const configs = {};
+
+    for (const logoConfig of logoConfigs) {
+      const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
+
+      if (!isNaN(id)) {
+        const contents = await fs.readTextFile(logoConfig.path);
+        const jsonContents = JSON.parse(contents);
+        configs[id] = jsonContents;
+      }
+    }
+
+    originalLogoPositions.set(JSON.parse(JSON.stringify(configs)));
+    steamLogoPositions.set(JSON.parse(JSON.stringify(configs)));
+
+    LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
+  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
@@ -130,30 +154,35 @@ export class AppController {
    * @returns The filtered and structured grids dir.
    * ? Logging complete.
    */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): { [appid: string]: LibraryCacheEntry } {
+  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
     let resKeys = [];
+    const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of gridsDirContents) {
-      const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
-      const appId = fileEntry.name.substring(0, firstUnderscore);
-      let type = "";
-      if (fileEntry.name.indexOf("_") > 0) {
-        type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
+      if (fileEntry.name.endsWith(".json")) {
+        logoConfigs.push(fileEntry);
       } else {
-        type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
-      }
-
-      if (gridTypeLUT[type]) {
-        if (!resKeys.includes(appId)) {
-          resKeys.push(appId);
-          res[appId] = {} as LibraryCacheEntry;
+        const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
+        const appId = fileEntry.name.substring(0, firstUnderscore);
+        let type = "";
+        if (fileEntry.name.indexOf("_") > 0) {
+          type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
+        } else {
+          type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
         }
-        res[appId][gridTypeLUT[type]] = fileEntry.path;
+
+        if (gridTypeLUT[type]) {
+          if (!resKeys.includes(appId)) {
+            resKeys.push(appId);
+            res[appId] = {} as LibraryCacheEntry;
+          }
+          res[appId][gridTypeLUT[type]] = fileEntry.path;
+        }
       }
     }
 
-    return res;
+    return [res, logoConfigs];
   }
 
   /**
@@ -206,12 +235,14 @@ export class AppController {
    */
   private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
-    const filteredGrids = AppController.filterGridsDir(gridDirContents);
+    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents);
     LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
     const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcuts);
     LogController.log("Library Cache loaded.");
+
+    await AppController.cacheLogoConfigs(logoConfigs);
 
     return filteredCache;
   }
@@ -395,7 +426,20 @@ export class AppController {
     const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
-    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons);
+    const originalLogoPos = get(originalLogoPositions);
+    const steamLogoPos = get(steamLogoPositions);
+    const logoPosStrings = {};
+
+    for (const [appid, steamLogo] of Object.entries(steamLogoPos)) {
+      const originalPos = originalLogoPos[appid]?.logoPosition;
+      const logoPos = steamLogo.logoPosition;
+
+      if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
+        logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
+      }
+    }
+
+    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons, logoPosStrings);
     
     if ((changedPaths as any).error !== undefined) {
       ToastController.showSuccessToast("Changes failed.");
@@ -413,6 +457,14 @@ export class AppController {
       
       originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
       steamShortcuts.set(shortcuts);
+
+      let logoPosEntries = Object.entries(steamLogoPos);
+      logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
+        return logoPos.logoPosition.pinnedPosition != "REMOVE"
+      });
+
+      originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
+      steamLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     }
@@ -424,12 +476,15 @@ export class AppController {
    * Discards the current changes
    * ? Logging complete.
    */
-  static async discardChanges(): Promise<void> {
+  static discardChanges(): void {
     const originalCache = get(originalAppLibraryCache);
     appLibraryCache.set(JSON.parse(JSON.stringify(originalCache)));
 
     const originalShortcuts = get(originalSteamShortcuts);
     steamShortcuts.set(JSON.parse(JSON.stringify(originalShortcuts)));
+
+    const originalPositions = get(originalLogoPositions);
+    steamLogoPositions.set(JSON.parse(JSON.stringify(originalPositions)));
 
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
@@ -441,11 +496,13 @@ export class AppController {
    * Discard changes for a given app.
    * @param appId The id of the app to clear changes for.
    */
-  static async discardChangesForGame(appId: number): Promise<void> {
+  static discardChangesForGame(appId: number): void {
     const originalCache = get(originalAppLibraryCache);
+    const originalLogoCache = get(originalLogoPositions);
     const originalShortcuts = get(originalSteamShortcuts);
 
     const appCache = get(appLibraryCache);
+    const logoPositionCache = get(steamLogoPositions);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
@@ -458,18 +515,21 @@ export class AppController {
     
     appCache[appId] = originalCache[appId];
     appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    
+    logoPositionCache[appId] = originalLogoPositions[appId];
+    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
 
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
     
-    canSave.set(!(JSON.stringify(originalCache) == JSON.stringify(appCache)));
+    canSave.set(!((JSON.stringify(originalCache) == JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) == JSON.stringify(logoPositionCache))));
   }
 
   /**
    * Clears all custom grids for a given app.
    * @param appId The id of the app to clear art for.
    */
-  static async clearCustomArtForGame(appId: number): Promise<void> {
+  static clearCustomArtForGame(appId: number): void {
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
@@ -496,9 +556,24 @@ export class AppController {
   }
 
   /**
+   * Clears the logo position for a given app.
+   * @param appid The id of the app to clear the logo position of.
+   */
+  static clearLogoPosition(appid: number): void {
+    const logoPositionCache = get(steamLogoPositions);
+
+    logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
+    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
+
+    LogController.log(`Cleared logo position for ${appid}`);
+
+    canSave.set(true);
+  }
+
+  /**
    * Clears all custom grids.
    */
-  static async clearAllGrids(): Promise<void> {
+  static clearAllGrids(): void {
     const sGames = get(steamGames);
     const nonSGames = get(steamShortcuts);
     const games = [...sGames, ...nonSGames];
@@ -535,7 +610,7 @@ export class AppController {
    * Opens a SteamGridDB image for viewing.
    * @param grid The grid info of the grid to view.
    */
-  static async viewSteamGridImage(grid: SGDBImage): Promise<void> {
+  static viewSteamGridImage(grid: SGDBImage): void {
     showGridModal.set(true);
     gridModalInfo.set(grid);
   }
@@ -545,7 +620,7 @@ export class AppController {
    * @param path The path of the new art.
    * ? Logging complete.
    */
-  static async setCustomArt(path: string): Promise<void> {
+  static setCustomArt(path: string): void {
     const type = get(gridType);
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
@@ -579,9 +654,11 @@ export class AppController {
    * ? Logging complete.
    */
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
-    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
+    let imgUrl = url.toString();
+    if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
+
+    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
-    const type = get(gridType);
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
@@ -594,7 +671,7 @@ export class AppController {
 
     gameImages[selectedGameId][selectedGridType] = localPath;
     
-    if (get(currentPlatform) == Platforms.NON_STEAM && type == GridTypes.ICON) {
+    if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
       const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
       shortcut.icon = localPath;
@@ -605,6 +682,45 @@ export class AppController {
     canSave.set(true);
 
     LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
+  }
+
+  /**
+   * Sets the logo position for the provided game.
+   * @param appId The id of the app to save the logo position for.
+   * @param pinPosition The position of the logo.
+   * @param heightPct The height percentage.
+   * @param widthPct The width percentage.
+   * ? Logging complete.
+   */
+  static setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): void {
+    const logoPositions = get(steamLogoPositions);
+
+    const currentPos = logoPositions[appId];
+    logoPositions[appId] = {
+      nVersion: currentPos?.nVersion ?? 1,
+      logoPosition: {
+        pinnedPosition: pinPosition,
+        nHeightPct: heightPct,
+        nWidthPct: widthPct
+      }
+    }
+
+    steamLogoPositions.set(logoPositions);
+
+    canSave.set(true);
+
+    LogController.log(`Updated logo position for game ${appId}`);
+  }
+
+  /**
+   * Batch applies grids to the provided games.
+   * @param appIds The list of game ids.
+   * ? Logging Complete.
+   */
+  static async batchApplyGrids(appIds: string[]): Promise<void> {
+    ToastController.showGenericToast("Starting Batch Apply...");
+    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
+    await AppController.cacheController.batchApplyGrids(appIds);
   }
 
   /**
@@ -680,7 +796,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, page, selectedSteamGridId);
+    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, true, get(currentPlatform), selectedSteamGridId);
   }
 
   /**
@@ -696,7 +812,7 @@ export class AppController {
    * Checks if the app can go online, goes online if so, otherwise notifies the user.
    * ? Logging complete.
    */
-  static async tryGoOnline(): Promise<void> {
+  static tryGoOnline(): void {
     LogController.log("Attempting to go online...");
     if (navigator.onLine) {
       isOnline.set(true);
@@ -714,7 +830,7 @@ export class AppController {
    */
   static async reload(): Promise<void> {
     LogController.log(`Reloading...`);
-    await AppController.init();
+    await process.relaunch();
   }
 
   /**

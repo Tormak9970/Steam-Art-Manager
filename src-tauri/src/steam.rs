@@ -40,13 +40,14 @@ pub fn get_steam_root_dir() -> PathBuf {
 #[tauri::command]
 /// Gets the steam grids directory.
 pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
   let steam_root = get_steam_root_dir();
   let grids_dir = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
   if dir_create_res.is_err() {
+    logger::log_to_core_file(app_handle.to_owned(), "Should have been able to create the grids dir!", 2);
     panic!("Should have been able to create the grids dir!");
   }
 
@@ -56,7 +57,7 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) 
 #[tauri::command]
 /// Gets the steam library cache directory.
 pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
   
   let steam_root = get_steam_root_dir();
   return steam_root.join("appcache/librarycache").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -65,7 +66,7 @@ pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
 #[tauri::command]
 /// Gets the steam appinfo.vdf path.
 pub fn get_appinfo_path(app_handle: AppHandle) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -74,7 +75,7 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
 #[tauri::command]
 /// Gets the steam shortcuts.vdf path.
 pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -83,7 +84,7 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -
 #[tauri::command]
 /// Gets the steam localconfig.vdf path.
 pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
   
   let steam_root = get_steam_root_dir();
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -151,11 +152,11 @@ fn read_steam_users() -> Map<String, Value> {
 #[tauri::command]
 /// Gets all steam users that have logged in on this computer.
 pub fn get_steam_users(app_handle: AppHandle) -> String {
-  logger::log_to_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
     
   let steam_users = read_steam_users();
   
-  logger::log_to_file(app_handle.to_owned(), format!("Loaded {} steam users.", steam_users.len()).as_str(), 0);
+  logger::log_to_core_file(app_handle.to_owned(), format!("Loaded {} steam users.", steam_users.len()).as_str(), 0);
 
   return serde_json::to_string(&steam_users).unwrap();
 }

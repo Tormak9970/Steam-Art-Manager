@@ -9,12 +9,15 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, gridModalInfo, isOnline, showGridModal, steamUsers } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
+    import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
+    import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
+    import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -36,6 +39,30 @@
 	function onGridModalClose() {
 		$showGridModal = false;
 		$gridModalInfo = null;
+	}
+
+  /**
+   * Function to run when the batch apply modal is closed.
+   */
+	function onBatchApplyModalClose() {
+		$showBatchApplyModal = false;
+	}
+
+  /**
+   * Function to run when the batch apply progress modal is closed.
+   */
+  function onBatchApplyProgressClose() {
+    $showBatchApplyProgress = false;
+    $batchApplyProgress = 0;
+    $batchApplyMessage = "Starting batch job...";
+    $batchApplyWasCancelled = false;
+  }
+
+  /**
+   * Function to run when the logo position modal is closed.
+   */
+	function onLogoPositionModalClose() {
+		$showLogoPositionModal = false;
 	}
 
   /**
@@ -107,6 +134,15 @@
   </Titlebar>
 	<div class="content">
 		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
+    {#if $showBatchApplyProgress}
+		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
+    {/if}
+    {#if $showBatchApplyModal}
+		  <BatchApplyModal onClose={onBatchApplyModalClose} />
+    {/if}
+    {#if $showLogoPositionModal}
+		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+    {/if}
 		<Splitpanes>
 			<Options />
 
