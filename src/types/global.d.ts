@@ -68,3 +68,16 @@ type ChangedPath = {
   targetPath: string,
   sourcePath: string
 }
+
+type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter' | "REMOVE";
+
+type LogoPosition = {
+  pinnedPosition: LogoPinPositions,
+  nWidthPct: number,
+  nHeightPct: number,
+};
+
+type SteamLogoConfig = {
+  nVersion: number,
+  logoPosition: LogoPosition,
+}

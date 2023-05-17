@@ -4,9 +4,8 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
-  import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, showLogoPositionModal, appLibraryCache } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -16,6 +15,7 @@
   import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
+  import { filterGrids } from "../../../lib/utils/Utils";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
@@ -36,34 +36,8 @@
    * @param filters The filters object.
    * @returns The list of filtered grids.
    */
-  function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
-    const targetFilters = filters[type];
-    const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-    const dimensions = (type != GridTypes.LOGO && type != GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
-    const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
-    const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
-    const humorAllowed = targetFilters.oneoftag.humor;
-    const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
-    const nsfwAllowed = targetFilters.oneoftag.nsfw;
-
-    const resGrids = allGrids.filter((grid: SGDBImage) => {
-      return gridStyles.includes(grid.style)
-        && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
-        && imageFormats.includes(grid.mime)
-        && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
-        && (grid.humor ? humorAllowed : true)
-        && (grid.epilepsy ? epilepsyAllowed : true)
-        && (grid.nsfw ? nsfwAllowed : true);
-    });
-
-    let query = `"${$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for ${$selectedGameName}"`;
-    if (resGrids.length > 0) {
-      LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
-    } else {
-      LogController.log(`Query: ${query}. Result: no grids.`);
-    }
-
-    return resGrids;
+  function filterGridsWrapper(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
+    return filterGrids(allGrids, type, filters, $selectedGameName);
   }
 
   let isLoading = false;
@@ -107,7 +81,7 @@
    */
   async function onSgdbGameChange(id: string) {
     if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) {
-      grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
+      grids = filterGridsWrapper(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
       numPages = $steamGridSearchCache[$selectedGameAppId]?.find((game) => game.id.toString() == id)?.numResultPages ?? 3;
     }
     
@@ -143,8 +117,8 @@
    */
   async function filterGridsOnStateChange(sgdbApiKey: string, online: boolean, selectedAppId: number, selectedGridType: GridTypes, resultsPage: number, filters: DBFilters): Promise<void> {
     if (online && sgdbApiKey != "" && selectedAppId != null) {
-      const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage);
-      grids = filterGrids(unfilteredGrids, selectedGridType, filters);
+      const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage, $selectedSteamGridGameId);
+      grids = filterGridsWrapper(unfilteredGrids, selectedGridType, filters);
     }
   }
 
@@ -223,16 +197,25 @@
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"160px"} bind:value={$selectedSteamGridGameId} />
+      <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
       <HorizontalSpacer />
       <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} bind:value={$gridType} />
       <HorizontalSpacer />
-      <IconButton label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
-          <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-          <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM385 231c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-71-71V376c0 13.3-10.7 24-24 24s-24-10.7-24-24V193.9l-71 71c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9L239 119c9.4-9.4 24.6-9.4 33.9 0L385 231z"/>
-        </svg>
-      </IconButton>
+      <div class="buttons-cont">
+        <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId == null || !$appLibraryCache[$selectedGameAppId]?.Logo}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+            <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+            <path d="M9.4 9.4C21.9-3.1 42.1-3.1 54.6 9.4L160 114.7V96c0-17.7 14.3-32 32-32s32 14.3 32 32v96c0 4.3-.9 8.5-2.4 12.2c-1.6 3.7-3.8 7.3-6.9 10.3l-.1 .1c-3.1 3-6.6 5.3-10.3 6.9c-3.8 1.6-7.9 2.4-12.2 2.4H96c-17.7 0-32-14.3-32-32s14.3-32 32-32h18.7L9.4 54.6C-3.1 42.1-3.1 21.9 9.4 9.4zM256 256a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zM114.7 352H96c-17.7 0-32-14.3-32-32s14.3-32 32-32h96 0l.1 0c8.8 0 16.7 3.6 22.5 9.3l.1 .1c3 3.1 5.3 6.6 6.9 10.3c1.6 3.8 2.4 7.9 2.4 12.2v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V397.3L54.6 502.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L114.7 352zM416 96c0-17.7 14.3-32 32-32s32 14.3 32 32v18.7L585.4 9.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3L525.3 160H544c17.7 0 32 14.3 32 32s-14.3 32-32 32H448c-8.8 0-16.8-3.6-22.6-9.3l-.1-.1c-3-3.1-5.3-6.6-6.9-10.3s-2.4-7.8-2.4-12.2l0-.1v0V96zM525.3 352L630.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L480 397.3V416c0 17.7-14.3 32-32 32s-32-14.3-32-32V320v0c0 0 0-.1 0-.1c0-4.3 .9-8.4 2.4-12.2c1.6-3.8 3.9-7.3 6.9-10.4c5.8-5.8 13.7-9.3 22.5-9.4c0 0 .1 0 .1 0h0 96c17.7 0 32 14.3 32 32s-14.3 32-32 32H525.3z"/>
+          </svg>
+        </IconButton>
+        <HorizontalSpacer />
+        <IconButton label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
+            <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM385 231c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-71-71V376c0 13.3-10.7 24-24 24s-24-10.7-24-24V193.9l-71 71c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9L239 119c9.4-9.4 24.6-9.4 33.9 0L385 231z"/>
+          </svg>
+        </IconButton>
+      </div>
     </div>
     
     <div class="border" />
@@ -334,5 +317,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .buttons-cont {
+    display: flex;
   }
 </style>

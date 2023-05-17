@@ -39,12 +39,21 @@ export class RustInterop {
   }
 
   /**
-   * Logs a message to the app's log file.
+   * Logs a message to the core log file.
    * @param message The message to log.
    * @param level The log level.
    */
-  static async logToFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_file", {message: message, level: level});
+  static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
+    await invoke("log_to_core_file", {message: message, level: level});
+  }
+
+  /**
+   * Logs a message to the batch apply log file.
+   * @param message The message to log.
+   * @param level The log level.
+   */
+  static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
+    await invoke("log_to_batch_apply_file", {message: message, level: level});
   }
 
   /**
@@ -154,13 +163,22 @@ export class RustInterop {
    * @param shortcuts The list of shortcuts.
    * @param shortcutIcons The map of shortcutIds to updated icons.
    * @param originalShortcutIcons The map of shortcutIds to original icons.
+   * @param changedLogoPositions The changed logo positions.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(activeUserId: string, currentArt: { [appid: string]: LibraryCacheEntry }, originalArt: { [appid: string]: LibraryCacheEntry }, shortcuts: SteamShortcut[], shortcutIcons: { [id: string]: string }, originalShortcutIcons: { [id: string]: string }): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(
+    activeUserId: string,
+    currentArt: { [appid: string]: LibraryCacheEntry },
+    originalArt: { [appid: string]: LibraryCacheEntry },
+    shortcuts: SteamShortcut[],
+    shortcutIcons: { [id: string]: string },
+    originalShortcutIcons: { [id: string]: string },
+    changedLogoPositions: { [appid: string]: string }
+  ): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
       "shortcuts": {...shortcuts}
     }
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
+    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
   }
 

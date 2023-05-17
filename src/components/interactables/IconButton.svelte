@@ -3,7 +3,7 @@
   import { AppController } from "../../lib/controllers/AppController";
 
   export let label: string;
-  export let tooltipPosition: Placement = "left";
+  export let tooltipPosition: Placement = "top-end";
   export let width = "22px";
   export let height = "22px";
   export let onClick: (e: MouseEvent) => void;
@@ -13,7 +13,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
   <slot />
 </button>
 

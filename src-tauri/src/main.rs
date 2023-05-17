@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File, write}, io::Write};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -55,7 +55,7 @@ fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image
     "Logo" => return format!("{}_logo{}", appid, image_type),
     "Icon" => return format!("{}_icon{}", appid, image_type),
     _ => {
-      logger::log_to_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
+      logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
       panic!("Unexpected grid type {}", grid_type);
     }
   }
@@ -145,20 +145,20 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
 
   if file_path.is_some() {
     let zip_path = file_path.unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
     let succeeded = zip_controller::generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &platform_id_map, &id_name_map);
 
     if succeeded {
-      logger::log_to_file(app_handle.to_owned(), "Successfully saved the user's grids.", 0);
+      logger::log_to_core_file(app_handle.to_owned(), "Successfully saved the user's grids.", 0);
       return true;
     } else {
-      logger::log_to_file(app_handle.to_owned(), "Failed to save the user's grids.", 0);
+      logger::log_to_core_file(app_handle.to_owned(), "Failed to save the user's grids.", 0);
       return false;
     }
   } else {
-    logger::log_to_file(app_handle.to_owned(), "No save location was chosen.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "No save location was chosen.", 0);
     return false;
   }
 }
@@ -175,20 +175,20 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
 
   if file_path.is_some() {
     let zip_path = file_path.unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
     let (success, icon_map) = zip_controller::set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &name_id_map);
 
     if success {
-      logger::log_to_file(app_handle.to_owned(), "Successfully set the user's grids.", 0);
+      logger::log_to_core_file(app_handle.to_owned(), "Successfully set the user's grids.", 0);
       return (success, icon_map);
     } else {
-      logger::log_to_file(app_handle.to_owned(), "Failed to set the user's grids.", 0);
+      logger::log_to_core_file(app_handle.to_owned(), "Failed to set the user's grids.", 0);
       return (success, icon_map);
     }
   } else {
-    logger::log_to_file(app_handle.to_owned(), "No zip file was selected by user.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "No zip file was selected by user.", 0);
     return (false, Map::new());
   }
 }
@@ -207,11 +207,11 @@ async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String)
   let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     
   if shortcuts_path.as_path().exists() {
-    logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
     let shortcuts_array = open_shortcuts_vdf(&shortcuts_path);
     return serde_json::to_string(&shortcuts_array).expect("Should have been able to serialize Shortcuts vdf to string.");
   } else {
-    logger::log_to_file(app_handle.to_owned(), "shortcuts.vdf does not exist.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf does not exist.", 0);
     return "{}".to_owned();
   }
 }
@@ -222,7 +222,7 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
   let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_active_user_id));
     
   if localconfig_path.as_path().exists() {
-    logger::log_to_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
     let localconfig_contents: String = fs::read_to_string(localconfig_path).expect("localconfig.vdf should have existed.").parse().expect("File should have been a text file.");
     let vdf = Vdf::parse(&localconfig_contents).unwrap();
     let software = vdf.value.get_obj().unwrap().get_key_value("Software").unwrap();
@@ -239,21 +239,21 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
 
     return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
   } else {
-    logger::log_to_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
     return "{}".to_owned();
   }
 }
 
 #[tauri::command]
 /// Applies the changes the user has made.
-async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
+async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>, changed_logo_positions: Map<String, Value>) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
-  logger::log_to_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
   let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
   let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
-  logger::log_to_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
   for changed_path in (&paths_to_set).into_iter() {
     let source = changed_path.sourcePath.to_owned();
@@ -266,7 +266,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
           let err = remove_res.err().unwrap();
           return format!("{{ \"error\": \"{}\"}}", err.to_string());
         }
-        logger::log_to_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(), 0);
       }
     } else {
       if changed_path.oldPath.contains("grid") {
@@ -282,19 +282,46 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
       let copy_res = fs::copy(source.clone(), target.clone());
   
       if copy_res.is_ok() {
-        logger::log_to_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
       } else {
-        logger::log_to_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Failed to copy {} to {}.", source, target).as_str(), 2);
         let err = copy_res.err().unwrap();
         return format!("{{ \"error\": \"{}\"}}", err.to_string());
       }
     }
   }
 
-  let should_change_shortcuts = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
+  let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id.clone()));
+  for (appid, steam_logo_str_val) in changed_logo_positions.into_iter() {
+    let steam_logo_str: &str = steam_logo_str_val.as_str().expect("Should have been able to convert steamLogo pos into str.");
+    let logo_config_path: PathBuf = grids_directory.join(format!("{}.json", appid));
+
+    if steam_logo_str == "REMOVE" {
+      let remove_res = fs::remove_file(logo_config_path);
+      if remove_res.is_err() {
+        let err = remove_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
+      logger::log_to_core_file(app_handle.to_owned(), format!("Removed logo position config for {}.", appid).as_str(), 0);
+    } else {
+      // let config_file = fs::File::create(&logo_config_path).expect("Should have been able to create or truncate logo pos config file.");
+      
+      let write_res = write(&logo_config_path, steam_logo_str);
+  
+      if write_res.is_ok() {
+        logger::log_to_core_file(app_handle.to_owned(), format!("Wrote logo pos to config for {}.", appid).as_str(), 0);
+      } else {
+        logger::log_to_core_file(app_handle.to_owned(), format!("Failed to write logo pos to config for {}.", appid).as_str(), 2);
+        let err = write_res.err().unwrap();
+        return format!("{{ \"error\": \"{}\"}}", err.to_string());
+      }
+    }
+  }
+
+  let should_change_shortcuts: bool = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
   
   if should_change_shortcuts {
-    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts detected. Writing shortcuts.vdf...", 0);
     let mut shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
 
     let shortcuts_obj_map: &mut Value = shortcuts_data.get_mut("shortcuts").expect("key: shortcuts should have existed.");
@@ -320,9 +347,9 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 
     let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
     write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
-    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
   } else {
-    logger::log_to_file(app_handle.to_owned(), "No changes to shortcuts detected. Skipping...", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "No changes to shortcuts detected. Skipping...", 0);
   }
 
   let changed_res = serde_json::to_string::<Vec<ChangedPath>>(paths_to_set.as_ref());
@@ -331,7 +358,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     return changed_res.unwrap();
   } else {
     let err = changed_res.err().unwrap();
-    logger::log_to_file(app_handle, format!("{}", err.to_string()).as_str(), 2);
+    logger::log_to_core_file(app_handle, format!("{}", err.to_string()).as_str(), 2);
     return String::from("[]");
   }
 }
@@ -339,17 +366,17 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 #[tauri::command]
 /// Writes the user's shortcuts.vdf file.
 async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, shortcuts_str: String) -> bool {
-  logger::log_to_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
+  logger::log_to_core_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
   let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
   let shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
 
   let success: bool = write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
 
   if success {
-    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
     return true;
   } else {
-    logger::log_to_file(app_handle.to_owned(), "Changes to shortcuts failed.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts failed.", 0);
     return false;
   }
 }
@@ -357,7 +384,7 @@ async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, sh
 #[tauri::command]
 /// Downloads a file from a url.
 async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String) -> bool {
-  logger::log_to_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
+  logger::log_to_core_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
 
   let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
   let response = reqwest::get(grid_url.clone()).await.expect("Should have been able to await request.");
@@ -366,11 +393,11 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   let write_res = dest_file.write_all(&response_bytes);
 
   if write_res.is_ok() {
-    logger::log_to_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
     return true;
   } else {
     let err = write_res.err().expect("Request failed, error should have existed.");
-    logger::log_to_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
     return false;
   }
 }
@@ -386,17 +413,17 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
 
   if fs_res.is_ok() && asset_res.is_ok() {
-    logger::log_to_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
+    logger::log_to_core_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
   } else if fs_res.is_err() {
     let err = fs_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
   } else if asset_res.is_err() {
     let err = asset_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
   } else {
     let fs_err = fs_res.err().unwrap();
     let asset_err = asset_res.err().unwrap();
-    logger::log_to_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
   }
 }
 
@@ -406,7 +433,8 @@ fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
       logger::clean_out_log,
-      logger::log_to_file,
+      logger::log_to_core_file,
+      logger::log_to_batch_apply_file,
       steam::get_steam_users,
       steam::get_grids_directory,
       steam::get_library_cache_directory,
