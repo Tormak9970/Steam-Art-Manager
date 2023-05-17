@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GridTypes, Platforms, appLibraryCache, gridType, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
+  import { GridTypes, Platforms, appLibraryCache, gridType, hiddenGameIds, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
@@ -7,6 +7,7 @@
   import SelectedGameEntry from "./SelectedGameEntry.svelte";
   import { onMount } from "svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
+  import Toggle from "../../interactables/Toggle.svelte";
 
   export let onClose: () => void;
   
@@ -32,9 +33,10 @@
 
   let gamesToFilter = [];
   let selectedGames = {};
+  let includeHidden = false;
 
-  function onStateChange(platform: string, gameFilter: string) {
-    gamesToFilter = (platform == "All" ? allGames : (platform == Platforms.STEAM ? $steamGames : $nonSteamGames));
+  function onStateChange(platform: string, gameFilter: string, showHidden: boolean) {
+    gamesToFilter = (platform == "All" ? allGames : (platform == Platforms.STEAM ? $steamGames : $nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
     const selectedGameEntries = gamesToFilter.map((game) => {
       return [game.appid, gameFilter == "All" ? true : (!$appLibraryCache[game.appid][$gridType])];
     });
@@ -69,7 +71,7 @@
   }
 
   onMount(() => {
-    onStateChange(selectedPlatform, selectedGamesFilter);
+    onStateChange(selectedPlatform, selectedGamesFilter, includeHidden);
   });
 </script>
 
@@ -89,9 +91,13 @@
         Configure the games you would like to batch apply grids to.
       </div>
       <div class="options">
-        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter); }} />
+        <div class="dropdowns">
+          <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} />
+          <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} />
+        </div>
         <VerticalSpacer />
-        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter); }} />
+        <Toggle label="Include Hidden" bind:checked={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
+        <VerticalSpacer />
       </div>
       <div class="selected-games">
         <div class="games-header">
@@ -190,6 +196,13 @@
     margin-right: 14px;
 
     cursor: pointer;
+  }
+
+  .dropdowns {
+    width: 85%;
+    
+    display: flex;
+    justify-content: space-between;
   }
 
   .options {
