@@ -793,7 +793,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, page, true, selectedSteamGridId);
+    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, true, get(currentPlatform), selectedSteamGridId);
   }
 
   /**
