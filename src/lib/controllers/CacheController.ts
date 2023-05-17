@@ -378,17 +378,19 @@ export class CacheController {
     const nonSteamGameNameEntries = nonSteamGamesList.map((game: GameStruct) => [game.appid, game.name]);
     const nonSteamGameNameMap = Object.fromEntries(nonSteamGameNameEntries);
 
-    const gridsCopy = get(appLibraryCache);
-    const shortcutsCopy = get(steamShortcuts);
+    const gridsCopy = JSON.parse(JSON.stringify(get(appLibraryCache)));
+    const shortcutsCopy = JSON.parse(JSON.stringify(get(steamShortcuts)));
     const selectedGridType = get(gridType);
     const filters = get(dbFilters);
 
     let numFinished = 0;
     let totalGrids = appIds.length;
     let shortcutsNeedUpdate = false;
+    let wasCancelled = false;
 
     for (const appid of appIds) {
       if (get(batchApplyWasCancelled)) {
+        wasCancelled = true;
         break;
       } else {
         const appidInt = parseInt(appid);
@@ -414,7 +416,7 @@ export class CacheController {
           
           let imgUrl = grid.url.toString();
           if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
-          
+
           const localPath = await this.getGridImage(appidInt, imgUrl);
           
           if (!isSteamGame && selectedGridType == GridTypes.ICON) {
@@ -439,7 +441,7 @@ export class CacheController {
       }
     }
 
-    if (get(batchApplyWasCancelled)) {
+    if (wasCancelled) {
       ToastController.showGenericToast("Batch Apply Cancelled.");
       LogController.batchApplyLog(`Batch Apply Cancelled.`);
       showBatchApplyProgress.set(false);
