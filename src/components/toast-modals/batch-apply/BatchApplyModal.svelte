@@ -64,14 +64,18 @@
     onClose();
   }
 
+  function closeWrapper(e: Event) {
+    if (e.currentTarget == e.target) onClose();
+  }
+
   onMount(() => {
     onStateChange(selectedPlatform, selectedGamesFilter);
   });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="background" on:click={onClose}>
-  <div class="modal-body" on:click|stopPropagation>
+<div class="background" on:click={closeWrapper}>
+  <div class="modal-body"> <!-- on:click|stopPropagation -->
     <div class="close-btn" on:click={onClose}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
         <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->

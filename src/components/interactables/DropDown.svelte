@@ -52,7 +52,7 @@
   });
 </script>
 
-<svelte:body on:click={closeDropdowns} />
+<svelte:window on:click={closeDropdowns} />
 
 <div class="wrapper" style="width: {width};">
   {#if label != ""}

@@ -18,6 +18,10 @@
   function cancel() {
     $batchApplyWasCancelled = true;
   }
+
+  function onFinish() {
+    $batchApplyMessage = "Batch apply complete."
+  }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -27,7 +31,7 @@
     <div class="border" />
     <div class="content">
       <div class="options">
-        <ProgressBar bind:progress={$batchApplyProgress} width="100%" />
+        <ProgressBar bind:progress={$batchApplyProgress} width="100%" onFinish={onFinish} />
       </div>
       <div class="info">{$batchApplyMessage}</div>
       <div class="buttons">

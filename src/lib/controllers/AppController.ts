@@ -654,7 +654,10 @@ export class AppController {
    * ? Logging complete.
    */
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
-    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
+    let imgUrl = url.toString();
+    if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
+
+    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);

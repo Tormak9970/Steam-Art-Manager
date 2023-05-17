@@ -337,14 +337,13 @@ export class CacheController {
         return [];
       }
     } else if (selectedPlatform == Platforms.NON_STEAM) {
-      const gameName = get(selectedGameName);
       const searchCache = get(steamGridSearchCache);
 
       let results = searchCache[appId];
 
       if (!results) {
         results = await this.client.searchGame(gameName);
-        await this.getNumPages(results, Platforms.STEAM, type);
+        await this.getNumPages(results, Platforms.NON_STEAM, type);
         // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
         searchCache[appId] = results;
       }
@@ -413,7 +412,10 @@ export class CacheController {
           // @ts-ignore
           if (!gridsCopy[appid]) gridsCopy[appid] = {};
           
-          const localPath = await this.getGridImage(appidInt, grid.url.toString());
+          let imgUrl = grid.url.toString();
+          if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
+          
+          const localPath = await this.getGridImage(appidInt, imgUrl);
           
           if (!isSteamGame && selectedGridType == GridTypes.ICON) {
             shortcutsNeedUpdate = true;
