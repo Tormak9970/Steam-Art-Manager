@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, process } from "@tauri-apps/api";
+import { dialog, fs, http, path, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -46,6 +46,22 @@ const libraryCacheLUT = {
   "library_hero": GridTypes.HERO,
   "icon": GridTypes.ICON,
   "logo": GridTypes.LOGO
+}
+
+async function genShortcutContents(): Promise<string> {
+  let current_exec_path = "";
+  let logo_path = await path.resolveResource("../public/logo.svg");
+
+  return `#!/usr/bin/env xdg-open
+  [Desktop Entry]
+  Name=Steam Art Manager
+  Exec=${current_exec_path}
+  Icon=${logo_path}
+  Terminal=false
+  Type=Application
+  Categories=Utility
+  StartupNotify=false
+  `;
 }
 
 /**
@@ -102,6 +118,14 @@ export class AppController {
     if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
     }
+    
+
+    // TODO: prompt user to create desktop and start menu shortcuts
+      // if yes, get resources with resolveResource
+      // create the .desktop in desktopDir() directory if it was selected
+      // create the .desktop in dataDirectory()/applications if start menu was selected
+
+    // TODO: write if this happened to config or something, so we can remove them on uninstall, and not prompt again
 
     LogController.log("App setup complete.");
   }

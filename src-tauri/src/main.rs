@@ -427,7 +427,6 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
   }
 }
 
-
 /// This app's main function.
 fn main() {
   tauri::Builder::default()

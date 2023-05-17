@@ -96,7 +96,8 @@
 			"identifier": "dev.tormak.steam-art-manager",
 			"longDescription": "A simple tool for setting the artwork of your Steam library.",
 			"resources": [
-				"./settings.json"
+				"./settings.json",
+				"../public/logo.svg"
 			],
 			"shortDescription": "A simple tool for setting the artwork of your Steam library.",
 			"targets": [
