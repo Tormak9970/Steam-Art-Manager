@@ -16,7 +16,6 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import Lazy from "svelte-lazy";
   import { appLibraryCache, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
@@ -25,7 +24,7 @@
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
-    import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
+  import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
 
   export let onClose: () => void;
 
@@ -51,13 +50,15 @@
 
   let canSave = false;
   
-  let originalWidth = 0;
-  let originalHeight = 0;
-  let originalPosition: LogoPinPositions = "CenterCenter";
+  const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
 
-  let logoWidth = 0;
-  let logoHeight = 0;
-  let logoPosition: LogoPinPositions = "CenterCenter";
+  let originalWidth = gameLogoPos?.logoPosition?.nWidthPct ?? 50;
+  let originalHeight = gameLogoPos?.logoPosition?.nHeightPct ?? 50;
+  let originalPosition: LogoPinPositions = gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter";
+
+  let logoWidth = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nWidthPct : 50;
+  let logoHeight = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nHeightPct : 50;
+  let logoPosition: LogoPinPositions = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.pinnedPosition : "CenterCenter";
 
   let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
   
@@ -150,22 +151,6 @@
         logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
     }
-
-    const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
-
-    if (gameLogoPos && gameLogoPos.logoPosition.pinnedPosition != "REMOVE") {
-      originalHeight = gameLogoPos.logoPosition.nHeightPct;
-      originalWidth = gameLogoPos.logoPosition.nWidthPct;
-      originalPosition = gameLogoPos.logoPosition.pinnedPosition;
-    } else {
-      originalHeight = 50;
-      originalWidth = 50;
-      originalPosition = "CenterCenter";
-    }
-
-    logoHeight = originalHeight;
-    logoWidth = originalWidth;
-    logoPosition = originalPosition;
     
     const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
     canSave = (originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition);
