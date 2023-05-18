@@ -48,31 +48,6 @@ const libraryCacheLUT = {
   "logo": GridTypes.LOGO
 }
 
-async function getShortcutContents(): Promise<string> {
-  // todo: try steam-art-manager for both exec and icon, just need to register it somehow
-  // ? symlink to icon is also found at ../../../steam-art-manager.png
-  let current_exec_path = await RustInterop.getAppExePath(); //../../../ contains steam-art-manager.desktop, but running throws "could not find program steam-art-manager"
-  let logo_path = await path.resolveResource("../public/logo.svg"); //this works but is janky as fuck
-  let comment = "A tool for setting the artwork of your Steam library.";
-
-  return `#!/usr/bin/env xdg-open
-  [Desktop Entry]
-  Comment=${comment}
-  Name=Steam Art Manager
-  Exec=${current_exec_path}
-  Icon=${logo_path}
-  Terminal=false
-  Type=Application
-  Categories=Utility
-  StartupNotify=false
-  `;
-}
-
-async function createShortcut(parentDir: string, contents: string): Promise<void> {
-  const filePath = await path.join(parentDir, "SARM.desktop");
-  await fs.writeTextFile(filePath, contents);
-}
-
 /**
  * The main controller for the application
  */
@@ -126,26 +101,6 @@ export class AppController {
 
     if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
-    }
-    
-    const shownShortcutPrompt = settings.shownShortcutPrompt;
-    const isOnLinux = await os.type() == "Linux";
-
-    if (!shownShortcutPrompt && isOnLinux) {
-      LogController.log("Generating .desktop files..");
-
-      // TODO: need to add to path
-
-      const shortcutFileContents = await getShortcutContents();
-      const wantsDesktopShortcut = await dialog.ask("Looks like its the first time you've launched SARM, do you want to create a desktop shortcut?");
-
-      if (wantsDesktopShortcut) createShortcut(await path.desktopDir(), shortcutFileContents);
-      createShortcut(await path.join(await path.dataDir(), "applications"), shortcutFileContents);
-
-      settings.shownShortcutPrompt = true;
-      await SettingsManager.updateSetting("shownShortcutPrompt", true);
-
-      LogController.log("Generated all .desktop files.");
     }
 
     LogController.log("App setup complete.");
