@@ -14,7 +14,6 @@ fi
 
 echo "[INFO]: Downloading AppImage..."
 curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager_${currentVersion}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
-# https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager_${currentVersion}_amd64.AppImage
 chmod 700 ~/.sarm/steam-art-manager.AppImage
 echo "[INFO]: Downloaded AppImage."
 
@@ -44,12 +43,10 @@ read -r -d '' shortcutContents <<- EOM
 
 EOM
 
-# TODO: make start menu shortcut
 echo "$shortcutContents" >> ~/.local/share/applications/SARM.desktop
 chmod 700 ~/.local/share/applications/SARM.desktop
 echo "[INFO]: Made Start Menu Shortcut."
 
-# TODO: make desktop shortcut
 echo "$shortcutContents" >> ~/Desktop/SARM.desktop
 chmod 700 ~/Desktop/SARM.desktop
 echo "[INFO]: Made Desktop Shortcut."
