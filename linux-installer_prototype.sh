@@ -5,16 +5,22 @@ comment="A tool for setting the artwork of your Steam library."
 
 echo "[INFO]: Installing Steam Art Manager (SARM) v$currentVersion..."
 
-mkdir ~/.sarm
-
+if [ -d "~/.sarm" ]; then
+  echo "[INFO]: SARM Directory Exists."
+else
+  mkdir ~/.sarm
+  echo "[INFO]: Made SARM Directory."
+fi
 
 echo "[INFO]: Downloading AppImage..."
-curl -o ~/.sarm/steam-art-manager.AppImage https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager\_$currentVersion\_amd64.AppImage
+curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager_${currentVersion}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
+# https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager_${currentVersion}_amd64.AppImage
+chmod 700 ~/.sarm/steam-art-manager.AppImage
 echo "[INFO]: Downloaded AppImage."
 
 
 echo "[INFO]: Downloading Icon..."
-curl -o ~/.sarm/icon.svg https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/v$currentVersion/public/logo.svg
+curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/v$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
 echo "[INFO]: Downloaded Icon."
 
 
@@ -40,10 +46,12 @@ EOM
 
 # TODO: make start menu shortcut
 echo "$shortcutContents" >> ~/.local/share/applications/SARM.desktop
+chmod 700 ~/.local/share/applications/SARM.desktop
 echo "[INFO]: Made Start Menu Shortcut."
 
 # TODO: make desktop shortcut
 echo "$shortcutContents" >> ~/Desktop/SARM.desktop
+chmod 700 ~/Desktop/SARM.desktop
 echo "[INFO]: Made Desktop Shortcut."
 
 echo "[INFO]: Finished Making Shortcuts."
