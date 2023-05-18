@@ -39,12 +39,29 @@ export class RustInterop {
   }
 
   /**
-   * Logs a message to the app's log file.
+   * Logs a message to the core log file.
    * @param message The message to log.
    * @param level The log level.
    */
-  static async logToFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_file", {message: message, level: level});
+  static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
+    await invoke("log_to_core_file", {message: message, level: level});
+  }
+
+  /**
+   * Logs a message to the batch apply log file.
+   * @param message The message to log.
+   * @param level The log level.
+   */
+  static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
+    await invoke("log_to_batch_apply_file", {message: message, level: level});
+  }
+
+  /**
+   * Gets the app executable path.
+   * @returns The app's executable path.
+   */
+  static async getAppExePath(): Promise<string> {
+    return await invoke("get_app_executable_path");
   }
 
   /**

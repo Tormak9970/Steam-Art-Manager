@@ -9,6 +9,7 @@
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
   export let placement: Placement = "left";
+  export let direction: "UP" | "DOWN" = "DOWN";
 
   let customSelectElem: HTMLDivElement;
   let customSelectElemWrapper: HTMLDivElement;
@@ -51,7 +52,7 @@
   });
 </script>
 
-<svelte:body on:click={closeDropdowns} />
+<svelte:window on:click={closeDropdowns} />
 
 <div class="wrapper" style="width: {width};">
   {#if label != ""}
@@ -69,7 +70,7 @@
     {#key value}
       <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
     {/key}
-    <div class="select-items" class:select-hide={!active}>
+    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 15 }%;" class:select-hide={!active}>
       {#each options as opt}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: placement, onShow: AppController.onTippyShow}}>{opt.label}</div>
@@ -156,18 +157,29 @@
   .select-items {
     position: absolute;
     background-color: var(--foreground);
-    top: 100%;
+    top: 102%;
     left: 0;
     right: 0;
     z-index: 99;
     margin-top: 2px;
     border-radius: 2px;
     border: 1px solid transparent;
-    box-shadow: 3px 6px 10px 4px var(--shadow);
+    box-shadow: 3px 6px 12px -2px var(--shadow);
   }
   .select-items > div:hover {
     background-color: var(--foreground-light);
     cursor: pointer;
+  }
+  
+  .open-up {
+    top: var(--top-percentage);
+    left: 0;
+    right: 0;
+    z-index: 99;
+    margin-top: 2px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    box-shadow: -3px -6px 26px -2px var(--shadow);
   }
 
   .select-hide { display: none; }

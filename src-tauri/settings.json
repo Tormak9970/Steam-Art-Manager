@@ -1,5 +1,6 @@
 {
   "version": "",
+  "shownShortcutPrompt": false,
   "theme": 0,
   "steamGridDbApiKey": "",
   "steamApiKeyMap": {},

@@ -4,7 +4,6 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
-  import { LogController } from "../../../lib/controllers/LogController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, showLogoPositionModal, appLibraryCache } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
@@ -16,6 +15,7 @@
   import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
+  import { filterGrids } from "../../../lib/utils/Utils";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
@@ -36,34 +36,8 @@
    * @param filters The filters object.
    * @returns The list of filtered grids.
    */
-  function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
-    const targetFilters = filters[type];
-    const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-    const dimensions = (type != GridTypes.LOGO && type != GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
-    const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
-    const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
-    const humorAllowed = targetFilters.oneoftag.humor;
-    const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
-    const nsfwAllowed = targetFilters.oneoftag.nsfw;
-
-    const resGrids = allGrids.filter((grid: SGDBImage) => {
-      return gridStyles.includes(grid.style)
-        && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
-        && imageFormats.includes(grid.mime)
-        && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
-        && (grid.humor ? humorAllowed : true)
-        && (grid.epilepsy ? epilepsyAllowed : true)
-        && (grid.nsfw ? nsfwAllowed : true);
-    });
-
-    let query = `"${$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for ${$selectedGameName}"`;
-    if (resGrids.length > 0) {
-      LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
-    } else {
-      LogController.log(`Query: ${query}. Result: no grids.`);
-    }
-
-    return resGrids;
+  function filterGridsWrapper(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters): SGDBImage[] {
+    return filterGrids(allGrids, type, filters, $selectedGameName);
   }
 
   let isLoading = false;
@@ -107,7 +81,7 @@
    */
   async function onSgdbGameChange(id: string) {
     if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) {
-      grids = filterGrids(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
+      grids = filterGridsWrapper(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id), $gridType, $dbFilters);
       numPages = $steamGridSearchCache[$selectedGameAppId]?.find((game) => game.id.toString() == id)?.numResultPages ?? 3;
     }
     
@@ -144,7 +118,7 @@
   async function filterGridsOnStateChange(sgdbApiKey: string, online: boolean, selectedAppId: number, selectedGridType: GridTypes, resultsPage: number, filters: DBFilters): Promise<void> {
     if (online && sgdbApiKey != "" && selectedAppId != null) {
       const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage, $selectedSteamGridGameId);
-      grids = filterGrids(unfilteredGrids, selectedGridType, filters);
+      grids = filterGridsWrapper(unfilteredGrids, selectedGridType, filters);
     }
   }
 

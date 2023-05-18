@@ -10,26 +10,34 @@ use tauri::AppHandle;
 use chrono::prelude::*;
 
 /// Gets the log file path for this app.
-pub fn get_log_path(app_handle: &AppHandle) -> PathBuf {
+pub fn get_core_log_path(app_handle: &AppHandle) -> PathBuf {
   let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
 
   if !app_log_dir.exists() {
     create_dir_all(&app_log_dir).expect("Failed to make directory");
   }
 
-  return app_log_dir.join("steam-art-manager.log");
+  return app_log_dir.join("core.log");
 }
 
-#[tauri::command]
-/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err).
-pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
-  let log_path: PathBuf = get_log_path(&app_handle);
+/// Gets the log file path for this app.
+pub fn get_batch_apply_log_path(app_handle: &AppHandle) -> PathBuf {
+  let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
 
+  if !app_log_dir.exists() {
+    create_dir_all(&app_log_dir).expect("Failed to make directory");
+  }
+
+  return app_log_dir.join("batch-apply.log");
+}
+
+/// General function to log a message to the provided file.
+fn log_to_file(log_path: &PathBuf, message: &str, level: u8) {
   let log_file_res = OpenOptions::new()
     .create(true)
     .write(true)
     .append(true)
-    .open(&log_path);
+    .open(log_path);
 
   if log_file_res.is_ok() {
     let mut log_file = log_file_res.unwrap();
@@ -50,11 +58,27 @@ pub fn log_to_file(app_handle: AppHandle, message: &str, level: u8) {
 }
 
 #[tauri::command]
+/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to core.log.
+pub fn log_to_core_file(app_handle: AppHandle, message: &str, level: u8) {
+  let log_path: PathBuf = get_core_log_path(&app_handle);
+  log_to_file(&log_path, message, level);
+}
+
+#[tauri::command]
+/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to batch-apply.log.
+pub fn log_to_batch_apply_file(app_handle: AppHandle, message: &str, level: u8) {
+  let log_path: PathBuf = get_batch_apply_log_path(&app_handle);
+  log_to_file(&log_path, message, level);
+}
+
+#[tauri::command]
 /// Cleans the log file for a new launch of the app.
 pub fn clean_out_log(app_handle: AppHandle) {
-  let log_path: PathBuf = get_log_path(&app_handle);
+  let core_log_path: PathBuf = get_core_log_path(&app_handle);
+  File::create(&core_log_path).expect("Core log path should have existed.");
 
-  File::create(&log_path).expect("Log path should have existed.");
+  let batch_apply_log_path: PathBuf = get_core_log_path(&app_handle);
+  File::create(&batch_apply_log_path).expect("Batch Apply log path should have existed.");
 
-  log_to_file(app_handle, "Initialized logging file", 0);
+  log_to_core_file(app_handle, "Initialized logging file", 0);
 }

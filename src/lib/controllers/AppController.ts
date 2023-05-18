@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http } from "@tauri-apps/api";
+import { dialog, fs, http, os, path, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -46,6 +46,27 @@ const libraryCacheLUT = {
   "library_hero": GridTypes.HERO,
   "icon": GridTypes.ICON,
   "logo": GridTypes.LOGO
+}
+
+async function getShortcutContents(): Promise<string> {
+  let current_exec_path = await RustInterop.getAppExePath();
+  let logo_path = await path.resolveResource("../public/logo.svg");
+
+  return `#!/usr/bin/env xdg-open
+  [Desktop Entry]
+  Name=Steam Art Manager
+  Exec=${current_exec_path}
+  Icon=${logo_path}
+  Terminal=false
+  Type=Application
+  Categories=Utility
+  StartupNotify=false
+  `;
+}
+
+async function createShortcut(parentDir: string, contents: string): Promise<void> {
+  const filePath = await path.join(parentDir, "Steam Art Manager.desktop");
+  await fs.writeTextFile(filePath, contents);
 }
 
 /**
@@ -101,6 +122,23 @@ export class AppController {
 
     if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
+    }
+    
+    const shownShortcutPrompt = settings.shownShortcutPrompt;
+    const isOnLinux = await os.type() == "Linux";
+
+    if (!shownShortcutPrompt && isOnLinux) {
+      LogController.log("Generating .desktop files..");
+      const shortcutFileContents = await getShortcutContents();
+      const wantsDesktopShortcut = await dialog.ask("Looks like its the first time you've launched SARM, do you want to create a desktop shortcut?");
+
+      if (wantsDesktopShortcut) createShortcut(await path.desktopDir(), shortcutFileContents);
+      createShortcut(await path.join(await path.dataDir(), "applications"), shortcutFileContents);
+
+      settings.shownShortcutPrompt = true;
+      await SettingsManager.updateSetting("shownShortcutPrompt", true);
+
+      LogController.log("Generated all .desktop files.");
     }
 
     LogController.log("App setup complete.");
@@ -654,9 +692,11 @@ export class AppController {
    * ? Logging complete.
    */
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
-    const localPath = await AppController.cacheController.getGridImage(appId, url.toString());
+    let imgUrl = url.toString();
+    if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
+
+    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
-    const type = get(gridType);
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
@@ -669,7 +709,7 @@ export class AppController {
 
     gameImages[selectedGameId][selectedGridType] = localPath;
     
-    if (get(currentPlatform) == Platforms.NON_STEAM && type == GridTypes.ICON) {
+    if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
       const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
       shortcut.icon = localPath;
@@ -708,6 +748,17 @@ export class AppController {
     canSave.set(true);
 
     LogController.log(`Updated logo position for game ${appId}`);
+  }
+
+  /**
+   * Batch applies grids to the provided games.
+   * @param appIds The list of game ids.
+   * ? Logging Complete.
+   */
+  static async batchApplyGrids(appIds: string[]): Promise<void> {
+    ToastController.showGenericToast("Starting Batch Apply...");
+    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
+    await AppController.cacheController.batchApplyGrids(appIds);
   }
 
   /**
@@ -783,7 +834,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, page, selectedSteamGridId);
+    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId);
   }
 
   /**
@@ -817,7 +868,7 @@ export class AppController {
    */
   static async reload(): Promise<void> {
     LogController.log(`Reloading...`);
-    await AppController.init();
+    await process.relaunch();
   }
 
   /**

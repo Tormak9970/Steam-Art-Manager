@@ -1,5 +1,6 @@
 type AppSettings = {
   version: string;
+  shownShortcutPrompt: boolean;
   theme: number;
   steamGridDbApiKey: string;
   steamApiKeyMap: {
