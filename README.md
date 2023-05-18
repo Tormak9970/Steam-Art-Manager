@@ -1,4 +1,4 @@
-# Steam Art Manager
+# Steam Art Manager (SARM)
 A tool for setting the artwork of your Steam library.
 
 ![Steam Art Manager's Main UI](public//images/../progress-images/v2.0.0/final-ui_v2.2.0.png)
@@ -95,5 +95,6 @@ Other resources / references I used:
 
 ## Licensing
 This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL)
+If you add SARM to any package managers etc, please let me know so I can update the install options!
 
 Copyright Travis Lane (Tormak) 
