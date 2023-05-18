@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, path, process } from "@tauri-apps/api";
+import { dialog, fs, http, os, path, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -48,8 +48,8 @@ const libraryCacheLUT = {
   "logo": GridTypes.LOGO
 }
 
-async function genShortcutContents(): Promise<string> {
-  let current_exec_path = "";
+async function getShortcutContents(): Promise<string> {
+  let current_exec_path = await RustInterop.getAppExePath();
   let logo_path = await path.resolveResource("../public/logo.svg");
 
   return `#!/usr/bin/env xdg-open
@@ -62,6 +62,11 @@ async function genShortcutContents(): Promise<string> {
   Categories=Utility
   StartupNotify=false
   `;
+}
+
+async function createShortcut(parentDir: string, contents: string): Promise<void> {
+  const filePath = await path.join(parentDir, "Steam Art Manager.desktop");
+  await fs.writeTextFile(filePath, contents);
 }
 
 /**
@@ -119,13 +124,22 @@ export class AppController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
     }
     
+    const shownShortcutPrompt = settings.shownShortcutPrompt;
+    const isOnLinux = await os.type() == "Linux";
 
-    // TODO: prompt user to create desktop and start menu shortcuts
-      // if yes, get resources with resolveResource
-      // create the .desktop in desktopDir() directory if it was selected
-      // create the .desktop in dataDirectory()/applications if start menu was selected
+    if (!shownShortcutPrompt && isOnLinux) {
+      LogController.log("Generating .desktop files..");
+      const shortcutFileContents = await getShortcutContents();
+      const wantsDesktopShortcut = await dialog.ask("Looks like its the first time you've launched SARM, do you want to create a desktop shortcut?");
 
-    // TODO: write if this happened to config or something, so we can remove them on uninstall, and not prompt again
+      if (wantsDesktopShortcut) createShortcut(await path.desktopDir(), shortcutFileContents);
+      createShortcut(await path.join(await path.dataDir(), "applications"), shortcutFileContents);
+
+      settings.shownShortcutPrompt = true;
+      await SettingsManager.updateSetting("shownShortcutPrompt", true);
+
+      LogController.log("Generated all .desktop files.");
+    }
 
     LogController.log("App setup complete.");
   }

@@ -57,6 +57,14 @@ export class RustInterop {
   }
 
   /**
+   * Gets the app executable path.
+   * @returns The app's executable path.
+   */
+  static async getAppExePath(): Promise<string> {
+    return await invoke("get_app_executable_path");
+  }
+
+  /**
    * Gets the active steam user's grids directory.
    * @param activeUserId The id of the active user.
    * @returns A promise resolving to the active steam user's grids directory.

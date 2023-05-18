@@ -402,6 +402,23 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   }
 }
 
+
+#[tauri::command]
+/// Gets the app executable path
+fn get_app_executable_path(app_handle: AppHandle) -> String {
+  let exe_path_res = std::env::current_exe();
+
+  if exe_path_res.is_ok() {
+    let exe_path: PathBuf = exe_path_res.ok().expect("Exe path should have been ok.");
+    return exe_path.to_str().unwrap().to_string();
+  } else {
+    let err = exe_path_res.err().expect("Exe path err should have existed.");
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error getting app executable path: {}", err).as_str(), 2);
+
+    return String::from("");
+  }
+}
+
 /// Adds the user's steam directory to Tauri FS and Asset scope.
 fn add_steam_to_scope(app_handle: &AppHandle) {
   let steam_path = get_steam_root_dir();
@@ -447,7 +464,8 @@ fn main() {
       read_localconfig_vdf,
       save_changes,
       write_shortcuts,
-      download_grid
+      download_grid,
+      get_app_executable_path
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);
