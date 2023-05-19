@@ -47,7 +47,7 @@ jobs:
               body: `${process.env.RELEASE_LOG}`,
               draft: true,
               prerelease: false
-            })
+            });
             return data.id
 
   build-tauri:
@@ -110,7 +110,7 @@ jobs:
           fetch-depth: 0
           ref: release
 
-      - name: Update Latest.json
+      - name: Update Release Assets
         uses: actions/github-script@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -120,6 +120,8 @@ jobs:
           script: |
             const fs = require("fs");
             const path = require("path");
+
+            # TODO: upload linux installer here
 
             const assets = await github.rest.repos.listReleaseAssets({
               owner: context.repo.owner,
@@ -162,7 +164,7 @@ jobs:
             await commit("chore(release): updating latest.json to generated version.");
             await push(process.env.git_branch);
 
-            core.info("Git stuff complete!");
+            core.info("Committed changes to latest.json complete!");
 
       - name: Publish Release
         id: publish-release
