@@ -1,9 +1,19 @@
 #!/bin/bash
 
-currentVersion="2.3.0"
 comment="A tool for setting the artwork of your Steam library."
 
-echo "[INFO]: Installing Steam Art Manager (SARM) v$currentVersion..."
+currentVersion="VALUE_TO_SEARCH_FOR"
+
+currentVersionNumber=""
+if [[ $currentVersion == v* ]]; then
+  #? This is a production release. Starts with "v".
+  $currentVersionNumber=${$currentVersion:1}
+else 
+  #? This is a debug release. Starts with "debug-".
+  $currentVersionNumber=${$currentVersion:6}
+fi
+
+echo "[INFO]: Installing Steam Art Manager (SARM) $currentVersion..."
 
 if [ -d "~/.sarm" ]; then
   echo "[INFO]: SARM Directory Exists."
@@ -13,13 +23,13 @@ else
 fi
 
 echo "[INFO]: Downloading AppImage..."
-curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v$currentVersion/steam-art-manager_${currentVersion}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
+curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/$currentVersion/steam-art-manager_${currentVersionNumber}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
 chmod 700 ~/.sarm/steam-art-manager.AppImage
 echo "[INFO]: Downloaded AppImage."
 
 
 echo "[INFO]: Downloading Icon..."
-curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/v$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
+curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
 echo "[INFO]: Downloaded Icon."
 
 
@@ -54,4 +64,4 @@ echo "[INFO]: Made Desktop Shortcut."
 echo "[INFO]: Finished Making Shortcuts."
 
 
-echo "[INFO]: Instalation of SARM v$currentVersion complete."
+echo "[INFO]: Instalation of SARM $currentVersion complete."
