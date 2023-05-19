@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, process } from "@tauri-apps/api";
+import { dialog, fs, http, os, path, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -76,9 +76,38 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
-    steamUsers.set(users);
+    const cleanedUsers: { [id: string]: SteamUser } = {};
 
-    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
+    //? need to clean the data here bc props can vary in terms of case
+    for (const [id, user] of Object.entries(users)) {
+      const userKeys = Object.keys(user);
+      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [key.toLowerCase(), user[key]]));
+
+      cleanedUsers[id] = {
+        id64: lowerCaseUser.id64,
+        id32: lowerCaseUser.id32,
+        AccountName: lowerCaseUser.accountname,
+        PersonaName: lowerCaseUser.personaname,
+        RememberPassword: lowerCaseUser.rememberpassword,
+        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
+        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
+        AllowAutoLogin: lowerCaseUser.allowautologin,
+        MostRecent: lowerCaseUser.mostrecent,
+        Timestamp: lowerCaseUser.timestamp
+      }
+    }
+
+    steamUsers.set(cleanedUsers);
+
+    const usersList = Object.values(cleanedUsers);
+
+    if (usersList.length == 0) {
+      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
+      LogController.error("Expected to find at least 1 Steam user but found 0.");
+      await process.exit(0);
+    }
+
+    const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
     
     await SettingsManager.setSettingsPath();

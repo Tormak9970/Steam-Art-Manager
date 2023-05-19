@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
-      change_log: ${{ steps.changelog.outputs.clean_changelog }}
-      version: ${{ steps.changelog.outputs.version }}
-      tag: ${{ steps.changelog.outputs.tag }}
+      tag: ${{ steps.create-release.outputs.tag }}
 
     steps:
       - name: Checkout Repository
@@ -41,7 +39,10 @@ jobs:
               body: `Download the release for your platform below`,
               draft: true,
               prerelease: true
-            })
+            });
+
+            core.setOutput("tag", `debug-${process.env.PACKAGE_VERSION}`);
+
             return data.id
 
   build-tauri:
@@ -105,6 +106,32 @@ jobs:
         with:
           fetch-depth: 0
           ref: "debug-release"
+
+      - name: Upload linux-installer.sh
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          release_tag: ${{ needs.create-release.outputs.tag }}
+          git_branch: "debug-release"
+        with:
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+
+            const linuxInstallerPath = path.resolve(process.cwd(), "linux-installer.sh");
+            const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+            const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+            
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: "linux-installer.sh",
+              data: Buffer.from(modifiedContents)
+            });
+
+            core.info("Uploaded linux installer to release.");
 
       - name: Publish Release
         id: publish-release

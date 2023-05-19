@@ -23,7 +23,7 @@ use reqwest;
 use steam::get_steam_root_dir;
 use tauri::{
   AppHandle,
-  api::dialog::blocking::FileDialogBuilder,
+  api::dialog::{blocking::FileDialogBuilder, self},
   FsScope, Manager
 };
 use keyvalues_parser::Vdf;
@@ -402,31 +402,42 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   }
 }
 
+
 /// Adds the user's steam directory to Tauri FS and Asset scope.
 fn add_steam_to_scope(app_handle: &AppHandle) {
-  let steam_path = get_steam_root_dir();
+  let steam_path_res = get_steam_root_dir();
 
-  let fs_scope = app_handle.fs_scope();
-  let asset_scope = app_handle.asset_protocol_scope();
+  if steam_path_res.is_ok() {
+    let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get Steam install path result.");
 
-  let fs_res = FsScope::allow_directory(&fs_scope, &steam_path, true);
-  let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
+    let fs_scope = app_handle.fs_scope();
+    let asset_scope = app_handle.asset_protocol_scope();
 
-  if fs_res.is_ok() && asset_res.is_ok() {
-    logger::log_to_core_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
-  } else if fs_res.is_err() {
-    let err = fs_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
-  } else if asset_res.is_err() {
-    let err = asset_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    let fs_res = FsScope::allow_directory(&fs_scope, &steam_path, true);
+    let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
+
+    if fs_res.is_ok() && asset_res.is_ok() {
+      logger::log_to_core_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
+    } else if fs_res.is_err() {
+      let err = fs_res.err().unwrap();
+      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
+    } else if asset_res.is_err() {
+      let err = asset_res.err().unwrap();
+      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    } else {
+      let fs_err = fs_res.err().unwrap();
+      let asset_err = asset_res.err().unwrap();
+      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+    }
   } else {
-    let fs_err = fs_res.err().unwrap();
-    let asset_err = asset_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+    let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
+    logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
+
+    let main_window = app_handle.get_window("main").expect("Main window should always exist.");
+    dialog::message(Some(&main_window), "SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.");
+    app_handle.exit(0);
   }
 }
-
 
 /// This app's main function.
 fn main() {
