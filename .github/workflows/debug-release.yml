@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
-      tag: ${{ steps.changelog.outputs.tag }}
+      tag: ${{ steps.create-release.outputs.tag }}
 
     steps:
       - name: Checkout Repository
