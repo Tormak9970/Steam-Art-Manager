@@ -14,6 +14,7 @@ else
 fi
 
 echo "[INFO]: Installing Steam Art Manager (SARM) $currentVersion..."
+echo ""
 
 if [ -d "~/.sarm" ]; then
   echo "[INFO]: SARM Directory Exists."
@@ -21,16 +22,19 @@ else
   mkdir ~/.sarm
   echo "[INFO]: Made SARM Directory."
 fi
+echo ""
 
 echo "[INFO]: Downloading AppImage..."
 curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/$currentVersion/steam-art-manager_${currentVersionNumber}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
 chmod 700 ~/.sarm/steam-art-manager.AppImage
 echo "[INFO]: Downloaded AppImage."
+echo ""
 
 
 echo "[INFO]: Downloading Icon..."
 curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
 echo "[INFO]: Downloaded Icon."
+echo ""
 
 
 echo "[INFO]: Making Shortcuts..."
@@ -62,6 +66,9 @@ chmod 700 ~/Desktop/SARM.desktop
 echo "[INFO]: Made Desktop Shortcut."
 
 echo "[INFO]: Finished Making Shortcuts."
+echo ""
 
 
 echo "[INFO]: Instalation of SARM $currentVersion complete."
+echo ""
+echo "[TIP]: Feel free to delete this script. SARM will notify you when new updates are available!"
