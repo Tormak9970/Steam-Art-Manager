@@ -48,27 +48,6 @@ const libraryCacheLUT = {
   "logo": GridTypes.LOGO
 }
 
-async function getShortcutContents(): Promise<string> {
-  let current_exec_path = await RustInterop.getAppExePath();
-  let logo_path = await path.resolveResource("../public/logo.svg");
-
-  return `#!/usr/bin/env xdg-open
-  [Desktop Entry]
-  Name=Steam Art Manager
-  Exec=${current_exec_path}
-  Icon=${logo_path}
-  Terminal=false
-  Type=Application
-  Categories=Utility
-  StartupNotify=false
-  `;
-}
-
-async function createShortcut(parentDir: string, contents: string): Promise<void> {
-  const filePath = await path.join(parentDir, "Steam Art Manager.desktop");
-  await fs.writeTextFile(filePath, contents);
-}
-
 /**
  * The main controller for the application
  */
@@ -99,7 +78,15 @@ export class AppController {
     const users = await RustInterop.getSteamUsers();
     steamUsers.set(users);
 
-    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
+    const usersList = Object.values(users);
+
+    if (usersList.length == 0) {
+      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
+      LogController.error("Expected to find at least 1 Steam user but found 0.");
+      await process.exit(0);
+    }
+
+    const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
     
     await SettingsManager.setSettingsPath();
@@ -122,23 +109,6 @@ export class AppController {
 
     if (activeUser.id32 == "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
-    }
-    
-    const shownShortcutPrompt = settings.shownShortcutPrompt;
-    const isOnLinux = await os.type() == "Linux";
-
-    if (!shownShortcutPrompt && isOnLinux) {
-      LogController.log("Generating .desktop files..");
-      const shortcutFileContents = await getShortcutContents();
-      const wantsDesktopShortcut = await dialog.ask("Looks like its the first time you've launched SARM, do you want to create a desktop shortcut?");
-
-      if (wantsDesktopShortcut) createShortcut(await path.desktopDir(), shortcutFileContents);
-      createShortcut(await path.join(await path.dataDir(), "applications"), shortcutFileContents);
-
-      settings.shownShortcutPrompt = true;
-      await SettingsManager.updateSetting("shownShortcutPrompt", true);
-
-      LogController.log("Generated all .desktop files.");
     }
 
     LogController.log("App setup complete.");
