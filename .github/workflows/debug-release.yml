@@ -120,6 +120,7 @@ jobs:
 
             const linuxInstallerPath = path.resolve(process.cwd(), "linux-installer.sh");
             const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+            core.info(`Release tag: ${process.env.release_tag}`);
             const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
             
             await github.rest.repos.uploadReleaseAsset({
