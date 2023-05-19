@@ -78,7 +78,15 @@ export class AppController {
     const users = await RustInterop.getSteamUsers();
     steamUsers.set(users);
 
-    const activeUser = Object.values(users).find((user) => user.MostRecent == "1");
+    const usersList = Object.values(users);
+
+    if (usersList.length == 0) {
+      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
+      LogController.error("Expected to find at least 1 Steam user but found 0.");
+      await process.exit(0);
+    }
+
+    const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
     
     await SettingsManager.setSettingsPath();
