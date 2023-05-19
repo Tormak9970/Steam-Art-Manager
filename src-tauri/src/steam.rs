@@ -16,24 +16,41 @@ use home::home_dir;
 
 #[cfg(target_os = "windows")]
 /// Gets the steam root dir for windows systems.
-pub fn get_steam_root_dir() -> PathBuf {
+pub fn get_steam_root_dir() -> Result<PathBuf, String> {
   let hkcu: RegKey = RegKey::predef(HKEY_CURRENT_USER);
 
-  let steam_install_data: RegKey = hkcu.open_subkey("SOFTWARE\\Valve\\Steam").expect("Couldn't get Steam Install Data from the registry");
-  let steam_install_path: String = steam_install_data.get_value("SteamPath").expect("Couldn't get SteamPath from the registry");
+  let steam_install_data_res = hkcu.open_subkey("SOFTWARE\\Valve\\Steam");
 
-  return Path::new(&(steam_install_path.replace("\\", "/"))).to_path_buf();
+  if steam_install_data_res.is_ok() {
+    let steam_install_data: RegKey = steam_install_data_res.ok().expect("Should have been able to get steam install registry result.");
+    let steam_install_path_res = steam_install_data.get_value("SteamPath");
+
+    if steam_install_path_res.is_ok() {
+      let steam_install_path: String = steam_install_path_res.ok().expect("Should have been able to get steam install from registry.");
+      return Ok(Path::new(&(steam_install_path.replace("\\", "/"))).to_path_buf());
+    } else {
+      return Err(String::from("Couldn't get SteamPath from the registry."));
+    }
+  } else {
+    return Err(String::from("Couldn't get Steam Install Data from the registry."));
+  }
 }
 
 #[cfg(target_os = "linux")]
 /// Gets the steam root dir for linux systems.
-pub fn get_steam_root_dir() -> PathBuf {
-  let pc_home_dir = home_dir().expect("Couldn't get user's home dir.");
+pub fn get_steam_root_dir() -> Result<PathBuf, String> {
+  let mut pc_home_dir: PathBuf = home_dir().expect("Couldn't get user's home dir.");
 
   if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
-    return pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
+    pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
   } else {
-    return pc_home_dir.join(".steam/steam");
+    pc_home_dir = pc_home_dir.join(".steam/steam");
+  }
+
+  if pc_home_dir.exists() {
+    return Ok(pc_home_dir);
+  } else {
+    return Err(String::from("Steam install path does not exist."));
   }
 }
 
@@ -42,8 +59,8 @@ pub fn get_steam_root_dir() -> PathBuf {
 pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
-  let steam_root = get_steam_root_dir();
-  let grids_dir = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let grids_dir: String = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
   if dir_create_res.is_err() {
@@ -59,7 +76,7 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) 
 pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
   
-  let steam_root = get_steam_root_dir();
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
   return steam_root.join("appcache/librarycache").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -68,7 +85,7 @@ pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
 pub fn get_appinfo_path(app_handle: AppHandle) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
-  let steam_root = get_steam_root_dir();
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -77,7 +94,7 @@ pub fn get_appinfo_path(app_handle: AppHandle) -> String {
 pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
-  let steam_root = get_steam_root_dir();
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -86,7 +103,7 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -
 pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
   
-  let steam_root = get_steam_root_dir();
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -128,7 +145,7 @@ fn read_steam_user(user_id: &str, user_block: &str) -> Map<String, Value> {
 fn read_steam_users() -> Map<String, Value> {
   let mut steam_users: Map<String, Value> = Map::new();
     
-  let steam_root: PathBuf = get_steam_root_dir();
+  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
   let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
 
