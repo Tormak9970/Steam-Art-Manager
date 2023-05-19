@@ -14,6 +14,14 @@ A tool for setting the artwork of your Steam library.
 ## Download and Install
 To get the most recent release, head to [releases](https://github.com/Tormak9970/Steam-Art-Manager/releases) and select the most recent release for your platform. Download it and run the installer.
 
+### For Windows:
+ - Download the file ending in `.msi`, and run it to install SARM.
+
+### For Linux:
+  1. Download the `linux-installer.sh` bash script.
+  2. Right click it, go to permissions, and mark it as executable.
+  3. Double click the script to install SARM.
+
 ## How to use the app
 When using Steam Art Manager, your workflow will typically be:
  - Open Steam Art Manager
@@ -24,10 +32,10 @@ When using Steam Art Manager, your workflow will typically be:
 
 ### Setting up the API key
 If you want to use or browse images from [SteamGridDB](https://steamgriddb.com) you will need an api key (which is easy and free). To get one:
- - First, go to [SteamGridDB](https://steamgriddb.com), and sign in with Steam.
- - Next, go to preferences, then API, and generate a new key if you don't already have one.
- - Now copy the api key.
- - Finally, in Steam Art Manager, click the "Set API Key" button and paste the key in the text field and click "Save".
+ 1. Go to [SteamGridDB](https://steamgriddb.com), and sign in with Steam.
+ 2. Go to preferences, then API, and generate a new key if you don't already have one.
+ 3. Copy the api key.
+ 4. In Steam Art Manager, click the "Set API Key" button and paste the key in the text field and click "Save".
 
 ### Managing your art
 For custom artwork:
@@ -94,7 +102,7 @@ Other resources / references I used:
 <br/>
 
 ## Licensing
-This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL)
-If you add SARM to any package managers etc, please let me know so I can update the install options!
+This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL) <br/>
+Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know!
 
 Copyright Travis Lane (Tormak) 

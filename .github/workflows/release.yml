@@ -47,7 +47,7 @@ jobs:
               body: `${process.env.RELEASE_LOG}`,
               draft: true,
               prerelease: false
-            })
+            });
             return data.id
 
   build-tauri:
@@ -110,16 +110,34 @@ jobs:
           fetch-depth: 0
           ref: release
 
-      - name: Update Latest.json
+      - name: Update Release Assets
         uses: actions/github-script@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           release_id: ${{ needs.create-release.outputs.release_id }}
+          release_tag: ${{ needs.create-release.outputs.tag }}
           git_branch: "release"
         with:
           script: |
             const fs = require("fs");
             const path = require("path");
+            
+
+            const linuxInstallerPath = path.resolve(process.cwd(), "linux-installer.sh");
+            const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+            core.info(`Release Tag: ${process.env.release_tag}`);
+            const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+            
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: "linux-installer.sh",
+              data: Buffer.from(modifiedContents)
+            });
+
+            core.info("Uploaded linux installer to release.");
+
 
             const assets = await github.rest.repos.listReleaseAssets({
               owner: context.repo.owner,
@@ -162,7 +180,7 @@ jobs:
             await commit("chore(release): updating latest.json to generated version.");
             await push(process.env.git_branch);
 
-            core.info("Git stuff complete!");
+            core.info("Committed changes to latest.json complete!");
 
       - name: Publish Release
         id: publish-release

@@ -32,6 +32,7 @@ For Linux, check: `/home/USER/.config/dev.tormak.steam-art-manager/logs/steam-ar
 For Windows, check: `C:\Users\USER\AppData\Roaming\dev.tormak.steam-art-manager\logs\core.log`
 For Linux, check: `/home/USER/.config/dev.tormak.steam-art-manager/logs/core.log`
 
+
 **System information (please complete the following information):**
  - OS: [e.g. Windows 10, Ubuntu, etc]
  - Version [e.g. v1.0.0]
