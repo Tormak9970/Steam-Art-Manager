@@ -76,9 +76,30 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
-    steamUsers.set(users);
+    const cleanedUsers: { [id: string]: SteamUser } = {};
 
-    const usersList = Object.values(users);
+    //? need to clean the data here bc props can vary in terms of case
+    for (const [id, user] of Object.entries(users)) {
+      const userKeys = Object.keys(user);
+      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [key.toLowerCase(), user[key]]));
+
+      cleanedUsers[id] = {
+        id64: lowerCaseUser.id64,
+        id32: lowerCaseUser.id32,
+        AccountName: lowerCaseUser.accountname,
+        PersonaName: lowerCaseUser.personaname,
+        RememberPassword: lowerCaseUser.rememberpassword,
+        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
+        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
+        AllowAutoLogin: lowerCaseUser.allowautologin,
+        MostRecent: lowerCaseUser.mostrecent,
+        Timestamp: lowerCaseUser.timestamp
+      }
+    }
+
+    steamUsers.set(cleanedUsers);
+
+    const usersList = Object.values(cleanedUsers);
 
     if (usersList.length == 0) {
       await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
