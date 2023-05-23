@@ -108,6 +108,7 @@ Other resources / references I used:
 
 ## Licensing
 This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL) <br/>
-Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know!
+Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know! <br/>
+Lastly, please provide appropriate credit for code usage
 
 Copyright Travis Lane (Tormak) 
