@@ -67,7 +67,7 @@ I used the Tauri framework for the program, so you will need to to setup your en
 The next step is to get a local copy of the repository. This can be done many ways, I recommend forking this repository and cloning that. <br/>
 
 **IMPORTANT:**<br/>
-If you make changes you are not allowed to redistribute the application with me labeled as the developer. Please remember to change the `author` information in the `package.json` and the related copyright information in `src-tauri/tauri.config.json` file. You should also change the copyright notice in `src/App.svelte`.
+If you make changes you are not allowed to redistribute the application with me labeled as the developer. Please remember to change the `author` information in the `package.json` and the related copyright information in `src-tauri/tauri.config.json` file. You should also change the copyright notice in `src/windows/main/Main.svelte`.
 
 ### Installing Dependencies
 Once you have cloned the repository and opened it in your preffered Editor/IDE (I recommend [VSCode](https://code.visualstudio.com/)), you will need to install the program's dependencies. To do this, you will need to run two commands: <br/>
