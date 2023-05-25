@@ -7,19 +7,19 @@ currentVersion="VALUE_TO_SEARCH_FOR"
 currentVersionNumber=""
 if [[ $currentVersion == v* ]]; then
   #? This is a production release. Starts with "v".
-  $currentVersionNumber=${$currentVersion:1}
+  $currentVersionNumber="${$currentVersion:1}"
 else 
   #? This is a debug release. Starts with "debug-".
-  $currentVersionNumber=${$currentVersion:6}
+  $currentVersionNumber="${$currentVersion:6}"
 fi
 
 echo "[INFO]: Installing Steam Art Manager (SARM) $currentVersion..."
 echo ""
 
-if [ -d "~/.sarm" ]; then
+if [ -d "$HOME/.sarm" ]; then
   echo "[INFO]: SARM Directory Exists."
 else
-  mkdir ~/.sarm
+  mkdir $HOME/.sarm
   echo "[INFO]: Made SARM Directory."
 fi
 echo ""
