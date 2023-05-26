@@ -123,7 +123,7 @@ jobs:
             const path = require("path");
             
 
-            const linuxInstallerPath = path.resolve(process.cwd(), "linux-installer.sh");
+            const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
             const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
             core.info(`Release Tag: ${process.env.release_tag}`);
             const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
@@ -174,7 +174,8 @@ jobs:
             core.setSecret(process.env.GITHUB_TOKEN);
             
             updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
-            config('user.name', "github-actions");
+            config('user.email', "sarm.release.action@github.com");
+            config('user.name', "SARM Release Action");
 
             await add(".");
             await commit("chore(release): updating latest.json to generated version.");
