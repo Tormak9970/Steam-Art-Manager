@@ -1,5 +1,11 @@
 #!/bin/bash
 
+lightRed='\033[1;31m'
+green='\033[0;32m'
+lightGreen='\033[1;32m'
+lightBlue='\033[1;34m'
+noColor='\033[0m'
+
 comment="A tool for setting the artwork of your Steam library."
 
 currentVersion="VALUE_TO_SEARCH_FOR"
@@ -13,31 +19,32 @@ else
   $currentVersionNumber="${$currentVersion:6}"
 fi
 
-echo "[INFO]: Installing Steam Art Manager (SARM) $currentVersion..."
+echo -e "${lightBlue}[INFO]${noColor}: Installing Steam Art Manager (SARM) $currentVersion..."
 echo ""
+echo -e "${green}[TIP]${noColor}: If SARM doesn't install, try closing this window and running it again. Sometimes it takes 3-5 attempts to install, looking into the cause."
 
 if [ -d "$HOME/.sarm" ]; then
-  echo "[INFO]: SARM Directory Exists."
+  echo -e "${lightGreen}[INFO]${noColor}: SARM Directory Exists."
 else
   mkdir $HOME/.sarm
-  echo "[INFO]: Made SARM Directory."
+  echo -e "${lightGreen}[INFO]${noColor}: Made SARM Directory."
 fi
 echo ""
 
-echo "[INFO]: Downloading AppImage..."
+echo -e "${lightBlue}[INFO]${noColor}: Downloading AppImage..."
 curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/$currentVersion/steam-art-manager_${currentVersionNumber}_amd64.AppImage --output ~/.sarm/steam-art-manager.AppImage 
 chmod 700 ~/.sarm/steam-art-manager.AppImage
-echo "[INFO]: Downloaded AppImage."
+echo -e "${lightGreen}[INFO]${noColor}: Downloaded AppImage."
 echo ""
 
 
-echo "[INFO]: Downloading Icon..."
+echo -e "${lightBlue}[INFO]${noColor}: Downloading Icon..."
 curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
-echo "[INFO]: Downloaded Icon."
+echo -e "${lightGreen}[INFO]${noColor}: Downloaded Icon."
 echo ""
 
 
-echo "[INFO]: Making Shortcuts..."
+echo -e "${lightBlue}[INFO]${noColor}: Making Shortcuts..."
 
 absSarmPath=$(readlink -f ~/.sarm)
 appImagePath="$absSarmPath/steam-art-manager.AppImage"
@@ -57,18 +64,18 @@ read -r -d '' shortcutContents <<- EOM
 
 EOM
 
-echo "$shortcutContents" >> ~/.local/share/applications/SARM.desktop
+echo -e "$shortcutContents" >> ~/.local/share/applications/SARM.desktop
 chmod 700 ~/.local/share/applications/SARM.desktop
-echo "[INFO]: Made Start Menu Shortcut."
+echo -e "${lightGreen}[INFO]${noColor}: Made Start Menu Shortcut."
 
-echo "$shortcutContents" >> ~/Desktop/SARM.desktop
+echo -e "$shortcutContents" >> ~/Desktop/SARM.desktop
 chmod 700 ~/Desktop/SARM.desktop
-echo "[INFO]: Made Desktop Shortcut."
+echo -e "${lightGreen}[INFO]${noColor}: Made Desktop Shortcut."
 
-echo "[INFO]: Finished Making Shortcuts."
+echo -e "${lightGreen}[INFO]${noColor}: Finished Making Shortcuts."
 echo ""
 
 
-echo "[INFO]: Instalation of SARM $currentVersion complete."
+echo -e "${lightGreen}[INFO]${noColor}: Instalation of SARM $currentVersion complete."
 echo ""
-echo "[TIP]: Feel free to delete this script. SARM will notify you when new updates are available!"
+echo -e "${green}[TIP]${noColor}: Feel free to delete this script. SARM will notify you when new updates are available!"
