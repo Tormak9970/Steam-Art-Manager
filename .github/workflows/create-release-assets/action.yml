@@ -1,0 +1,95 @@
+name: 'create-release-assets'
+description: 'Creates release assets.'
+author: 'Tormak'
+inputs:
+  git_branch:
+    description: "The target release branch."
+    required: true
+    
+  release_id:
+    description: "The target release id."
+    required: true
+
+  release_tag:
+    description: "The target release tag."
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update Release Assets
+      uses: actions/github-script@v6
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        release_id: ${{ inputs.release_id }}
+        release_tag: ${{ inputs.release_tag }}
+        git_branch: ${{ inputs.git_branch }}
+      with:
+        script: |
+          const fs = require("fs");
+          const path = require("path");
+          
+
+          const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
+          const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+          core.info(`Release Tag: ${process.env.release_tag}`);
+          const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+          
+          await github.rest.repos.uploadReleaseAsset({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: process.env.release_id,
+            name: "linux-installer.sh",
+            data: Buffer.from(modifiedContents)
+          });
+
+          core.info("Uploaded linux installer to release.");
+
+
+          if (process.env.git_branch == "release") {
+            const assets = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id
+            });
+
+            const latest = assets.data.find((asset) => asset.name === "latest.json");
+            core.info(`latest.json assetId: ${latest.id}`);
+
+            const latestContents = (
+              await github.request(
+                'GET /repos/{owner}/{repo}/releases/assets/{asset_id}',
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: latest.id,
+                  headers: {
+                    accept: 'application/octet-stream',
+                  },
+                }
+              )
+            ).data;
+
+            const latestPath = path.resolve(process.cwd(), "latest.json");
+            fs.writeFileSync(latestPath, Buffer.from(latestContents));
+            
+            const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
+            const add = (file) => exec.exec(`git add ${file}`);
+            const commit = (message) => exec.exec(`git commit -m "${message}"`);
+            const push = (branch) => exec.exec(`git push origin ${branch} --follow-tags`);
+            const updateOrigin = (repo) => exec.exec(`git remote set-url origin ${repo}`);
+            
+            core.setSecret(process.env.GITHUB_TOKEN);
+            
+            updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
+            config('user.email', "sarm.release.action@github.com");
+            config('user.name', "SARM Release Action");
+
+            await add(".");
+            await commit("chore(release): updating latest.json to generated version.");
+            await push(process.env.git_branch);
+
+            core.info("Committed changes to latest.json complete!");
+          } else {
+            core.info("Skipping latest.json upload for debug release");
+          }
