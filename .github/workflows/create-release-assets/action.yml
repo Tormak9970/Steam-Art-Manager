@@ -2,6 +2,10 @@ name: 'create-release-assets'
 description: 'Creates release assets.'
 author: 'Tormak'
 inputs:
+  GITHUB_TOKEN:
+    description: "Your GitHub token."
+    required: true
+    
   git_branch:
     description: "The target release branch."
     required: true
@@ -20,7 +24,7 @@ runs:
     - name: Update Release Assets
       uses: actions/github-script@v6
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         release_id: ${{ inputs.release_id }}
         release_tag: ${{ inputs.release_tag }}
         git_branch: ${{ inputs.git_branch }}

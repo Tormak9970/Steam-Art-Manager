@@ -110,6 +110,7 @@ jobs:
       - name: Update Release Assets
         uses: ./.github/workflows/create-release-assets
         with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           release_id: ${{ needs.create-release.outputs.release_id }}
           release_tag: ${{ needs.create-release.outputs.tag }}
           git_branch: "debug-release"
