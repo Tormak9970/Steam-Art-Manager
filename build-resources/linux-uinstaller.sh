@@ -13,32 +13,66 @@ if zenity --question --title="Warning!" --text="You are about to uninstall SARM 
   echo ""
 
   # Delete install directory
-  rm -rf "$HOME/.sarm"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM directory."
+  if [ -d "$HOME/.sarm" ]; then
+    rm -rf "$HOME/.sarm"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM directory."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM directory already removed."
+  fi
 
   # Remove Desktop icons
-  rm -rf "$HOME/Desktop/SARM.desktop"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop launch shortcut."
-  rm -rf "$HOME/Desktop/UninstallSARM.desktop"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu launch shortcut."
+  if [ -d "$HOME/Desktop/SARM.desktop" ]; then
+    rm -rf "$HOME/Desktop/SARM.desktop"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop launch shortcut."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM desktop launch shortcut already removed."
+  fi
+
+  if [ -d "$HOME/Desktop/UninstallSARM.desktop" ]; then
+    rm -rf "$HOME/Desktop/UninstallSARM.desktop"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop uninstall shortcut."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM desktop uninstall shortcut already removed."
+  fi
 
   # Remove Start Menu shortcuts
-  rm -rf "$HOME/.local/share/applications/SARM.desktop"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop uninstall shortcut."
-  rm -rf "$HOME/.local/share/applications/UninstallSARM.desktop"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu uninstall shortcut."
+  if [ -d "$HOME/.local/share/applications/SARM.desktop" ]; then
+    rm -rf "$HOME/.local/share/applications/SARM.desktop"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu launch shortcut."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM start menu launch shortcut already removed."
+  fi
+
+  if [ -d "$HOME/.local/share/applications/UninstallSARM.desktop" ]; then
+    rm -rf "$HOME/.local/share/applications/UninstallSARM.desktop"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu uninstall shortcut."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM start menu uninstall shortcut already removed."
+  fi
 
   # Remove cache directory
-  rm -rf "$HOME/.cache/dev.tormak.steam-art-manager"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM cache directory."
+  if [ -d "$HOME/.cache/dev.tormak.steam-art-manager" ]; then
+    rm -rf "$HOME/.cache/dev.tormak.steam-art-manager"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM cache directory."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM cache directory already removed."
+  fi
 
   # Remove config directory
-  rm -rf "$HOME/.config/dev.tormak.steam-art-manager"
-  echo -e "${successGreen}[INFO]${noColor}: Removed SARM config files."
+  if [ -d "$HOME/.config/dev.tormak.steam-art-manager" ]; then
+    rm -rf "$HOME/.config/dev.tormak.steam-art-manager"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM config directory."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM config directory already removed."
+  fi
 
   # Remove Tauri Runtime Files
-  rm -rf "$HOME/.local/share/dev.tormak.steam-art-manager"
-  echo -e "${successGreen}[INFO]${noColor}: Removed Tauri runtime files."
+  if [ -d "$HOME/.local/share/dev.tormak.steam-art-manager" ]; then
+    rm -rf "$HOME/.local/share/dev.tormak.steam-art-manager"
+    echo -e "${successGreen}[INFO]${noColor}: Removed SARM Tauri runtime files."
+  else
+    echo -e "${infoCyan}[INFO]${noColor}: SARM Tauri runtime files already removed."
+  fi
 
   update-desktop-database $HOME/.local/share/applications
   echo -e "${successGreen}[INFO]${noColor}: Updated .desktop database."
