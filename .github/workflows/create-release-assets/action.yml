@@ -88,13 +88,14 @@ runs:
 
 
           if (process.env.git_branch == "release") {
+            const versionNoV = process.env.release_tag.substring(1);
             const GENERIC_NAMES = {
-              "windows": "steam-art-manager.msi",
-              "windowsUpdater": `steam-art-manager_${process.env.release_tag}.msi.zip`,
-              "windowsUpdaterSig": `steam-art-manager_${process.env.release_tag}.msi.zip.sig`,
-              "linux": "steam-art-manager.AppImage",
-              "linuxUpdater": `steam-art-manager_${process.env.release_tag}.AppImage.tar.gz`,
-              "linuxUpdaterSig": `steam-art-manager_${process.env.release_tag}.AppImage.tar.gz.sig`
+              "windowsInstaller": "steam-art-manager.msi",
+              "windowsUpdater": `steam-art-manager_${versionNoV}.msi.zip`,
+              "windowsUpdaterSig": `steam-art-manager_${versionNoV}.msi.zip.sig`,
+              "linuxInstaller": "steam-art-manager.AppImage",
+              "linuxUpdater": `steam-art-manager_${versionNoV}.AppImage.tar.gz`,
+              "linuxUpdaterSig": `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`
             }
 
             const assets = await github.rest.repos.listReleaseAssets({
@@ -107,30 +108,34 @@ runs:
             const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
             await setReleaseAssetName(winInstaller.id, GENERIC_NAMES["windowsInstaller"]);
             
+            // Works
             const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
             await setReleaseAssetName(winUpdater.id, GENERIC_NAMES["windowsUpdater"]);
             
+            // Works
             const winUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".msi.zip.sig"));
             await setReleaseAssetName(winUpdaterSig.id, GENERIC_NAMES["windowsUpdaterSig"]);
             
             const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
             await setReleaseAssetName(linuxInstaller.id, GENERIC_NAMES["linuxInstaller"]);
             
+            // Works
             const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
             await setReleaseAssetName(linuxUpdater.id, GENERIC_NAMES["linuxUpdater"]);
             
+            // Works
             const linuxUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz.sig"));
             await setReleaseAssetName(linuxUpdaterSig.id, GENERIC_NAMES["linuxUpdaterSig"]);
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
-            let latestContents = await getReleaseAssetContents(latest.id);
+            let latestContents = Buffer.from(await getReleaseAssetContents(latest.id));
             await deleteReleaseAsset(latest.id);
 
             latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
             latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
             
-            await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
+            await uploadReleaseAsset("latest.json", latestContents);
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, Buffer.from(latestContents));
