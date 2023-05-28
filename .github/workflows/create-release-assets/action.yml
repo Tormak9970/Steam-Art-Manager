@@ -32,6 +32,41 @@ runs:
         script: |
           const fs = require("fs");
           const path = require("path");
+
+          async function getReleaseAssetContents(id) {
+            const contents = (
+              await github.request(
+                'GET /repos/{owner}/{repo}/releases/assets/{asset_id}',
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: id,
+                  headers: {
+                    accept: 'application/octet-stream',
+                  },
+                }
+              )
+            ).data;
+            return contents;
+          }
+
+          async function deleteReleaseAsset(id) {
+            await github.rest.repos.deleteReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: id
+            });
+          }
+
+          async function uploadReleaseAsset(name, contents) {
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: name,
+              data: contents
+            });
+          }
           
 
           const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
@@ -39,40 +74,58 @@ runs:
           core.info(`Release Tag: ${process.env.release_tag}`);
           const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
           
-          await github.rest.repos.uploadReleaseAsset({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            release_id: process.env.release_id,
-            name: "linux-installer.sh",
-            data: Buffer.from(modifiedContents)
-          });
+          await uploadReleaseAsset("linux-installer.sh", Buffer.from(modifiedContents));
 
           core.info("Uploaded linux installer to release.");
 
 
           if (process.env.git_branch == "release") {
+            const GENERIC_NAMES = {
+              "windows": "steam-art-manager.msi",
+              "windowsUpdater": "steam-art-manager.msi.zip",
+              "linux": "steam-art-manager.AppImage",
+              "linuxUpdater": "steam-art-manager.AppImage.tar.gz"
+            }
+
             const assets = await github.rest.repos.listReleaseAssets({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id
             });
+            
+
+            const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
+            const winInstallerContents = await getReleaseAssetContents(winInstaller.id);
+            await deleteReleaseAsset(winInstaller.id);
+            await uploadReleaseAsset(GENERIC_NAMES["windowsInstaller"], Buffer.from(winInstallerContents));
+            
+            
+            const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
+            const winUpdaterContents = await getReleaseAssetContents(winUpdater.id);
+            await deleteReleaseAsset(winUpdater.id);
+            await uploadReleaseAsset(GENERIC_NAMES["windowsUpdater"], Buffer.from(winUpdaterContents));
+            
+            
+            const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
+            const linuxInstallerContents = await getReleaseAssetContents(linuxInstaller.id);
+            await deleteReleaseAsset(linuxInstaller.id);
+            await uploadReleaseAsset(GENERIC_NAMES["linuxInstaller"], Buffer.from(linuxInstallerContents));
+            
+            
+            const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
+            const linuxUpdaterContents = await getReleaseAssetContents(linuxUpdater.id);
+            await deleteReleaseAsset(linuxUpdater.id);
+            await uploadReleaseAsset(GENERIC_NAMES["linuxUpdater"], Buffer.from(linuxUpdaterContents));
+
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
-            core.info(`latest.json assetId: ${latest.id}`);
+            let latestContents = await getReleaseAssetContents(latest.id);
+            await deleteReleaseAsset(latest.id);
 
-            const latestContents = (
-              await github.request(
-                'GET /repos/{owner}/{repo}/releases/assets/{asset_id}',
-                {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  asset_id: latest.id,
-                  headers: {
-                    accept: 'application/octet-stream',
-                  },
-                }
-              )
-            ).data;
+            latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
+            latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
+            
+            await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, Buffer.from(latestContents));
