@@ -125,13 +125,14 @@ runs:
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
-            let latestContents = Buffer.from(await getReleaseAssetContents(latest.id));
+            const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
+            let latestContents = latestContentsBuff.toString();
             await deleteReleaseAsset(latest.id);
 
             latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
             latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
             
-            await uploadReleaseAsset("latest.json", latestContents);
+            await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, Buffer.from(latestContents));
