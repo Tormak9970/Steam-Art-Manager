@@ -108,34 +108,31 @@ runs:
             const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
             await setReleaseAssetName(winInstaller.id, GENERIC_NAMES["windowsInstaller"]);
             
-            // Works
             const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
             await setReleaseAssetName(winUpdater.id, GENERIC_NAMES["windowsUpdater"]);
             
-            // Works
             const winUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".msi.zip.sig"));
             await setReleaseAssetName(winUpdaterSig.id, GENERIC_NAMES["windowsUpdaterSig"]);
             
             const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
             await setReleaseAssetName(linuxInstaller.id, GENERIC_NAMES["linuxInstaller"]);
             
-            // Works
             const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
             await setReleaseAssetName(linuxUpdater.id, GENERIC_NAMES["linuxUpdater"]);
             
-            // Works
             const linuxUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz.sig"));
             await setReleaseAssetName(linuxUpdaterSig.id, GENERIC_NAMES["linuxUpdaterSig"]);
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
-            let latestContents = Buffer.from(await getReleaseAssetContents(latest.id));
+            const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
+            let latestContents = latestContentsBuff.toString();
             await deleteReleaseAsset(latest.id);
 
             latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
             latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
             
-            await uploadReleaseAsset("latest.json", latestContents);
+            await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, Buffer.from(latestContents));
