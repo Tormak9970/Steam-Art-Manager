@@ -67,24 +67,34 @@ runs:
               data: contents
             });
           }
+
+          async function setReleaseAssetName(id, newName) {
+            await github.rest.repos.updateReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: id,
+              name: newName
+            });
+          }
           
 
           const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
           const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
           core.info(`Release Tag: ${process.env.release_tag}`);
-          const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
-          
-          await uploadReleaseAsset("linux-installer.sh", Buffer.from(modifiedContents));
 
+          const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+          await uploadReleaseAsset("linux-installer.sh", Buffer.from(modifiedContents));
           core.info("Uploaded linux installer to release.");
 
 
           if (process.env.git_branch == "release") {
             const GENERIC_NAMES = {
               "windows": "steam-art-manager.msi",
-              "windowsUpdater": "steam-art-manager.msi.zip",
+              "windowsUpdater": `steam-art-manager_${process.env.release_tag}.msi.zip`,
+              "windowsUpdaterSig": `steam-art-manager_${process.env.release_tag}.msi.zip.sig`,
               "linux": "steam-art-manager.AppImage",
-              "linuxUpdater": "steam-art-manager.AppImage.tar.gz"
+              "linuxUpdater": `steam-art-manager_${process.env.release_tag}.AppImage.tar.gz`,
+              "linuxUpdaterSig": `steam-art-manager_${process.env.release_tag}.AppImage.tar.gz.sig`
             }
 
             const assets = await github.rest.repos.listReleaseAssets({
@@ -95,27 +105,22 @@ runs:
             
 
             const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
-            const winInstallerContents = await getReleaseAssetContents(winInstaller.id);
-            await deleteReleaseAsset(winInstaller.id);
-            await uploadReleaseAsset(GENERIC_NAMES["windowsInstaller"], Buffer.from(winInstallerContents));
-            
+            await setReleaseAssetName(winInstaller.id, GENERIC_NAMES["windowsInstaller"]);
             
             const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
-            const winUpdaterContents = await getReleaseAssetContents(winUpdater.id);
-            await deleteReleaseAsset(winUpdater.id);
-            await uploadReleaseAsset(GENERIC_NAMES["windowsUpdater"], Buffer.from(winUpdaterContents));
+            await setReleaseAssetName(winUpdater.id, GENERIC_NAMES["windowsUpdater"]);
             
+            const winUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".msi.zip.sig"));
+            await setReleaseAssetName(winUpdaterSig.id, GENERIC_NAMES["windowsUpdaterSig"]);
             
             const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
-            const linuxInstallerContents = await getReleaseAssetContents(linuxInstaller.id);
-            await deleteReleaseAsset(linuxInstaller.id);
-            await uploadReleaseAsset(GENERIC_NAMES["linuxInstaller"], Buffer.from(linuxInstallerContents));
-            
+            await setReleaseAssetName(linuxInstaller.id, GENERIC_NAMES["linuxInstaller"]);
             
             const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
-            const linuxUpdaterContents = await getReleaseAssetContents(linuxUpdater.id);
-            await deleteReleaseAsset(linuxUpdater.id);
-            await uploadReleaseAsset(GENERIC_NAMES["linuxUpdater"], Buffer.from(linuxUpdaterContents));
+            await setReleaseAssetName(linuxUpdater.id, GENERIC_NAMES["linuxUpdater"]);
+            
+            const linuxUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz.sig"));
+            await setReleaseAssetName(linuxUpdaterSig.id, GENERIC_NAMES["linuxUpdaterSig"]);
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
@@ -129,6 +134,7 @@ runs:
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
             fs.writeFileSync(latestPath, Buffer.from(latestContents));
+
             
             const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
             const add = (file) => exec.exec(`git add ${file}`);
