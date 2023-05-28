@@ -13,13 +13,13 @@ uninstallComment="Uninstalls all files related to SARM."
 
 currentVersion="VALUE_TO_SEARCH_FOR"
 
-if [[ $currentVersion == v* ]]; then
-  #? This is a production release. Starts with "v".
-  currentVersionNumber="${currentVersion:1}"
-else 
-  #? This is a debug release. Starts with "debug-".
-  currentVersionNumber="${currentVersion:6}"
-fi
+# if [[ $currentVersion == v* ]]; then
+#   #? This is a production release. Starts with "v".
+#   currentVersionNumber="${currentVersion:1}"
+# else 
+#   #? This is a debug release. Starts with "debug-".
+#   currentVersionNumber="${currentVersion:6}"
+# fi
 
 # Show starting message.
 echo -e "${infoCyan}[INFO]${noColor}: Installing Steam Art Manager (SARM) $currentVersion..."
