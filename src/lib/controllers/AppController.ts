@@ -685,32 +685,38 @@ export class AppController {
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
     let imgUrl = url.toString();
     if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
-
-    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
 
-    if (!gameImages[selectedGameId]) {
-      // @ts-ignore
-      gameImages[selectedGameId] = {};
-    }
-
-    gameImages[selectedGameId][selectedGridType] = localPath;
+    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
-    if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
-      const shortcuts = get(steamShortcuts);
-      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
-      shortcut.icon = localPath;
-      steamShortcuts.set(shortcuts);
+    if (localPath) {
+
+      if (!gameImages[selectedGameId]) {
+        // @ts-ignore
+        gameImages[selectedGameId] = {};
+      }
+
+      gameImages[selectedGameId][selectedGridType] = localPath;
+      
+      if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
+        const shortcuts = get(steamShortcuts);
+        const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+        shortcut.icon = localPath;
+        steamShortcuts.set(shortcuts);
+      }
+
+      appLibraryCache.set(gameImages);
+      canSave.set(true);
+
+      LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
+    } else {
+      LogController.log(`Failed to set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
+      ToastController.showWarningToast("Failed to set grid.");
     }
-
-    appLibraryCache.set(gameImages);
-    canSave.set(true);
-
-    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
   }
 
   /**

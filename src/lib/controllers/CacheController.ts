@@ -30,7 +30,7 @@ import { filterGrids } from "../utils/Utils";
  * Controller class for handling caching of requests.
  */
 export class CacheController {
-  private requestTimeout: number = 1000;
+  private requestTimeout: number = 30;
   private appCacheDirPath: string;
   private gridCacheDirPath: string;
 
@@ -123,16 +123,18 @@ export class CacheController {
 
   /**
    * Gets a image from steamGrid's cdn.
+   * @param appid The id of the app whose grid is being fetched.
    * @param imageURL The url of the image to get.
+   * @param useCoreFile Whether or not to log to the core log file.
    * ? Logging complete.
    */
-  async getGridImage(appId: number, imageURL: string): Promise<string> {
-    LogController.log(`Fetching image ${imageURL}...`);
+  async getGridImage(appId: number, imageURL: string, useCoreFile = true): Promise<string> {
+    this.logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
     const localImagePath = await path.join(this.gridCacheDirPath, get(gridType), fileName);
 
     if (!(await fs.exists(localImagePath))) {
-      LogController.log(`Fetching image from API.`);
+      this.logToFile(`Fetching image from API.`, useCoreFile);
 
       dowloadingGridId.set(appId);
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, this.requestTimeout);
@@ -143,10 +145,10 @@ export class CacheController {
         }
         case "timedOut": {
           ToastController.showWarningToast(`Grid requested timed out`);
-          LogController.warn(`Request for ${imageURL} timed out after ${this.requestTimeout / 1000} seconds.`);
+          this.logWarnToFile(`Request for ${imageURL} timed out after ${this.requestTimeout / 1000} seconds.`, useCoreFile);
         }
         case "failed": {
-          LogController.warn(`Request for ${imageURL} failed.`);
+          this.logWarnToFile(`Request for ${imageURL} failed.`, useCoreFile);
         }
       }
 
@@ -159,7 +161,7 @@ export class CacheController {
       
       dowloadingGridId.set(null);
     } else {
-      LogController.log(`Cache found. Fetching image from local file system.`);
+      this.logToFile(`Cache found. Fetching image from local file system.`, useCoreFile);
     }
     
     return localImagePath;
@@ -205,6 +207,19 @@ export class CacheController {
       LogController.log(message);
     } else {
       LogController.batchApplyLog(message);
+    }
+  }
+
+  /**
+   * Logs a warning to the app's log file or the batch file.
+   * @param message The message to log.
+   * @param useCoreFile Whether or not to log to the core file.
+   */
+  private logWarnToFile(message: string, useCoreFile: boolean): void {
+    if (useCoreFile) {
+      LogController.warn(message);
+    } else {
+      LogController.batchApplyWarn(message);
     }
   }
 
@@ -432,17 +447,21 @@ export class CacheController {
           let imgUrl = grid.url.toString();
           if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
 
-          const localPath = await this.getGridImage(appidInt, imgUrl);
+          const localPath = await this.getGridImage(appidInt, imgUrl, false);
           
-          if (!isSteamGame && selectedGridType == GridTypes.ICON) {
-            shortcutsNeedUpdate = true;
-            const shortcut = shortcutsCopy.find((s) => s.appid == appidInt);
-            shortcut.icon = localPath;
+          if (localPath) {
+            if (!isSteamGame && selectedGridType == GridTypes.ICON) {
+              shortcutsNeedUpdate = true;
+              const shortcut = shortcutsCopy.find((s) => s.appid == appidInt);
+              shortcut.icon = localPath;
+            }
+  
+            gridsCopy[appid][selectedGridType] = localPath;
+            
+            message = `Applied ${selectedGridType} to ${gameName}.`;
+          } else {
+            message = `Failed to applied ${selectedGridType} to ${gameName}.`;
           }
-
-          gridsCopy[appid][selectedGridType] = localPath;
-
-          message = `Applied ${selectedGridType} to ${gameName}.`;
         } else {
           message = `No ${selectedGridType == GridTypes.HERO ? `${selectedGridType}e` : selectedGridType}s with these filters for ${gameName}.`;
         }
