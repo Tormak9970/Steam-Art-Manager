@@ -9,7 +9,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, manualGamesToAdd, showAddManualGameModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -18,6 +18,7 @@
     import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
     import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
     import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
+    import AddManualGameModal from "../../components/toast-modals/add-manual-game/AddManualGameModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -64,6 +65,14 @@
 	function onLogoPositionModalClose() {
 		$showLogoPositionModal = false;
 	}
+
+  /**
+   * Function to run when the add manual games modal is closed.
+   */
+  function onAddManualGameModalClose() {
+    $showAddManualGameModal = false;
+    $manualGamesToAdd = [];
+  }
 
   /**
    * Handler for all main window errors.
@@ -142,6 +151,9 @@
     {/if}
     {#if $showLogoPositionModal}
 		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+    {/if}
+    {#if $showAddManualGameModal}
+		  <AddManualGameModal onClose={onAddManualGameModalClose} />
     {/if}
 		<Splitpanes>
 			<Options />
