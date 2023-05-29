@@ -1,3 +1,8 @@
+type GameStruct = {
+  appid: number,
+  name: string,
+}
+
 type AppSettings = {
   version: string;
   shownShortcutPrompt: boolean;
@@ -6,17 +11,13 @@ type AppSettings = {
   steamApiKeyMap: {
     [userId32: string]: string
   };
-  hiddenGameIds: []
+  hiddenGameIds: [],
+  manualSteamGames: GameStruct[]
 };
 
 type SteamRegistryApp = {
   appid: string,
   name: string
-}
-
-type GameStruct = {
-  appid: number,
-  name: string,
 }
 
 type SteamShortcut = {

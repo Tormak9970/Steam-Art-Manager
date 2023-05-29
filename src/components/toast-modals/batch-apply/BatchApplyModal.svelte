@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GridTypes, Platforms, appLibraryCache, gridType, hiddenGameIds, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
+  import { GridTypes, Platforms, appLibraryCache, gridType, hiddenGameIds, manualSteamGames, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
@@ -11,7 +11,8 @@
 
   export let onClose: () => void;
   
-  $: allGames = [...$steamGames, ...$nonSteamGames];
+  $: allSteamGames = [...$steamGames, ...$manualSteamGames];
+  $: allGames = [...allSteamGames, ...$nonSteamGames];
 
   let platforms: { label: string, data: string}[] = Object.values(Platforms).map((platform) => {
     return {
@@ -36,7 +37,7 @@
   let includeHidden = false;
 
   function onStateChange(platform: string, gameFilter: string, showHidden: boolean) {
-    gamesToFilter = (platform == "All" ? allGames : (platform == Platforms.STEAM ? $steamGames : $nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
+    gamesToFilter = (platform == "All" ? allGames : (platform == Platforms.STEAM ? allSteamGames : $nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
     const selectedGameEntries = gamesToFilter.map((game) => {
       return [game.appid, gameFilter == "All" ? true : (!$appLibraryCache[game.appid][$gridType])];
     });
@@ -114,7 +115,7 @@
         <div class="games-list-scroller">
           <div class="games-list">
             {#each gamesToFilter as game}
-              <SelectedGameEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : ($steamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
+              <SelectedGameEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
             {/each}
           </div>
         </div>

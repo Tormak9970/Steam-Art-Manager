@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -121,6 +121,10 @@ export class AppController {
     if (settings.steamApiKeyMap[activeUser.id32] && settings.steamApiKeyMap[activeUser.id32] != "") {
       steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
       needsSteamKey.set(false);
+    }
+
+    if (settings.manualSteamGames.length > 0) {
+      manualSteamGames.set(settings.manualSteamGames);
     }
 
     theme.set(settings.theme);
@@ -620,8 +624,9 @@ export class AppController {
    */
   static clearAllGrids(): void {
     const sGames = get(steamGames);
+    const manualSGames = get(manualSteamGames);
     const nonSGames = get(steamShortcuts);
-    const games = [...sGames, ...nonSGames];
+    const games = [...sGames, ...manualSGames, ...nonSGames];
 
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
@@ -818,9 +823,10 @@ export class AppController {
     LogController.log("Prompting user to export.");
     const shortcuts = get(steamShortcuts);
     const games = get(steamGames);
+    const manualGames = get(manualSteamGames);
 
     let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [shortcut.appid.toString(), "nonsteam"]; });
-    platformEntries = platformEntries.concat(games.map((game) => { return [game.appid.toString(), "steam"]; }));
+    platformEntries = platformEntries.concat([...games, ...manualGames].map((game) => { return [game.appid.toString(), "steam"]; }));
     const platformIdMap = Object.fromEntries(platformEntries);
 
     const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcutId, shortcut.AppName]; });

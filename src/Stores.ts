@@ -41,7 +41,6 @@ export const steamGridDBKey = sharedStore("", "steamGridDBKey");
 export const steamKey = sharedStore("", "steamKey");
 export const selectedResultPage = writable(0);
 
-
 export const canSave = writable(false);
 export const isOnline = writable(false);
 export const loadingGames = writable(true);
@@ -64,6 +63,7 @@ export const steamShortcuts: Writable<SteamShortcut[]> = writable([]);
 export const steamGames: Writable<GameStruct[]> = writable([]);
 export const nonSteamGames: Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds: Writable<number[]> = writable([]);
+export const manualSteamGames: Writable<GameStruct[]> = writable([]);
 
 export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});

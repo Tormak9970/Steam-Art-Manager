@@ -3,7 +3,7 @@
   import { open } from "@tauri-apps/api/shell";
 
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridModalInfo, gridType, nonSteamGames, selectedGameAppId, showGridModal, steamGames } from "../../Stores";
+  import { GridTypes, gridModalInfo, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, showGridModal, steamGames } from "../../Stores";
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
@@ -16,7 +16,7 @@
     linkify: true
   });
   
-  $: games = [...$steamGames, ...$nonSteamGames];
+  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
 
   const widths = {
     "Capsule": 400,

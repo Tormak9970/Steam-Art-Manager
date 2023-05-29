@@ -16,7 +16,7 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import { appLibraryCache, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -43,7 +43,7 @@
     }
   });
   
-  $: games = [...$steamGames, ...$nonSteamGames];
+  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
   $: game = games.find((game) => game.appid == $selectedGameAppId);
   let heroPath = "";
   let logoPath = "";

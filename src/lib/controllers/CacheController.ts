@@ -20,7 +20,7 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, batchApplyWasCancelled, canSave, appLibraryCache, showBatchApplyProgress, batchApplyProgress, batchApplyMessage, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength } from "../../Stores";
+import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, batchApplyWasCancelled, canSave, appLibraryCache, showBatchApplyProgress, batchApplyProgress, batchApplyMessage, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../Stores";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import { ToastController } from "./ToastController";
@@ -450,7 +450,8 @@ export class CacheController {
     LogController.batchApplyLog(`\n`);
     
     const steamGameList = get(steamGames);
-    const steamGameNameEntries = steamGameList.map((game: GameStruct) => [game.appid, game.name]);
+    const manualSteamGameList = get(manualSteamGames);
+    const steamGameNameEntries = [...steamGameList, ...manualSteamGameList].map((game: GameStruct) => [game.appid, game.name]);
     const steamGameNameMap = Object.fromEntries(steamGameNameEntries);
 
     const nonSteamGamesList = get(nonSteamGames);

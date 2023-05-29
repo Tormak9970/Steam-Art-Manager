@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, nonSteamGames, showHidden, steamGames } from "../../../Stores";
+  import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, showHidden, steamGames } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
@@ -13,6 +13,7 @@
   import { heights, widths } from "../imageDimensions";
 
   let steamGamesUnsub: Unsubscriber;
+  let manualSteamGamesUnsub: Unsubscriber;
   let nonSteamGamesUnsub: Unsubscriber;
   let hiddenGameIdsUnsub: Unsubscriber;
   let showHiddenUnsub: Unsubscriber
@@ -42,13 +43,16 @@
    * Gets the games based on the provided platform.
    * @param platform The platform to get games for.
    * @returns The list of games for the provided platform.
+   * @param sGames The list of steam games.
+   * @param manualSGames The list of manually added steam games.
+   * @param nonSGames The list of non steam games.
    */
-  function getGamesForPlatform(platform: Platforms): GameStruct[] {
+  function getGamesForPlatform(platform: Platforms, sGames: GameStruct[], manualSGames: GameStruct[], nonSGames: GameStruct[]): GameStruct[] {
     switch (platform) {
       case Platforms.STEAM:
-        return $steamGames;
+        return [...sGames, ...manualSGames];
       case Platforms.NON_STEAM:
-        return $nonSteamGames;
+        return nonSGames;
     }
   }
 
@@ -57,10 +61,13 @@
    * @param platform The platform to get games form.
    * @param hiddenIds The list of hidden appids.
    * @param showHidden Whether or not to show hidden games.
+   * @param sGames The list of steam games.
+   * @param manualSGames The list of manually added steam games.
+   * @param nonSGames The list of non steam games.
    * @returns The list of filtered games.
    */
-  function filterSteamGames(platform: Platforms, hiddenIds: number[], showHidden: boolean): GameStruct[] {
-    let allGames = getGamesForPlatform(platform);
+  function filterGames(platform: Platforms, hiddenIds: number[], showHidden: boolean, sGames: GameStruct[], manualSGames: GameStruct[], nonSGames: GameStruct[]): GameStruct[] {
+    let allGames = getGamesForPlatform(platform, sGames, manualSGames, nonSGames);
     let selectedGames: GameStruct[] = [];
 
     if (showHidden) {
@@ -78,39 +85,45 @@
    */
   function onSearchChange(query: string): void {
     searchQuery = query.toLowerCase();
-    games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+    games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames);
   }
 
   onMount(() => {
-    steamGamesUnsub = steamGames.subscribe(() => {
+    steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+      if ($currentPlatform == Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, newGames, $manualSteamGames, $nonSteamGames);
       isLoading = false;
     });
-    nonSteamGamesUnsub = nonSteamGames.subscribe(() => {
+    manualSteamGamesUnsub = manualSteamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.NON_STEAM) games = filterSteamGames($currentPlatform, $hiddenGameIds, $showHidden);
+      if ($currentPlatform == Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, newGames, $nonSteamGames);
+      isLoading = false;
+    });
+    nonSteamGamesUnsub = nonSteamGames.subscribe((newGames) => {
+      isLoading = true;
+      if ($currentPlatform == Platforms.NON_STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, newGames);
       isLoading = false;
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
       isLoading = true;
-      games = filterSteamGames($currentPlatform, ids, $showHidden);
+      games = filterGames($currentPlatform, ids, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames);
       isLoading = false;
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
       isLoading = true;
-      games = filterSteamGames($currentPlatform, $hiddenGameIds, show);
+      games = filterGames($currentPlatform, $hiddenGameIds, show, $steamGames, $manualSteamGames, $nonSteamGames);
       isLoading = false;
     });
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       isLoading = true;
-      games = filterSteamGames(platform, $hiddenGameIds, $showHidden);
+      games = filterGames(platform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames);
       isLoading = false;
     });
   });
 
   onDestroy(() => {
     if (steamGamesUnsub) steamGamesUnsub();
+    if (manualSteamGamesUnsub) manualSteamGamesUnsub();
     if (nonSteamGamesUnsub) nonSteamGamesUnsub();
     if (hiddenGameIdsUnsub) hiddenGameIdsUnsub();
     if (showHiddenUnsub) showHiddenUnsub();
