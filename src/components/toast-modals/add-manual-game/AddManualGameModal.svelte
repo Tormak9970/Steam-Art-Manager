@@ -4,7 +4,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
-  import SelectedGameEntry from "./SelectedGameEntry.svelte";
+  import GameToAddEntry from "./GameToAddEntry.svelte";
   import { onMount } from "svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import Toggle from "../../interactables/Toggle.svelte";
@@ -115,7 +115,7 @@
         <div class="games-list-scroller">
           <div class="games-list">
             {#each gamesToFilter as game}
-              <SelectedGameEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
+              <GameToAddEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
             {/each}
           </div>
         </div>
