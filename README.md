@@ -20,7 +20,7 @@ A tool for setting the artwork of your Steam library.
 To get the most recent release, head to the [latest release](https://github.com/Tormak9970/Steam-Art-Manager/releases/latest) and download the installer for your platform.
 
 ### For Windows:
- - Download the file ending in `.msi`, and run it to install SARM.
+ - Download the `steam-art-manager.msi` file, and run it to install SARM.
 
 ### For Linux:
   1. Download the `linux-installer.sh` bash script.
@@ -107,8 +107,9 @@ Other resources / references I used:
 <br/>
 
 ## Licensing
-This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL) <br/>
-Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know! <br/>
-Lastly, please provide appropriate credit for code usage
+ - This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL) <br/>
+ - The SARM Icon is based of the Fontawesome bucket icon, which is licensed under the [Fontawesome Commercial License 2023](https://fontawesome.com/license) <br/>
+ - Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know! <br/>
+ - Lastly, please provide appropriate credit for code usage
 
 Copyright Travis Lane (Tormak) 

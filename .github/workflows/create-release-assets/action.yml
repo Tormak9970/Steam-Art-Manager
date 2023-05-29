@@ -1,0 +1,160 @@
+name: 'create-release-assets'
+description: 'Creates release assets.'
+author: 'Tormak'
+inputs:
+  GITHUB_TOKEN:
+    description: "Your GitHub token."
+    required: true
+    
+  git_branch:
+    description: "The target release branch."
+    required: true
+    
+  release_id:
+    description: "The target release id."
+    required: true
+
+  release_tag:
+    description: "The target release tag."
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Update Release Assets
+      uses: actions/github-script@v6
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        release_id: ${{ inputs.release_id }}
+        release_tag: ${{ inputs.release_tag }}
+        git_branch: ${{ inputs.git_branch }}
+      with:
+        script: |
+          const fs = require("fs");
+          const path = require("path");
+
+          async function getReleaseAssetContents(id) {
+            const contents = (
+              await github.request(
+                'GET /repos/{owner}/{repo}/releases/assets/{asset_id}',
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: id,
+                  headers: {
+                    accept: 'application/octet-stream',
+                  },
+                }
+              )
+            ).data;
+            return contents;
+          }
+
+          async function deleteReleaseAsset(id) {
+            await github.rest.repos.deleteReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: id
+            });
+          }
+
+          async function uploadReleaseAsset(name, contents) {
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: name,
+              data: contents
+            });
+          }
+
+          async function setReleaseAssetName(id, newName) {
+            await github.rest.repos.updateReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: id,
+              name: newName
+            });
+          }
+          
+
+          const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
+          const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+          core.info(`Release Tag: ${process.env.release_tag}`);
+
+          const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+          await uploadReleaseAsset("linux-installer.sh", Buffer.from(modifiedContents));
+          core.info("Uploaded linux installer to release.");
+
+
+          if (process.env.git_branch == "release") {
+            const versionNoV = process.env.release_tag.substring(1);
+            const GENERIC_NAMES = {
+              "windowsInstaller": "steam-art-manager.msi",
+              "windowsUpdater": `steam-art-manager_${versionNoV}.msi.zip`,
+              "windowsUpdaterSig": `steam-art-manager_${versionNoV}.msi.zip.sig`,
+              "linuxInstaller": "steam-art-manager.AppImage",
+              "linuxUpdater": `steam-art-manager_${versionNoV}.AppImage.tar.gz`,
+              "linuxUpdaterSig": `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`
+            }
+
+            const assets = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id
+            });
+            
+
+            const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
+            await setReleaseAssetName(winInstaller.id, GENERIC_NAMES["windowsInstaller"]);
+            
+            const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
+            await setReleaseAssetName(winUpdater.id, GENERIC_NAMES["windowsUpdater"]);
+            
+            const winUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".msi.zip.sig"));
+            await setReleaseAssetName(winUpdaterSig.id, GENERIC_NAMES["windowsUpdaterSig"]);
+            
+            const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
+            await setReleaseAssetName(linuxInstaller.id, GENERIC_NAMES["linuxInstaller"]);
+            
+            const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
+            await setReleaseAssetName(linuxUpdater.id, GENERIC_NAMES["linuxUpdater"]);
+            
+            const linuxUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz.sig"));
+            await setReleaseAssetName(linuxUpdaterSig.id, GENERIC_NAMES["linuxUpdaterSig"]);
+
+
+            const latest = assets.data.find((asset) => asset.name === "latest.json");
+            const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
+            let latestContents = latestContentsBuff.toString();
+            await deleteReleaseAsset(latest.id);
+
+            latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
+            latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
+            
+            await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
+
+            const latestPath = path.resolve(process.cwd(), "latest.json");
+            fs.writeFileSync(latestPath, Buffer.from(latestContents));
+
+            
+            const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
+            const add = (file) => exec.exec(`git add ${file}`);
+            const commit = (message) => exec.exec(`git commit -m "${message}"`);
+            const push = (branch) => exec.exec(`git push origin ${branch} --follow-tags`);
+            const updateOrigin = (repo) => exec.exec(`git remote set-url origin ${repo}`);
+            
+            core.setSecret(process.env.GITHUB_TOKEN);
+            
+            updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
+            config('user.email', "sarm.release.action@github.com");
+            config('user.name', "SARM Release Action");
+
+            await add(".");
+            await commit("chore(release): updating latest.json to generated version.");
+            await push(process.env.git_branch);
+
+            core.info("Committed changes to latest.json complete!");
+          } else {
+            core.info("Skipping latest.json upload for debug release");
+          }
