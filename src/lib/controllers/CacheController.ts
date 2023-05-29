@@ -30,6 +30,7 @@ import { filterGrids } from "../utils/Utils";
  * Controller class for handling caching of requests.
  */
 export class CacheController {
+  private requestTimeout: number = 1000;
   private appCacheDirPath: string;
   private gridCacheDirPath: string;
 
@@ -134,7 +135,20 @@ export class CacheController {
       LogController.log(`Fetching image from API.`);
 
       dowloadingGridId.set(appId);
-      const success = await RustInterop.downloadGrid(imageURL, localImagePath);
+      const status = await RustInterop.downloadGrid(imageURL, localImagePath, this.requestTimeout);
+
+      switch (status) {
+        case "sucess": {
+          LogController.warn(`Request for ${imageURL} succeeded.`);
+        }
+        case "timedOut": {
+          ToastController.showWarningToast(`Grid requested timed out`);
+          LogController.warn(`Request for ${imageURL} timed out after ${this.requestTimeout / 1000} seconds.`);
+        }
+        case "failed": {
+          LogController.warn(`Request for ${imageURL} failed.`);
+        }
+      }
 
       // const imageData = await http.fetch<Uint8Array>(imageURL, {
       //   method: "GET",
@@ -253,6 +267,7 @@ export class CacheController {
   }
 
   /**
+   * ! This is bad for the SGDB API.
    * Gets the number of result pages for each game in the results list.
    * @param results The SGDBGame array.
    * @param platform The platform of the games.
