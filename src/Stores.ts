@@ -32,6 +32,8 @@ export enum Theme {
 
 export const theme = sharedStore(Theme.DARK, "theme");
 
+export const requestTimeoutLength = writable(5000);
+
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 

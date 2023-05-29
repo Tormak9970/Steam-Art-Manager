@@ -15,6 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { http } from "@tauri-apps/api";
+import { get } from "svelte/store";
+import { requestTimeoutLength } from "../../Stores";
 
 export interface SGDBGame {
   id: number;
@@ -166,6 +168,7 @@ export class SGDB {
    * @returns A promise resolving to the request's result.
    */
   async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null): Promise<any> {
+    const requestTimeout = get(requestTimeoutLength);
     let strParams: string;
 
     if (Object.entries(params).length > 0) {
@@ -180,7 +183,8 @@ export class SGDB {
 
     let options = {
       headers: this.headers,
-      method
+      method,
+      timeout: requestTimeout
     };
 
     if (formData) {

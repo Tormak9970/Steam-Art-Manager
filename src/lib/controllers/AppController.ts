@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -283,22 +283,35 @@ export class AppController {
    * ? Logging complete.
    */
   private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<GameStruct[]> {
+    const requestTimeout = get(requestTimeoutLength);
     LogController.log(`Loading games from Steam Community page...`);
 
-    const publicGamesXml = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
+    const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
-      responseType: http.ResponseType.Text
+      responseType: http.ResponseType.Text,
+      timeout: requestTimeout
     });
-    const xmlData = AppController.domParser.parseFromString(publicGamesXml.data, "text/xml");
-    const jsonStr = xml2json(xmlData, "");
-    const games = JSON.parse(jsonStr);
+    
+    if (res.ok) {
+      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
+      const jsonStr = xml2json(xmlData, "");
+      const games = JSON.parse(jsonStr);
 
-    return games.gamesList.games.game.map((game: any) => {
-      return {
-        "appid": parseInt(game.appID),
-        "name": game.name["#cdata"]
-      }
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+      return games.gamesList.games.game.map((game: any) => {
+        return {
+          "appid": parseInt(game.appID),
+          "name": game.name["#cdata"]
+        }
+      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+    } else {
+      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
+      const jsonStr = xml2json(xmlData, "");
+      const err = JSON.parse(jsonStr);
+
+      ToastController.showWarningToast("Error getting games from your profile.");
+      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
+      return [];
+    }
   }
 
   /**
@@ -308,9 +321,13 @@ export class AppController {
    * ? Logging complete.
    */
   private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<GameStruct[]> {
+    const requestTimeout = get(requestTimeoutLength);
     LogController.log(`Loading games from Steam API...`);
 
-    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
+    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+      method: "GET",
+      timeout: requestTimeout
+    });
 
     if (res.ok) {
       return res.data.response.games.map((game: any) => {
@@ -324,7 +341,6 @@ export class AppController {
       const jsonStr = xml2json(xmlData, "");
       const err = JSON.parse(jsonStr);
 
-      console.error(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
       ToastController.showWarningToast("Check your Steam API Key");
       LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
       return [];
@@ -715,7 +731,6 @@ export class AppController {
       LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
     } else {
       LogController.log(`Failed to set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
-      ToastController.showWarningToast("Failed to set grid.");
     }
   }
 
