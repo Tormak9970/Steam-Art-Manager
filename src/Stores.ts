@@ -91,7 +91,6 @@ export const batchApplyMessage = writable("Starting batch job...");
 export const showBatchApplyProgress = writable(false);
 
 export const showAddManualGameModal = writable(false);
-export const manualGamesToAdd: Writable<GameStruct[]> = writable([]);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
