@@ -102,17 +102,16 @@
           <Button label="Cancel" onClick={cancel} width="47.5%" />
         </div>
       </div>
-    </div>
-    <div class="right">
-      <div class="options">
-        <VerticalSpacer />
-        <div class="dropdown-cont">
-          <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={(newMethod) => {}} />
+      <div class="right">
+        <div class="options">
+          <div class="dropdown-cont">
+            <div style="margin-right: 7px;">Method for Adding Games:</div>
+            <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={(newMethod) => {}} />
+          </div>
+          <VerticalSpacer />
         </div>
-        <VerticalSpacer />
+        <!-- TODO: UI for actually adding games goes here -->
       </div>
-      <!-- TODO: UI for actually adding games goes here -->
     </div>
   </div>
 </div>
@@ -165,7 +164,7 @@
     border: 1px solid var(--shadow);
     position: relative;
 
-    width: 440px;
+    width: 880px;
   }
 
   .header {
@@ -175,15 +174,18 @@
   }
 
   .content {
-
+    width: 100%;
+    display: flex;
   }
 
   .left {
-
+    margin-right: 10px;
+    width: 430px;
   }
 
   .right {
-    
+    margin-left: 10px;
+    width: 430px;
   }
 
   .info {
