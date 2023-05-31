@@ -42,7 +42,7 @@
   {#if label != ""}
     <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   {/if}
-  <input style="flex: 1; margin-right: 7px" type="text" placeholder="{value}" value="{value}" on:change="{wrapper}" bind:this={inputElem}>
+  <input style="flex: 1; margin-right: 7px" type="text" placeholder="{value}" bind:value={value} on:change="{wrapper}" bind:this={inputElem}>
 
   <FileButton onClick={openDialog} />
 </div>

@@ -44,7 +44,7 @@
   <input
     type="text"
     placeholder={value.toString()}
-    value={value}
+    bind:value={value}
     on:change={wrapper}
     on:input={handleInput}
   />
