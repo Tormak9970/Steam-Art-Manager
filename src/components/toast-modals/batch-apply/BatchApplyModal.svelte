@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import Toggle from "../../interactables/Toggle.svelte";
+    import Table from "../../layout/Table.svelte";
 
   export let onClose: () => void;
   
@@ -100,8 +101,8 @@
         <Toggle label="Include Hidden" bind:checked={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
         <VerticalSpacer />
       </div>
-      <div class="selected-games">
-        <div class="games-header">
+      <Table>
+        <span slot="header">
           <div class="batch-icon" use:AppController.tippy={{ content: "Checked games will be included", placement: "left", onShow: AppController.onTippyShow }}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
               <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -110,16 +111,13 @@
           </div>
           <div>Name</div>
           <div style="margin-left: auto; margin-right: 45px;">Platform</div>
-        </div>
-        <div class="border" style="margin-top: 3px;"></div>
-        <div class="games-list-scroller">
-          <div class="games-list">
-            {#each gamesToFilter as game}
-              <SelectedGameEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
-            {/each}
-          </div>
-        </div>
-      </div>
+        </span>
+        <span slot="data">
+          {#each gamesToFilter as game}
+            <SelectedGameEntry game={game} platform={selectedPlatform != "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid == game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
+          {/each}
+        </span>
+      </Table>
       <div class="buttons">
         <Button label="Apply" onClick={batchApply} width="47.5%" />
         <Button label="Cancel" onClick={cancel} width="47.5%" />
@@ -209,42 +207,6 @@
   .options {
     margin-top: 7px;
     margin-left: 7px;
-  }
-
-  .selected-games {
-    margin-top: 7px;
-    margin-left: 7px;
-
-    width: calc(100% - 28px);
-
-    height: 400px;
-    
-    padding: 7px;
-
-    background-color: var(--background-dark);
-  }
-
-  .games-header {
-    width: 100%;
-
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .games-list {
-    margin-top: 3px;
-    width: 100%;
-
-    overflow: hidden;
-  }
-
-  .games-list-scroller {
-    margin-top: 3px;
-    width: 100%;
-
-    height: calc(100% - 20px);
-
-    overflow: scroll;
   }
 
   .buttons {

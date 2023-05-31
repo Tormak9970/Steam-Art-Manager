@@ -1,22 +1,57 @@
 <script lang="ts">
-  import Checkbox from "../../interactables/Checkbox.svelte";
+  import { appLibraryCache, unfilteredLibraryCache } from "../../../Stores";
+  import { AppController } from "../../../lib/controllers/AppController";
 
   export let game: GameStruct;
-  export let platform: string;
-  export let isChecked: boolean;
-  export let onChange: (appid: number, isChecked: boolean) => void = () => {};
+  export let onRemove: (game: GameStruct) => void;
+
+  function getSteamArtStatus(): boolean {
+    return !!$unfilteredLibraryCache[game.appid];
+  }
+
+  function getCustomArtStatus(): boolean {
+    return $unfilteredLibraryCache[game.appid] && $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
+  }
+
+  $: hasSteamArt = getSteamArtStatus();
+  $: hasCustomArt = getCustomArtStatus();
 </script>
-<!-- fa X -->
-<!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-  <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
-</svg> -->
 
 <div class="selected-game-entry">
-  <div class="checkbox">
-    <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="remove-cont" on:click={() => { onRemove(game); }} use:AppController.tippy={{ content: "Remove this game", placement: "left", onShow: AppController.onTippyShow }}>
+    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
+      <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+    </svg>
   </div>
   <div class="name">{game.name}</div>
-  <div class="platform">{platform}</div>
+  <div class="steam-art" use:AppController.tippy={{ content: hasSteamArt ? "Existing official art" : "No official art", placement: "left", onShow: AppController.onTippyShow }}>
+    {#if hasSteamArt}
+      <svg class="exists" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
+        <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+      </svg>
+    {:else}
+      <svg class="dne" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
+        <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+      </svg>
+    {/if}
+  </div>
+  <div class="custom-art" use:AppController.tippy={{ content: hasSteamArt ? "Existing custom art" : "No custom art", placement: "left", onShow: AppController.onTippyShow }}>
+    {#if hasCustomArt}
+      <svg class="exists" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
+        <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
+      </svg>
+    {:else}
+      <svg class="dne" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
+        <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
+      </svg>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -34,6 +69,26 @@
     background-color: var(--foreground);
   }
 
+  .remove-cont {
+    margin-left: 2px;
+    margin-right: 4px;
+    width: auto;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    fill: var(--warning);
+  }
+
+  .remove-cont:hover {
+    cursor: pointer;
+    fill: var(--warning-hover);
+  }
+
   .name {
     font-size: 12px;
     user-select: none;
@@ -46,11 +101,45 @@
     margin-left: 10px;
   }
 
-  .platform {
-    margin-left: 85px;
+  .steam-art {
+    margin-left: 73px;
     margin-right: 7px;
     
     font-size: 12px;
     user-select: none;
+
+    width: auto;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-art {
+    margin-left: 27px;
+    margin-right: 7px;
+    
+    font-size: 12px;
+    user-select: none;
+
+    width: auto;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dne {
+    fill: var(--warning);
+  }
+
+  .exists {
+    fill: var(--success);
   }
 </style>

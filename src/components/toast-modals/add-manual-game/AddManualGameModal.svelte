@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Platforms, appLibraryCache, originalAppLibraryCache, manualSteamGames } from "../../../Stores";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import GameToAddEntry from "./GameToAddEntry.svelte";
-  import { onMount } from "svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
-  import Toggle from "../../interactables/Toggle.svelte";
+  import Search from "./add-methods/Search.svelte";
+  import Manual from "./add-methods/Manual.svelte";
+    import Table from "../../layout/Table.svelte";
 
   export let onClose: () => void;
   
@@ -23,12 +23,34 @@
   ];
   let selectedAddMethod =  "search";
 
+  /**
+   * Adds a game to the new manual games list.
+   * @param newGame The new game to add.
+   */
+  function addNewGame(newGame: GameStruct): void {
+    newManualGames.push(newGame);
+    newManualGames = [...newManualGames];
+  }
+
+  /**
+   * Removes a game from the new manual games list.
+   * @param game The game to remove.
+   */
+  function removeHandler(game: GameStruct): void {
+    const index = newManualGames.findIndex((g) => g.appid == game.appid);
+    newManualGames.splice(index, 1);
+    newManualGames = [...newManualGames];
+  }
 
   /**
    * Adds all of the provided games.
    */
-  function addGames() {
-    
+  async function addGames() {
+    // TODO: update state
+    // TODO: log
+    // TODO: toast
+    // TODO: save settings
+    onClose();
   }
 
   /**
@@ -42,10 +64,6 @@
   function closeWrapper(e: Event) {
     if (e.currentTarget == e.target) onClose();
   }
-
-  onMount(() => {
-    
-  });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -64,8 +82,10 @@
         <div class="info">
           Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
         </div>
-        <div class="manual-games">
-          <div class="games-header">
+        <VerticalSpacer />
+        <VerticalSpacer />
+        <Table>
+          <span slot="header">
             <div class="batch-icon" use:AppController.tippy={{ content: "Games that will be added", placement: "top", onShow: AppController.onTippyShow }}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
                 <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -87,16 +107,13 @@
                 <path fill="#3a6e92" d="M9 6h41v18H9V6z"/>
               </svg>
             </div>
-          </div>
-          <div class="border" style="margin-top: 3px;"></div>
-          <div class="games-list-scroller">
-            <div class="games-list">
-              {#each newManualGames as game}
-                <GameToAddEntry game={game} platform={Platforms.STEAM} isChecked={true} onChange={(isChecked) => {}} />
+          </span>
+          <span slot="data">
+            {#each newManualGames as game}
+                <GameToAddEntry game={game} onRemove={removeHandler} />
               {/each}
-            </div>
-          </div>
-        </div>
+          </span>
+        </Table>
         <div class="buttons">
           <Button label="Add Games" onClick={addGames} width="47.5%" />
           <Button label="Cancel" onClick={cancel} width="47.5%" />
@@ -110,7 +127,14 @@
           </div>
           <VerticalSpacer />
         </div>
-        <!-- TODO: UI for actually adding games goes here -->
+        <div class="game-section-label">Game Info</div>
+        <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
+        <VerticalSpacer />
+        {#if selectedAddMethod == "search"}
+          <Search onGameSave={addNewGame} />
+        {:else if selectedAddMethod == "manual"}
+          <Manual onGameSave={addNewGame} />
+        {/if}
       </div>
     </div>
   </div>
@@ -220,43 +244,11 @@
 
   .options {
     margin-top: 7px;
-    margin-left: 7px;
   }
 
-  .manual-games {
-    margin-top: 7px;
-    margin-left: 7px;
-
-    width: calc(100% - 28px);
-
-    height: 400px;
-    
-    padding: 7px;
-
-    background-color: var(--background-dark);
-  }
-
-  .games-header {
-    width: 100%;
-
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .games-list {
-    margin-top: 3px;
-    width: 100%;
-
-    overflow: hidden;
-  }
-
-  .games-list-scroller {
-    margin-top: 3px;
-    width: 100%;
-
-    height: calc(100% - 20px);
-
-    overflow: scroll;
+  .game-section-label {
+    margin-top: 8px;
+    font-size: 24px;
   }
 
   .buttons {
