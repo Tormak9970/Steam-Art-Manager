@@ -4,7 +4,6 @@
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Button from "../../interactables/Button.svelte";
-  import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
 
