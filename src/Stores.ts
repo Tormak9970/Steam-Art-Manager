@@ -94,6 +94,8 @@ export const showManualGamesModal = writable(false);
 
 export const showCleanGridsModal = writable(false);
 
+export const showSettingsModal = writable(false);
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {

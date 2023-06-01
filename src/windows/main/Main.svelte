@@ -9,7 +9,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -19,6 +19,8 @@
   import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
   import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
   import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
+  import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
+  import CleanGridsModal from "../../components/toast-modals/CleanGridsModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -67,10 +69,24 @@
 	}
 
   /**
+   * Function to run when the manage manual games modal is closed.
+   */
+  function onManageManualGamesModalClose() {
+    $showManualGamesModal = false;
+  }
+
+  /**
    * Function to run when the add manual games modal is closed.
    */
-  function onAddManualGameModalClose() {
-    $showManualGamesModal = false;
+  function onSettingsModalClose() {
+    $showSettingsModal = false;
+  }
+
+  /**
+   * Function to run when the clean grids modal is closed.
+   */
+  function onCleanGridsModalClose() {
+    $showCleanGridsModal = false;
   }
 
   /**
@@ -152,7 +168,13 @@
 		  <LogoPositionModal onClose={onLogoPositionModalClose} />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal onClose={onAddManualGameModalClose} />
+		  <ManualGamesModal onClose={onManageManualGamesModalClose} />
+    {/if}
+    {#if $showCleanGridsModal}
+		  <CleanGridsModal onClose={onCleanGridsModalClose} />
+    {/if}
+    {#if $showSettingsModal}
+		  <SettingsModal onClose={onSettingsModalClose} />
     {/if}
 		<Splitpanes>
 			<Options />
