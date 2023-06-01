@@ -1,8 +1,15 @@
 <script lang="ts">
+  import DropDown from "../../interactables/DropDown.svelte";
 
   export let onClose: () => void;
 
+  let presets = [
+
+  ];
   
+  let selectedPreset = "clean";
+
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -17,7 +24,7 @@
     <div class="header">Clean Grids</div>
     <div class="border" />
     <div class="content">
-      
+      <DropDown label={"Preset"} options={presets} bind:value={selectedPreset} width="100px" onChange={(newMethod) => {}} />
     </div>
   </div>
 </div>

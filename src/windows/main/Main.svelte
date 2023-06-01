@@ -20,7 +20,7 @@
   import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
   import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
   import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
-  import CleanGridsModal from "../../components/toast-modals/CleanGridsModal.svelte";
+  import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;

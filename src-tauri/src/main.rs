@@ -469,6 +469,7 @@ fn main() {
 
       app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
     }))
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .setup(| app | {
       let app_handle = app.handle();
       logger::clean_out_log(app_handle.clone());
