@@ -92,6 +92,8 @@ export const showBatchApplyProgress = writable(false);
 
 export const showManualGamesModal = writable(false);
 
+export const showCleanGridsModal = writable(false);
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
