@@ -6,7 +6,7 @@
   export let max:number = 100;
   export let value:number = 0;
   export let width:string = "100px";
-  export let onChange: (e: any) => void = (e) => {};
+  export let onChange: (e: any) => void = () => {};
 </script>
 
 <div class="slider" style="width: {width};">

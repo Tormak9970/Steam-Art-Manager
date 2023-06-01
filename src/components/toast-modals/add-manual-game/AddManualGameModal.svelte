@@ -7,7 +7,7 @@
   import { ToastController } from "../../../lib/controllers/ToastController";
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
-    import Table from "../../layout/Table.svelte";
+  import Table from "../../layout/Table.svelte";
 
   export let onClose: () => void;
   

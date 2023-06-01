@@ -44,7 +44,7 @@
   {/if}
   <input style="flex: 1; margin-right: 7px" type="text" placeholder="{value}" bind:value={value} on:change="{wrapper}" bind:this={inputElem}>
 
-  <FileButton onClick={openDialog} />
+  <FileButton label={"Select path"} onClick={openDialog} />
 </div>
 
 <!-- svelte-ignore css-unused-selector -->

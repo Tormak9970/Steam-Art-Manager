@@ -138,7 +138,7 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" placement="right" />
+		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" tooltipPosition="right" />
   </Titlebar>
 	<div class="content">
 		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />

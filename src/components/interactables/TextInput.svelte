@@ -4,7 +4,7 @@
   export let placeholder:string = "";
 
   export let width:number = 140;
-  export let onChange:(e:Event, fieldName:string)=>void;
+  export let onChange:(e:Event, fieldName:string) => void = () => {};
 
   /**
    * Wrapper for the onChange handler.

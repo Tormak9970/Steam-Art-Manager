@@ -138,7 +138,7 @@
 
   <div class="content">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <Toggle label="Show hidden" bind:checked={$showHidden}/>
+      <Toggle label="Show hidden" bind:value={$showHidden}/>
       <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
     </div>
     

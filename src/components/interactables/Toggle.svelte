@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let label: string;
-  export let checked = true;
+  export let label: string = "";
+  export let value = true;
   export let onChange = (checked:boolean) => {};
 
   /**
@@ -12,8 +12,8 @@
 
     const state = target.getAttribute("aria-checked");
 
-    checked = state === "true" ? false : true;
-    onChange(checked);
+    value = state === "true" ? false : true;
+    onChange(value);
   }
 
 </script>
@@ -21,10 +21,12 @@
 <div class="toggle">
   <button
     role="switch"
-    aria-checked={checked}
+    aria-checked={value}
     on:click={handleClick}
   />
-  <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
+  {#if label != ""}
+    <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
+  {/if}
 </div>
 
 <style>
