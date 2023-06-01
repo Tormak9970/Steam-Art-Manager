@@ -873,6 +873,13 @@ export class AppController {
   }
 
   /**
+   * Looks through the grids in the user's grid folder, and deletes any for games that no longer exist.
+   */
+  static async cleanDeadGrids(): Promise<void> {
+    
+  }
+
+  /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
@@ -902,8 +909,11 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    LogController.log(`Reloading...`);
-    await process.relaunch();
+    const shouldReload = await dialog.confirm("Are you sure you want to reload? Any changes will be lost!");
+    if (shouldReload) {
+      LogController.log(`Reloading...`);
+      await process.relaunch();
+    }
   }
 
   /**
