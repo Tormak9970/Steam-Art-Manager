@@ -1,15 +1,13 @@
 <script lang="ts">
-  import type { SGDBGame } from "../../../../lib/models/SGDB";
-
-  export let game: SGDBGame;
+  export let game: GameStruct;
   export let isSelected: boolean;
-  export let onSelect: (game: SGDBGame) => void;
+  export let onSelect: (game: GameStruct) => void;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="search-entry" class:selected={isSelected} on:click={() => { onSelect(game); }}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="appid">{game.id}</div>
+  <div class="appid">{game.appid}</div>
   <div class="name">{game.name}</div>
 </div>
 
@@ -33,12 +31,20 @@
     cursor: pointer;
   }
 
-  .selected {
+  .selected, .selected:hover {
     background-color: var(--foreground-light);
   }
 
   .appid {
+    font-size: 12px;
+    user-select: none;
 
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    margin-left: 10px;
   }
 
   .name {

@@ -9,7 +9,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showAddManualGameModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -18,7 +18,7 @@
   import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
   import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
   import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
-  import AddManualGameModal from "../../components/toast-modals/add-manual-game/AddManualGameModal.svelte";
+  import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -70,7 +70,7 @@
    * Function to run when the add manual games modal is closed.
    */
   function onAddManualGameModalClose() {
-    $showAddManualGameModal = false;
+    $showManualGamesModal = false;
   }
 
   /**
@@ -151,8 +151,8 @@
     {#if $showLogoPositionModal}
 		  <LogoPositionModal onClose={onLogoPositionModalClose} />
     {/if}
-    {#if $showAddManualGameModal}
-		  <AddManualGameModal onClose={onAddManualGameModalClose} />
+    {#if $showManualGamesModal}
+		  <ManualGamesModal onClose={onAddManualGameModalClose} />
     {/if}
 		<Splitpanes>
 			<Options />
@@ -164,7 +164,9 @@
 	</div>
 	<Footer />
 </main>
-<SvelteToast />
+<div style="font-size: 14px;">
+  <SvelteToast />
+</div>
 
 <style>
 	@import "/theme.css";
@@ -192,7 +194,7 @@
 		--toastWidth: 26rem !important;
 		--toastMinHeight: 100px;
 		--toastPadding: 0 0.5rem !important;
-		font-size: 0.875rem;
+		font-size: 14px;
 	}
 	@media (min-width: 40rem) {
 		.wrap {

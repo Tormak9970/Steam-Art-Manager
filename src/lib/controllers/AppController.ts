@@ -452,6 +452,23 @@ export class AppController {
       LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
       LogController.log("Steam games loaded.");
     }
+
+    const sGames = get(steamGames);
+    const originalManualGames = get(manualSteamGames);
+    let manualGames = originalManualGames.filter((manualGame) => {
+      const matchingSteamGame = sGames.find((sGame) => sGame.appid == manualGame.appid);
+      if (matchingSteamGame) {
+        LogController.warn(`Found manually added game with the same appid (${manualGame.appid}) as ${matchingSteamGame.name}. Removing it`);
+      }
+
+      return !matchingSteamGame;
+    });
+
+    if (manualGames.length != originalManualGames.length) {
+      SettingsManager.updateSetting("manualSteamGames", manualGames);
+      manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
+      ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
+    }
     
     ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");

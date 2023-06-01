@@ -36,7 +36,7 @@
   </div>
 
   <div class="buttons">
-    <Button label="Add" onClick={saveWrapper} width="47.5%" />
+    <Button label="Add Game" onClick={saveWrapper} width="47.5%" disabled={gameName == "" || appId == 0} />
     <Button label="Clear" onClick={clear} width="47.5%" />
   </div>
 </div>

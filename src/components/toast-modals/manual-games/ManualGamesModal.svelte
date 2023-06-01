@@ -3,33 +3,37 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
-  import GameToAddEntry from "./GameToAddEntry.svelte";
+  import ManualGameEntry from "./ManualGameEntry.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
+  import { manualSteamGames } from "../../../Stores";
+    import { LogController } from "../../../lib/controllers/LogController";
+    import { SettingsManager } from "../../../lib/utils/SettingsManager";
 
   export let onClose: () => void;
   
-  let newManualGames: GameStruct[] = [
-    { appid: 36756691, name: "Diablo IV" },
-    { appid: 36756691, name: "Dirt 1" },
-    { appid: 36756691, name: "Dirt 2" }
-  ]
+  let canSave = false;
+
+  const originalManualGames = $manualSteamGames;
+  let tempManualGames: GameStruct[] = JSON.parse(JSON.stringify(originalManualGames));
 
   let addMethods = [
     { label: "Manual", data: "manual" },
     { label: "Search", data: "search" }
   ];
-  let selectedAddMethod =  "search";
+  let selectedAddMethod =  "manual";
 
   /**
    * Adds a game to the new manual games list.
-   * @param newGame The new game to add.
+   * @param game The new game to add.
    */
-  function addNewGame(newGame: GameStruct): void {
-    newManualGames.push(newGame);
-    newManualGames = [...newManualGames];
+  function addNewGame(game: GameStruct): void {
+    LogController.log(`Added manually added game ${game.name}.`);
+    tempManualGames.push(game);
+    tempManualGames = [...tempManualGames];
+    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
   }
 
   /**
@@ -37,19 +41,25 @@
    * @param game The game to remove.
    */
   function removeHandler(game: GameStruct): void {
-    const index = newManualGames.findIndex((g) => g.appid == game.appid);
-    newManualGames.splice(index, 1);
-    newManualGames = [...newManualGames];
+    LogController.log(`Removed manually added game ${game.name}.`);
+    const index = tempManualGames.findIndex((g) => g.appid == game.appid);
+    tempManualGames.splice(index, 1);
+    tempManualGames = [...tempManualGames];
+    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
   }
 
   /**
    * Adds all of the provided games.
    */
-  async function addGames() {
+  async function saveChanges() {
     // TODO: update state
-    // TODO: log
-    // TODO: toast
+    manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
     // TODO: save settings
+    SettingsManager.updateSetting("manualSteamGames", tempManualGames);
+    // TODO: log
+    LogController.log(`Saved ${tempManualGames.length} manually added games.`);
+    // TODO: toast
+    ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
     onClose();
   }
 
@@ -75,7 +85,7 @@
         <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
       </svg>
     </div>
-    <div class="header">Manually Add Games</div>
+    <div class="header">Manage Manual Games</div>
     <div class="border" />
     <div class="content">
       <div class="left">
@@ -86,7 +96,7 @@
         <VerticalSpacer />
         <Table>
           <span slot="header">
-            <div class="batch-icon" use:AppController.tippy={{ content: "Games that will be added", placement: "top", onShow: AppController.onTippyShow }}>
+            <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
                 <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
                 <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3h58.3c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24V250.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1H222.6c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"/>
@@ -109,13 +119,13 @@
             </div>
           </span>
           <span slot="data">
-            {#each newManualGames as game}
-                <GameToAddEntry game={game} onRemove={removeHandler} />
-              {/each}
+            {#each tempManualGames as game}
+              <ManualGameEntry game={game} onRemove={removeHandler} />
+            {/each}
           </span>
         </Table>
         <div class="buttons">
-          <Button label="Add Games" onClick={addGames} width="47.5%" />
+          <Button label="Save Changes" onClick={saveChanges} width="47.5%" disabled={!canSave} />
           <Button label="Cancel" onClick={cancel} width="47.5%" />
         </div>
       </div>
