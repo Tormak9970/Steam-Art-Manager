@@ -157,7 +157,9 @@
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" tooltipPosition="right" />
   </Titlebar>
 	<div class="content">
-		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
+    {#if $showGridModal}
+		  <GridPreviewModal onClose={onGridModalClose} />
+    {/if}
     {#if $showBatchApplyProgress}
 		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
     {/if}
