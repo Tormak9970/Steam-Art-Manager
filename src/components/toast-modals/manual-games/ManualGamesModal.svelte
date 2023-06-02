@@ -11,7 +11,7 @@
   import { manualSteamGames } from "../../../Stores";
     import { LogController } from "../../../lib/controllers/LogController";
     import { SettingsManager } from "../../../lib/utils/SettingsManager";
-    import ModalBody from "../ModalBody.svelte";
+    import ModalBody from "../modal-utils/ModalBody.svelte";
 
   export let onClose: () => void;
   

@@ -25,7 +25,7 @@
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
   import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
-    import ModalBody from "./ModalBody.svelte";
+    import ModalBody from "./modal-utils/ModalBody.svelte";
 
   export let onClose: () => void;
 

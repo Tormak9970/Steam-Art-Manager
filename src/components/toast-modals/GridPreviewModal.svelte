@@ -7,7 +7,7 @@
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
-    import ModalBody from "./ModalBody.svelte";
+    import ModalBody from "./modal-utils/ModalBody.svelte";
 
   export let onClose: () => void;
 
