@@ -86,7 +86,7 @@ read -r -d '' shortcutContents <<- EOM
   [Desktop Entry]
   Comment=$comment
   Name=Steam Art Manager
-  Exec=$appImagePath
+  Exec=GTK_USE_PORTAL=1 $appImagePath
   Icon=$iconPath
   Terminal=false
   Type=Application
@@ -105,7 +105,7 @@ read -r -d '' uninstallSarmContent <<- EOM
   Name=Uninstall SARM
   Exec=$uninstallScriptPath
   Icon=delete
-  Terminal=false
+  Terminal=true
   Type=Application
   Categories=Utility
   StartupNotify=false

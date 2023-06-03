@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, os, path, process } from "@tauri-apps/api";
+import { dialog, fs, http, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
