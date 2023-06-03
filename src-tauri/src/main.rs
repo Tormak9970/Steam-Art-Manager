@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic, process::exit, fmt::Arguments};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -23,7 +23,7 @@ use reqwest::{self, Client};
 use steam::get_steam_root_dir;
 use tauri::{
   AppHandle,
-  api::dialog::{blocking::FileDialogBuilder, self},
+  api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, self, MessageDialogButtons},
   FsScope, Manager
 };
 use keyvalues_parser::Vdf;
@@ -563,8 +563,43 @@ fn main() {
     .plugin(tauri_plugin_window_state::Builder::default().build())
     .setup(| app | {
       let app_handle = app.handle();
+      let log_file_path: PathBuf = logger::get_core_log_path(&app_handle);
       logger::clean_out_log(app_handle.clone());
       add_steam_to_scope(&app_handle);
+      
+      let loc_log_file_path = Box::new(log_file_path);
+
+      panic::set_hook(Box::new(| panic_info | {
+        let location_res = panic_info.location();
+        // let message_res = panic_info.message();
+        let message_res: Option<&Arguments> = None;
+
+        let mut log_message: String = String::from("Panic occured but no additional info was provided!");
+
+        if location_res.is_some() && message_res.is_some() {
+          let location = location_res.expect("Should have been able to get panic location");
+          let message = message_res.expect("Should have been able to get panic message");
+          log_message = format!("PANIC: File '{}' at line {}: {}", location.file(), location.line(), message).to_string();
+        } else if location_res.is_some() {
+          let location = location_res.expect("Should have been able to get panic location");
+          log_message = format!("PANIC: File '{}' at line {}: No provided message", location.file(), location.line()).to_string();
+        } else if message_res.is_some() {
+          let message = message_res.expect("Should have been able to get panic message");
+          log_message = format!("PANIC: File 'UNKOWN' at line UNKOWN: {}", message).to_string();
+        }
+
+        logger::log_to_file(&loc_log_file_path.to_path_buf(), &log_message, 2);
+        logger::log_to_file(&loc_log_file_path.to_path_buf(), "Please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues", 2);
+
+        let hit_ok = MessageDialogBuilder::new("SARM Panic!", "Check your log file for more information, and please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues")
+          .buttons(MessageDialogButtons::Ok)
+          .show();
+
+        if hit_ok {
+          exit(1);
+        }
+      }));
+
       Ok(())
     })
     .run(tauri::generate_context!())
