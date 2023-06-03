@@ -180,6 +180,33 @@ export class AppController {
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
   }
+
+  /**
+   * Gets the id and grid type from a grids filename.
+   * @param gridName The filename of the grid.
+   * @returns A tuple of [appid, gridType].
+   */
+  private static getIdFromGridName(gridName: string): [string, string] {
+    const dotIndex = gridName.indexOf(".");
+    const underscoreIndex = gridName.indexOf("_");
+    const name = gridName.substring(0, dotIndex);
+  
+    if (underscoreIndex > 0) {
+      const id = name.substring(0, underscoreIndex);
+      const type = name.substring(underscoreIndex+1);
+  
+      return [id, type];
+    } else if (name.endsWith("p")) {
+      const id = name.substring(0, name.length - 1);
+      return [id, "capsule"];
+    } else {
+      if (gridName.substring(dotIndex+1) == "json") {
+        return [name, "logoposition"];
+      } else {
+        return [name, "wide_capsule"];
+      }
+    }
+  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
@@ -192,25 +219,27 @@ export class AppController {
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
+    const foundApps: string[] = [];
+
     for (const fileEntry of gridsDirContents) {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
       } else {
-        const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
-        const appId = fileEntry.name.substring(0, firstUnderscore);
-        let type = "";
-        if (fileEntry.name.indexOf("_") > 0) {
-          type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
-        } else {
-          type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
-        }
+        const [appid, type] = AppController.getIdFromGridName(fileEntry.name);
+        
+        const idTypeString = `${appid}_${type}`;
 
-        if (gridTypeLUT[type]) {
-          if (!resKeys.includes(appId)) {
-            resKeys.push(appId);
-            res[appId] = {} as LibraryCacheEntry;
+        if (foundApps.includes(idTypeString)) {
+          ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
+          LogController.warn(`Duplicate grid found for ${appid}.`);
+        } else {
+          if (gridTypeLUT[type]) {
+            if (!resKeys.includes(appid)) {
+              resKeys.push(appid);
+              res[appid] = {} as LibraryCacheEntry;
+            }
+            res[appid][gridTypeLUT[type]] = fileEntry.path;
           }
-          res[appId][gridTypeLUT[type]] = fileEntry.path;
         }
       }
     }
