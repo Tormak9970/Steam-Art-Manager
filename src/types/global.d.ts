@@ -83,3 +83,12 @@ type SteamLogoConfig = {
   nVersion: number,
   logoPosition: LogoPosition,
 }
+
+type CleanConflict = {
+  fileAName: string,
+  fileAPath: string,
+  fileBName: string,
+  fileBPath: string,
+  appid: string,
+  gridType: string
+}

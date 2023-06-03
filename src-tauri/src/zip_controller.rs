@@ -7,7 +7,7 @@ use tauri::AppHandle;
 use zip;
 
 /// Gets the id for a grid from its name.
-fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
+pub fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
   let dot_index: usize = grid_name.find(".").expect("File should have had a file extension");
   let underscore_index_res = grid_name.find("_");
   let name: &str = &grid_name[0..dot_index];

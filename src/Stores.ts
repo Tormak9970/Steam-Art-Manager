@@ -96,6 +96,9 @@ export const showCleanGridsModal = writable(false);
 
 export const showSettingsModal = writable(false);
 
+export const showCleanConflictDialog = writable(false);
+export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {

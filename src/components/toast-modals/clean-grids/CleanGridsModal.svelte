@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { AppController } from "../../../lib/controllers/AppController";
   import Button from "../../interactables/Button.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -12,12 +13,13 @@
     { label: "Custom", data: "custom" },
   ];
   
-  let selectedPreset = "clean";
+  let selectedPreset: "clean" | "custom" = "clean";
 
   let selectedGameIds: string[] = [];
 
   function cleanGrids() {
-    
+    AppController.cleanDeadGrids(selectedPreset, selectedGameIds);
+    onClose();
   }
 
   function cancel() {

@@ -212,4 +212,16 @@ export class RustInterop {
 
     return timedOut ? "timedOut" : status;
   }
+
+  /**
+   * Cleans the grids directory.
+   * @param steamActiveUserId The id of the active user.
+   * @param preset The selected cleaning preset.
+   * @param allAppids The list of all known appids;
+   * @param selectedGameIds The list of game ids to clean.
+   * @returns A promise resolving to an array of CleanConflicts.
+   */
+  static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
+    return JSON.parse(await invoke<string>("clean_grids", { steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
+  }
 }

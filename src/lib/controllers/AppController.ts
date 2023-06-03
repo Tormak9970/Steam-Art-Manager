@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -874,9 +874,25 @@ export class AppController {
 
   /**
    * Looks through the grids in the user's grid folder, and deletes any for games that no longer exist.
+   * @param preset The selected preset for cleaning.
+   * @param selectedGameIds The list of ids of games to delete grids for.
    */
-  static async cleanDeadGrids(): Promise<void> {
+  static async cleanDeadGrids(preset: "clean" | "custom", selectedGameIds: string[], ): Promise<void> {
+    let appids = [
+      ...get(steamGames).map((game) => game.appid.toString()),
+      ...get(nonSteamGames).map((game) => game.appid.toString()),
+      ...get(manualSteamGames).map((game) => game.appid.toString()),
+    ];
+
+    const conflicts = await RustInterop.cleanGrids(get(activeUserId).toString(), preset as string, appids, selectedGameIds);
     
+    if (conflicts.length > 0) {
+      cleanConflicts.set(conflicts);
+      showCleanConflictDialog.set(true);
+    } else {
+      ToastController.showSuccessToast("Finished cleaning!");
+      LogController.log("Finished cleaning!");
+    }
   }
 
   /**

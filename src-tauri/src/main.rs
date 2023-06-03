@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File, write}, io::Write, time::Duration};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -32,6 +32,17 @@ use keyvalues_parser::Vdf;
 struct Payload {
   args: Vec<String>,
   cwd: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+#[allow(non_snake_case)]
+struct CleanConflicts {
+  fileAName: String,
+  fileAPath: String,
+  fileBName: String,
+  fileBPath: String,
+  appid: String,
+  gridType: String
 }
 
 type GridImageCache = HashMap<String, HashMap<String, String>>;
@@ -304,9 +315,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
       }
       logger::log_to_core_file(app_handle.to_owned(), format!("Removed logo position config for {}.", appid).as_str(), 0);
     } else {
-      // let config_file = fs::File::create(&logo_config_path).expect("Should have been able to create or truncate logo pos config file.");
-      
-      let write_res = write(&logo_config_path, steam_logo_str);
+      let write_res = fs::write(&logo_config_path, steam_logo_str);
   
       if write_res.is_ok() {
         logger::log_to_core_file(app_handle.to_owned(), format!("Wrote logo pos to config for {}.", appid).as_str(), 0);
@@ -405,6 +414,87 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   }
 }
 
+#[tauri::command]
+/// Downloads a file from a url.
+async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset: String, all_appids: String, selected_game_ids: String) -> String {
+  logger::log_to_core_file(app_handle.to_owned(), format!("Starting {} grid cleaning.", preset).as_str(), 0);
+  
+  let appids_arr: Vec<String> = serde_json::from_str(all_appids.as_str()).expect("Should have been able to deserialize appids array.");
+  
+  let grids_dir_path: String = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
+  let grids_dir_contents = fs::read_dir(grids_dir_path).unwrap();
+
+  let mut found_apps: HashMap<String, (String, String)> = HashMap::new();
+  let mut conflicts: Vec<CleanConflicts> = Vec::new();
+  
+  
+  if preset == String::from("clean") {
+    for dir_entry in grids_dir_contents {
+      let entry = dir_entry.expect("Should have been able to get directory entry.");
+  
+      if entry.file_type().unwrap().is_file() {
+        let full_file_path: PathBuf = entry.path();
+        let full_file_path_str: &str = full_file_path.to_str().unwrap();
+        let filename = entry.file_name();
+        let filename_str: &str = filename.to_str().unwrap();
+        
+        let (id, grid_type) = zip_controller::get_id_from_grid_name(filename_str);
+        let id_type_str: String = format!("{}_{}", id, grid_type);
+
+        if appids_arr.contains(&id) {
+          if found_apps.contains_key(&id_type_str) {
+            // ? There's a conflict
+            let (other_filename, other_full_path) = found_apps.get(&id_type_str).expect("Map should have contained the id_type_str.");
+
+            conflicts.push(CleanConflicts { fileAPath: other_full_path.to_owned(), fileAName: other_filename.to_owned(), fileBPath: String::from(full_file_path_str), fileBName: String::from(filename_str), appid: id.clone(), gridType: grid_type.clone() });
+            
+            logger::log_to_core_file(app_handle.to_owned(), format!("Detected conflict between {} and {}.", filename_str, other_filename).as_str(), 0);
+          } else {
+            found_apps.insert(id_type_str, (String::from(filename_str), String::from(full_file_path_str)));
+          }
+        } else {
+          let remove_res = fs::remove_file(full_file_path);
+          if remove_res.is_err() {
+            let err = remove_res.err().unwrap();
+            return format!("{{ \"error\": \"{}\"}}", err.to_string());
+          }
+
+          logger::log_to_core_file(app_handle.to_owned(), format!("Deleted {}.", filename_str).as_str(), 0);
+        }
+      }
+    }
+  } else {
+    let game_ids_arr: Vec<String> = serde_json::from_str(selected_game_ids.as_str()).expect("Should have been able to deserialize selected appids array.");
+
+    for dir_entry in grids_dir_contents {
+      let entry = dir_entry.expect("Should have been able to get directory entry.");
+  
+      if entry.file_type().unwrap().is_file() {
+        let full_file_path: PathBuf = entry.path();
+        let filename = entry.file_name();
+        let filename_str: &str = filename.to_str().unwrap();
+        
+        let (id, _) = zip_controller::get_id_from_grid_name(filename_str);
+
+        if game_ids_arr.contains(&id) {
+          let remove_res = fs::remove_file(full_file_path);
+          if remove_res.is_err() {
+            let err = remove_res.err().unwrap();
+            return format!("{{ \"error\": \"{}\"}}", err.to_string());
+          }
+
+          logger::log_to_core_file(app_handle.to_owned(), format!("Deleted {}.", filename_str).as_str(), 0);
+        }
+      }
+    }
+  }
+
+
+  logger::log_to_core_file(app_handle.to_owned(), format!("{} grid cleaning complete.", preset).as_str(), 0);
+
+  return serde_json::to_string(&conflicts).expect("Should have been able to serialize conflict array.");
+}
+
 
 /// Adds the user's steam directory to Tauri FS and Asset scope.
 fn add_steam_to_scope(app_handle: &AppHandle) {
@@ -462,7 +552,8 @@ fn main() {
       read_localconfig_vdf,
       save_changes,
       write_shortcuts,
-      download_grid
+      download_grid,
+      clean_grids
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);

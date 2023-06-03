@@ -9,7 +9,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -21,6 +21,7 @@
   import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
   import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
   import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
+    import CleanConflictDialog from "../../components/toast-modals/clean-grids/CleanConflictDialog.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -177,6 +178,9 @@
     {/if}
     {#if $showSettingsModal}
 		  <SettingsModal onClose={onSettingsModalClose} />
+    {/if}
+    {#if $showCleanConflictDialog}
+      <CleanConflictDialog />
     {/if}
 		<Splitpanes>
 			<Options />
