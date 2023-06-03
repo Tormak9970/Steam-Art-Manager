@@ -188,7 +188,7 @@
 	</div>
 	<Footer />
 </main>
-<div style="font-size: 14px;">
+<div class="core-toast">
   <SvelteToast />
 </div>
 
@@ -208,6 +208,14 @@
 
 		transition: opacity 0.1s ease-in-out;
 	}
+
+  .core-toast {
+    font-size: 14px;
+    --toastBorderRadius: 2px;
+    --toastBarHeight: 3px;
+    --toastWidth: 13rem;
+    --toastMinHeight: 3rem;
+  }
 
 	.wrap {
 		--toastContainerTop: 0.5rem;
