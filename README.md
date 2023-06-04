@@ -2,6 +2,7 @@
 ![Version Badge](https://img.shields.io/github/v/release/Tormak9970/Steam-Art-Manager?label=version&style=flat-square)
 ![Downloads Badge](https://img.shields.io/github/downloads/Tormak9970/Steam-Art-Manager/total?style=flat-square)
 ![License Badge](https://img.shields.io/github/license/Tormak9970/Steam-Art-Manager?style=flat-square)
+[![Translations](https://img.shields.io/badge/translations-help%20out-brightgreen?style=flat-square)](#translations)
 
 # Steam Art Manager
 A tool for setting the artwork of your Steam library.
@@ -20,7 +21,8 @@ A tool for setting the artwork of your Steam library.
 To get the most recent release, head to the [latest release](https://github.com/Tormak9970/Steam-Art-Manager/releases/latest) and download the installer for your platform.
 
 ### For Windows:
- - Download the `steam-art-manager.msi` file, and run it to install SARM.
+ - **Downloading from GitHub**: Download the `steam-art-manager.msi` file, and run it to install SARM.
+ - **Chocolatey**: run `choco install sarm`.
 
 ### For Linux:
   1. Download the `linux-installer.sh` bash script.
@@ -93,6 +95,12 @@ Once you have made your edits and are ready to share it with the world, run the 
 npm run tauri build
 ```
 This will generate a `.msi` file in `src-tauri/target/release/bundle/msi/app_name.msi`. And there you go, you've got a distributeable installer!
+
+<br/>
+
+## Translations
+Know a language other then English and want to help out? <br/>
+Shoot me an email (Tormak9970@gmail.com)!
 
 <br/>
 

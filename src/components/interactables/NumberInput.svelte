@@ -1,7 +1,7 @@
 <script lang="ts">
   export let label: string = "";
   export let value: number;
-  export let onChange: (e: Event, fieldName: string) => void;
+  export let onChange: (e: Event, fieldName: string) => void = () => {};
 
   let internalValue = "";
 
@@ -44,7 +44,7 @@
   <input
     type="text"
     placeholder={value.toString()}
-    value={value}
+    bind:value={value}
     on:change={wrapper}
     on:input={handleInput}
   />

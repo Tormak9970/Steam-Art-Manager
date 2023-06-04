@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, os, path, process } from "@tauri-apps/api";
+import { dialog, fs, http, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showGridModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -123,6 +123,10 @@ export class AppController {
       needsSteamKey.set(false);
     }
 
+    if (settings.manualSteamGames.length > 0) {
+      manualSteamGames.set(settings.manualSteamGames);
+    }
+
     theme.set(settings.theme);
     document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
 
@@ -149,7 +153,7 @@ export class AppController {
     });
 
     if (get(needsSGDBAPIKey)) {
-      WindowController.openSettingsWindow();
+      showSettingsModal.set(true);
     }
   }
 
@@ -176,6 +180,33 @@ export class AppController {
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
   }
+
+  /**
+   * Gets the id and grid type from a grids filename.
+   * @param gridName The filename of the grid.
+   * @returns A tuple of [appid, gridType].
+   */
+  private static getIdFromGridName(gridName: string): [string, string] {
+    const dotIndex = gridName.indexOf(".");
+    const underscoreIndex = gridName.indexOf("_");
+    const name = gridName.substring(0, dotIndex);
+  
+    if (underscoreIndex > 0) {
+      const id = name.substring(0, underscoreIndex);
+      const type = name.substring(underscoreIndex+1);
+  
+      return [id, type];
+    } else if (name.endsWith("p")) {
+      const id = name.substring(0, name.length - 1);
+      return [id, "capsule"];
+    } else {
+      if (gridName.substring(dotIndex+1) == "json") {
+        return [name, "logoposition"];
+      } else {
+        return [name, "wide_capsule"];
+      }
+    }
+  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
@@ -188,25 +219,27 @@ export class AppController {
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
+    const foundApps: string[] = [];
+
     for (const fileEntry of gridsDirContents) {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
       } else {
-        const firstUnderscore = fileEntry.name.indexOf("_") > 0 ? fileEntry.name.indexOf("_") : fileEntry.name.indexOf(".") - 1;
-        const appId = fileEntry.name.substring(0, firstUnderscore);
-        let type = "";
-        if (fileEntry.name.indexOf("_") > 0) {
-          type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
-        } else {
-          type = (fileEntry.name.includes("p")) ? "capsule" : "wide_capsule";
-        }
+        const [appid, type] = AppController.getIdFromGridName(fileEntry.name);
+        
+        const idTypeString = `${appid}_${type}`;
 
-        if (gridTypeLUT[type]) {
-          if (!resKeys.includes(appId)) {
-            resKeys.push(appId);
-            res[appId] = {} as LibraryCacheEntry;
+        if (foundApps.includes(idTypeString)) {
+          ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
+          LogController.warn(`Duplicate grid found for ${appid}.`);
+        } else {
+          if (gridTypeLUT[type]) {
+            if (!resKeys.includes(appid)) {
+              resKeys.push(appid);
+              res[appid] = {} as LibraryCacheEntry;
+            }
+            res[appid][gridTypeLUT[type]] = fileEntry.path;
           }
-          res[appId][gridTypeLUT[type]] = fileEntry.path;
         }
       }
     }
@@ -283,22 +316,35 @@ export class AppController {
    * ? Logging complete.
    */
   private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<GameStruct[]> {
+    const requestTimeout = get(requestTimeoutLength);
     LogController.log(`Loading games from Steam Community page...`);
 
-    const publicGamesXml = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
+    const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
-      responseType: http.ResponseType.Text
+      responseType: http.ResponseType.Text,
+      timeout: requestTimeout
     });
-    const xmlData = AppController.domParser.parseFromString(publicGamesXml.data, "text/xml");
-    const jsonStr = xml2json(xmlData, "");
-    const games = JSON.parse(jsonStr);
+    
+    if (res.ok) {
+      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
+      const jsonStr = xml2json(xmlData, "");
+      const games = JSON.parse(jsonStr);
 
-    return games.gamesList.games.game.map((game: any) => {
-      return {
-        "appid": parseInt(game.appID),
-        "name": game.name["#cdata"]
-      }
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+      return games.gamesList.games.game.map((game: any) => {
+        return {
+          "appid": parseInt(game.appID),
+          "name": game.name["#cdata"]
+        }
+      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+    } else {
+      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
+      const jsonStr = xml2json(xmlData, "");
+      const err = JSON.parse(jsonStr);
+
+      ToastController.showWarningToast("Error getting games from your profile.");
+      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
+      return [];
+    }
   }
 
   /**
@@ -308,9 +354,13 @@ export class AppController {
    * ? Logging complete.
    */
   private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<GameStruct[]> {
+    const requestTimeout = get(requestTimeoutLength);
     LogController.log(`Loading games from Steam API...`);
 
-    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`);
+    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+      method: "GET",
+      timeout: requestTimeout
+    });
 
     if (res.ok) {
       return res.data.response.games.map((game: any) => {
@@ -324,7 +374,6 @@ export class AppController {
       const jsonStr = xml2json(xmlData, "");
       const err = JSON.parse(jsonStr);
 
-      console.error(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
       ToastController.showWarningToast("Check your Steam API Key");
       LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
       return [];
@@ -431,6 +480,23 @@ export class AppController {
       
       LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
       LogController.log("Steam games loaded.");
+    }
+
+    const sGames = get(steamGames);
+    const originalManualGames = get(manualSteamGames);
+    let manualGames = originalManualGames.filter((manualGame) => {
+      const matchingSteamGame = sGames.find((sGame) => sGame.appid == manualGame.appid);
+      if (matchingSteamGame) {
+        LogController.warn(`Found manually added game with the same appid (${manualGame.appid}) as ${matchingSteamGame.name}. Removing it`);
+      }
+
+      return !matchingSteamGame;
+    });
+
+    if (manualGames.length != originalManualGames.length) {
+      SettingsManager.updateSetting("manualSteamGames", manualGames);
+      manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
+      ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }
     
     ToastController.remLoaderToast(id);
@@ -604,8 +670,9 @@ export class AppController {
    */
   static clearAllGrids(): void {
     const sGames = get(steamGames);
+    const manualSGames = get(manualSteamGames);
     const nonSGames = get(steamShortcuts);
-    const games = [...sGames, ...nonSGames];
+    const games = [...sGames, ...manualSGames, ...nonSGames];
 
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
@@ -685,32 +752,37 @@ export class AppController {
   static async setSteamGridArt(appId: number, url: URL): Promise<void> {
     let imgUrl = url.toString();
     if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
-
-    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
     const selectedGameId = get(selectedGameAppId);
     const gameName = get(selectedGameName);
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
 
-    if (!gameImages[selectedGameId]) {
-      // @ts-ignore
-      gameImages[selectedGameId] = {};
-    }
-
-    gameImages[selectedGameId][selectedGridType] = localPath;
+    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
     
-    if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
-      const shortcuts = get(steamShortcuts);
-      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
-      shortcut.icon = localPath;
-      steamShortcuts.set(shortcuts);
+    if (localPath) {
+
+      if (!gameImages[selectedGameId]) {
+        // @ts-ignore
+        gameImages[selectedGameId] = {};
+      }
+
+      gameImages[selectedGameId][selectedGridType] = localPath;
+      
+      if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
+        const shortcuts = get(steamShortcuts);
+        const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+        shortcut.icon = localPath;
+        steamShortcuts.set(shortcuts);
+      }
+
+      appLibraryCache.set(gameImages);
+      canSave.set(true);
+
+      LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
+    } else {
+      LogController.log(`Failed to set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
     }
-
-    appLibraryCache.set(gameImages);
-    canSave.set(true);
-
-    LogController.log(`Set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
   }
 
   /**
@@ -797,9 +869,10 @@ export class AppController {
     LogController.log("Prompting user to export.");
     const shortcuts = get(steamShortcuts);
     const games = get(steamGames);
+    const manualGames = get(manualSteamGames);
 
     let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [shortcut.appid.toString(), "nonsteam"]; });
-    platformEntries = platformEntries.concat(games.map((game) => { return [game.appid.toString(), "steam"]; }));
+    platformEntries = platformEntries.concat([...games, ...manualGames].map((game) => { return [game.appid.toString(), "steam"]; }));
     const platformIdMap = Object.fromEntries(platformEntries);
 
     const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcutId, shortcut.AppName]; });
@@ -826,6 +899,29 @@ export class AppController {
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
     return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId);
+  }
+
+  /**
+   * Looks through the grids in the user's grid folder, and deletes any for games that no longer exist.
+   * @param preset The selected preset for cleaning.
+   * @param selectedGameIds The list of ids of games to delete grids for.
+   */
+  static async cleanDeadGrids(preset: "clean" | "custom", selectedGameIds: string[], ): Promise<void> {
+    let appids = [
+      ...get(steamGames).map((game) => game.appid.toString()),
+      ...get(nonSteamGames).map((game) => game.appid.toString()),
+      ...get(manualSteamGames).map((game) => game.appid.toString()),
+    ];
+
+    const conflicts = await RustInterop.cleanGrids(get(activeUserId).toString(), preset as string, appids, selectedGameIds);
+    
+    if (conflicts.length > 0) {
+      cleanConflicts.set(conflicts);
+      showCleanConflictDialog.set(true);
+    } else {
+      ToastController.showSuccessToast("Finished cleaning!");
+      LogController.log("Finished cleaning!");
+    }
   }
 
   /**
@@ -858,8 +954,11 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    LogController.log(`Reloading...`);
-    await process.relaunch();
+    const shouldReload = await dialog.confirm("Are you sure you want to reload? Any changes will be lost!");
+    if (shouldReload) {
+      LogController.log(`Reloading...`);
+      await process.relaunch();
+    }
   }
 
   /**

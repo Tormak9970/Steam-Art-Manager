@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File, write}, io::Write};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit, fmt::Arguments};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -19,11 +19,11 @@ use shortcuts_vdf_parser::{open_shortcuts_vdf, write_shortcuts_vdf};
 use home::home_dir;
 
 use serde;
-use reqwest;
+use reqwest::{self, Client};
 use steam::get_steam_root_dir;
 use tauri::{
   AppHandle,
-  api::dialog::{blocking::FileDialogBuilder, self},
+  api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, self, MessageDialogButtons},
   FsScope, Manager
 };
 use keyvalues_parser::Vdf;
@@ -32,6 +32,17 @@ use keyvalues_parser::Vdf;
 struct Payload {
   args: Vec<String>,
   cwd: String,
+}
+
+#[derive(Clone, serde::Serialize)]
+#[allow(non_snake_case)]
+struct CleanConflicts {
+  fileAName: String,
+  fileAPath: String,
+  fileBName: String,
+  fileBPath: String,
+  appid: String,
+  gridType: String
 }
 
 type GridImageCache = HashMap<String, HashMap<String, String>>;
@@ -304,9 +315,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
       }
       logger::log_to_core_file(app_handle.to_owned(), format!("Removed logo position config for {}.", appid).as_str(), 0);
     } else {
-      // let config_file = fs::File::create(&logo_config_path).expect("Should have been able to create or truncate logo pos config file.");
-      
-      let write_res = write(&logo_config_path, steam_logo_str);
+      let write_res = fs::write(&logo_config_path, steam_logo_str);
   
       if write_res.is_ok() {
         logger::log_to_core_file(app_handle.to_owned(), format!("Wrote logo pos to config for {}.", appid).as_str(), 0);
@@ -383,23 +392,107 @@ async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, sh
 
 #[tauri::command]
 /// Downloads a file from a url.
-async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String) -> bool {
+async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String, timeout: u64) -> String {
   logger::log_to_core_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
+  
+  let http_client_res = reqwest::Client::builder().timeout(Duration::from_secs(timeout)).build();
+  let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
 
-  let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
-  let response = reqwest::get(grid_url.clone()).await.expect("Should have been able to await request.");
+  let response = http_client.get(grid_url.clone()).send().await.expect("Should have been able to await request.");
   let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
 
+  let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
   let write_res = dest_file.write_all(&response_bytes);
 
   if write_res.is_ok() {
     logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
-    return true;
+    return String::from("success");
   } else {
     let err = write_res.err().expect("Request failed, error should have existed.");
     logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
-    return false;
+    return String::from("failed");
   }
+}
+
+#[tauri::command]
+/// Downloads a file from a url.
+async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset: String, all_appids: String, selected_game_ids: String) -> String {
+  logger::log_to_core_file(app_handle.to_owned(), format!("Starting {} grid cleaning.", preset).as_str(), 0);
+  
+  let appids_arr: Vec<String> = serde_json::from_str(all_appids.as_str()).expect("Should have been able to deserialize appids array.");
+  
+  let grids_dir_path: String = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
+  let grids_dir_contents = fs::read_dir(grids_dir_path).unwrap();
+
+  let mut found_apps: HashMap<String, (String, String)> = HashMap::new();
+  let mut conflicts: Vec<CleanConflicts> = Vec::new();
+  
+  
+  if preset == String::from("clean") {
+    for dir_entry in grids_dir_contents {
+      let entry = dir_entry.expect("Should have been able to get directory entry.");
+  
+      if entry.file_type().unwrap().is_file() {
+        let full_file_path: PathBuf = entry.path();
+        let full_file_path_str: &str = full_file_path.to_str().unwrap();
+        let filename = entry.file_name();
+        let filename_str: &str = filename.to_str().unwrap();
+        
+        let (id, grid_type) = zip_controller::get_id_from_grid_name(filename_str);
+        let id_type_str: String = format!("{}_{}", id, grid_type);
+
+        if appids_arr.contains(&id) {
+          if found_apps.contains_key(&id_type_str) {
+            // ? There's a conflict
+            let (other_filename, other_full_path) = found_apps.get(&id_type_str).expect("Map should have contained the id_type_str.");
+
+            conflicts.push(CleanConflicts { fileAPath: other_full_path.to_owned(), fileAName: other_filename.to_owned(), fileBPath: String::from(full_file_path_str), fileBName: String::from(filename_str), appid: id.clone(), gridType: grid_type.clone() });
+            
+            logger::log_to_core_file(app_handle.to_owned(), format!("Detected conflict between {} and {}.", filename_str, other_filename).as_str(), 0);
+          } else {
+            found_apps.insert(id_type_str, (String::from(filename_str), String::from(full_file_path_str)));
+          }
+        } else {
+          let remove_res = fs::remove_file(full_file_path);
+          if remove_res.is_err() {
+            let err = remove_res.err().unwrap();
+            return format!("{{ \"error\": \"{}\"}}", err.to_string());
+          }
+
+          logger::log_to_core_file(app_handle.to_owned(), format!("Deleted {}.", filename_str).as_str(), 0);
+        }
+      }
+    }
+  } else {
+    let game_ids_arr: Vec<String> = serde_json::from_str(selected_game_ids.as_str()).expect("Should have been able to deserialize selected appids array.");
+
+    for dir_entry in grids_dir_contents {
+      let entry = dir_entry.expect("Should have been able to get directory entry.");
+  
+      if entry.file_type().unwrap().is_file() {
+        let full_file_path: PathBuf = entry.path();
+        let filename = entry.file_name();
+        let filename_str: &str = filename.to_str().unwrap();
+        
+        let (id, _) = zip_controller::get_id_from_grid_name(filename_str);
+
+        if game_ids_arr.contains(&id) {
+          let remove_res = fs::remove_file(full_file_path);
+          if remove_res.is_err() {
+            let err = remove_res.err().unwrap();
+            return format!("{{ \"error\": \"{}\"}}", err.to_string());
+          }
+
+          logger::log_to_core_file(app_handle.to_owned(), format!("Deleted {}.", filename_str).as_str(), 0);
+        }
+      }
+    }
+  }
+
+
+  logger::log_to_core_file(app_handle.to_owned(), format!("{} grid cleaning complete.", preset).as_str(), 0);
+
+  return serde_json::to_string(&conflicts).expect("Should have been able to serialize conflict array.");
 }
 
 
@@ -459,17 +552,56 @@ fn main() {
       read_localconfig_vdf,
       save_changes,
       write_shortcuts,
-      download_grid
+      download_grid,
+      clean_grids
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);
 
       app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
     }))
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .setup(| app | {
       let app_handle = app.handle();
+      let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
+      
       logger::clean_out_log(app_handle.clone());
       add_steam_to_scope(&app_handle);
+
+      panic::set_hook(Box::new(move | panic_info | {
+        let path_str = (*log_file_path).to_owned();
+        let log_file_path_buf: PathBuf = PathBuf::from(path_str);
+
+        let location_res: Option<&Location> = panic_info.location();
+        // let message_res = panic_info.message();
+        let message_res: Option<&Arguments> = None;
+
+        let mut log_message: String = String::from("Panic occured but no additional info was provided!");
+
+        if location_res.is_some() && message_res.is_some() {
+          let location = location_res.expect("Should have been able to get panic location");
+          let message = message_res.expect("Should have been able to get panic message");
+          log_message = format!("PANIC: File '{}' at line {}: {}", location.file(), location.line(), message).to_string();
+        } else if location_res.is_some() {
+          let location = location_res.expect("Should have been able to get panic location");
+          log_message = format!("PANIC: File '{}' at line {}: No provided message", location.file(), location.line()).to_string();
+        } else if message_res.is_some() {
+          let message = message_res.expect("Should have been able to get panic message");
+          log_message = format!("PANIC: File 'UNKOWN' at line UNKOWN: {}", message).to_string();
+        }
+
+        logger::log_to_file(&log_file_path_buf, &log_message, 2);
+        logger::log_to_file(&log_file_path_buf, "Please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues", 2);
+
+        let hit_ok = MessageDialogBuilder::new("SARM Panic!", "Check your log file for more information, and please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues")
+          .buttons(MessageDialogButtons::Ok)
+          .show();
+
+        if hit_ok {
+          exit(1);
+        }
+      }));
+
       Ok(())
     })
     .run(tauri::generate_context!())

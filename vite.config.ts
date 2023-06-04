@@ -69,8 +69,7 @@ export default defineConfig(async () => ({
 
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/windows/main/main.html'),
-        settings: resolve(__dirname, 'src/windows/settings/settings.html')
+        main: resolve(__dirname, 'src/windows/main/main.html')
       },
       external: [
         "/public/progress-images"
