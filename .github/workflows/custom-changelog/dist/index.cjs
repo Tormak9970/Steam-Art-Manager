@@ -265,7 +265,7 @@ function filterChangeLog(changelog) {
         fixes.push(logLine);
       }
       else if (logLine.includes("* build:")) {
-        fibuildsxes.push(logLine);
+        builds.push(logLine);
       }
     });
     if (feats.length > 0)
