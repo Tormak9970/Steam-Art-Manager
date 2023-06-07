@@ -2,6 +2,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
+    import { throttle } from "../../../lib/utils/Utils";
 
   import { dowloadingGridId, gridType } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
@@ -15,6 +16,7 @@
    * Sets this grid to be the current grid for the selected game.
    */
   function selectGame() {
+    // throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
     AppController.setSteamGridArt(grid.id, grid.url);
   }
 </script>
