@@ -140,6 +140,7 @@
     });
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
+      $selectedSteamGridGameId = null;
       await filterGridsOnStateChange($steamGridDBKey, $isOnline, id, $gridType, $selectedResultPage, $dbFilters);
       
       setAvailableSgdbGamesOnStateChange($steamGridSearchCache, id);
