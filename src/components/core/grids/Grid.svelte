@@ -11,13 +11,13 @@
   export let grid: SGDBImage;
 
   let imagePath = grid.thumb.toString();
+  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
 
   /**
    * Sets this grid to be the current grid for the selected game.
    */
   function selectGame() {
-    // throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
-    AppController.setSteamGridArt(grid.id, grid.url);
+    onSelect();
   }
 </script>
 
