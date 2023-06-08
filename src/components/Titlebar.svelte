@@ -34,8 +34,6 @@
           const success = await exit(0);
           LogController.log(`Program exited: ${success}`);
         }
-      } else if (title == "Settings") {
-        await WindowController.closeSettingsWindow();
       }
     });
   });

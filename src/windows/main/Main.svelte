@@ -9,15 +9,19 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
-    import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
-    import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
-    import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
+  import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
+  import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
+  import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
+  import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
+  import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
+  import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
+    import CleanConflictDialog from "../../components/toast-modals/clean-grids/CleanConflictDialog.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -64,6 +68,27 @@
 	function onLogoPositionModalClose() {
 		$showLogoPositionModal = false;
 	}
+
+  /**
+   * Function to run when the manage manual games modal is closed.
+   */
+  function onManageManualGamesModalClose() {
+    $showManualGamesModal = false;
+  }
+
+  /**
+   * Function to run when the add manual games modal is closed.
+   */
+  function onSettingsModalClose() {
+    $showSettingsModal = false;
+  }
+
+  /**
+   * Function to run when the clean grids modal is closed.
+   */
+  function onCleanGridsModalClose() {
+    $showCleanGridsModal = false;
+  }
 
   /**
    * Handler for all main window errors.
@@ -130,10 +155,12 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" placement="right" />
+		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" tooltipPosition="right" />
   </Titlebar>
 	<div class="content">
-		<GridPreviewModal show={$showGridModal} onClose={onGridModalClose} />
+    {#if $showGridModal}
+		  <GridPreviewModal onClose={onGridModalClose} />
+    {/if}
     {#if $showBatchApplyProgress}
 		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
     {/if}
@@ -142,6 +169,18 @@
     {/if}
     {#if $showLogoPositionModal}
 		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+    {/if}
+    {#if $showManualGamesModal}
+		  <ManualGamesModal onClose={onManageManualGamesModalClose} />
+    {/if}
+    {#if $showCleanGridsModal}
+		  <CleanGridsModal onClose={onCleanGridsModalClose} />
+    {/if}
+    {#if $showSettingsModal}
+		  <SettingsModal onClose={onSettingsModalClose} />
+    {/if}
+    {#if $showCleanConflictDialog}
+      <CleanConflictDialog />
     {/if}
 		<Splitpanes>
 			<Options />
@@ -153,7 +192,9 @@
 	</div>
 	<Footer />
 </main>
-<SvelteToast />
+<div class="core-toast">
+  <SvelteToast />
+</div>
 
 <style>
 	@import "/theme.css";
@@ -172,6 +213,14 @@
 		transition: opacity 0.1s ease-in-out;
 	}
 
+  .core-toast {
+    font-size: 14px;
+    --toastBorderRadius: 2px;
+    --toastBarHeight: 3px;
+    --toastWidth: 13rem;
+    --toastMinHeight: 3rem;
+  }
+
 	.wrap {
 		--toastContainerTop: 0.5rem;
 		--toastContainerRight: 0.5rem;
@@ -181,7 +230,7 @@
 		--toastWidth: 26rem !important;
 		--toastMinHeight: 100px;
 		--toastPadding: 0 0.5rem !important;
-		font-size: 0.875rem;
+		font-size: 14px;
 	}
 	@media (min-width: 40rem) {
 		.wrap {

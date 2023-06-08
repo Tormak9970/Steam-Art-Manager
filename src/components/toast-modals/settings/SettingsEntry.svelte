@@ -1,8 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
-
-  import TextInput from "../../components/interactables/TextInput.svelte";
-  import VerticalSpacer from "../../components/spacers/VerticalSpacer.svelte";
+  import TextInput from "../../interactables/TextInput.svelte";
+  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
 
   export let label: string;
   export let description: string;
@@ -54,7 +53,7 @@
     align-items: flex-start;
     margin: 0px 14px;
 
-    background-color: var(--background);
+    background-color: var(--background-dark);
     padding: 6px;
     border-radius: 2px;
   }

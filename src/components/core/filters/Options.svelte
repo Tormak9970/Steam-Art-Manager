@@ -54,7 +54,7 @@
   
   <div class="content" style="height: 36px;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <Toggle label="Dark Mode" checked={$theme == 0} onChange={onDarkModeChange}/>
+      <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
     </div>
     
     <div class="border" />
@@ -71,7 +71,7 @@
         {#each Object.keys($dbFilters[$gridType][section]) as filter}
           <Toggle
             label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-            checked={$dbFilters[$gridType][section][filter]}
+            value={$dbFilters[$gridType][section][filter]}
             onChange={updateFilters(section, filter)}
           />
           <VerticalSpacer />
