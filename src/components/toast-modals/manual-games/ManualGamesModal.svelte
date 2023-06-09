@@ -8,7 +8,7 @@
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache } from "../../../Stores";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../Stores";
     import { LogController } from "../../../lib/controllers/LogController";
     import { SettingsManager } from "../../../lib/utils/SettingsManager";
     import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -32,9 +32,14 @@
    */
   function addNewGame(game: GameStruct): void {
     LogController.log(`Added manually added game ${game.name}.`);
-    tempManualGames.push(game);
-    tempManualGames = [...tempManualGames];
-    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+
+    if ($steamGames.find((sGame) => sGame.appid == game.appid) || tempManualGames.find((tGame) => tGame.appid == game.appid)) {
+      ToastController.showWarningToast(`Game with that appid already exists! Can't have duplicates.`);
+    } else {
+      tempManualGames.push(game);
+      tempManualGames = [...tempManualGames];
+      canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+    }
   }
 
   /**
