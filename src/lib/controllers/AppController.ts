@@ -125,6 +125,7 @@ export class AppController {
 
     if (settings.manualSteamGames.length > 0) {
       manualSteamGames.set(settings.manualSteamGames);
+      LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
     }
 
     theme.set(settings.theme);
@@ -286,7 +287,8 @@ export class AppController {
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
+    // const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId)); //! Removed this because it caused issues with games with no grids
+    const filtered = entries;
     return Object.fromEntries(filtered);
   }
 

@@ -8,7 +8,7 @@
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
-  import { manualSteamGames } from "../../../Stores";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache } from "../../../Stores";
     import { LogController } from "../../../lib/controllers/LogController";
     import { SettingsManager } from "../../../lib/utils/SettingsManager";
     import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -55,6 +55,18 @@
   async function saveChanges() {
     // TODO: update state
     manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
+
+    const originalAppLibCache = $originalAppLibraryCache;
+    const appLibCache = $appLibraryCache;
+
+    for (const game of tempManualGames) {
+      if (!originalAppLibCache[game.appid]) originalAppLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
+      if (!appLibCache[game.appid]) appLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
+    }
+
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
+    appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
+
     // TODO: save settings
     SettingsManager.updateSetting("manualSteamGames", tempManualGames);
     // TODO: log

@@ -2,7 +2,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
-    import { throttle } from "../../../lib/utils/Utils";
+  import { throttle } from "../../../lib/utils/Utils";
 
   import { dowloadingGridId, gridType } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
