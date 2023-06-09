@@ -5,7 +5,7 @@
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, showLogoPositionModal, appLibraryCache } from "../../../Stores";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, showLogoPositionModal, appLibraryCache, manualSteamGames } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -18,6 +18,7 @@
   import { filterGrids } from "../../../lib/utils/Utils";
 
   let steamGridSearchCacheUnsub: Unsubscriber;
+  let manualGamesUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
@@ -106,6 +107,14 @@
     }
   }
 
+function resetGridStores(): void {
+  availableSteamGridGames = [{ label: "None", data: "None"}];
+  $selectedGameAppId = null;
+  $selectedGameName = null;
+  $selectedSteamGridGameId = "None";
+  grids = [];
+}
+
   /**
    * Filters the grids based when relevant state changes.
    * @param sgdbApiKey The user's SGDB API key.
@@ -129,18 +138,22 @@
       isLoading = false;
     });
 
+    manualGamesUnsub = manualSteamGames.subscribe((games) => {
+      if ($selectedGameAppId && !games.find((game) => game.appid == $selectedGameAppId)) {
+        isLoading = true;
+        resetGridStores();
+        isLoading = false;
+      }
+    });
+
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       isLoading = true;
-      availableSteamGridGames = [{ label: "None", data: "None"}];
-      $selectedGameAppId = null;
-      $selectedGameName = null;
-      $selectedSteamGridGameId = "None";
-      grids = [];
+      resetGridStores();
       isLoading = false;
     });
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
-      $selectedSteamGridGameId = null;
+      $selectedSteamGridGameId = "None";
       await filterGridsOnStateChange($steamGridDBKey, $isOnline, id, $gridType, $selectedResultPage, $dbFilters);
       
       setAvailableSgdbGamesOnStateChange($steamGridSearchCache, id);
@@ -167,11 +180,7 @@
       if (key != "" && AppController.sgdbClientInitialized()) {
         await filterGridsOnStateChange(key, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters);
       } else {
-        availableSteamGridGames = [{ label: "None", data: "None"}];
-        $selectedGameAppId = null;
-        $selectedGameName = null;
-        $selectedSteamGridGameId = "None";
-        grids = [];
+        resetGridStores();
       }
       isLoading = false;
     });
@@ -184,6 +193,7 @@
 
   onDestroy(() => {
     if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
+    if (manualGamesUnsub) manualGamesUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
