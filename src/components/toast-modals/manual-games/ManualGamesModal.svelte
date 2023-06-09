@@ -57,7 +57,6 @@
    * Adds all of the provided games.
    */
   async function saveChanges() {
-    // TODO: update state
     manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
 
     const originalAppLibCache = $originalAppLibraryCache;
@@ -71,12 +70,10 @@
     originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
     appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
 
-    // TODO: save settings
     SettingsManager.updateSetting("manualSteamGames", tempManualGames);
-    // TODO: log
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
-    // TODO: toast
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
+
     onClose();
   }
 
@@ -96,7 +93,7 @@
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
       <VerticalSpacer />
-      <VerticalSpacer />
+      <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
       <Table>
         <span slot="header">
           <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
@@ -140,7 +137,7 @@
         </div>
         <VerticalSpacer />
       </div>
-      <div class="game-section-label">Game Info</div>
+      <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
       <VerticalSpacer />
       {#if selectedAddMethod == "search"}
@@ -209,9 +206,9 @@
     margin-top: 7px;
   }
 
-  .game-section-label {
+  .section-label {
     margin-top: 8px;
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .buttons {
