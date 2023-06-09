@@ -31,11 +31,10 @@
    * @param game The new game to add.
    */
   function addNewGame(game: GameStruct): void {
-    LogController.log(`Added manually added game ${game.name}.`);
-
     if ($steamGames.find((sGame) => sGame.appid == game.appid) || tempManualGames.find((tGame) => tGame.appid == game.appid)) {
       ToastController.showWarningToast(`Game with that appid already exists! Can't have duplicates.`);
     } else {
+      LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
       tempManualGames = [...tempManualGames];
       canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
