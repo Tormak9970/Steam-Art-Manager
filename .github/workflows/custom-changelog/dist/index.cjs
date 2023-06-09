@@ -244,7 +244,7 @@ function calcTrueNewVersionFromLog(currentVersion, changelog) {
         if (logLine.includes("* feat:")) {
             numFeats++;
         }
-        else if (logLine.includes("* fix:")) {
+        else if (logLine.includes("* fix:") || logLine.includes("* build:")) {
             numFixes++;
         }
     });
@@ -256,19 +256,24 @@ function filterChangeLog(changelog) {
     let output = [];
     let fixes = [];
     let feats = [];
+    let builds = [];
     changelog.split("\n").forEach((logLine, i) => {
-        core.info(`LogLine ${i}: ${logLine}`);
-        if (logLine.includes("* feat:")) {
-            feats.push(logLine);
-        }
-        else if (logLine.includes("* fix:")) {
-            fixes.push(logLine);
-        }
+      if (logLine.includes("* feat:")) {
+        feats.push(logLine);
+      }
+      else if (logLine.includes("* fix:")) {
+        fixes.push(logLine);
+      }
+      else if (logLine.includes("* build:")) {
+        builds.push(logLine);
+      }
     });
     if (feats.length > 0)
-        output.push("New Features:", ...feats, "");
+      output.push("New Features:", ...feats, "");
     if (fixes.length > 0)
-        output.push("Bug Fixes:", ...fixes, "");
+      output.push("Bug Fixes:", ...fixes, "");
+    if (builds.length > 0)
+      output.push("Build Pipeline Improvements:", ...builds, "");
     return output.join("\n");
 }
 function run() {

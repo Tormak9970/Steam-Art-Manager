@@ -32,13 +32,14 @@ export enum Theme {
 
 export const theme = sharedStore(Theme.DARK, "theme");
 
+export const requestTimeoutLength = writable(5000);
+
 export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
 export const needsSteamKey = sharedStore(true, "needsSteamKey");
 
 export const steamGridDBKey = sharedStore("", "steamGridDBKey");
 export const steamKey = sharedStore("", "steamKey");
 export const selectedResultPage = writable(0);
-
 
 export const canSave = writable(false);
 export const isOnline = writable(false);
@@ -62,6 +63,7 @@ export const steamShortcuts: Writable<SteamShortcut[]> = writable([]);
 export const steamGames: Writable<GameStruct[]> = writable([]);
 export const nonSteamGames: Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds: Writable<number[]> = writable([]);
+export const manualSteamGames: Writable<GameStruct[]> = writable([]);
 
 export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
@@ -87,6 +89,15 @@ export const batchApplyWasCancelled = writable(false);
 export const batchApplyProgress = writable(0);
 export const batchApplyMessage = writable("Starting batch job...");
 export const showBatchApplyProgress = writable(false);
+
+export const showManualGamesModal = writable(false);
+
+export const showCleanGridsModal = writable(false);
+
+export const showSettingsModal = writable(false);
+
+export const showCleanConflictDialog = writable(false);
+export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate, createEventDispatcher } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { fly, fade } from "svelte/transition";
 
   // Props

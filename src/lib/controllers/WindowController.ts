@@ -37,23 +37,4 @@ export class WindowController {
     await targetWindow.hide();
     await targetWindow.setFocus();
   }
-
-  /**
-   * Opens the settings window.
-   * ? Logging Complete.
-   */
-  static async openSettingsWindow(): Promise<void> {
-    LogController.log("Opening settings window.");
-    await WindowController.settingsWindow.show();
-    await WindowController.settingsWindow.setFocus();
-  }
-
-  /**
-   * Closes the settings window.
-   * ? Logging Complete.
-   */
-  static async closeSettingsWindow(): Promise<void> {
-    LogController.log("Closing settings window.");
-    await WindowController.settingsWindow.hide();
-  }
 }

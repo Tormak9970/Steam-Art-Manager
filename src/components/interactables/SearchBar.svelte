@@ -1,14 +1,15 @@
 <script lang="ts">
   import LoadingSpinner from "../info/LoadingSpinner.svelte";
 
+  export const setSearchFocus = () => { searchInput.focus(); }
+
   export let label: string;
   export let value = "";
   export let width = "200px";
   export let interval = 300;
+  export let reversed = false;
+  export let updateOnInput = true;
   export let onChange: (query:string) => void = () => {};
-  export const setSearchFocus = () => {
-    searchInput.focus();
-  }
 
   let searching = false;
   let timeout:NodeJS.Timeout|null;
@@ -31,13 +32,27 @@
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(inputWrapper, interval);
   }
+
+  /**
+   * Wrapper to check if search should be done on each input.
+   */
+  function onInputWrapper() {
+    if (updateOnInput) handleSearch();
+  }
+
+  /**
+   * Wrapper to check if search should be done only on input changes.
+   */
+  function onChangeWrapper() {
+    if (!updateOnInput) handleSearch();
+  }
 </script>
 
-<div class="search-bar" style="width: {width};">
-  <div class="spinner-cont" class:showing={searching}>
+<div class="search-bar" style="width: {width}; flex-direction: {reversed ? "row-reverse" : "row"};">
+  <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 7px;" class:showing={searching}>
     <LoadingSpinner width="20px" height="20px" />
   </div>
-  <input style="width: {width}px;" type="text" placeholder="{label}" on:input="{handleSearch}" bind:value={value} bind:this={searchInput}>
+  <input style="width: {width}px;" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
 </div>
 
 <style>
@@ -65,7 +80,6 @@
 
   .spinner-cont {
     visibility: hidden;
-    margin-right: 7px;
     display: flex;
   }
 

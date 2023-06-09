@@ -32,7 +32,7 @@ pub fn get_batch_apply_log_path(app_handle: &AppHandle) -> PathBuf {
 }
 
 /// General function to log a message to the provided file.
-fn log_to_file(log_path: &PathBuf, message: &str, level: u8) {
+pub fn log_to_file(log_path: &PathBuf, message: &str, level: u8) {
   let log_file_res = OpenOptions::new()
     .create(true)
     .write(true)

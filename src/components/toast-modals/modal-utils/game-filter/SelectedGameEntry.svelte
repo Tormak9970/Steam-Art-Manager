@@ -1,5 +1,6 @@
 <script lang="ts">
-  import Checkbox from "../../interactables/Checkbox.svelte";
+    import { Platforms } from "../../../../Stores";
+  import Checkbox from "../../../interactables/Checkbox.svelte";
 
   export let game: GameStruct;
   export let platform: string;
@@ -12,7 +13,7 @@
     <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
   </div>
   <div class="name">{game.name}</div>
-  <div class="platform">{platform}</div>
+  <div class="platform" style="margin-left: auto; margin-right: {platform == Platforms.STEAM ? "47px" : "20px"};">{platform}</div>
 </div>
 
 <style>
@@ -43,9 +44,6 @@
   }
 
   .platform {
-    margin-left: 85px;
-    margin-right: 7px;
-    
     font-size: 12px;
     user-select: none;
   }

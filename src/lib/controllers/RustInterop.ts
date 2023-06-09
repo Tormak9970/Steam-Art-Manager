@@ -200,9 +200,28 @@ export class RustInterop {
    * Downloads a file to the provided destination from a given url.
    * @param gridUrl The url of the grid to download.
    * @param destPath The path to write the file to.
+   * @param timeout The time before the request times out.
    * @returns A promise resolving to true if the file was successfully downloaded.
    */
-  static async downloadGrid(gridUrl: string, destPath: string): Promise<boolean> {
-    return await invoke<boolean>("download_grid", { gridUrl: gridUrl, destPath: destPath });
+  static async downloadGrid(gridUrl: string, destPath: string, timeout: number): Promise<string> {
+    let timedOut = false;
+
+    setTimeout(() => timedOut = true, timeout - 1);
+
+    const status = await invoke<string>("download_grid", { gridUrl: gridUrl, destPath: destPath, timeout: timeout });
+
+    return timedOut ? "timedOut" : status;
+  }
+
+  /**
+   * Cleans the grids directory.
+   * @param steamActiveUserId The id of the active user.
+   * @param preset The selected cleaning preset.
+   * @param allAppids The list of all known appids;
+   * @param selectedGameIds The list of game ids to clean.
+   * @returns A promise resolving to an array of CleanConflicts.
+   */
+  static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
+    return JSON.parse(await invoke<string>("clean_grids", { steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
   }
 }

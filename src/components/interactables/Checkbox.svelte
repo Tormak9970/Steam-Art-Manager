@@ -13,7 +13,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="check-box-container" on:click={check}>
-  <input type="checkbox" name="" id="" bind:checked={value}>
+  <input type="checkbox" id="" bind:checked={value}>
   <span class="check-box">
     {#if value}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -35,6 +35,7 @@
     height: 16px;
     width: 16px;
 
+    border-radius: 2px;
     border: 1px solid #000;
   }
 
@@ -58,10 +59,18 @@
     
     transition: background-color 0.15s ease-in-out;
 
-    fill: var(--highlight)
+    fill: var(--highlight);
+  }
+
+  :global([data-theme="light"] .check-box) {
+    background-color: var(--foreground-light) !important;
   }
 
   .check-box-container:hover input ~ .check-box {
     background-color: var(--foreground-light);
+  }
+
+  :global([data-theme="light"] .check-box-container:hover input ~ .check-box) {
+    background-color: var(--foreground-light-hover) !important;
   }
 </style>

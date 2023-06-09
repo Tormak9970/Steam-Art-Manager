@@ -4,5 +4,6 @@
   "theme": 0,
   "steamGridDbApiKey": "",
   "steamApiKeyMap": {},
-  "hiddenGameIds": []
+  "hiddenGameIds": [],
+  "manualSteamGames": []
 }
