@@ -125,6 +125,7 @@ export class AppController {
 
     if (settings.manualSteamGames.length > 0) {
       manualSteamGames.set(settings.manualSteamGames);
+      LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
     }
 
     theme.set(settings.theme);
@@ -171,7 +172,7 @@ export class AppController {
       if (!isNaN(id)) {
         const contents = await fs.readTextFile(logoConfig.path);
         const jsonContents = JSON.parse(contents);
-        configs[id] = jsonContents;
+        if (jsonContents.logoPosition) configs[id] = jsonContents;
       }
     }
 
@@ -286,7 +287,8 @@ export class AppController {
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
+    // const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId)); //! Removed this because it caused issues with games with no grids
+    const filtered = entries;
     return Object.fromEntries(filtered);
   }
 
@@ -529,6 +531,7 @@ export class AppController {
       const originalPos = originalLogoPos[appid]?.logoPosition;
       const logoPos = steamLogo.logoPosition;
 
+      if (!logoPos) continue;
       if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
         logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
       }
@@ -555,7 +558,7 @@ export class AppController {
 
       let logoPosEntries = Object.entries(steamLogoPos);
       logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
-        return logoPos.logoPosition.pinnedPosition != "REMOVE"
+        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition != "REMOVE"
       });
 
       originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));

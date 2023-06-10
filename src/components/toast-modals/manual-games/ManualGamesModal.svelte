@@ -8,7 +8,7 @@
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
-  import { manualSteamGames } from "../../../Stores";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../Stores";
     import { LogController } from "../../../lib/controllers/LogController";
     import { SettingsManager } from "../../../lib/utils/SettingsManager";
     import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -31,10 +31,14 @@
    * @param game The new game to add.
    */
   function addNewGame(game: GameStruct): void {
-    LogController.log(`Added manually added game ${game.name}.`);
-    tempManualGames.push(game);
-    tempManualGames = [...tempManualGames];
-    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+    if ($steamGames.find((sGame) => sGame.appid == game.appid) || tempManualGames.find((tGame) => tGame.appid == game.appid)) {
+      ToastController.showWarningToast(`Game with that appid already exists! Can't have duplicates.`);
+    } else {
+      LogController.log(`Added manually added game ${game.name}.`);
+      tempManualGames.push(game);
+      tempManualGames = [...tempManualGames];
+      canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+    }
   }
 
   /**
@@ -53,14 +57,23 @@
    * Adds all of the provided games.
    */
   async function saveChanges() {
-    // TODO: update state
     manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
-    // TODO: save settings
+
+    const originalAppLibCache = $originalAppLibraryCache;
+    const appLibCache = $appLibraryCache;
+
+    for (const game of tempManualGames) {
+      if (!originalAppLibCache[game.appid]) originalAppLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
+      if (!appLibCache[game.appid]) appLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
+    }
+
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
+    appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
+
     SettingsManager.updateSetting("manualSteamGames", tempManualGames);
-    // TODO: log
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
-    // TODO: toast
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
+
     onClose();
   }
 
@@ -80,7 +93,7 @@
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
       <VerticalSpacer />
-      <VerticalSpacer />
+      <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
       <Table>
         <span slot="header">
           <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
@@ -124,7 +137,7 @@
         </div>
         <VerticalSpacer />
       </div>
-      <div class="game-section-label">Game Info</div>
+      <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
       <VerticalSpacer />
       {#if selectedAddMethod == "search"}
@@ -193,9 +206,9 @@
     margin-top: 7px;
   }
 
-  .game-section-label {
+  .section-label {
     margin-top: 8px;
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .buttons {
