@@ -558,7 +558,7 @@ export class AppController {
 
       let logoPosEntries = Object.entries(steamLogoPos);
       logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
-        return logoPos.logoPosition.pinnedPosition != "REMOVE"
+        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition != "REMOVE"
       });
 
       originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
