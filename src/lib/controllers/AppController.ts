@@ -531,6 +531,7 @@ export class AppController {
       const originalPos = originalLogoPos[appid]?.logoPosition;
       const logoPos = steamLogo.logoPosition;
 
+      if (!logoPos) continue;
       if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
         logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
       }
