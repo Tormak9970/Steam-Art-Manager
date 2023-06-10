@@ -564,7 +564,6 @@ fn main() {
 
       app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
     }))
-    .plugin(tauri_plugin_window_state::Builder::default().build())
     .setup(| app | {
       let app_handle = app.handle();
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
