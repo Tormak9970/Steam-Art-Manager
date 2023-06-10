@@ -172,7 +172,7 @@ export class AppController {
       if (!isNaN(id)) {
         const contents = await fs.readTextFile(logoConfig.path);
         const jsonContents = JSON.parse(contents);
-        configs[id] = jsonContents;
+        if (jsonContents.logoPosition) configs[id] = jsonContents;
       }
     }
 
