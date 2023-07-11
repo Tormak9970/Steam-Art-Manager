@@ -5,7 +5,7 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Button from "../../interactables/Button.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
-    import ModalBody from "../modal-utils/ModalBody.svelte";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
 
   export let onClose: () => void;
@@ -35,6 +35,8 @@
     canSave = false;
 
     ToastController.showSuccessToast("Settings saved!");
+
+    onClose();
   }
 
   function cancel() {
@@ -46,6 +48,8 @@
     LogController.log("Reverted settings.");
     
     canSave = false;
+
+    onClose();
   }
 
   /**

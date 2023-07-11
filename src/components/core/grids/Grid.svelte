@@ -2,6 +2,7 @@
   import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
+  import { throttle } from "../../../lib/utils/Utils";
 
   import { dowloadingGridId, gridType } from "../../../Stores";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
@@ -10,12 +11,13 @@
   export let grid: SGDBImage;
 
   let imagePath = grid.thumb.toString();
+  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
 
   /**
    * Sets this grid to be the current grid for the selected game.
    */
   function selectGame() {
-    AppController.setSteamGridArt(grid.id, grid.url);
+    onSelect();
   }
 </script>
 

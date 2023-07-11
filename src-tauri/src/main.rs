@@ -23,7 +23,7 @@ use reqwest::{self, Client};
 use steam::get_steam_root_dir;
 use tauri::{
   AppHandle,
-  api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, self, MessageDialogButtons},
+  api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
   FsScope, Manager
 };
 use keyvalues_parser::Vdf;
@@ -526,9 +526,13 @@ fn add_steam_to_scope(app_handle: &AppHandle) {
     let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
     logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
 
-    let main_window = app_handle.get_window("main").expect("Main window should always exist.");
-    dialog::message(Some(&main_window), "SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.");
-    app_handle.exit(0);
+    let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
+      .buttons(MessageDialogButtons::Ok)
+      .show();
+
+    if hit_ok {
+      exit(1);
+    }
   }
 }
 
@@ -560,7 +564,6 @@ fn main() {
 
       app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
     }))
-    .plugin(tauri_plugin_window_state::Builder::default().build())
     .setup(| app | {
       let app_handle = app.handle();
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
