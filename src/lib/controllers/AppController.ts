@@ -286,8 +286,8 @@ export class AppController {
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
-    return Object.fromEntries(filtered);
+    // const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId));
+    return Object.fromEntries(entries);
   }
 
   /**
