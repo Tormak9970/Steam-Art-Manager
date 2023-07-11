@@ -287,8 +287,8 @@ export class AppController {
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    // const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId)); //! Removed this because it caused issues with games with no grids
-    const filtered = entries;
+    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
+    // const filtered = entries;
     return Object.fromEntries(filtered);
   }
 
@@ -450,7 +450,7 @@ export class AppController {
     const filteredKeys = Object.keys(filteredCache);
 
     if (online && !needsSteamAPIKey) {
-      const apiGames = await this.getGamesFromSteamAPI(bUserId);
+      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
       console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
@@ -458,7 +458,7 @@ export class AppController {
       LogController.log("Steam games loaded.");
     } else if (online) {
       try {
-        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => !entry.name.toLowerCase().includes("soundtrack"));
+        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
         console.log("Public Games:", publicGames);
         steamGames.set(publicGames);
         
