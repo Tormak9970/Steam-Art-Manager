@@ -16,6 +16,7 @@ A tool for setting the artwork of your Steam library.
  - View the art available on SteamGridDB for your games
  - Upload custom images
  - Import and Export your art to a zip file
+ - Clean out unused grid images easily
 
 ## Download and Install
 To get the most recent release, head to the [latest release](https://github.com/Tormak9970/Steam-Art-Manager/releases/latest) and download the installer for your platform.
@@ -56,6 +57,9 @@ In order to export the zip, simply wait for your games to load, and click the "E
 
 ### Importing from a Zip
 To import a zip, click the "Import Zip" button and select your zip file and just like that all of your game art should be updated!
+
+### Cleaning "Dead" Grids
+Sometimes Steam randomly changes the appid of non steam games, which leads to having a lot of images that aren't in use. To remove these, click the broom icon, and choose the settings you would like to use.
 
 <br/>
 

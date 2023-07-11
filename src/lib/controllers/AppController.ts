@@ -450,7 +450,7 @@ export class AppController {
     const filteredKeys = Object.keys(filteredCache);
 
     if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
+      const apiGames = await this.getGamesFromSteamAPI(bUserId);
       console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
@@ -458,7 +458,7 @@ export class AppController {
       LogController.log("Steam games loaded.");
     } else if (online) {
       try {
-        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
+        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => !entry.name.toLowerCase().includes("soundtrack"));
         console.log("Public Games:", publicGames);
         steamGames.set(publicGames);
         
