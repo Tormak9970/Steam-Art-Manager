@@ -448,8 +448,7 @@ export class AppController {
     const filteredKeys = Object.keys(filteredCache);
 
     if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId));
-
+      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
       console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       

@@ -20,7 +20,7 @@
   $: steamLogoPos = $steamLogoPositions[game.appid]?.logoPosition;
   $: canDiscard = (($currentPlatform == Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $originalAppLibraryCache[game.appid][$gridType] : false)
                   || (steamLogoPos ? (steamLogoPos.nHeightPct != originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct != originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition != originalLogoPos?.pinnedPosition) : false);
-  $: hasCustomArt = ($currentPlatform == Platforms.STEAM && $unfilteredLibraryCache[game?.appid]) ? $appLibraryCache[game?.appid][$gridType] != $unfilteredLibraryCache[game?.appid][$gridType] : false;
+  $: hasCustomArt = ($currentPlatform == Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] != $unfilteredLibraryCache[game.appid][$gridType] : false;
 
   /**
    * Selects this game.
