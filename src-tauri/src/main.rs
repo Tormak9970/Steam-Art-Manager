@@ -57,6 +57,11 @@ struct ChangedPath {
   sourcePath: String
 }
 
+/// Checks if an appid belongs to a shortcut
+fn is_appid_shortcut(appid: &str, shortcut_icons: &Map<String, Value>) -> bool {
+  return shortcut_icons.contains_key(appid);
+}
+
 /// Gets a grid's file name based on its type.
 fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image_type: &str) -> String {
   match grid_type {
@@ -64,7 +69,7 @@ fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image
     "Wide Capsule" => return format!("{}{}", appid, image_type),
     "Hero" => return format!("{}_hero{}", appid, image_type),
     "Logo" => return format!("{}_logo{}", appid, image_type),
-    "Icon" => return format!("{}_icon{}", appid, image_type),
+    "Icon" => return format!("{}_icon.jpg", appid),
     _ => {
       logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
       panic!("Unexpected grid type {}", grid_type);
@@ -80,8 +85,9 @@ fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str)
 }
 
 /// Filters the grid paths based on which have change.
-fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache, shortcut_icons: &Map<String, Value>) -> Vec<ChangedPath> {
   let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
+  let lib_cache_dir = PathBuf::from(steam::get_library_cache_directory(app_handle.to_owned()));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -100,7 +106,11 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
 
         if source_path != "REMOVE" {
           let adjusted_path = adjust_path(app_handle, appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
-          target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          if grid_type == "Icon" && !is_appid_shortcut(&appid, shortcut_icons) {
+            target_path = String::from(lib_cache_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          } else {
+            target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          }
         } else {
           target_path = String::from("REMOVE");
         }
@@ -262,7 +272,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_core_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
-  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict, &shortcut_icons);
   let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
   logger::log_to_core_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
