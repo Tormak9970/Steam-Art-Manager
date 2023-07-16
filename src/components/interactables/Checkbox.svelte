@@ -35,8 +35,8 @@
     height: 16px;
     width: 16px;
 
-    border-radius: 2px;
-    border: 1px solid #000;
+    border-radius: 4px;
+    border: 1px solid transparent;
   }
 
   .check-box-container input {
@@ -48,10 +48,11 @@
   }
 
   .check-box {
-    height: 100%;
-    width: 100%;
-    background-color: var(--foreground);
-    border-radius: 2px;
+    height: calc(100% - 4px);
+    width: calc(100% - 4px);
+    background-color: var(--background);
+    padding: 2px;
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -67,7 +68,7 @@
   }
 
   .check-box-container:hover input ~ .check-box {
-    background-color: var(--foreground-light);
+    background-color: var(--background-hover);
   }
 
   :global([data-theme="light"] .check-box-container:hover input ~ .check-box) {

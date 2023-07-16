@@ -44,6 +44,7 @@
     background: var(--foreground-light);
     border: none;
     cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
   }
   .toggle button:hover {
     background: var(--foreground-light-hover);
@@ -65,7 +66,7 @@
 
     transition: background-color 0.15s ease-in-out;
   }
-  .toggle button[aria-checked="true"]:hover {background-color: var(--highlight-hover); }
+  .toggle button[aria-checked="true"]:hover { background-color: var(--highlight-hover); }
   .toggle button[aria-checked="true"]::before {
     transform: translateX(0.9em);
     transition: transform 0.3s;

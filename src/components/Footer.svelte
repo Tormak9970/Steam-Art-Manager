@@ -105,7 +105,7 @@
     height: 30px;
     width: 100%;
 
-    background: var(--foreground-hover);
+    background: var(--background);
     user-select: none;
     display: inline-flex;
     align-items: center;

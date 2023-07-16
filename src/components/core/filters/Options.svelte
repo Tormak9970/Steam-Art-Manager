@@ -52,8 +52,8 @@
 <Pane minSize={15} size={20}>
   <SectionTitle title="Options" />
   
-  <div class="content" style="height: 36px;">
-    <div style="margin-left: 6px; display: flex; justify-content: space-between;">
+  <div class="content" style="height: 39px;">
+    <div style="margin-left: 6px; margin-top: 4px; display: flex; justify-content: space-between;">
       <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
     </div>
     
@@ -62,7 +62,7 @@
   </div>
 
   <div class="content" style="height: calc(100% - 85px);">
-    {#each Object.keys($dbFilters[$gridType]) as section}
+    {#each Object.keys($dbFilters[$gridType]) as section, i}
       <Accordion
         label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
         open={true}
@@ -77,9 +77,10 @@
           <VerticalSpacer />
         {/each}
       </Accordion>
+      {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
+        <VerticalSpacer />
+      {/if}
     {/each}
-    
-    <VerticalSpacer />
   </div>
 </Pane>
 

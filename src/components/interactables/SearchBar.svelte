@@ -52,7 +52,7 @@
   <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 7px;" class:showing={searching}>
     <LoadingSpinner width="20px" height="20px" />
   </div>
-  <input style="width: {width}px;" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
+  <input style="width: calc(100% - 6px);" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
 </div>
 
 <style>
@@ -66,7 +66,8 @@
     background-color: var(--foreground);
     border: 1px solid transparent;
     color: var(--font-color);
-    border-radius: 2px;
+    border-radius: 4px;
+    padding: 3px;
     
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }

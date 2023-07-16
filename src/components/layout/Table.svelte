@@ -25,6 +25,8 @@
     
     padding: 7px;
 
+    border-radius: 4px;
+
     background-color: var(--background-dark);
   }
 

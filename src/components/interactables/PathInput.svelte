@@ -69,7 +69,7 @@
     color: var(--font-color);
     background-color: var(--foreground);
     border: 1px solid transparent;
-    border-radius: 2px;
+    border-radius: 4px;
     outline: none;
     padding: 3px;
     

@@ -43,7 +43,7 @@
     background-color: var(--foreground);
     border: 1px solid transparent;
     outline: none;
-    border-radius: 2px;
+    border-radius: 4px;
     padding: 3px;
 
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;

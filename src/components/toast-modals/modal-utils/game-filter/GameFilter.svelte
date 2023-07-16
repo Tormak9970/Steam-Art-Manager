@@ -100,7 +100,7 @@
   }
 
   .dropdowns {
-    width: 85%;
+    width: 83%;
     
     display: flex;
     justify-content: space-between;

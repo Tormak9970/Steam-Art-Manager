@@ -70,7 +70,7 @@
     {#key value}
       <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
     {/key}
-    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 15 }%;" class:select-hide={!active}>
+    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
       {#each options as opt}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
@@ -81,10 +81,6 @@
 
 <style>
   @import "/theme.css";
-
-  @keyframes loopOverflowingText {
-
-  }
 
   .wrapper {
     margin: 0px;
@@ -101,8 +97,8 @@
   .custom-select {
     user-select: none;
     position: relative;
-    padding: 2px;
-    border-radius: 2px;
+    padding: 3px;
+    border-radius: 4px;
     border: 1px solid transparent;
 
     background-color: var(--foreground);
@@ -147,12 +143,20 @@
     overflow: hidden;
   }
   .select-items > div {
-    padding: 2px 3px;
-    padding-top: 4px;
+    padding: 3px 4px;
+    padding-top: 5px;
 
-    height: clac(22px - 7px);
+    height: calc(22px - 7px);
     
     transition: background-color 0.15s ease-in-out;
+  }
+  .select-items > div:first-child {
+    border-radius: 4px 4px 0px 0px;
+    overflow: hidden;
+  }
+  .select-items > div:last-child {
+    border-radius: 0px 0px 4px 4px;
+    overflow: hidden;
   }
   .select-items {
     position: absolute;
@@ -162,7 +166,7 @@
     right: 0;
     z-index: 99;
     margin-top: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid transparent;
     box-shadow: 3px 6px 12px -2px var(--shadow);
   }

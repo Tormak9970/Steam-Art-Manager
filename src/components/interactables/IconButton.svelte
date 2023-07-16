@@ -26,8 +26,8 @@
     min-height: 22px;
         
     background-color: var(--foreground);
-    border: 1px solid #000;
-    border-radius: 2px;
+    border: 1px solid transparent;
+    border-radius: 4px;
 
     display: flex;
     align-items: center;

@@ -88,8 +88,8 @@
 
 .splitpanes__splitter {
 	background-color: var(--background-dark-hover) !important;
-	border-left: 1px solid var(--foreground-light) !important;
-	border-right: 1px solid var(--foreground-light) !important;
+	border-left: 1px solid transparent !important;
+	border-right: 1px solid transparent !important;
 	position: relative;
 }
 .splitpanes__splitter:before {
@@ -98,7 +98,7 @@
 	left: 0;
 	top: 0;
 	transition: opacity 0.4s;
-	background-color: var(--highlight-dim) !important;
+	background-color: var(--foreground-light) !important;
 	opacity: 0;
 	z-index: 1;
 }
