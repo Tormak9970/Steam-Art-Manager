@@ -408,17 +408,25 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   let http_client_res = reqwest::Client::builder().timeout(Duration::from_secs(timeout)).build();
   let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
 
-  let response = http_client.get(grid_url.clone()).send().await.expect("Should have been able to await request.");
-  let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+  let response_res = http_client.get(grid_url.clone()).send().await;
+  
+  if response_res.is_ok() {
+    let response = response_res.ok().expect("Should have been able to get response from ok result.");
+    let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
 
-  let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
-  let write_res = dest_file.write_all(&response_bytes);
+    let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
+    let write_res = dest_file.write_all(&response_bytes);
 
-  if write_res.is_ok() {
-    logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
-    return String::from("success");
+    if write_res.is_ok() {
+      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
+      return String::from("success");
+    } else {
+      let err = write_res.err().expect("Request failed, error should have existed.");
+      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
+      return String::from("failed");
+    }
   } else {
-    let err = write_res.err().expect("Request failed, error should have existed.");
+    let err = response_res.err().expect("Request failed, error should have existed.");
     logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
     return String::from("failed");
   }
