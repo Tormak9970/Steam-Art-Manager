@@ -11,6 +11,11 @@
   import Game from "./Game.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import { heights, widths } from "../imageDimensions";
+  import Divider from "../Divider.svelte";
+  import { scrollShadow } from "../../directives/scrollShadow";
+
+  let overflowContainer: HTMLDivElement;
+  let scrollTarget: HTMLDivElement;
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -142,36 +147,32 @@
       <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
     </div>
     
-    <div class="border" />
+    <Divider marginTop={"7px"} />
     <VerticalSpacer />
   </div>
 
   <div class="content" style="height: calc(100% - 85px);">
     <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
-      <div class="grids-cont">
-        <VerticalSpacer />
-        <VerticalSpacer />
-        
-        {#if isLoading || $loadingGames}
-          <div class="loader-container">
-            <LoadingSpinner />
-          </div>
-        {:else}
-          {#if games.length > 0}
-            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-              {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-                <Game game={game} />
-              {/each}
+      <div class="overflow-shadow-container" bind:this={overflowContainer}>
+        <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 8 }}>
+          {#if isLoading || $loadingGames}
+            <div class="loader-container">
+              <LoadingSpinner />
             </div>
           {:else}
-            <div class="message">
-              No {$currentPlatform} games found.
-            </div>
+            {#if games.length > 0}
+              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+                {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
+                  <Game game={game} />
+                {/each}
+              </div>
+            {:else}
+              <div class="message">
+                No {$currentPlatform} games found.
+              </div>
+            {/if}
           {/if}
-        {/if}
-        
-        <VerticalSpacer />
-        <VerticalSpacer />
+        </div>
       </div>
     </ListTabs>
   </div>
@@ -185,14 +186,16 @@
   .content {
     margin: 0px 6px;
     padding: 0px 6px;
-    overflow: auto;
+    overflow: hidden;
     max-height: calc(100% - 65px)
   }
 
   .grids-cont {
     height: 100%;
+    max-height: 100%;
     width: 100%;
-    overflow: auto;
+    overflow: scroll;
+    position: relative;
   }
 
   .game-grid {
@@ -206,11 +209,12 @@
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
+
+    padding-bottom: 14px;
   }
 
-  .border {
-    margin-top: 7px;
-    border-bottom: 1px solid var(--foreground);
+  .overflow-shadow-container::after {
+    bottom: 7px;
   }
 
   .message {

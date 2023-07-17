@@ -133,7 +133,7 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={(newMethod) => {}} />
+          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={() => {}} showTooltip={false} />
         </div>
         <VerticalSpacer />
       </div>

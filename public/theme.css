@@ -37,6 +37,9 @@
 	--success: #36ff04;
 
 	--toastContainerTop: 2.5rem;
+  
+  --tooltip-background: var(--foreground-light);
+  --tooltip-border: var(--foreground-light-hover);
 }
 
 [data-theme="dark"] {
@@ -59,6 +62,9 @@
 	--save-hover: #28c900;
 
 	--sgdb-animated-color: #e2a256;
+
+  --tooltip-background: var(--foreground-light);
+  --tooltip-border: var(--foreground-light-hover);
 }
 
 [data-theme="light"] {
@@ -81,6 +87,9 @@
 	--save-hover: #24fc08;
 
 	--sgdb-animated-color: #f38c0d;
+  
+  --tooltip-background: var(--foreground);
+  --tooltip-border: var(--foreground-light-hover);
 }
 
 .splitpanes { background-color: var(--background-dark) !important; }
@@ -116,7 +125,7 @@
 
 .tippy-box {
   position: relative;
-  background-color: var(--foreground-light);
+  background-color: var(--tooltip-background);
   color: var(--font-color);
   border-radius: 4px;
   font-size: 14px;
@@ -124,7 +133,6 @@
   white-space: normal;
   outline: 0;
   transition-property: transform, visibility, opacity;
-	border-radius: 2px;
 	
 	box-shadow: 3px 6px 10px 4px var(--shadow);
 }
@@ -132,7 +140,7 @@
 .tippy-arrow {
   width: 16px;
   height: 16px;
-  color: var(--foreground-light);
+  color: var(--tooltip-background);
 }
 
 .tippy-content {

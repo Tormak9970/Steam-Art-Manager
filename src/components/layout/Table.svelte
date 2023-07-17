@@ -32,6 +32,10 @@
 
   .border {
     margin-top: 7px;
+    box-shadow: 0px -6px 20px 3px #000;
+    position: relative;
+    z-index: 2;
+
     border-bottom: 1px solid var(--foreground);
   }
 
@@ -50,7 +54,7 @@
   }
 
   .data-scroller {
-    margin-top: 3px;
+    padding: 3px;
     width: 100%;
 
     height: calc(100% - 20px);

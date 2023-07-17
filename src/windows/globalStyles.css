@@ -112,3 +112,42 @@ a:visited {
   flex-direction: column;
   align-items: center;
 }
+
+
+.overflow-shadow-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  overflow: hidden;
+}
+.overflow-shadow-container::before,
+.overflow-shadow-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 8px;
+  height: 10px;
+  opacity: 0;
+  transition: opacity 0.1s;
+
+  z-index: 2;
+}
+
+.overflow-shadow-container::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+}
+
+.overflow-shadow-container::after {
+  bottom: 0px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+}
+
+.overflow-shadow-container.is-overflowing:not(.is-scrolled-bottom)::after {
+  opacity: 1;
+}
+
+.overflow-shadow-container.is-overflowing:not(.is-scrolled-top)::before {
+  opacity: 1;
+}

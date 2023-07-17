@@ -16,6 +16,11 @@
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
   import { filterGrids } from "../../../lib/utils/Utils";
+  import Divider from "../Divider.svelte";
+  import { scrollShadow } from "../../directives/scrollShadow";
+  
+  let overflowContainer: HTMLDivElement;
+  let scrollTarget: HTMLDivElement;
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let manualGamesUnsub: Unsubscriber;
@@ -209,9 +214,10 @@ function resetGridStores(): void {
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
       <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
+
+      <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
       <HorizontalSpacer />
-      <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} bind:value={$gridType} />
-      <HorizontalSpacer />
+
       <div class="buttons-cont">
         <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId == null || !$appLibraryCache[$selectedGameAppId]?.Logo}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
@@ -220,6 +226,7 @@ function resetGridStores(): void {
           </svg>
         </IconButton>
         <HorizontalSpacer />
+
         <IconButton label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
             <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -229,7 +236,7 @@ function resetGridStores(): void {
       </div>
     </div>
     
-    <div class="border" />
+    <Divider marginTop={"7px"} />
     <VerticalSpacer />
   </div>
 
@@ -238,30 +245,26 @@ function resetGridStores(): void {
       {#if !$needsSGDBAPIKey}
         {#if $selectedGameAppId != null}
           <Pages numPages={numPages} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
-            <div class="grids-cont">
-              <VerticalSpacer />
-              <VerticalSpacer />
-              
-              {#if isLoading}
-                <div class="loader-container">
-                  <LoadingSpinner />
-                </div>
-              {:else}
-                {#if grids.length > 0}
-                  <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-                    {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                      <Grid grid={grid} />
-                    {/each}
+            <div class="overflow-shadow-container" bind:this={overflowContainer}>
+              <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
+                {#if isLoading}
+                  <div class="loader-container">
+                    <LoadingSpinner />
                   </div>
                 {:else}
-                  <div class="message">
-                    No results for {$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
-                  </div>
+                  {#if grids.length > 0}
+                    <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+                      {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                        <Grid grid={grid} />
+                      {/each}
+                    </div>
+                  {:else}
+                    <div class="message">
+                      No results for {$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+                    </div>
+                  {/if}
                 {/if}
-              {/if}
-              
-              <VerticalSpacer />
-              <VerticalSpacer />
+              </div>
             </div>
           </Pages>
         {:else}
@@ -307,11 +310,8 @@ function resetGridStores(): void {
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
-  }
 
-  .border {
-    margin-top: 7px;
-    border-bottom: 1px solid var(--foreground);
+    padding-bottom: 14px;
   }
 
   .message {

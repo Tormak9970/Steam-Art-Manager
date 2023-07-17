@@ -8,6 +8,7 @@
   export let value: string;
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
+  export let showTooltip = true;
   export let tooltipPosition: Placement = "left";
   export let direction: "UP" | "DOWN" = "DOWN";
 
@@ -54,29 +55,50 @@
 
 <svelte:window on:click={closeDropdowns} />
 
-<div class="wrapper" style="width: {width};">
+<div class="wrapper">
   {#if label != ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="custom-select" style="width: {width}; min-width: {width};" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
-    <select>
-      <option value="default">{internalValue}</option>
-      {#each options as opt}
-        <option value={opt.data}>{opt.label}</option>
-      {/each}
-    </select>
-  
-    {#key value}
-      <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
-    {/key}
-    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
-      {#each options as opt}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
-      {/each}
+  {#if showTooltip}
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
+      <select>
+        <option value="default">{internalValue}</option>
+        {#each options as opt}
+          <option value={opt.data}>{opt.label}</option>
+        {/each}
+      </select>
+    
+      {#key value}
+        <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
+      {/key}
+      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+        {#each options as opt}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
+        {/each}
+      </div>
     </div>
-  </div>
+  {:else}
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
+      <select>
+        <option value="default">{internalValue}</option>
+        {#each options as opt}
+          <option value={opt.data}>{opt.label}</option>
+        {/each}
+      </select>
+    
+      {#key value}
+        <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
+      {/key}
+      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+        {#each options as opt}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption}>{opt.label}</div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -102,6 +124,7 @@
     border: 1px solid transparent;
 
     background-color: var(--foreground);
+    transition: background-color 0.15s ease-in-out;
 
     min-width: 160px;
   }
@@ -151,11 +174,13 @@
     transition: background-color 0.15s ease-in-out;
   }
   .select-items > div:first-child {
-    border-radius: 4px 4px 0px 0px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     overflow: hidden;
   }
   .select-items > div:last-child {
-    border-radius: 0px 0px 4px 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     overflow: hidden;
   }
   .select-items {
