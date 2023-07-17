@@ -1,5 +1,4 @@
 import type { Action } from "svelte/action"
-import { throttle } from "../../lib/utils/Utils";
 
 type ScrollShadowParams = {
   target: HTMLElement,
@@ -33,7 +32,7 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     hasObserved = true;
   }
   
-  function scrollListener(e: UIEvent) {
+  const scrollListener = (e: UIEvent) => {
     const eventTarget = e.currentTarget as HTMLElement;
     if (eventTarget.scrollTop === 0) {
       scrollContainer.classList.add("is-scrolled-top");
@@ -41,7 +40,6 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
       scrollContainer.classList.remove("is-scrolled-top");
     }
   
-    console.log("at bottom:", eventTarget.scrollTop + eventTarget.offsetHeight, scrollTarget?.offsetHeight)
     if (eventTarget.scrollTop + eventTarget.offsetHeight === scrollTarget?.offsetHeight + heightBump) {
       scrollContainer.classList.add("is-scrolled-bottom");
     } else {
