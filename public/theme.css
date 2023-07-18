@@ -40,6 +40,11 @@
   
   --tooltip-background: var(--foreground-light);
   --tooltip-border: var(--foreground-light-hover);
+  
+  --tooltip-background: var(--background-dark);
+  --tooltip-border: rgba(68, 68, 68, 0.4);
+  --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
+  --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
 [data-theme="dark"] {
@@ -62,9 +67,11 @@
 	--save-hover: #28c900;
 
 	--sgdb-animated-color: #e2a256;
-
-  --tooltip-background: var(--foreground-light);
-  --tooltip-border: var(--foreground-light-hover);
+  
+  --tooltip-background: var(--background-dark);
+  --tooltip-border: rgba(68, 68, 68, 0.4);
+  --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
+  --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
 [data-theme="light"] {
@@ -88,8 +95,10 @@
 
 	--sgdb-animated-color: #f38c0d;
   
-  --tooltip-background: var(--foreground);
-  --tooltip-border: var(--foreground-light-hover);
+  --tooltip-background: var(--background-dark);
+  --tooltip-border: rgba(0, 8, 16, .2);
+  --tooltip-border-arrow: rgba(0, 8, 16, .3);
+  --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
 .splitpanes { background-color: var(--background-dark) !important; }
@@ -121,30 +130,4 @@
 	top: -30px;
 	bottom: -30px;
 	width: 100%;
-}
-
-.tippy-box {
-  position: relative;
-  background-color: var(--tooltip-background);
-  color: var(--font-color);
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 1.4;
-  white-space: normal;
-  outline: 0;
-  transition-property: transform, visibility, opacity;
-	
-	box-shadow: 3px 6px 10px 4px var(--shadow);
-}
-
-.tippy-arrow {
-  width: 16px;
-  height: 16px;
-  color: var(--tooltip-background);
-}
-
-.tippy-content {
-  position: relative;
-  padding: 3px 7px;
-  z-index: 1;
 }

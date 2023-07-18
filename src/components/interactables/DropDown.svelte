@@ -10,6 +10,7 @@
   export let width = "auto";
   export let showTooltip = true;
   export let tooltipPosition: Placement = "left";
+  export let entryTooltipPosition: Placement = tooltipPosition;
   export let direction: "UP" | "DOWN" = "DOWN";
 
   let customSelectElem: HTMLDivElement;
@@ -61,7 +62,7 @@
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
-    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -75,7 +76,7 @@
       <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
         {#each options as opt}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
+          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: entryTooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
         {/each}
       </div>
     </div>

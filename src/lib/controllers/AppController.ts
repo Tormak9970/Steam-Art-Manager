@@ -25,11 +25,8 @@ import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
-import { WindowController } from "./WindowController";
 
-import { createTippy, type Tippy } from 'svelte-tippy';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/svg-arrow.css';
+import { createTippy } from 'svelte-tippy';
 import { hideAll, type Instance, type Props } from "tippy.js";
 
 const gridTypeLUT = {
@@ -58,7 +55,9 @@ export class AppController {
 
   static tippy = createTippy({
     hideOnClick: false,
-    duration: 100
+    duration: 100,
+    theme: "sarm",
+    arrow: true
   });
 
   static onTippyShow(instance: Instance<Props>): void {

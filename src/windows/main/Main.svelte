@@ -155,7 +155,7 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="right" />
+		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
   </Titlebar>
 	<div class="content">
     {#if $showGridModal}

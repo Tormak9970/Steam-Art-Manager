@@ -210,7 +210,7 @@
 
     justify-content: center;
 
-    padding-bottom: 14px;
+    padding: 14px 0px;
   }
 
   .overflow-shadow-container::after {
