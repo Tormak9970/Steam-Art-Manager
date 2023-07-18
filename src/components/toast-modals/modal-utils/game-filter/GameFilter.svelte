@@ -89,8 +89,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .batch-icon {
     fill: var(--font-color);
     margin-left: 9px;

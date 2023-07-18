@@ -17,8 +17,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .selected-game-entry {
     width: calc(100% - 20px);
     

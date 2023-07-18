@@ -98,8 +98,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .search-add {
     width: 100%;
 

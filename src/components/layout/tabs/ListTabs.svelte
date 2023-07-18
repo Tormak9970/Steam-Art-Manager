@@ -22,8 +22,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
 	.tabs {
 		padding: 10px;
     padding-bottom: 5px;

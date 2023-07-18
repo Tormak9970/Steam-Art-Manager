@@ -25,8 +25,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .check-box-container {
     display: block;
     position: relative;

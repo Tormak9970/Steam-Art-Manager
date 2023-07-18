@@ -30,8 +30,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .toggle {
     display: flex;
     align-items: center;

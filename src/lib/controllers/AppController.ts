@@ -27,6 +27,7 @@ import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 
 import { createTippy } from 'svelte-tippy';
+import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
 
 const gridTypeLUT = {

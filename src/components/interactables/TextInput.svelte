@@ -24,8 +24,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .input {
     margin: 0px;
 

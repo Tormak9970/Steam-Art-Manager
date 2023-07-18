@@ -16,8 +16,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .table {
     margin-top: 7px;
 

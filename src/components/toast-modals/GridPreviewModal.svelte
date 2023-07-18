@@ -96,8 +96,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .border {
     margin-top: 7px;
     border-bottom: 1px solid var(--foreground);

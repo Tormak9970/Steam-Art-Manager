@@ -124,8 +124,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .game {
     background-color: var(--foreground);
     padding: 10px;

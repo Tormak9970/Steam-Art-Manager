@@ -99,8 +99,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .footer {
     height: 30px;
     width: 100%;

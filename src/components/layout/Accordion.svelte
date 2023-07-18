@@ -31,8 +31,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .accordion {
     color: var(--font-color);
     width: 100%;

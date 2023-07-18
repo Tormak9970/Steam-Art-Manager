@@ -21,8 +21,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
 	.tab {
     width: 100%;
     height: 100%;

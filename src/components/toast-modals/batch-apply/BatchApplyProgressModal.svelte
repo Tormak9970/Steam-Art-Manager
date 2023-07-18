@@ -43,8 +43,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .info {
     margin-top: 7px;
     margin-left: 7px;

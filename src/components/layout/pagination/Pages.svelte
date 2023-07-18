@@ -21,8 +21,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
 	.page {
 		padding: 10px;
     padding-bottom: 5px;

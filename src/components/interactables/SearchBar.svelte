@@ -56,8 +56,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .search-bar {
     display: flex;
   }

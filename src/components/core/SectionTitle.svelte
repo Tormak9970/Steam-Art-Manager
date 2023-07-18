@@ -8,8 +8,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .section-title {
     width: 100%;
     user-select: none;

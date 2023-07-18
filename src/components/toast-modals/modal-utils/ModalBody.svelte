@@ -26,8 +26,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .background {
     font-size: 12px;
     z-index: 3;

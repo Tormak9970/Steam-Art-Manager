@@ -45,8 +45,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .setting {
     display: flex;
     flex-direction: column;

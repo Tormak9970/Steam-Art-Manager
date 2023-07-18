@@ -14,8 +14,6 @@
 </button>
 
 <style>
-  @import "/theme.css";
-
   .button {
     padding: 3px 6px;
     min-width: 40px;

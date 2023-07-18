@@ -197,8 +197,6 @@
 </div>
 
 <style>
-	@import "/theme.css";
-
 	main {
 		width: 100%;
 		height: 100%;

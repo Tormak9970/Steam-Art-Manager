@@ -103,8 +103,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .wrapper {
     margin: 0px;
 
