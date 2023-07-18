@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit, fmt::Arguments};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -21,6 +21,7 @@ use home::home_dir;
 use serde;
 use reqwest::{self, Client};
 use steam::get_steam_root_dir;
+use panic_message::get_panic_info_message;
 use tauri::{
   AppHandle,
   api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
@@ -595,7 +596,9 @@ fn main() {
 
         let location_res: Option<&Location> = panic_info.location();
         // let message_res = panic_info.message();
-        let message_res: Option<&Arguments> = None;
+        // let message_res: Option<&Arguments> = None;
+
+        let message_res = get_panic_info_message(panic_info);
 
         let mut log_message: String = String::from("Panic occured but no additional info was provided!");
 
