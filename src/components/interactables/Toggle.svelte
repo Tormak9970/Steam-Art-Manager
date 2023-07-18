@@ -53,7 +53,7 @@
     position: absolute;
     width: 0.9em;
     height: 0.9em;
-    background: var(--background);
+    background: var(--background-dark);
     top: 0.15em;
     right: 1.1em;
     transition: transform 0.3s;
