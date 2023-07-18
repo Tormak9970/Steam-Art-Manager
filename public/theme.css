@@ -16,8 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 :root {
-	--font-color: rgb(231, 231, 231);
-
 	--highlight: #04e200;
 	--highlight-hover: #05FF00;
 
@@ -37,14 +35,6 @@
 	--success: #36ff04;
 
 	--toastContainerTop: 2.5rem;
-  
-  --tooltip-background: var(--foreground-light);
-  --tooltip-border: var(--foreground-light-hover);
-  
-  --tooltip-background: var(--background-dark);
-  --tooltip-border: rgba(68, 68, 68, 0.4);
-  --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
-  --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
 [data-theme="dark"] {
@@ -81,17 +71,23 @@
 	--background-dark: #f3f3f3;
 	--background-dark-hover: #e4e4e4;
 
-	--background: #dfdfdf;
-	--background-hover: #dadada;
+	/* --background: #dfdfdf;
+	--background-hover: #dadada; */
 
-	--foreground: #bebebe;
-	--foreground-hover: #aaaaaa;
+  --background: #dfdfdf;
+  --background-hover: #d1d1d1;
+
+	/* --foreground: #bebebe;
+	--foreground-hover: #aaaaaa; */
+
+  --foreground: #cfcfcf;
+  --foreground-hover: #c1c1c1;
 	
-	--foreground-light: #949494;
-	--foreground-light-hover: #8a8a8a;
+	/* --foreground-light: #949494;
+	--foreground-light-hover: #8a8a8a; */
 
-  /* --foreground-light: #a8a8a8;
-	--foreground-light-hover: #999999; */
+  --foreground-light: #bfbfbf;
+  --foreground-light-hover: #b1b1b1;
 	
 	
 	--save: #4ee73a;
