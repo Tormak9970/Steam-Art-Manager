@@ -7,6 +7,11 @@
   import SectionTitle from "../SectionTitle.svelte";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
+  import Divider from "../Divider.svelte";
+    import { scrollShadow } from "../../directives/scrollShadow";
+
+  let overflowContainer: HTMLDivElement;
+  let scrollTarget: HTMLDivElement;
 
   /**
    * Creates a function to update the specified filter.
@@ -52,34 +57,41 @@
 <Pane minSize={15} size={20}>
   <SectionTitle title="Options" />
   
-  <div class="content" style="height: 36px;">
-    <div style="margin-left: 6px; display: flex; justify-content: space-between;">
+  <div class="content" style="height: 39px;">
+    <div style="margin-left: 6px; margin-top: 4px; display: flex; justify-content: space-between;">
       <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
     </div>
     
-    <div class="border" />
+    <Divider />
     <VerticalSpacer />
   </div>
 
   <div class="content" style="height: calc(100% - 85px);">
-    {#each Object.keys($dbFilters[$gridType]) as section}
-      <Accordion
-        label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
-        open={true}
-      >
-        <VerticalSpacer />
-        {#each Object.keys($dbFilters[$gridType][section]) as filter}
-          <Toggle
-            label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-            value={$dbFilters[$gridType][section][filter]}
-            onChange={updateFilters(section, filter)}
-          />
-          <VerticalSpacer />
-        {/each}
-      </Accordion>
-    {/each}
-    
-    <VerticalSpacer />
+    <div class="overflow-shadow-container" bind:this={overflowContainer}>
+      <div class="scroll-container" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
+        <div class="scroll-target" bind:this={scrollTarget}>
+          {#each Object.keys($dbFilters[$gridType]) as section, i}
+            <Accordion
+              label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+              open={true}
+            >
+              <VerticalSpacer />
+              {#each Object.keys($dbFilters[$gridType][section]) as filter}
+                <Toggle
+                  label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                  value={$dbFilters[$gridType][section][filter]}
+                  onChange={updateFilters(section, filter)}
+                />
+                <VerticalSpacer />
+              {/each}
+            </Accordion>
+            {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
+              <VerticalSpacer />
+            {/if}
+          {/each}
+        </div>
+      </div>
+    </div>
   </div>
 </Pane>
 
@@ -91,8 +103,13 @@
     max-height: calc(100% - 65px)
   }
 
-  .border {
-    margin-top: 10px;
-    border-bottom: 1px solid var(--foreground);
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+  }
+
+  .scroll-target {
+    width: 100%;
   }
 </style>

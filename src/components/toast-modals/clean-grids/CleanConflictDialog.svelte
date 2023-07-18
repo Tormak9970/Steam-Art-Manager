@@ -110,8 +110,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   /* done */
   .content {
     width: 600px;

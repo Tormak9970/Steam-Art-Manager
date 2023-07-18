@@ -41,7 +41,7 @@
     <VerticalSpacer />
     <VerticalSpacer />
     <div class="options">
-      <DropDown label={"Preset"} options={presets} bind:value={selectedPreset} width="100px" />
+      <DropDown label={"Preset"} options={presets} bind:value={selectedPreset} width="100px" showTooltip={false} />
     </div>
     <VerticalSpacer />
     <VerticalSpacer />
@@ -58,8 +58,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .content {
     width: 600px;
 		height: calc(100% - 60px);

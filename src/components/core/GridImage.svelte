@@ -41,8 +41,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .grid-img {
     display: flex;
     flex-direction: column;

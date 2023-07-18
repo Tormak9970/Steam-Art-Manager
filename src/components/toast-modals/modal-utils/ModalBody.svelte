@@ -26,8 +26,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .background {
     font-size: 12px;
     z-index: 3;
@@ -69,7 +67,7 @@
   .modal-body {
     margin: auto;
     background-color: var(--background);
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid var(--shadow);
     position: relative;
   }

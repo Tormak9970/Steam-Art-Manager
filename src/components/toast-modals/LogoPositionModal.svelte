@@ -195,8 +195,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .content {
     margin-bottom: 10px;
     margin-left: 10px;

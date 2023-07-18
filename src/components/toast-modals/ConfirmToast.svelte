@@ -35,8 +35,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .comfirm-toast {
     width: calc(100% - 60px);
     padding: 10px;

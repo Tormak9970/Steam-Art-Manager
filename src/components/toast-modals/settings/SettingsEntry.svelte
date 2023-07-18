@@ -45,8 +45,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .setting {
     display: flex;
     flex-direction: column;
@@ -55,7 +53,7 @@
 
     background-color: var(--background-dark);
     padding: 6px;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 
   .label {

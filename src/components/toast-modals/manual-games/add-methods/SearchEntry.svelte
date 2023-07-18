@@ -12,8 +12,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .search-entry {
     width: calc(100% - 20px);
     

@@ -60,9 +60,9 @@
 <div class="game-filter">
   <div class="options">
     <div class="dropdowns">
-      <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} />
+      <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} showTooltip={false} />
       {#if showFilters}
-        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} />
+        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
     </div>
     <VerticalSpacer />
@@ -89,8 +89,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .batch-icon {
     fill: var(--font-color);
     margin-left: 9px;
@@ -100,7 +98,7 @@
   }
 
   .dropdowns {
-    width: 85%;
+    width: 98%;
     
     display: flex;
     justify-content: space-between;

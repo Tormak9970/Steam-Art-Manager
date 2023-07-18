@@ -80,8 +80,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .titlebar {
     height: 30px;
     width: 100%;

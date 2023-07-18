@@ -25,11 +25,9 @@ import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
-import { WindowController } from "./WindowController";
 
-import { createTippy, type Tippy } from 'svelte-tippy';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/svg-arrow.css';
+import { createTippy } from 'svelte-tippy';
+import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
 
 const gridTypeLUT = {
@@ -58,7 +56,9 @@ export class AppController {
 
   static tippy = createTippy({
     hideOnClick: false,
-    duration: 100
+    duration: 100,
+    theme: "sarm",
+    arrow: true
   });
 
   static onTippyShow(instance: Instance<Props>): void {
@@ -212,10 +212,11 @@ export class AppController {
   /**
    * Filters and structures the library grids based on the app's needs.
    * @param gridsDirContents The contents of the grids dir.
+   * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured grids dir.
    * ? Logging complete.
    */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
+  private static filterGridsDir(gridsDirContents: fs.FileEntry[], shortcutsIds: string[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
     let resKeys = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
@@ -234,7 +235,8 @@ export class AppController {
           ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
           LogController.warn(`Duplicate grid found for ${appid}.`);
         } else {
-          if (gridTypeLUT[type]) {
+          //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
+          if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
             if (!resKeys.includes(appid)) {
               resKeys.push(appid);
               res[appid] = {} as LibraryCacheEntry;
@@ -252,13 +254,11 @@ export class AppController {
    * Filters and structures the library cache based on the app's needs.
    * @param libraryCacheContents The contents of the library cache.
    * @param gridsInfos The filtered grid infos.
-   * @param shortcuts The list of loaded shortcuts
+   * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured library cache.
    * ? Logging complete.
    */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcuts: GameStruct[]): { [appid: string]: LibraryCacheEntry } {
-    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-
+  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): { [appid: string]: LibraryCacheEntry } {
     let resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
@@ -299,11 +299,12 @@ export class AppController {
    */
   private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
-    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents);
+    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcuts);
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcutIds);
     LogController.log("Library Cache loaded.");
 
     await AppController.cacheLogoConfigs(logoConfigs);
