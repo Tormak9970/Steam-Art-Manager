@@ -1,6 +1,11 @@
 <script lang="ts">
+    import { scrollShadow } from "../directives/scrollShadow";
+
   export let height = "400px";
   export let marginLeft = "7px";
+
+  let overflowContainer: HTMLDivElement;
+  let scrollTarget: HTMLDivElement;
 </script>
 
 <div class="table" style="height: {height}; margin-left: {marginLeft};">
@@ -8,9 +13,11 @@
     <slot name="header" />
   </div>
   <div class="border" style="margin-top: 3px;"></div>
-  <div class="data-scroller">
-    <div class="data">
-      <slot name="data" />
+  <div class="overflow-shadow-container" bind:this={overflowContainer} >
+    <div class="data-scroller" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 8 }}>
+      <div class="data" bind:this={scrollTarget}>
+        <slot name="data" />
+      </div>
     </div>
   </div>
 </div>
@@ -30,7 +37,6 @@
 
   .border {
     margin-top: 7px;
-    box-shadow: 0px -6px 20px 3px #000;
     position: relative;
     z-index: 2;
 
@@ -53,10 +59,17 @@
 
   .data-scroller {
     padding: 3px;
-    width: 100%;
+    width: calc(100% - 6px);
+    margin-right: 6px;
 
-    height: calc(100% - 20px);
+    margin-top: 5px;
+
+    height: 100%;
 
     overflow: scroll;
+  }
+
+  .overflow-shadow-container {
+    height: calc(100% - 20px);
   }
 </style>
