@@ -133,7 +133,7 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={(newMethod) => {}} />
+          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={() => {}} showTooltip={false} />
         </div>
         <VerticalSpacer />
       </div>
@@ -150,8 +150,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .border {
     margin-top: 7px;
     border-bottom: 1px solid var(--foreground);

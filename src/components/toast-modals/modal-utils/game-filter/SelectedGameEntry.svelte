@@ -17,13 +17,13 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .selected-game-entry {
     width: calc(100% - 20px);
     
     padding: 3px 7px;
     margin-bottom: 7px;
+
+    border-radius: 4px;
 
     display: flex;
     align-items: center;

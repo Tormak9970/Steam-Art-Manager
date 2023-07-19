@@ -31,7 +31,7 @@
 <ModalBody title={`Batch Apply ${$gridType != GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
   <div class="content">
     <div class="info">
-      Configure the games you would like to batch apply grids to.
+      Choose the games you would like to batch apply grids to.
     </div>
     <GameFilter bind:selectedGameIds={selectedGameIds} />
     <div class="buttons">
@@ -42,11 +42,10 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .info {
     margin-top: 7px;
     margin-left: 7px;
+    margin-right: 7px;
     font-size: 14px;
   }
 

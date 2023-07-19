@@ -26,6 +26,21 @@ export function throttle(func: any, wait: number) {
   };
 }
 
+export function debounce(func:Function, wait:number, immediate?:boolean) {
+  let timeout:NodeJS.Timeout|null;
+  return function (this:any) {
+      const context = this, args = arguments;
+      const later = function () {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+      };
+      const callNow = immediate && !timeout;
+      clearTimeout(timeout as NodeJS.Timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+  };
+};
+
 /**
  * Prevents a keyboard event from running unless the key is the provided key
  * @param key The key to listen for.

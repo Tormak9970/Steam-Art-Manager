@@ -8,7 +8,9 @@
   export let value: string;
   export let onChange: (value: string) => void = () => {};
   export let width = "auto";
+  export let showTooltip = true;
   export let tooltipPosition: Placement = "left";
+  export let entryTooltipPosition: Placement = tooltipPosition;
   export let direction: "UP" | "DOWN" = "DOWN";
 
   let customSelectElem: HTMLDivElement;
@@ -54,38 +56,53 @@
 
 <svelte:window on:click={closeDropdowns} />
 
-<div class="wrapper" style="width: {width};">
+<div class="wrapper">
   {#if label != ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="custom-select" style="width: {width}; min-width: {width};" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
-    <select>
-      <option value="default">{internalValue}</option>
-      {#each options as opt}
-        <option value={opt.data}>{opt.label}</option>
-      {/each}
-    </select>
-  
-    {#key value}
-      <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
-    {/key}
-    <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 15 }%;" class:select-hide={!active}>
-      {#each options as opt}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: tooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
-      {/each}
+  {#if showTooltip}
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
+      <select>
+        <option value="default">{internalValue}</option>
+        {#each options as opt}
+          <option value={opt.data}>{opt.label}</option>
+        {/each}
+      </select>
+    
+      {#key value}
+        <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
+      {/key}
+      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+        {#each options as opt}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: entryTooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
+        {/each}
+      </div>
     </div>
-  </div>
+  {:else}
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
+      <select>
+        <option value="default">{internalValue}</option>
+        {#each options as opt}
+          <option value={opt.data}>{opt.label}</option>
+        {/each}
+      </select>
+    
+      {#key value}
+        <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
+      {/key}
+      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+        {#each options as opt}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption}>{opt.label}</div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
-  @import "/theme.css";
-
-  @keyframes loopOverflowingText {
-
-  }
-
   .wrapper {
     margin: 0px;
 
@@ -101,11 +118,12 @@
   .custom-select {
     user-select: none;
     position: relative;
-    padding: 2px;
-    border-radius: 2px;
+    padding: 3px;
+    border-radius: 4px;
     border: 1px solid transparent;
 
     background-color: var(--foreground);
+    transition: background-color 0.15s ease-in-out;
 
     min-width: 160px;
   }
@@ -147,12 +165,22 @@
     overflow: hidden;
   }
   .select-items > div {
-    padding: 2px 3px;
-    padding-top: 4px;
+    padding: 3px 4px;
+    padding-top: 5px;
 
-    height: clac(22px - 7px);
+    height: calc(22px - 7px);
     
     transition: background-color 0.15s ease-in-out;
+  }
+  .select-items > div:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    overflow: hidden;
+  }
+  .select-items > div:last-child {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
   }
   .select-items {
     position: absolute;
@@ -162,7 +190,7 @@
     right: 0;
     z-index: 99;
     margin-top: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
     border: 1px solid transparent;
     box-shadow: 3px 6px 12px -2px var(--shadow);
   }

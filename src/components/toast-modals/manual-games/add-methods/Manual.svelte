@@ -42,8 +42,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .manual-add {
     width: 100%;
 

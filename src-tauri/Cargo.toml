@@ -24,6 +24,7 @@ vdf-serde = "0.3.0"
 keyvalues-parser = "0.1.0"
 zip = "0.6.4"
 reqwest = "0.11.17"
+panic-message = "0.3.0"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

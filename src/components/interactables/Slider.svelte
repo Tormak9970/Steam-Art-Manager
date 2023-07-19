@@ -18,8 +18,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-  
   .slider {
     --track-focus: var(--highlight-hover);
 		--track-highlight-bgcolor: var(--highlight-hover);

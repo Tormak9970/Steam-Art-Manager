@@ -110,8 +110,6 @@
 </ModalBody>
 
 <style>
-  @import "/theme.css";
-
   .content {
 		width: 600px;
 		height: calc(100% - 60px);

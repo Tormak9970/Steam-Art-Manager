@@ -53,8 +53,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .grid {
     background-color: var(--foreground);
     padding: 10px;

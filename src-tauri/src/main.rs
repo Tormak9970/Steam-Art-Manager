@@ -10,7 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 
-use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit, fmt::Arguments};
+use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
 use serde_json::{Map, Value};
@@ -21,6 +21,7 @@ use home::home_dir;
 use serde;
 use reqwest::{self, Client};
 use steam::get_steam_root_dir;
+use panic_message::get_panic_info_message;
 use tauri::{
   AppHandle,
   api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
@@ -57,6 +58,11 @@ struct ChangedPath {
   sourcePath: String
 }
 
+/// Checks if an appid belongs to a shortcut
+fn is_appid_shortcut(appid: &str, shortcut_icons: &Map<String, Value>) -> bool {
+  return shortcut_icons.contains_key(appid);
+}
+
 /// Gets a grid's file name based on its type.
 fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image_type: &str) -> String {
   match grid_type {
@@ -64,7 +70,7 @@ fn get_grid_filename(app_handle: &AppHandle, appid: &str, grid_type: &str, image
     "Wide Capsule" => return format!("{}{}", appid, image_type),
     "Hero" => return format!("{}_hero{}", appid, image_type),
     "Logo" => return format!("{}_logo{}", appid, image_type),
-    "Icon" => return format!("{}_icon{}", appid, image_type),
+    "Icon" => return format!("{}_icon.jpg", appid),
     _ => {
       logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type {}", grid_type).as_str(), 2);
       panic!("Unexpected grid type {}", grid_type);
@@ -80,8 +86,9 @@ fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str)
 }
 
 /// Filters the grid paths based on which have change.
-fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache) -> Vec<ChangedPath> {
+fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache, shortcut_icons: &Map<String, Value>) -> Vec<ChangedPath> {
   let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
+  let lib_cache_dir = PathBuf::from(steam::get_library_cache_directory(app_handle.to_owned()));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -100,7 +107,11 @@ fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_pa
 
         if source_path != "REMOVE" {
           let adjusted_path = adjust_path(app_handle, appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
-          target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          if grid_type == "Icon" && !is_appid_shortcut(&appid, shortcut_icons) {
+            target_path = String::from(lib_cache_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          } else {
+            target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+          }
         } else {
           target_path = String::from("REMOVE");
         }
@@ -262,7 +273,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_core_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
-  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict, &shortcut_icons);
   let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
   logger::log_to_core_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
@@ -398,17 +409,25 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
   let http_client_res = reqwest::Client::builder().timeout(Duration::from_secs(timeout)).build();
   let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
 
-  let response = http_client.get(grid_url.clone()).send().await.expect("Should have been able to await request.");
-  let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+  let response_res = http_client.get(grid_url.clone()).send().await;
+  
+  if response_res.is_ok() {
+    let response = response_res.ok().expect("Should have been able to get response from ok result.");
+    let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
 
-  let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
-  let write_res = dest_file.write_all(&response_bytes);
+    let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
+    let write_res = dest_file.write_all(&response_bytes);
 
-  if write_res.is_ok() {
-    logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
-    return String::from("success");
+    if write_res.is_ok() {
+      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
+      return String::from("success");
+    } else {
+      let err = write_res.err().expect("Request failed, error should have existed.");
+      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
+      return String::from("failed");
+    }
   } else {
-    let err = write_res.err().expect("Request failed, error should have existed.");
+    let err = response_res.err().expect("Request failed, error should have existed.");
     logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
     return String::from("failed");
   }
@@ -577,7 +596,9 @@ fn main() {
 
         let location_res: Option<&Location> = panic_info.location();
         // let message_res = panic_info.message();
-        let message_res: Option<&Arguments> = None;
+        // let message_res: Option<&Arguments> = None;
+
+        let message_res = get_panic_info_message(panic_info);
 
         let mut log_message: String = String::from("Panic occured but no additional info was provided!");
 
