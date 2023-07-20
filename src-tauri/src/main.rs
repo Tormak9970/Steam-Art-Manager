@@ -515,8 +515,9 @@ async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset
 }
 
 
+#[tauri::command]
 /// Adds the user's steam directory to Tauri FS and Asset scope.
-fn add_steam_to_scope(app_handle: &AppHandle) {
+async fn add_steam_to_scope(app_handle: AppHandle) {
   let steam_path_res = get_steam_root_dir();
 
   if steam_path_res.is_ok() {
@@ -568,6 +569,7 @@ fn main() {
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
       steam::get_localconfig_path,
+      add_steam_to_scope,
       export_grids_to_zip,
       import_grids_from_zip,
       read_appinfo_vdf,
@@ -588,7 +590,7 @@ fn main() {
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
       
       logger::clean_out_log(app_handle.clone());
-      add_steam_to_scope(&app_handle);
+      // add_steam_to_scope(&app_handle);
 
       panic::set_hook(Box::new(move | panic_info | {
         let path_str = (*log_file_path).to_owned();

@@ -74,6 +74,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
+    await RustInterop.addSteamToScope();
     AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
