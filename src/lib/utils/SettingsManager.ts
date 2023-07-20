@@ -33,12 +33,7 @@ export class SettingsManager {
 
     const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
-      await fs.readTextFile(setsPath).then(
-        () => {},
-        async () => {
-          await fs.copyFile(await path.resolveResource("./settings.json"), setsPath);
-        }
-      );
+      await fs.copyFile(await path.resolveResource("./settings.json"), setsPath);
     }
 
     SettingsManager.settingsPath = setsPath;
