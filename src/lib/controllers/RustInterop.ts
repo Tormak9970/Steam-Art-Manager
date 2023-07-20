@@ -32,6 +32,13 @@ export enum LogLevel {
  */
 export class RustInterop {
   /**
+   * Checks if steam is installed, and if so, it adds it to the file access scope.
+   */
+  static async addSteamToScope(): Promise<void> {
+    await invoke("add_steam_to_scope", {});
+  }
+
+  /**
    * Cleans the app's log file.
    */
   static async cleanOutLog(): Promise<void> {
