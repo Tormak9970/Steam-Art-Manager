@@ -41,10 +41,8 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
 pub fn get_steam_root_dir() -> Result<PathBuf, String> {
   let mut pc_home_dir: PathBuf = home_dir().expect("Couldn't get user's home dir.");
 
-  if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
-    pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
-  } else if pc_home_dir.join(".var/app/com.valvesoftware.Steam/.steam/steam").exists() {
-    pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/.steam/steam");
+  if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/Steam").exists() {
+    pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/Steam");
   } else {
     pc_home_dir = pc_home_dir.join(".steam/steam");
   }
