@@ -43,6 +43,8 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
 
   if pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam").exists() {
     pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/data/steam");
+  } else if pc_home_dir.join(".var/app/com.valvesoftware.Steam/.steam/steam").exists() {
+    pc_home_dir = pc_home_dir.join(".var/app/com.valvesoftware.Steam/.steam/steam");
   } else {
     pc_home_dir = pc_home_dir.join(".steam/steam");
   }
