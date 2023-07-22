@@ -2,7 +2,7 @@
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes } from 'svelte-splitpanes';
+	// import { Splitpanes } from 'svelte-splitpanes';
 	import Footer from "../../components/Footer.svelte";
 	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
@@ -22,6 +22,7 @@
   import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
   import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
   import CleanConflictDialog from "../../components/toast-modals/clean-grids/CleanConflictDialog.svelte";
+  import { Splitpanes } from "svelte-splitpanes";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -102,6 +103,9 @@
 
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
   }
+
+  const dividerColor = 'black';
+  const dividerThickness = '20px';
 
 	onMount(async () => {
     window.addEventListener("error", onError);
