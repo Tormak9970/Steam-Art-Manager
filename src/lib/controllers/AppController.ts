@@ -46,6 +46,35 @@ const libraryCacheLUT = {
   "logo": GridTypes.LOGO
 }
 
+
+
+/**
+ * Gets the id and grid type from a grids filename.
+ * @param gridName The filename of the grid.
+ * @returns A tuple of [appid, gridType].
+ */
+function getIdFromGridName(gridName: string): [string, string] {
+  const dotIndex = gridName.indexOf(".");
+  const underscoreIndex = gridName.indexOf("_");
+  const name = gridName.substring(0, dotIndex);
+
+  if (underscoreIndex > 0) {
+    const id = name.substring(0, underscoreIndex);
+    const type = name.substring(underscoreIndex+1);
+
+    return [id, type];
+  } else if (name.endsWith("p")) {
+    const id = name.substring(0, name.length - 1);
+    return [id, "capsule"];
+  } else {
+    if (gridName.substring(dotIndex+1) == "json") {
+      return [name, "logoposition"];
+    } else {
+      return [name, "wide_capsule"];
+    }
+  }
+}
+
 /**
  * The main controller for the application
  */
@@ -182,33 +211,6 @@ export class AppController {
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
   }
-
-  /**
-   * Gets the id and grid type from a grids filename.
-   * @param gridName The filename of the grid.
-   * @returns A tuple of [appid, gridType].
-   */
-  private static getIdFromGridName(gridName: string): [string, string] {
-    const dotIndex = gridName.indexOf(".");
-    const underscoreIndex = gridName.indexOf("_");
-    const name = gridName.substring(0, dotIndex);
-  
-    if (underscoreIndex > 0) {
-      const id = name.substring(0, underscoreIndex);
-      const type = name.substring(underscoreIndex+1);
-  
-      return [id, type];
-    } else if (name.endsWith("p")) {
-      const id = name.substring(0, name.length - 1);
-      return [id, "capsule"];
-    } else {
-      if (gridName.substring(dotIndex+1) == "json") {
-        return [name, "logoposition"];
-      } else {
-        return [name, "wide_capsule"];
-      }
-    }
-  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
@@ -228,7 +230,7 @@ export class AppController {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
       } else {
-        const [appid, type] = AppController.getIdFromGridName(fileEntry.name);
+        const [appid, type] = getIdFromGridName(fileEntry.name);
         
         const idTypeString = `${appid}_${type}`;
 
