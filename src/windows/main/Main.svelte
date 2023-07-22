@@ -2,7 +2,7 @@
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	// import { Splitpanes } from 'svelte-splitpanes';
+	import { Splitpanes } from 'svelte-splitpanes';
 	import Footer from "../../components/Footer.svelte";
 	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
@@ -13,16 +13,15 @@
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
-  import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+  import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
-  import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
-  import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
-  import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
-  import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
-  import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
-  import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
-  import CleanConflictDialog from "../../components/toast-modals/clean-grids/CleanConflictDialog.svelte";
-  import { Splitpanes } from "svelte-splitpanes";
+  import LogoPositionModal from "../../components/modals/LogoPositionModal.svelte";
+  import BatchApplyModal from "../../components/modals/batch-apply/BatchApplyModal.svelte";
+  import BatchApplyProgressModal from "../../components/modals/batch-apply/BatchApplyProgressModal.svelte";
+  import ManualGamesModal from "../../components/modals/manual-games/ManualGamesModal.svelte";
+  import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
+  import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
+  import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
 	
 	let mainFocusUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
