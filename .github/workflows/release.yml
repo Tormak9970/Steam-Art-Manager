@@ -117,6 +117,9 @@ jobs:
           release_id: ${{ needs.create-release.outputs.release_id }}
           release_tag: ${{ needs.create-release.outputs.tag }}
           git_branch: "release"
+          change_log: ${{ needs.create-release.outputs.change_log }}
+
+      # Bump all distributions/package managers here
           
       - name: Publish Release
         id: publish-release

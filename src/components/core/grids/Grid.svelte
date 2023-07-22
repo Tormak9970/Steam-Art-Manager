@@ -144,7 +144,6 @@
   .show-notes:hover { cursor: default; opacity: 0.8; }
 
   .show-animated {
-    background-color: var(--sgdb-animated-color);
     display: flex;
     cursor: default;
 
@@ -152,7 +151,8 @@
     left: auto;
     right: 2px;
     
-    opacity: 1;
+    background-color: var(--background);
+    opacity: 0.8;
   }
   .show-animated:hover {
     display: flex;

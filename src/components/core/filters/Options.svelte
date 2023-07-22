@@ -97,7 +97,8 @@
 
 <style>
   .content {
-    margin: 0px 6px;
+    /* margin: 0px 6px; */
+    margin-left: 6px;
     padding: 0px 6px;
     overflow: auto;
     max-height: calc(100% - 65px)
