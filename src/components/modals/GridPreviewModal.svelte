@@ -11,7 +11,7 @@
 
   export let onClose: () => void;
 
-  const mdIt = new MarkDownIt({ //try "commonmark"
+  const mdIt = new MarkDownIt({
     html: true,
     linkify: true
   });

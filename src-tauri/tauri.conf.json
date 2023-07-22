@@ -138,7 +138,7 @@
 			"endpoints": [
 				"https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
 			],
-			"dialog": true,
+			"dialog": false,
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
 		},
 		"windows": [
