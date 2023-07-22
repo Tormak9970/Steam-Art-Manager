@@ -32,6 +32,7 @@ runs:
         release_id: ${{ inputs.release_id }}
         release_tag: ${{ inputs.release_tag }}
         git_branch: ${{ inputs.git_branch }}
+        change_log: ${{ inputs.change_log }}
       with:
         script: |
           const fs = require("fs");
@@ -137,7 +138,7 @@ runs:
 
             const latestContentsJson = JSON.parse(latestContents);
             latestContentsJson.notes = process.env.change_log;
-            latestContents = JSON.stringify(latestContentsJson);
+            latestContents = JSON.stringify(latestContentsJson, null, '\t');
 
             await deleteReleaseAsset(latest.id);
             await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
@@ -162,7 +163,7 @@ runs:
             await commit("chore(release): updating latest.json to generated version.");
             await push(process.env.git_branch);
 
-            core.info("Committed changes to latest.json complete!");
+            core.info("Committed changes to latest.json.");
           } else {
-            core.info("Skipping latest.json upload for debug release");
+            core.info("Skipping latest.json upload for debug release.");
           }
