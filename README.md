@@ -23,7 +23,7 @@ To get the most recent release, head to the [latest release](https://github.com/
 
 ### For Windows:
  - **Downloading from GitHub**: Download the `steam-art-manager.msi` file, and run it to install SARM.
- - **Chocolatey**: run `choco install sarm`.
+ - **Chocolatey (Under Review)**: run `choco install sarm`.
 
 ### For Linux:
   1. Download the `linux-installer.sh` bash script.
