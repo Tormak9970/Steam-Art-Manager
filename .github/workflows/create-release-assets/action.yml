@@ -18,6 +18,10 @@ inputs:
     description: "The target release tag."
     required: true
 
+  change_log:
+    description: "The target release change log."
+    required: false
+
 runs:
   using: 'composite'
   steps:
@@ -126,12 +130,16 @@ runs:
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
             const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
-            let latestContents = latestContentsBuff.toString();
-            await deleteReleaseAsset(latest.id);
 
+            let latestContents = latestContentsBuff.toString();
             latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
             latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
-            
+
+            const latestContentsJson = JSON.parse(latestContents);
+            latestContentsJson.notes = process.env.change_log;
+            latestContents = JSON.stringify(latestContentsJson);
+
+            await deleteReleaseAsset(latest.id);
             await uploadReleaseAsset("latest.json", Buffer.from(latestContents));
 
             const latestPath = path.resolve(process.cwd(), "latest.json");
