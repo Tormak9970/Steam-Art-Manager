@@ -111,7 +111,17 @@
 				"timestampUrl": "",
 				"webviewInstallMode": {
 					"type": "offlineInstaller"
-				}
+				},
+        "wix": {
+          "language": {
+            "en-US": {
+              "localePath": "wix/locales/en-US.wxl"
+            }
+          },
+          "license": "wix/short-license.txt",
+          "bannerPath": "wix/bannerImage.jpg",
+          "dialogImagePath": "wix/dialogImage.jpg"
+        }
 			},
 			"appimage": {
 				"bundleMediaFramework": false

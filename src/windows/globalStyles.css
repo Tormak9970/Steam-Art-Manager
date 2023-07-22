@@ -74,35 +74,14 @@ body {
   overflow: hidden;
 }
 
-a {
-  color: var(--link-color);
-}
+a { color: var(--link-color); }
+a:visited { color: var(--link-color-visited); }
 
-a:visited {
-  color: var(--link-color-visited);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--foreground-light);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground-light-hover);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--foreground-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--foreground-light-hover); }
+::-webkit-scrollbar-corner { background: transparent; }
 
 #entryPoint {
   width: 100%;
@@ -135,14 +114,18 @@ a:visited {
 }
 
 .overflow-shadow-container::before {
+  --mask: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
   top: 0;
-  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+  mask-image: var(--mask);
+  -webkit-mask-image: var(--mask);
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
 }
 
 .overflow-shadow-container::after {
+  --mask: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
   bottom: 0px;
-  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
+  mask-image: var(--mask);
+  -webkit-mask-image: var(--mask);
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
 }
 
@@ -159,31 +142,33 @@ a:visited {
 .splitpanes__pane { background-color: var(--background-dark) !important; }
 
 .splitpanes__splitter {
-	background-color: var(--background-dark-hover) !important;
-	border-left: 1px solid transparent !important;
-	border-right: 1px solid transparent !important;
-	position: relative;
+	background-color: transparent !important;
+	border: none !important;
+  cursor: ew-resize !important;
+  display: flex !important;
+  justify-content: center;
+  transition: background-color 0.14s ease-in-out;
+  width: 6px !important;
 }
-.splitpanes__splitter:before {
+/* .splitpanes__splitter:hover {
+	background-color: var(--background) !important;
+} */
+.splitpanes__splitter::before{
 	content: '';
-	position: absolute;
-	left: 0;
-	top: 0;
-	transition: opacity 0.4s;
-	background-color: var(--foreground-light) !important;
-	opacity: 0;
-	z-index: 1;
+	position: static !important;
+	background-color: var(--background) !important;
 }
-.splitpanes__splitter:hover:before { opacity: 1; }
-.splitpanes--vertical > .splitpanes__splitter:before {
-	left: -30px;
-	right: -30px;
-	height: 100%;
+.splitpanes__splitter::after{ display: none !important; }
+
+.splitpanes--vertical > .splitpanes__splitter::before {
+  margin: 0 !important;
+  transform: none !important;
+	height: 100% !important;
+  width: 2px !important;
+  transition: width 0.14s ease-in-out !important;
 }
-.splitpanes--horizontal > .splitpanes__splitter:before {
-	top: -30px;
-	bottom: -30px;
-	width: 100%;
+.splitpanes--vertical > .splitpanes__splitter:hover::before {
+  width: 6px !important;
 }
 
 
