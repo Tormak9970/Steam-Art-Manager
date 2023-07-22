@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { checkUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
@@ -9,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -22,8 +23,10 @@
   import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
   import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
   import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
+  import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
 	
 	let mainFocusUnsub: any;
+  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
@@ -103,9 +106,6 @@
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
   }
 
-  const dividerColor = 'black';
-  const dividerThickness = '20px';
-
 	onMount(async () => {
     window.addEventListener("error", onError);
 
@@ -133,12 +133,29 @@
 			if (navigator.onLine) $isOnline = true;
 		}
 
+    updateUnsub = await onUpdaterEvent(({ error, status }) => {
+      // This will log all updater events, including status updates and errors.
+      // TODO: make this better.
+      console.log('Updater event', error, status);
+    });
+
+    try {
+      const { shouldUpdate, manifest } = await checkUpdate();
+
+      if (shouldUpdate) {
+        $updateManifest = manifest;
+        $showUpdateModal = true;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
 		await AppController.setup();
 
-		if (!$isOnline) {
-			const wantsToContinue = await AppController.promptOffline();
+    if (!$isOnline) {
+      const wantsToContinue = await AppController.promptOffline();
       if (!wantsToContinue) exit(0);
-		}
+    }
 
     AppController.init();
 	});
@@ -148,6 +165,7 @@
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();
+    if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});
@@ -184,6 +202,9 @@
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />
+    {/if}
+    {#if $showUpdateModal}
+      <UpdateModal />
     {/if}
 		<Splitpanes>
 			<Options />

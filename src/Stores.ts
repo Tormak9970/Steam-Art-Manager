@@ -1,6 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "./lib/models/SGDB";
 import { sharedStore } from "./lib/utils/SharedStore";
+import type { UpdateManifest } from "@tauri-apps/api/updater";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -98,6 +99,9 @@ export const showSettingsModal = writable(false);
 
 export const showCleanConflictDialog = writable(false);
 export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
+
+export const showUpdateModal = writable(false);
+export const updateManifest: Writable<UpdateManifest> = writable(null);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
