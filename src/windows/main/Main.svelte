@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { checkUpdate, onUpdaterEvent } from '@tauri-apps/api/updater';
+  import { checkUpdate } from '@tauri-apps/api/updater';
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
@@ -26,7 +26,6 @@
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
 	
 	let mainFocusUnsub: any;
-  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
@@ -133,12 +132,6 @@
 			if (navigator.onLine) $isOnline = true;
 		}
 
-    updateUnsub = await onUpdaterEvent(({ error, status }) => {
-      // This will log all updater events, including status updates and errors.
-      // TODO: make this better.
-      console.log('Updater event', error, status);
-    });
-
     try {
       const { shouldUpdate, manifest } = await checkUpdate();
 
@@ -165,7 +158,6 @@
 		await AppController.destroy();
 
 		if (mainFocusUnsub) mainFocusUnsub();
-    if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});
