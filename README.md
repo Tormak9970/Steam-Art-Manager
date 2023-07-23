@@ -26,9 +26,13 @@ To get the most recent release, head to the [latest release](https://github.com/
  - **Chocolatey (Under Review)**: run `choco install sarm`.
 
 ### For Linux:
-  1. Download the `linux-installer.sh` bash script.
-  2. Right click it, go to permissions, and mark it as executable.
-  3. Double click the script to install SARM.
+  - **AppImage**:
+    1. Download the `linux-installer.sh` bash script.
+    2. Right click it, go to permissions, and mark it as executable.
+    3. Double click the script to install SARM.
+  - **Flatpak**:
+    - Standalone: (In progress)
+    - Flathub: (In progress)
 
 ## How to use the app
 When using Steam Art Manager, your workflow will typically be:
