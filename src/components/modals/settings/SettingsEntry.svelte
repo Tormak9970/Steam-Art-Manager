@@ -27,7 +27,7 @@
 
 <div class="setting">
   <h1 class="label">{label}</h1>
-  <TextInput placeholder={"Your API key"} onChange={onChange} width="{220}" bind:value={value} />
+  <TextInput placeholder={"Your API key"} onInput={onChange} width="{220}" bind:value={value} />
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
