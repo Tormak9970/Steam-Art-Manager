@@ -44,7 +44,6 @@ export interface SGDBImage {
 
   style: string;
   mime: string;
-  tags: string[];
   humor: boolean;
   epilepsy: boolean;
   nsfw: boolean;
@@ -52,12 +51,10 @@ export interface SGDBImage {
   
   isAnimated: boolean;
 
-  score: number;
   downvotes: number;
   upvotes: number;
 
   lock: boolean;
-  // is_animated: boolean;
   // is_deleted: boolean;
 }
 
