@@ -517,7 +517,7 @@ async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset
 
 #[tauri::command]
 /// Adds the user's steam directory to Tauri FS and Asset scope.
-async fn add_steam_to_scope(app_handle: AppHandle) -> bool {
+async fn add_steam_to_scope(app_handle: AppHandle) {
   let steam_path_res = get_steam_root_dir();
 
   if steam_path_res.is_ok() {
@@ -542,13 +542,17 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> bool {
       let asset_err = asset_res.err().unwrap();
       logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
     }
-
-    return true;
   } else {
     let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
     logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
 
-    return false;
+    let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
+      .buttons(MessageDialogButtons::Ok)
+      .show();
+
+    if hit_ok {
+      exit(1);
+    }
   }
 }
 

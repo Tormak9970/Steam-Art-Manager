@@ -10,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -24,9 +24,9 @@
   import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
   import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
-    import DialogModal from "../../components/modals/DialogModal.svelte";
 	
-  let updateUnsub: any;
+	let mainFocusUnsub: any;
+  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
@@ -109,6 +109,11 @@
 	onMount(async () => {
     window.addEventListener("error", onError);
 
+    WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
+      isFocused = true; //focused;
+    }).then((unsub) => {
+			mainFocusUnsub = unsub;
+		});
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
 			selectedUserId = id.toString();
 		});
@@ -159,6 +164,7 @@
     window.removeEventListener("error", onError);
 		await AppController.destroy();
 
+		if (mainFocusUnsub) mainFocusUnsub();
     if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
@@ -173,9 +179,6 @@
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
   </Titlebar>
 	<div class="content">
-    {#if $showDialogModal}
-      <DialogModal />
-    {/if}
     {#if $showGridModal}
 		  <GridPreviewModal onClose={onGridModalClose} />
     {/if}
