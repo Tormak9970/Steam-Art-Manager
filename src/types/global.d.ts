@@ -4,15 +4,15 @@ type GameStruct = {
 }
 
 type AppSettings = {
-  version: string;
-  shownShortcutPrompt: boolean;
-  theme: number;
-  steamGridDbApiKey: string;
-  steamApiKeyMap: {
-    [userId32: string]: string
-  };
+  version: string,
+  steamInstallPath: string,
+  shownShortcutPrompt: boolean,
+  theme: number,
+  steamGridDbApiKey: string,
+  steamApiKeyMap: { [userId32: string]: string },
   hiddenGameIds: [],
-  manualSteamGames: GameStruct[]
+  manualSteamGames: GameStruct[],
+  customGameNames: { [appId: string]: string }
 };
 
 type SteamRegistryApp = {

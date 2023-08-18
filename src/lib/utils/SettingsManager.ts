@@ -18,7 +18,7 @@
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
 
-const DEFAULT_SETTINGS = `{ "version": "", "shownShortcutPrompt": false, "theme": 0, "steamGridDbApiKey": "", "steamApiKeyMap": {}, "hiddenGameIds": [], "manualSteamGames": [] }`;
+const DEFAULT_SETTINGS = `{ "version": "", "steamInstallPath": "", "shownShortcutPrompt": false, "theme": 0, "steamGridDbApiKey": "", "steamApiKeyMap": {}, "hiddenGameIds": [], "manualSteamGames": [], "customGameNames": {} }`;
 
 /**
  * A class for managing application settings

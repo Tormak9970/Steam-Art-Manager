@@ -35,11 +35,15 @@ export const theme = sharedStore(Theme.DARK, "theme");
 
 export const requestTimeoutLength = writable(5000);
 
-export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
-export const needsSteamKey = sharedStore(true, "needsSteamKey");
+export const needsSGDBAPIKey = writable(true);
+export const steamGridDBKey = writable("");
 
-export const steamGridDBKey = sharedStore("", "steamGridDBKey");
-export const steamKey = sharedStore("", "steamKey");
+export const needsSteamKey = writable(true);
+export const steamKey = writable("");
+
+export const needsSteamInstallPath = writable(true);
+export const steamInstallPath = writable("");
+
 export const selectedResultPage = writable(0);
 
 export const canSave = writable(false);
@@ -65,6 +69,7 @@ export const steamGames: Writable<GameStruct[]> = writable([]);
 export const nonSteamGames: Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds: Writable<number[]> = writable([]);
 export const manualSteamGames: Writable<GameStruct[]> = writable([]);
+export const customGameNames: Writable<{ [appid: string]: string }> = writable({});
 
 export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});

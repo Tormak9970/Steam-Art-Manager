@@ -39,6 +39,13 @@ export class RustInterop {
   }
 
   /**
+   * Adds the provided path to the file access scope.
+   */
+  static async addPathToScope(path: string): Promise<boolean> {
+    return await invoke<boolean>("add_path_to_scope", { targetPath: path });
+  }
+
+  /**
    * Cleans the app's log file.
    */
   static async cleanOutLog(): Promise<void> {

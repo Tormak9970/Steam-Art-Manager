@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -76,6 +76,31 @@ function getIdFromGridName(gridName: string): [string, string] {
   }
 }
 
+async function findSteamPath(savedInstallPath: string): Promise<void> {
+  if (savedInstallPath !== "") {
+    // TODO: verify directory still exists
+      // TODO: if so, add to scope
+    // * else, show modal and proceed accordingly
+  } else {
+    const steamAdded = await RustInterop.addSteamToScope();
+
+    if (!steamAdded) {
+      // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
+      // .buttons(MessageDialogButtons::Ok)
+      // .show();
+
+      // if hit_ok {
+      //   exit(1);
+      // }
+      // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
+    } else {
+      
+    }
+
+    // TODO: set store for showing the steam path settings field
+  }
+}
+
 /**
  * The main controller for the application
  */
@@ -124,22 +149,13 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
-    const steamAdded = await RustInterop.addSteamToScope();
-
-    if (!steamAdded) {
-      // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
-      // .buttons(MessageDialogButtons::Ok)
-      // .show();
-
-      // if hit_ok {
-      //   exit(1);
-      // }
-      // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
-    }
-
-    // TODO: set store for showing the steam path settings field
-
     AppController.cacheController = new CacheController();
+
+    await SettingsManager.setSettingsPath();
+    let settings: AppSettings = await SettingsManager.getSettings();
+
+    await findSteamPath(settings.steamInstallPath);
+
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
 
@@ -190,9 +206,6 @@ export class AppController {
 
     const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
-    
-    await SettingsManager.setSettingsPath();
-    let settings: AppSettings = await SettingsManager.getSettings();
 
     if (settings.steamGridDbApiKey != "") {
       steamGridDBKey.set(settings.steamGridDbApiKey);
@@ -208,6 +221,9 @@ export class AppController {
       manualSteamGames.set(settings.manualSteamGames);
       LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
     }
+
+    customGameNames.set(settings.customGameNames);
+    LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
 
     theme.set(settings.theme);
     document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
