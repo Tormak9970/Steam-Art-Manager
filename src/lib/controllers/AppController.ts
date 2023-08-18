@@ -143,8 +143,6 @@ export class AppController {
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
 
-    // TODO: handle case where users is empty (need to make backend not crash in this case)
-
     if (Object.keys(users).length === 0) {
       await new Promise<void>((resolve) => {
         AppController.showBasicModal(
