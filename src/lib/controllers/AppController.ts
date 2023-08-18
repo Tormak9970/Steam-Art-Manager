@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -46,7 +46,6 @@ const libraryCacheLUT = {
   "icon": GridTypes.ICON,
   "logo": GridTypes.LOGO
 }
-
 
 
 /**
@@ -78,13 +77,23 @@ function getIdFromGridName(gridName: string): [string, string] {
 
 async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
-    // TODO: verify directory still exists
-      // TODO: if so, add to scope
-    // * else, show modal and proceed accordingly
-  } else {
-    const steamAdded = await RustInterop.addSteamToScope();
+    if (await fs.exists(savedInstallPath)) {
+      const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
 
-    if (!steamAdded) {
+      if (steamInstallPathAdded) {
+        steamInstallPath.set(savedInstallPath);
+      } else {
+        // TODO: figure out what to do here. path exists but failed to add it to scope
+      }
+    } else {
+      // * show modal and proceed accordingly
+    }
+  } else {
+    const returnedInstallPath = await RustInterop.addSteamToScope();
+
+    if (returnedInstallPath === "") {
+      // TODO: figure out what to do here. path exists but failed to add it to scope
+    } else if (returnedInstallPath === "DNE") {
       // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
       // .buttons(MessageDialogButtons::Ok)
       // .show();
@@ -94,10 +103,9 @@ async function findSteamPath(savedInstallPath: string): Promise<void> {
       // }
       // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
     } else {
-      
+      steamInstallPath.set(returnedInstallPath);
+      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
     }
-
-    // TODO: set store for showing the steam path settings field
   }
 }
 

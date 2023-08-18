@@ -546,17 +546,24 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
 
 #[tauri::command]
 /// Adds the user's steam directory to Tauri FS and Asset scope.
-async fn add_steam_to_scope(app_handle: AppHandle) -> bool {
+async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   let steam_path_res = get_steam_root_dir();
 
   if steam_path_res.is_ok() {
     let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get steam path from result.");
-    return add_path_to_scope(app_handle, String::from(steam_path.as_os_str().to_str().expect("Should have been able to convert Steam path PathBuf to str."))).await;
+    let steam_path_str: String = String::from(steam_path.as_os_str().to_str().expect("Should have been able to convert Steam path PathBuf to str."));
+    let was_added: bool = add_path_to_scope(app_handle, steam_path_str.to_owned()).await;
+
+    if was_added {
+      return steam_path_str;
+    } else {
+      return String::from("");
+    }
   } else {
     let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
     logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
 
-    return false;
+    return String::from("DNE");
   }
 }
 

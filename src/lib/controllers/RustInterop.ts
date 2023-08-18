@@ -34,8 +34,8 @@ export class RustInterop {
   /**
    * Checks if steam is installed, and if so, it adds it to the file access scope.
    */
-  static async addSteamToScope(): Promise<boolean> {
-    return await invoke<boolean>("add_steam_to_scope", {});
+  static async addSteamToScope(): Promise<string> {
+    return await invoke<string>("add_steam_to_scope", {});
   }
 
   /**
