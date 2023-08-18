@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -29,6 +29,7 @@ import { xml2json } from "../utils/xml2json";
 import { createTippy } from 'svelte-tippy';
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
+import { exit } from "@tauri-apps/api/process";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -99,14 +100,66 @@ export class AppController {
   }
 
   /**
+   * Sets up and displays a dialog modal.
+   * @param title The title of the dialog modal.
+   * @param message The message of the dialog modal.
+   * @param confirmText The text displayed for the confirm action.
+   * @param confirmCallback The callback to run on confirm.
+   * @param cancelText The text displayed for the cancel action.
+   * @param cancelCallback The callback to run on cancel.
+   */
+  static showBasicModal(title: string, message: string, confirmText: string, confirmCallback: () => Promise<void>, cancelText: string, cancelCallback: () => Promise<void>) {
+    dialogModalTitle.set(title);
+    dialogModalMessage.set(message);
+    dialogModalConfirmText.set(confirmText);
+    dialogModalConfirm.set(confirmCallback);
+    dialogModalCancelText.set(cancelText);
+    dialogModalCancel.set(cancelCallback);
+
+    showDialogModal.set(true);
+  }
+
+  /**
    * Sets up the AppController.
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
-    await RustInterop.addSteamToScope();
+    const steamAdded = await RustInterop.addSteamToScope();
+
+    if (!steamAdded) {
+      // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
+      // .buttons(MessageDialogButtons::Ok)
+      // .show();
+
+      // if hit_ok {
+      //   exit(1);
+      // }
+      // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
+    }
+
+    // TODO: set store for showing the steam path settings field
+
     AppController.cacheController = new CacheController();
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
+
+    // TODO: handle case where users is empty (need to make backend not crash in this case)
+
+    if (Object.keys(cleanedUsers).length === 0) {
+      await new Promise<void>((resolve) => {
+        AppController.showBasicModal(
+          "No Steam Users Found",
+          "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
+          "Ok",
+          async () => {
+            resolve();
+          },
+          "",
+          async () => {}
+        )
+      });
+      await exit(0);
+    }
 
     //? need to clean the data here bc props can vary in terms of case
     for (const [id, user] of Object.entries(users)) {
