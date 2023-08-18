@@ -149,20 +149,22 @@ fn read_steam_users() -> Map<String, Value> {
   let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
 
-  let id_start_matches: Vec<(usize, &str)> = contents.match_indices("\n\t\"").collect();
-  let block_end_matches: Vec<(usize, &str)> = contents.match_indices("}").collect();
+  if contents != String::from("") {
+    let id_start_matches: Vec<(usize, &str)> = contents.match_indices("\n\t\"").collect();
+    let block_end_matches: Vec<(usize, &str)> = contents.match_indices("}").collect();
 
-  for (vec_index, (index, _)) in id_start_matches.iter().enumerate() {
-    let close_brace_index: usize = block_end_matches[vec_index].0;
-    let user_block: String = contents[(*index + 3)..close_brace_index].to_owned();
+    for (vec_index, (index, _)) in id_start_matches.iter().enumerate() {
+      let close_brace_index: usize = block_end_matches[vec_index].0;
+      let user_block: String = contents[(*index + 3)..close_brace_index].to_owned();
 
-    let id: String = read_steam_user_id(&user_block);
-    
-    let user_map: Map<String, Value> = read_steam_user(&id, &user_block[(id.len() + 4)..]);
+      let id: String = read_steam_user_id(&user_block);
+      
+      let user_map: Map<String, Value> = read_steam_user(&id, &user_block[(id.len() + 4)..]);
 
-    steam_users.insert(id.to_string(), Value::Object(user_map));
+      steam_users.insert(id.to_string(), Value::Object(user_map));
+    }
   }
-
+  
   return steam_users;
 }
 

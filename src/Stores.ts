@@ -102,6 +102,14 @@ export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
 export const showUpdateModal = writable(false);
 export const updateManifest: Writable<UpdateManifest> = writable(null);
 
+export const showDialogModal = writable(false);
+export const dialogModalTitle = writable("");
+export const dialogModalMessage = writable("");
+export const dialogModalConfirmText = writable("");
+export const dialogModalConfirm = writable(async () => {});
+export const dialogModalCancelText = writable("");
+export const dialogModalCancel = writable(async () => {});
+
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
