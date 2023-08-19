@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { invoke } from "@tauri-apps/api";
+import { get } from "svelte/store";
+import { steamInstallPath } from "../../Stores";
 
 /**
  * The available logging levels.
@@ -31,6 +33,11 @@ export enum LogLevel {
  * ! Should do no logging here.
  */
 export class RustInterop {
+
+  private static get steamPath() {
+    return get(steamInstallPath);
+  }
+
   /**
    * Checks if steam is installed, and if so, it adds it to the file access scope.
    */
@@ -76,7 +83,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's grids directory.
    */
   static async getGridsDirectory(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_grids_directory", { steamActiveUserId: activeUserId });
+    return await invoke<string>("get_grids_directory", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -84,7 +91,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's appinfo.vdf path.
    */
   static async getAppinfoPath(): Promise<string> {
-    return await invoke<string>("get_appinfo_path", {});
+    return await invoke<string>("get_appinfo_path", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -93,7 +100,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's shortcuts.vdf path.
    */
   static async getShortcutsPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_shortcuts_path", { steamActiveUserId: activeUserId });
+    return await invoke<string>("get_shortcuts_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -102,7 +109,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's localconfig.vdf path.
    */
   static async getLocalconfigPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_localconfig_path", { steamActiveUserId: activeUserId });
+    return await invoke<string>("get_localconfig_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -110,7 +117,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
-    return await invoke<string>("get_library_cache_directory", {});
+    return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -118,7 +125,7 @@ export class RustInterop {
    * @returns A promise resolving to the list of steam users on this computer.
    */
   static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
-    return JSON.parse(await invoke<string>("get_steam_users", {}));
+    return JSON.parse(await invoke<string>("get_steam_users", { steamPath: RustInterop.steamPath }));
   }
 
   /**
@@ -129,7 +136,7 @@ export class RustInterop {
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
   static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", { steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
+    return await invoke<boolean>("export_grids_to_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
   }
 
   /**
@@ -139,7 +146,7 @@ export class RustInterop {
    * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
   static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
-    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
+    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
     return res;
   }
 
@@ -148,7 +155,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the appinfo.vdf file.
    */
   static async readAppinfoVdf(): Promise<any> {
-    return JSON.parse(await invoke<string>("read_appinfo_vdf", {}));
+    return JSON.parse(await invoke<string>("read_appinfo_vdf", { steamPath: RustInterop.steamPath }));
   }
 
   /**
@@ -157,7 +164,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the shortcuts.vdf file.
    */
   static async readShortcutsVdf(activeUserId: string): Promise<any> {
-    return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamActiveUserId: activeUserId }));
+    return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId }));
   }
 
   /**
@@ -166,7 +173,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the localconfig.vdf file.
    */
   static async readLocalconfigVdf(activeUserId: string): Promise<any> {
-    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamActiveUserId: activeUserId }));
+    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId }));
   }
 
   /**
@@ -192,7 +199,7 @@ export class RustInterop {
     const shortcutsObj = {
       "shortcuts": {...shortcuts}
     }
-    const res = await invoke<string>("save_changes", { currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
+    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
   }
 
@@ -206,7 +213,7 @@ export class RustInterop {
     const shortcutsObj = {
       "shortcuts": {...shortcuts}
     }
-    const res = await invoke<string>("write_shortcuts", { shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
+    const res = await invoke<string>("write_shortcuts", { steamPath: RustInterop.steamPath, shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
     return JSON.parse(res);
   }
 
@@ -236,6 +243,6 @@ export class RustInterop {
    * @returns A promise resolving to an array of CleanConflicts.
    */
   static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
-    return JSON.parse(await invoke<string>("clean_grids", { steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
+    return JSON.parse(await invoke<string>("clean_grids", { steamPath: RustInterop.steamPath, steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
   }
 }

@@ -56,10 +56,10 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
 
 #[tauri::command]
 /// Gets the steam grids directory.
-pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) -> String {
+pub fn get_grids_directory(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   let grids_dir: String = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
@@ -73,37 +73,37 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_active_user_id: String) 
 
 #[tauri::command]
 /// Gets the steam library cache directory.
-pub fn get_library_cache_directory(app_handle: AppHandle) -> String {
+pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
   
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   return steam_root.join("appcache/librarycache").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
 /// Gets the steam appinfo.vdf path.
-pub fn get_appinfo_path(app_handle: AppHandle) -> String {
+pub fn get_appinfo_path(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
 /// Gets the steam shortcuts.vdf path.
-pub fn get_shortcuts_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
+pub fn get_shortcuts_path(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
 /// Gets the steam localconfig.vdf path.
-pub fn get_localconfig_path(app_handle: AppHandle, steam_active_user_id: String) -> String {
+pub fn get_localconfig_path(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
   
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
@@ -142,10 +142,10 @@ fn read_steam_user(user_id: &str, user_block: &str) -> Map<String, Value> {
 }
 
 /// Reads the steam users.
-fn read_steam_users() -> Map<String, Value> {
+fn read_steam_users(steam_path: String) -> Map<String, Value> {
   let mut steam_users: Map<String, Value> = Map::new();
     
-  let steam_root: PathBuf = get_steam_root_dir().ok().expect("Steam install path should have been fine if this point is reached.");
+  let steam_root: PathBuf = PathBuf::from(steam_path);
   let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
 
@@ -170,10 +170,10 @@ fn read_steam_users() -> Map<String, Value> {
 
 #[tauri::command]
 /// Gets all steam users that have logged in on this computer.
-pub fn get_steam_users(app_handle: AppHandle) -> String {
+pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Checking config/loginusers.vdf for current user info.", 0);
     
-  let steam_users = read_steam_users();
+  let steam_users = read_steam_users(steam_path);
   
   logger::log_to_core_file(app_handle.to_owned(), format!("Loaded {} steam users.", steam_users.len()).as_str(), 0);
 
