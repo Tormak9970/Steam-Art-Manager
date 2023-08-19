@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -30,6 +30,7 @@ import { createTippy } from 'svelte-tippy';
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
 import { exit } from "@tauri-apps/api/process";
+import { DialogController } from "./DialogController";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -76,41 +77,44 @@ function getIdFromGridName(gridName: string): [string, string] {
 }
 
 async function findSteamPath(savedInstallPath: string): Promise<void> {
-  if (savedInstallPath !== "") {
-    if (await fs.exists(savedInstallPath)) {
-      const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
+  const returnedInstallPath = await RustInterop.addSteamToScope();
 
-      if (steamInstallPathAdded) {
-        steamInstallPath.set(savedInstallPath);
-      } else {
-        // TODO: figure out what to do here. path exists but failed to add it to scope
-      }
-    } else {
-      // * show modal and proceed accordingly
-    }
-  } else {
-    const returnedInstallPath = await RustInterop.addSteamToScope();
+  // ! for some reason this is really slow. maybe the fs.exists? May also be that my wifi is shit
+  // if (savedInstallPath !== "") {
+  //   if (await fs.exists(savedInstallPath)) {
+  //     const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
 
-    if (returnedInstallPath === "") {
-      // TODO: figure out what to do here. path exists but failed to add it to scope
-    } else if (returnedInstallPath === "DNE") {
-      // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
-      // .buttons(MessageDialogButtons::Ok)
-      // .show();
+  //     if (steamInstallPathAdded) {
+  //       steamInstallPath.set(savedInstallPath);
+  //     } else {
+  //       // TODO: figure out what to do here. path exists but failed to add it to scope
+  //     }
+  //   } else {
+  //     // * show modal and proceed accordingly
+  //   }
+  // } else {
+  //   const returnedInstallPath = await RustInterop.addSteamToScope();
 
-      // if hit_ok {
-      //   exit(1);
-      // }
-      // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
-    } else {
-      steamInstallPath.set(returnedInstallPath);
-      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
-    }
-  }
+  //   if (returnedInstallPath === "") {
+  //     // TODO: figure out what to do here. path exists but failed to add it to scope
+  //   } else if (returnedInstallPath === "DNE") {
+  //     // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
+  //     // .buttons(MessageDialogButtons::Ok)
+  //     // .show();
+
+  //     // if hit_ok {
+  //     //   exit(1);
+  //     // }
+  //     // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
+  //   } else {
+  //     steamInstallPath.set(returnedInstallPath);
+  //     await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
+  //   }
+  // }
 }
 
 /**
- * The main controller for the application
+ * The main controller for the application.
  */
 export class AppController {
   private static cacheController = null;
@@ -133,26 +137,6 @@ export class AppController {
   }
 
   /**
-   * Sets up and displays a dialog modal.
-   * @param title The title of the dialog modal.
-   * @param message The message of the dialog modal.
-   * @param confirmText The text displayed for the confirm action.
-   * @param confirmCallback The callback to run on confirm.
-   * @param cancelText The text displayed for the cancel action.
-   * @param cancelCallback The callback to run on cancel.
-   */
-  static showBasicModal(title: string, message: string, confirmText: string, confirmCallback: () => Promise<void>, cancelText: string, cancelCallback: () => Promise<void>) {
-    dialogModalTitle.set(title);
-    dialogModalMessage.set(message);
-    dialogModalConfirmText.set(confirmText);
-    dialogModalConfirm.set(confirmCallback);
-    dialogModalCancelText.set(cancelText);
-    dialogModalCancel.set(cancelCallback);
-
-    showDialogModal.set(true);
-  }
-
-  /**
    * Sets up the AppController.
    * ? Logging complete.
    */
@@ -168,18 +152,12 @@ export class AppController {
     const cleanedUsers: { [id: string]: SteamUser } = {};
 
     if (Object.keys(users).length === 0) {
-      await new Promise<void>((resolve) => {
-        AppController.showBasicModal(
-          "No Steam Users Found",
-          "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
-          "Ok",
-          async () => {
-            resolve();
-          },
-          "",
-          async () => {}
-        )
-      });
+      await DialogController.message(
+        "No Steam Users Found",
+        "ERROR",
+        "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
+        "Ok",
+      );
       await exit(0);
     }
 

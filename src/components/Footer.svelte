@@ -5,14 +5,11 @@
   import Button from "./interactables/Button.svelte";
   import IconButton from "./interactables/IconButton.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
-  import { dialog } from "@tauri-apps/api";
+  import { DialogController } from "../lib/controllers/DialogController";
 
   async function onCleanGridsClick(): Promise<void> {
     if ($canSave) {
-      const shouldSaveAndOpen = await dialog.ask("You need to save your changes before cleaning. Would you like to save?", {
-        title: "Found existing changes",
-        type: "warning"
-      });
+      const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");
 
       if (shouldSaveAndOpen) {
         await AppController.saveChanges();

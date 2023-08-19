@@ -3,8 +3,8 @@
   import { onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
   import { canSave } from "../Stores";
-  import { dialog } from "@tauri-apps/api";
   import { LogController } from "../lib/controllers/LogController";
+  import { DialogController } from "../lib/controllers/DialogController";
 
   export let title: string;
 
@@ -24,11 +24,11 @@
       console.log(title);
       if (title == "Steam Art Manager") {
         if ($canSave) {
-          const shouldQuit = await dialog.confirm("You have unsaved changes! Quitting will cause you to loose them", {
-            title: "Unsaved Changes!",
-            type: "warning"
-          });
-          if (shouldQuit) await exit(0);
+          const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+          if (shouldQuit) {
+            const success = await exit(0);
+            LogController.log(`Program exited: ${success}`);
+          }
         } else {
           const success = await exit(0);
           LogController.log(`Program exited: ${success}`);
