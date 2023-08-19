@@ -1,9 +1,29 @@
 import { dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, dialogModalType, showDialogModal } from "../../Stores";
+import { LogController } from "./LogController";
 
 /**
  * Controller class for handling dialog modals.
  */
 export class DialogController {
+
+  /**
+   * Logs the title of a shown dialog based on its type.
+   * @param type The type of message to log.
+   * @param title The title of the dialog.
+   */
+  private static async logByType(type: DialogModalType, title: string) {
+    switch (type) {
+      case "INFO":
+        await LogController.log(title);
+        break;
+      case "WARNING":
+        await LogController.warn(title);
+        break;
+      case "ERROR":
+        await LogController.error(title);
+        break;
+    }
+  }
 
   /**
    * Displays a message with a single button.
@@ -13,6 +33,7 @@ export class DialogController {
    * @param confirmText The text displayed in the button.
    */
   static async message(title: string, type: DialogModalType, message: string, confirmText: string): Promise<boolean> {
+    await DialogController.logByType(type, title);
     return new Promise((resolve) => {
       dialogModalTitle.set(title);
       dialogModalType.set(type);
@@ -35,8 +56,10 @@ export class DialogController {
    * @param cancelText The text displayed for the cancel action.
    */
   static async ask(title: string, type: DialogModalType, message: string, confirmText: string, cancelText: string): Promise<boolean> {
+    await DialogController.logByType(type, title);
     return new Promise((resolve) => {
       dialogModalTitle.set(title);
+      
       dialogModalType.set(type);
       dialogModalMessage.set(message);
       dialogModalConfirmText.set(confirmText);

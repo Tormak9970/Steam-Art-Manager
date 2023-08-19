@@ -10,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal } from "../../Stores";
+  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal } from "../../Stores";
 	import { WindowController } from "../../lib/controllers/WindowController";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -25,6 +25,7 @@
   import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
     import DialogModal from "../../components/modals/DialogModal.svelte";
+    import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -169,6 +170,9 @@
 	<div class="content">
     {#if $showDialogModal}
       <DialogModal />
+    {/if}
+    {#if $showSteamPathModal}
+      <SteamPathModal />
     {/if}
     {#if $showGridModal}
 		  <GridPreviewModal onClose={onGridModalClose} />

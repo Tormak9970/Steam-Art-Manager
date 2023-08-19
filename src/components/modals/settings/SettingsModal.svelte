@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId } from "../../../Stores";
+  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath } from "../../../Stores";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
@@ -7,6 +7,7 @@
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
+  import SettingsFilePathEntry from "./SettingsFilePathEntry.svelte";
 
   export let onClose: () => void;
 
@@ -14,6 +15,7 @@
 
   let steamGridKey = $steamGridDBKey;
   let steamAPIKey = $steamKey;
+  let steamInstallLocation = $steamInstallPath;
 
 	async function saveSettings() {
     LogController.log("Saving settings...");
@@ -29,6 +31,10 @@
     const steamUserKeyMap = (await SettingsManager.getSettings()).steamApiKeyMap;
     steamUserKeyMap[$activeUserId] = steamAPIKey;
     await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
+
+    
+    $steamInstallPath = steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
+    if (steamInstallLocation !== "") await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
 
     LogController.log("Saved settings.");
 
@@ -79,10 +85,28 @@
       canSave = true;
     }
   }
+
+  /**
+   * Function to run on steam install location change.
+   * @param path The updated installation path.
+   */
+   function onInstallLocationChange(path: string): void {
+    steamInstallLocation = path;
+    canSave = true;
+  }
 </script>
 
 <ModalBody title={"Settings"} onClose={onClose}>
   <div class="content">
+    <VerticalSpacer />
+    <VerticalSpacer />
+    <SettingsFilePathEntry
+      label="Steam Install Path"
+      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}
+      value={steamInstallLocation}
+      onChange={onInstallLocationChange}
+      required
+    />
     <VerticalSpacer />
     <VerticalSpacer />
     <SettingsEntry

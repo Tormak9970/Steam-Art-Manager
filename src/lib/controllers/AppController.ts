@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, customGameNames, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, showSteamPathModal, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamPathModalClose, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBImage } from "../models/SGDB";
@@ -76,41 +76,49 @@ function getIdFromGridName(gridName: string): [string, string] {
   }
 }
 
+/**
+ * Handles showing the Steam install path selection dialog.
+ */
+async function steamDialogSequence(): Promise<void> {
+  return new Promise<void>(async (resolve) => {
+    const hasSteamInstalled = await DialogController.ask("Steam Not Found", "WARNING", "SARM could not locate Steam. Do you have it installed?", "Yes", "No");
+
+    if (hasSteamInstalled) {
+      showSteamPathModal.set(true);
+      steamPathModalClose.set(async () => resolve());
+    } else {
+      await DialogController.message("SARM Could Not Initialize", "ERROR", "Please install Steam and login once, then restart SARM.", "Ok");
+      await exit(0);
+      resolve()
+    }
+  });
+}
+
+/**
+ * Handles determining the Steam installation path.
+ * @param savedInstallPath The current saved install path.
+ */
 async function findSteamPath(savedInstallPath: string): Promise<void> {
-  const returnedInstallPath = await RustInterop.addSteamToScope();
+  if (savedInstallPath !== "") {
+    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
+    if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
+      steamInstallPath.set(savedInstallPath);
+    } else {
+      await steamDialogSequence();
+    }
+  } else {
+    const returnedInstallPath = await RustInterop.addSteamToScope();
 
-  // ! for some reason this is really slow. maybe the fs.exists? May also be that my wifi is shit
-  // if (savedInstallPath !== "") {
-  //   if (await fs.exists(savedInstallPath)) {
-  //     const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-
-  //     if (steamInstallPathAdded) {
-  //       steamInstallPath.set(savedInstallPath);
-  //     } else {
-  //       // TODO: figure out what to do here. path exists but failed to add it to scope
-  //     }
-  //   } else {
-  //     // * show modal and proceed accordingly
-  //   }
-  // } else {
-  //   const returnedInstallPath = await RustInterop.addSteamToScope();
-
-  //   if (returnedInstallPath === "") {
-  //     // TODO: figure out what to do here. path exists but failed to add it to scope
-  //   } else if (returnedInstallPath === "DNE") {
-  //     // let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
-  //     // .buttons(MessageDialogButtons::Ok)
-  //     // .show();
-
-  //     // if hit_ok {
-  //     //   exit(1);
-  //     // }
-  //     // TODO: prompt user saying steam was not found, and ask if steam is installed. if yes, show custom field, otherwise, ask to install then exit app.
-  //   } else {
-  //     steamInstallPath.set(returnedInstallPath);
-  //     await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
-  //   }
-  // }
+    if (returnedInstallPath === "") {
+      await DialogController.message("Unrecoverable Error", "ERROR", "A Steam installation was found but could not be added to scope. Please restart, and if the problem persists, open an issue on SARM's GitHub repository.", "Ok");
+      await exit(0);
+    } else if (returnedInstallPath === "DNE") {
+      await steamDialogSequence();
+    } else {
+      steamInstallPath.set(returnedInstallPath);
+      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
+    }
+  }
 }
 
 /**

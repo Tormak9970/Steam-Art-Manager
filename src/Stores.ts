@@ -41,7 +41,6 @@ export const steamGridDBKey = writable("");
 export const needsSteamKey = writable(true);
 export const steamKey = writable("");
 
-export const needsSteamInstallPath = writable(true);
 export const steamInstallPath = writable("");
 
 export const selectedResultPage = writable(0);
@@ -106,6 +105,9 @@ export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
 
 export const showUpdateModal = writable(false);
 export const updateManifest: Writable<UpdateManifest> = writable(null);
+
+export const showSteamPathModal = writable(false);
+export const steamPathModalClose = writable(async () => {});
 
 export const showDialogModal = writable(false);
 export const dialogModalTitle = writable("");
