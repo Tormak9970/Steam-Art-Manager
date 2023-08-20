@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Platforms, appLibraryCache, gridType, hiddenGameIds, manualSteamGames, nonSteamGames, steamGames } from "../../../../Stores";
+  import { Platforms, appLibraryCache, gridType, hiddenGameIds, manualSteamGames, nonSteamGames, steamGames } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
   import DropDown from "../../../interactables/DropDown.svelte";
   import VerticalSpacer from "../../../spacers/VerticalSpacer.svelte";

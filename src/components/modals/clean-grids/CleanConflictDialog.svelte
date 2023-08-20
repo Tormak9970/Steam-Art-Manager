@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { GridTypes, cleanConflicts, showCleanConflictDialog } from "../../../Stores";
+  import { GridTypes } from "../../../stores/AppState";
+  import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { LogController } from "../../../lib/controllers/LogController";

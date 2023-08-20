@@ -16,7 +16,7 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../stores/AppState";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -25,7 +25,7 @@
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
   import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
-    import ModalBody from "./modal-utils/ModalBody.svelte";
+  import ModalBody from "./modal-utils/ModalBody.svelte";
 
   export let onClose: () => void;
 

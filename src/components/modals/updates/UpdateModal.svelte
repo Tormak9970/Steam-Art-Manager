@@ -4,7 +4,7 @@
   import { installUpdate } from '@tauri-apps/api/updater'
   import { relaunch } from '@tauri-apps/api/process'
   
-  import { showUpdateModal, updateManifest } from "../../../Stores";
+  import { showUpdateModal, updateManifest } from "../../../stores/Modals";
 
   import UpdateField from "./UpdateField.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";

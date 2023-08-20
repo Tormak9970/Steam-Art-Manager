@@ -8,10 +8,10 @@
   import Search from "./add-methods/Search.svelte";
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../Stores";
-    import { LogController } from "../../../lib/controllers/LogController";
-    import { SettingsManager } from "../../../lib/utils/SettingsManager";
-    import ModalBody from "../modal-utils/ModalBody.svelte";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
+  import { LogController } from "../../../lib/controllers/LogController";
+  import { SettingsManager } from "../../../lib/utils/SettingsManager";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
 
   export let onClose: () => void;
   

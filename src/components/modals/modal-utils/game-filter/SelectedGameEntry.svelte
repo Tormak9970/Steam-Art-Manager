@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Platforms } from "../../../../Stores";
+  import { Platforms } from "../../../../stores/AppState";
   import Checkbox from "../../../interactables/Checkbox.svelte";
 
   export let game: GameStruct;

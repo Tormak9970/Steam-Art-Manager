@@ -17,7 +17,7 @@
  */
 import { invoke } from "@tauri-apps/api";
 import { get } from "svelte/store";
-import { steamInstallPath } from "../../Stores";
+import { steamInstallPath } from "../../stores/AppState";
 
 /**
  * The available logging levels.

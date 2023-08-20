@@ -1,7 +1,7 @@
 <script lang="ts">
   import Lazy from "svelte-lazy";
   import { heights, widths } from "./imageDimensions";
-  import { gridType } from "../../Stores";
+  import { gridType } from "../../stores/AppState";
 
   export let imagePath: string;
   export let altText: string;

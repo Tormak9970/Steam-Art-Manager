@@ -1,6 +1,6 @@
 // import { os, path } from "@tauri-apps/api";
 
-import { GridTypes, type DBFilters } from "../../Stores";
+import { GridTypes, type DBFilters } from "../../stores/AppState";
 import { LogController } from "../controllers/LogController";
 import type { SGDBImage } from "../models/SGDB";
 

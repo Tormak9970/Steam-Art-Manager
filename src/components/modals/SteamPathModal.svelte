@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { steamInstallPath, steamPathModalClose } from "../../Stores";
+  import { steamInstallPath } from "../../stores/AppState";
+  import { steamPathModalClose } from "../../stores/Modals";
   import { LogController } from "../../lib/controllers/LogController";
   import { ToastController } from "../../lib/controllers/ToastController";
   import { SettingsManager } from "../../lib/utils/SettingsManager";

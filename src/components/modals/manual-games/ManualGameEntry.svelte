@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appLibraryCache, unfilteredLibraryCache } from "../../../Stores";
+  import { appLibraryCache, unfilteredLibraryCache } from "../../../stores/AppState";
   import { AppController } from "../../../lib/controllers/AppController";
 
   export let game: GameStruct;

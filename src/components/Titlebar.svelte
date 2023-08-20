@@ -2,7 +2,7 @@
   import { appWindow } from "@tauri-apps/api/window";
   import { onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
-  import { canSave } from "../Stores";
+  import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
 

@@ -16,7 +16,7 @@
  */
 import { http } from "@tauri-apps/api";
 import { get } from "svelte/store";
-import { requestTimeoutLength } from "../../Stores";
+import { requestTimeoutLength } from "../../stores/AppState";
 
 export interface SGDBGame {
   id: number;

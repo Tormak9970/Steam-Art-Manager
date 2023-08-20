@@ -3,11 +3,12 @@
   import { open } from "@tauri-apps/api/shell";
 
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridModalInfo, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../Stores";
+  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
   import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
+    import { gridModalInfo } from "../../stores/Modals";
 
   export let onClose: () => void;
 

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Pane } from "svelte-splitpanes";
-  import { gridType, dbFilters, theme } from "../../../Stores";
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -8,7 +7,8 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
-    import { scrollShadow } from "../../directives/scrollShadow";
+  import { scrollShadow } from "../../directives/scrollShadow";
+  import { dbFilters, gridType, theme } from "../../../stores/AppState";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { needsSGDBAPIKey, steamGridDBKey } from "../../../../Stores";
+  import { needsSGDBAPIKey, steamGridDBKey } from "../../../../stores/AppState";
   import { ToastController } from "../../../../lib/controllers/ToastController";
   import { SGDB, type SGDBGame } from "../../../../lib/models/SGDB";
   import Button from "../../../interactables/Button.svelte";

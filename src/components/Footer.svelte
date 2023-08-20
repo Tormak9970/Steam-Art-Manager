@@ -1,7 +1,8 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import { AppController } from "../lib/controllers/AppController";
-  import { canSave, isOnline, showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal } from "../Stores";
+  import { canSave, isOnline } from "../stores/AppState";
+  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal } from "../stores/Modals";
   import Button from "./interactables/Button.svelte";
   import IconButton from "./interactables/IconButton.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
