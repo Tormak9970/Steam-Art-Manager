@@ -42,59 +42,6 @@
 	let selectedUserId = $activeUserId.toString();
 
   /**
-   * Function to run when the grid preview modal is closed.
-   */
-	function onGridModalClose() {
-		$showGridModal = false;
-		$gridModalInfo = null;
-	}
-
-  /**
-   * Function to run when the batch apply modal is closed.
-   */
-	function onBatchApplyModalClose() {
-		$showBatchApplyModal = false;
-	}
-
-  /**
-   * Function to run when the batch apply progress modal is closed.
-   */
-  function onBatchApplyProgressClose() {
-    $showBatchApplyProgress = false;
-    $batchApplyProgress = 0;
-    $batchApplyMessage = "Starting batch job...";
-    $batchApplyWasCancelled = false;
-  }
-
-  /**
-   * Function to run when the logo position modal is closed.
-   */
-	function onLogoPositionModalClose() {
-		$showLogoPositionModal = false;
-	}
-
-  /**
-   * Function to run when the manage manual games modal is closed.
-   */
-  function onManageManualGamesModalClose() {
-    $showManualGamesModal = false;
-  }
-
-  /**
-   * Function to run when the add manual games modal is closed.
-   */
-  function onSettingsModalClose() {
-    $showSettingsModal = false;
-  }
-
-  /**
-   * Function to run when the clean grids modal is closed.
-   */
-  function onCleanGridsModalClose() {
-    $showCleanGridsModal = false;
-  }
-
-  /**
    * Handler for all main window errors.
    * @param e The error event.
    */
@@ -175,25 +122,25 @@
       <SteamPathModal />
     {/if}
     {#if $showGridModal}
-		  <GridPreviewModal onClose={onGridModalClose} />
+		  <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
+		  <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal onClose={onBatchApplyModalClose} />
+		  <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+		  <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal onClose={onManageManualGamesModalClose} />
+		  <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal onClose={onCleanGridsModalClose} />
+		  <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal onClose={onSettingsModalClose} />
+		  <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />

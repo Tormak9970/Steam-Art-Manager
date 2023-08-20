@@ -8,8 +8,11 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
   import SettingsFilePathEntry from "./SettingsFilePathEntry.svelte";
+  import { showSettingsModal } from "../../../stores/Modals";
 
-  export let onClose: () => void;
+  function onClose() {
+    $showSettingsModal = false;
+  }
 
   let canSave = false;
 

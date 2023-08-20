@@ -9,11 +9,14 @@
   import Manual from "./add-methods/Manual.svelte";
   import Table from "../../layout/Table.svelte";
   import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
+  import { showManualGamesModal } from "../../../stores/Modals";
   import { LogController } from "../../../lib/controllers/LogController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import ModalBody from "../modal-utils/ModalBody.svelte";
 
-  export let onClose: () => void;
+  function onClose() {
+    $showManualGamesModal = false;
+  }
   
   let canSave = false;
 

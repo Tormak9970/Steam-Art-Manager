@@ -5,9 +5,11 @@
   import { ToastController } from "../../../lib/controllers/ToastController";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
-    import { showBatchApplyProgress } from "../../../stores/Modals";
+  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
-  export let onClose: () => void;
+  function onClose() {
+    $showBatchApplyModal = false;
+  }
 
   let selectedGameIds: string[] = [];
 

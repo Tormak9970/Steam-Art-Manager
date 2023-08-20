@@ -26,8 +26,11 @@
   import { fade } from "svelte/transition";
   import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
+  import { showLogoPositionModal } from "../../stores/Modals";
 
-  export let onClose: () => void;
+  function onClose() {
+    $showLogoPositionModal = false;
+  }
 
   type LogoCssStyles = {
     top: number,

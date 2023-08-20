@@ -1023,7 +1023,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    const shouldReload = await dialog.confirm("Are you sure you want to reload? Any changes will be lost!");
+    const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
     if (shouldReload) {
       LogController.log(`Reloading...`);
       await process.relaunch();

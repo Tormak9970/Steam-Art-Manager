@@ -8,9 +8,12 @@
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-    import { gridModalInfo } from "../../stores/Modals";
+  import { gridModalInfo, showGridModal } from "../../stores/Modals";
 
-  export let onClose: () => void;
+  function onClose() {
+    $showGridModal = false;
+		$gridModalInfo = null;
+  }
 
   const mdIt = new MarkDownIt({
     html: true,
