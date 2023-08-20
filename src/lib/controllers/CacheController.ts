@@ -407,6 +407,15 @@ export class CacheController {
   }
 
   /**
+   * Searches SGDB for the provided query.
+   * @param query The search query to use.
+   * @returns A promise resolving to the results array.
+   */
+  async searchForGame(query: string): Promise<SGDBGame[]> {
+    return await this.client.searchGame(query);
+  }
+
+  /**
    * Batch applies grids to the provided games.
    * @param appIds The list of ids.
    * ? Logging Complete.

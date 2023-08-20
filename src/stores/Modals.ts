@@ -29,6 +29,11 @@ export const updateManifest: Writable<UpdateManifest> = writable(null);
 export const showSteamPathModal = writable(false);
 export const steamPathModalClose = writable(async () => {});
 
+export const showGameSearchModal = writable(false);
+export const gameSearchModalDefault = writable("");
+export const gameSearchModalSelect = writable(async (gameName: string, gameId: string) => {});
+export const gameSearchModalCancel = writable(() => {});
+
 export const showDialogModal = writable(false);
 export const dialogModalTitle = writable("");
 export const dialogModalMessage = writable("");

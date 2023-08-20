@@ -21,10 +21,10 @@ import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
 import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../stores/AppState";
-import { cleanConflicts, gridModalInfo, showCleanConflictDialog, showDialogModal, showGridModal, showSettingsModal, showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
+import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showDialogModal, showGameSearchModal, showGridModal, showSettingsModal, showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
-import type { SGDBImage } from "../models/SGDB";
+import type { SGDBGame, SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
 
 import { createTippy } from 'svelte-tippy';
@@ -126,7 +126,7 @@ async function findSteamPath(savedInstallPath: string): Promise<void> {
  * The main controller for the application.
  */
 export class AppController {
-  private static cacheController = null;
+  private static cacheController: CacheController = null;
   private static domParser = new DOMParser();
   private static tippyInstance = null;
 
@@ -968,6 +968,31 @@ export class AppController {
    */
   static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
     return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId);
+  }
+
+  /**
+   * Searches SGDB for the provided query.
+   * @param query The search query to use.
+   * @returns A promise resolving to the results array.
+   */
+  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
+    return await AppController.cacheController.searchForGame(query);
+  }
+
+  /**
+   * Shows the game search modal and returns the result.
+   * @param defaultName The currently selected game name.
+   * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.
+   */
+  static async getIdForSearchQuery(defaultName: string): Promise<[string, string] | null> {
+    return new Promise<[string, string] | null>((resolve) => {
+      gameSearchModalDefault.set(defaultName);
+      gameSearchModalSelect.set(async (gameName: string, gameId: string) => {
+        resolve([gameName, gameId]);
+      })
+      gameSearchModalCancel.set(() => resolve(null));
+      showGameSearchModal.set(true);
+    });
   }
 
   /**

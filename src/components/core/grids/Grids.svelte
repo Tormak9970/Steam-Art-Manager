@@ -18,7 +18,7 @@
   import { filterGrids } from "../../../lib/utils/Utils";
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
-    import { showLogoPositionModal } from "../../../stores/Modals";
+  import { showLogoPositionModal } from "../../../stores/Modals";
   
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -52,6 +52,16 @@
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let grids: SGDBImage[] = [];
   let numPages = 1;
+
+  async function handleCustomNameInput() {
+    const res = await AppController.getIdForSearchQuery($selectedGameName);
+
+    if (res) {
+      const [selectedName, selectedId] = res;
+      // TODO: update the search cache for this game to include this result at the top.
+      // await onSgdbGameChange(selectedId);
+    }
+  }
 
   /**
    * Prompts the user to select their custom game art.
@@ -101,6 +111,8 @@
    * @param selectedAppId The selected game's appid.
    */
   function setAvailableSgdbGamesOnStateChange(searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number): void {
+    console.log("setting available games....");
+    //? this is getting fired twice when switching games, and once when choosing the SGDB game
     if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && searchCache[selectedAppId]) {
       availableSteamGridGames = Object.values(searchCache[selectedAppId]).map((value) => {
         return {
@@ -113,13 +125,13 @@
     }
   }
 
-function resetGridStores(): void {
-  availableSteamGridGames = [{ label: "None", data: "None"}];
-  $selectedGameAppId = null;
-  $selectedGameName = null;
-  $selectedSteamGridGameId = "None";
-  grids = [];
-}
+  function resetGridStores(): void {
+    availableSteamGridGames = [{ label: "None", data: "None"}];
+    $selectedGameAppId = null;
+    $selectedGameName = null;
+    $selectedSteamGridGameId = "None";
+    grids = [];
+  }
 
   /**
    * Filters the grids based when relevant state changes.
@@ -214,7 +226,16 @@ function resetGridStores(): void {
 
   <div class="content" style="position: relative; z-index: 2; overflow: initial;">
     <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-      <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
+      <div style="display: flex;">
+        <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
+        <HorizontalSpacer />
+        <IconButton label="Customize Search" onClick={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId == null} height="24px" width="24px">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
+            <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+            <path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/>
+          </svg>
+        </IconButton>
+      </div>
 
       <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
       <HorizontalSpacer />
