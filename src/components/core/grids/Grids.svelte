@@ -15,7 +15,7 @@
   import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
-  import { filterGrids } from "../../../lib/utils/Utils";
+  import { debounce, filterGrids } from "../../../lib/utils/Utils";
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
   import { showLogoPositionModal } from "../../../stores/Modals";
@@ -110,9 +110,8 @@
    * @param searchCache The SGDB game search cache.
    * @param selectedAppId The selected game's appid.
    */
-  function setAvailableSgdbGamesOnStateChange(searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number): void {
+  const setAvailableSgdbGamesOnStateChange: (searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number) => void = debounce((searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number) => {
     console.log("setting available games....");
-    //? this is getting fired twice when switching games, and once when choosing the SGDB game
     if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && searchCache[selectedAppId]) {
       availableSteamGridGames = Object.values(searchCache[selectedAppId]).map((value) => {
         return {
@@ -123,7 +122,7 @@
       
       numPages = searchCache[selectedAppId]?.find((game) => game.id.toString() == $selectedSteamGridGameId)?.numResultPages ?? 3;
     }
-  }
+  }, 250);
 
   function resetGridStores(): void {
     availableSteamGridGames = [{ label: "None", data: "None"}];
