@@ -111,7 +111,6 @@
    * @param selectedAppId The selected game's appid.
    */
   const setAvailableSgdbGamesOnStateChange: (searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number) => void = debounce((searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number) => {
-    console.log("setting available games....");
     if (($currentPlatform == Platforms.STEAM || $currentPlatform == Platforms.NON_STEAM) && $selectedGameName && searchCache[selectedAppId]) {
       availableSteamGridGames = Object.values(searchCache[selectedAppId]).map((value) => {
         return {
