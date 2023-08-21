@@ -20,11 +20,52 @@ import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
 import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { currentPlatform, dowloadingGridId, steamGridsCache, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, nonSteamGridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, batchApplyWasCancelled, canSave, appLibraryCache, showBatchApplyProgress, batchApplyProgress, batchApplyMessage, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../Stores";
+import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, gridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
+import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, batchApplyMessage  } from "../../stores/Modals";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import { ToastController } from "./ToastController";
 import { filterGrids } from "../utils/Utils";
+
+
+/**
+ * Logs to the app's log file or the batch file.
+ * @param message The message to log.
+ * @param useCoreFile Whether or not to log to the core file.
+ */
+function logToFile(message: string, useCoreFile: boolean): void {
+  if (useCoreFile) {
+    LogController.log(message);
+  } else {
+    LogController.batchApplyLog(message);
+  }
+}
+
+/**
+ * Logs a warning to the app's log file or the batch file.
+ * @param message The message to log.
+ * @param useCoreFile Whether or not to log to the core file.
+ */
+function logWarnToFile(message: string, useCoreFile: boolean): void {
+  if (useCoreFile) {
+    LogController.warn(message);
+  } else {
+    LogController.batchApplyWarn(message);
+  }
+}
+
+/**
+ * Logs an error to the app's log file or the batch file.
+ * @param message The message to log.
+ * @param useCoreFile Whether or not to log to the core file.
+ */
+function logErrorToFile(message: string, useCoreFile: boolean): void {
+  if (useCoreFile) {
+    LogController.error(message);
+  } else {
+    LogController.batchApplyError(message);
+  }
+}
 
 /**
  * Controller class for handling caching of requests.
@@ -129,12 +170,12 @@ export class CacheController {
    */
   async getGridImage(appId: number, imageURL: string, useCoreFile = true): Promise<string> {
     const requestTimeout = get(requestTimeoutLength);
-    this.logToFile(`Fetching image ${imageURL}...`, useCoreFile);
+    logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
     const localImagePath = await path.join(this.gridCacheDirPath, get(gridType), fileName);
 
     if (!(await fs.exists(localImagePath))) {
-      this.logToFile(`Fetching image from API.`, useCoreFile);
+      logToFile(`Fetching image from API.`, useCoreFile);
 
       dowloadingGridId.set(appId);
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
@@ -155,96 +196,20 @@ export class CacheController {
         }
         case "timedOut": {
           ToastController.showWarningToast(`Grid requested timed out`);
-          this.logWarnToFile(`Request for ${imageURL} timed out after ${requestTimeout / 1000} seconds.`, useCoreFile);
+          logWarnToFile(`Request for ${imageURL} timed out after ${requestTimeout / 1000} seconds.`, useCoreFile);
           return null;
         }
         case "failed": {
           ToastController.showWarningToast("Failed to set grid.");
-          this.logWarnToFile(`Request for ${imageURL} failed.`, useCoreFile);
+          logWarnToFile(`Request for ${imageURL} failed.`, useCoreFile);
           return null;
         }
       }
     } else {
-      this.logToFile(`Cache found. Fetching image from local file system.`, useCoreFile);
+      logToFile(`Cache found. Fetching image from local file system.`, useCoreFile);
     }
     
     return localImagePath;
-  }
-
-  /**
-   * Gets the grids for a steam game.
-   * @param appId The id of the app to get.
-   * @param type The selected grid type.
-   * @returns A promise resolving to a list of grids.
-   * ? Logging complete.
-   */
-  private async fetchGridsForSteamGame(appId: number, type: GridTypes): Promise<SGDBImage[]> {
-    const gridCacheKeys = Object.keys(steamGridsCache);
-    
-    try {
-      if (gridCacheKeys.includes(appId.toString())) {
-        const types = Object.keys(steamGridsCache[appId.toString()]);
-  
-        if (types.includes(type)) {
-          LogController.log(`Using in memory cache for steam ${appId}'s ${type}.`);
-          return steamGridsCache[appId.toString()][type];
-        } else {
-          LogController.log(`Need to fetch steam ${gridType} for ${appId}.`);
-          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
-          steamGridsCache[appId.toString()][type] = grids;
-          return grids;
-        }
-      } else {
-        LogController.log(`Need to fetch steam ${gridType} for ${appId}.`);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sBySteamAppId`](appId);
-        steamGridsCache[appId.toString()] = {};
-        steamGridsCache[appId.toString()][type] = grids;
-        return grids;
-      }
-    } catch (e: any) {
-      LogController.error(`Error fetching grids for steam game: ${appId}. Error: ${e.message}.`);
-      ToastController.showWarningToast("Error fetching grids for game.");
-      return [];
-    }
-  }
-
-  /**
-   * Logs to the app's log file or the batch file.
-   * @param message The message to log.
-   * @param useCoreFile Whether or not to log to the core file.
-   */
-  private logToFile(message: string, useCoreFile: boolean): void {
-    if (useCoreFile) {
-      LogController.log(message);
-    } else {
-      LogController.batchApplyLog(message);
-    }
-  }
-
-  /**
-   * Logs a warning to the app's log file or the batch file.
-   * @param message The message to log.
-   * @param useCoreFile Whether or not to log to the core file.
-   */
-  private logWarnToFile(message: string, useCoreFile: boolean): void {
-    if (useCoreFile) {
-      LogController.warn(message);
-    } else {
-      LogController.batchApplyWarn(message);
-    }
-  }
-
-  /**
-   * Logs an error to the app's log file or the batch file.
-   * @param message The message to log.
-   * @param useCoreFile Whether or not to log to the core file.
-   */
-  private logErrorToFile(message: string, useCoreFile: boolean): void {
-    if (useCoreFile) {
-      LogController.error(message);
-    } else {
-      LogController.batchApplyError(message);
-    }
   }
 
   /**
@@ -256,42 +221,42 @@ export class CacheController {
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForNonSteamGame(appId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<SGDBImage[]> {
-    const gridCacheKeys = Object.keys(nonSteamGridsCache);
+  private async fetchGridsForGame(appId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<SGDBImage[]> {
+    const gridCacheKeys = Object.keys(gridsCache);
     
     try {
       if (gridCacheKeys.includes(appId.toString())) {
-        const types = Object.keys(nonSteamGridsCache[appId.toString()]);
+        const types = Object.keys(gridsCache[appId.toString()]);
   
         if (types.includes(type)) {
-          const pages = Object.keys(nonSteamGridsCache[appId.toString()][type]);
+          const pages = Object.keys(gridsCache[appId.toString()][type]);
   
           if (pages.includes(page.toString())) {
-            this.logToFile(`Using in memory cache for nonSteam ${appId}'s ${type}.`, useCoreFile);
-            return nonSteamGridsCache[appId.toString()][type][page];
+            logToFile(`Using in memory cache for nonSteam ${appId}'s ${type}.`, useCoreFile);
+            return gridsCache[appId.toString()][type][page];
           } else {
-            this.logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
+            logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
             const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
-            nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
+            gridsCache[appId.toString()][type][page.toString()] = grids;
             return grids;
           }
         } else {
-          this.logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
+          logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
           const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
-          nonSteamGridsCache[appId.toString()][type] = {};
-          nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
+          gridsCache[appId.toString()][type] = {};
+          gridsCache[appId.toString()][type][page.toString()] = grids;
           return grids;
         }
       } else {
-        this.logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
+        logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
         const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type == GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, ["static", "animated"], "any", "any", "any", page);
-        nonSteamGridsCache[appId.toString()] = {};
-        nonSteamGridsCache[appId.toString()][type] = {};
-        nonSteamGridsCache[appId.toString()][type][page.toString()] = grids;
+        gridsCache[appId.toString()] = {};
+        gridsCache[appId.toString()][type] = {};
+        gridsCache[appId.toString()][type][page.toString()] = grids;
         return grids;
       }
     } catch (e: any) {
-      this.logErrorToFile(`Error fetching grids for non steam game: ${appId}. Error: ${e.message}.`, useCoreFile);
+      logErrorToFile(`Error fetching grids for non steam game: ${appId}. Error: ${e.message}.`, useCoreFile);
       ToastController.showWarningToast("Error fetching grids for game.");
       return [];
     }
@@ -329,7 +294,7 @@ export class CacheController {
 
       while (true) {
         try {
-          const grids = await this.fetchGridsForNonSteamGame(game.id, type, numPages, useCoreFile);
+          const grids = await this.fetchGridsForGame(game.id, type, numPages, useCoreFile);
           if (grids.length > 0) {
             numPages++;
           } else {
@@ -361,7 +326,7 @@ export class CacheController {
    * ? Logging complete.
    */
   async fetchGrids(appId: number, gameName: string, page: number, selectedPlatform: Platforms, useCoreFile: boolean, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    this.logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
+    logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
 
     const type = get(gridType);
     
@@ -377,7 +342,7 @@ export class CacheController {
           // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
           searchCache[appId] = results;
         } catch (e: any) {
-          this.logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
+          logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
           ToastController.showWarningToast("Error searching for game on SGDB.");
           return [];
         }
@@ -391,7 +356,7 @@ export class CacheController {
           gameId = gameInfo.id.toString();
           steamGridSteamAppIdMap[appId] = gameId;
         } catch (e: any) {
-          this.logErrorToFile(`Error getting game from SGDB by steam id. Game: ${gameName}. AppId: ${appId}. Error: ${e.message}.`, useCoreFile);
+          logErrorToFile(`Error getting game from SGDB by steam id. Game: ${gameName}. AppId: ${appId}. Error: ${e.message}.`, useCoreFile);
           ToastController.showWarningToast("Error getting game from SGDB.");
           return [];
         }
@@ -404,9 +369,9 @@ export class CacheController {
       if (choosenResult?.id) {
         if (useCoreFile) selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page, useCoreFile);
+        return await this.fetchGridsForGame(choosenResult.id, type, page, useCoreFile);
       } else {
-        this.logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
+        logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
         return [];
       }
     } else if (selectedPlatform == Platforms.NON_STEAM) {
@@ -421,7 +386,7 @@ export class CacheController {
           // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
           searchCache[appId] = results;
         } catch (e: any) {
-          this.logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
+          logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
           ToastController.showWarningToast("Error searching for game on SGDB.");
           return [];
         }
@@ -433,12 +398,21 @@ export class CacheController {
       if (choosenResult?.id) {
         if (useCoreFile) selectedSteamGridGameId.set(choosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForNonSteamGame(choosenResult.id, type, page, useCoreFile);
+        return await this.fetchGridsForGame(choosenResult.id, type, page, useCoreFile);
       } else {
-        this.logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
+        logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
         return [];
       }
     }
+  }
+
+  /**
+   * Searches SGDB for the provided query.
+   * @param query The search query to use.
+   * @returns A promise resolving to the results array.
+   */
+  async searchForGame(query: string): Promise<SGDBGame[]> {
+    return await this.client.searchGame(query);
   }
 
   /**

@@ -4,7 +4,7 @@
   import type { SGDBImage } from "../../../lib/models/SGDB";
   import { throttle } from "../../../lib/utils/Utils";
 
-  import { dowloadingGridId, gridType } from "../../../Stores";
+  import { dowloadingGridId, gridType } from "../../../stores/AppState";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import GridImage from "../GridImage.svelte";
 
@@ -53,8 +53,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .grid {
     background-color: var(--foreground);
     padding: 10px;
@@ -146,7 +144,6 @@
   .show-notes:hover { cursor: default; opacity: 0.8; }
 
   .show-animated {
-    background-color: var(--sgdb-animated-color);
     display: flex;
     cursor: default;
 
@@ -154,7 +151,8 @@
     left: auto;
     right: 2px;
     
-    opacity: 1;
+    background-color: var(--background);
+    opacity: 0.8;
   }
   .show-animated:hover {
     display: flex;

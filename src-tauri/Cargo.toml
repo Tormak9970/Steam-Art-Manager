@@ -1,7 +1,7 @@
 [package]
 name = "app"
 version = "0.0.0"
-description = "A Tauri App"
+description = "The backend of the app"
 authors = ["you"]
 license = ""
 repository = ""
@@ -11,12 +11,12 @@ rust-version = "1.57"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.1", features = [] }
+tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.1", features = ["dialog-all", "fs-all", "http-request", "os-all", "path-all", "process-exit", "process-relaunch", "protocol-all", "reqwest-client", "shell-open", "updater", "window-all"] }
+tauri = { version = "1.4.1", features = ["dialog-all", "fs-all", "http-request", "os-all", "path-all", "process-exit", "process-relaunch", "protocol-all", "reqwest-client", "shell-open", "updater", "window-all"] }
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 chrono = "0.4.23"
 home = "0.5.4"
@@ -24,6 +24,7 @@ vdf-serde = "0.3.0"
 keyvalues-parser = "0.1.0"
 zip = "0.6.4"
 reqwest = "0.11.17"
+panic-message = "0.3.0"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

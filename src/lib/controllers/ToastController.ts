@@ -17,7 +17,7 @@
 import { toast } from "@zerodevx/svelte-toast";
 
 /**
- * A controller for handling toast messages.
+ * Controller class for handling toast messages.
  */
 export class ToastController {
   /**

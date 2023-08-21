@@ -16,8 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 :root {
-	--font-color: rgb(231, 231, 231);
-
 	--highlight: #04e200;
 	--highlight-hover: #05FF00;
 
@@ -59,6 +57,11 @@
 	--save-hover: #28c900;
 
 	--sgdb-animated-color: #e2a256;
+  
+  --tooltip-background: var(--background-dark);
+  --tooltip-border: rgba(68, 68, 68, 0.4);
+  --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
+  --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
 [data-theme="light"] {
@@ -68,75 +71,23 @@
 	--background-dark: #f3f3f3;
 	--background-dark-hover: #e4e4e4;
 
-	--background: #dfdfdf;
-	--background-hover: #dadada;
+  --background: #dfdfdf;
+  --background-hover: #d9d9d9;
 
-	--foreground: #bebebe;
-	--foreground-hover: #aaaaaa;
+  --foreground: #cfcfcf;
+  --foreground-hover: #c1c1c1;
+
+  --foreground-light: #bfbfbf;
+  --foreground-light-hover: #b1b1b1;
 	
-	--foreground-light: #949494;
-	--foreground-light-hover: #8a8a8a;
 	
 	--save: #4ee73a;
 	--save-hover: #24fc08;
 
 	--sgdb-animated-color: #f38c0d;
-}
-
-.splitpanes { background-color: var(--background-dark) !important; }
-.splitpanes__pane { background-color: var(--background-dark) !important; }
-
-.splitpanes__splitter {
-	background-color: var(--background-dark-hover) !important;
-	border-left: 1px solid var(--foreground-light) !important;
-	border-right: 1px solid var(--foreground-light) !important;
-	position: relative;
-}
-.splitpanes__splitter:before {
-	content: '';
-	position: absolute;
-	left: 0;
-	top: 0;
-	transition: opacity 0.4s;
-	background-color: var(--highlight-dim) !important;
-	opacity: 0;
-	z-index: 1;
-}
-.splitpanes__splitter:hover:before { opacity: 1; }
-.splitpanes--vertical > .splitpanes__splitter:before {
-	left: -30px;
-	right: -30px;
-	height: 100%;
-}
-.splitpanes--horizontal > .splitpanes__splitter:before {
-	top: -30px;
-	bottom: -30px;
-	width: 100%;
-}
-
-.tippy-box {
-  position: relative;
-  background-color: var(--foreground-light);
-  color: var(--font-color);
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 1.4;
-  white-space: normal;
-  outline: 0;
-  transition-property: transform, visibility, opacity;
-	border-radius: 2px;
-	
-	box-shadow: 3px 6px 10px 4px var(--shadow);
-}
-
-.tippy-arrow {
-  width: 16px;
-  height: 16px;
-  color: var(--foreground-light);
-}
-
-.tippy-content {
-  position: relative;
-  padding: 3px 7px;
-  z-index: 1;
+  
+  --tooltip-background: var(--background-dark);
+  --tooltip-border: rgba(0, 8, 16, .2);
+  --tooltip-border-arrow: rgba(0, 8, 16, .3);
+  --tooltip-shadow: rgba(0, 8, 16, .08);
 }

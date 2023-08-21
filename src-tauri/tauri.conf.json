@@ -88,16 +88,17 @@
 			"externalBin": [],
 			"icon": [
 				"icons/32x32.png",
+				"icons/64x64.png",
 				"icons/128x128.png",
 				"icons/128x128@2x.png",
+				"icons/256x256.png",
 				"icons/icon.icns",
-				"icons/icon.ico"
+				"icons/icon.ico",
+        "icons/icon.png"
 			],
 			"identifier": "dev.tormak.steam-art-manager",
 			"longDescription": "A tool for setting the artwork of your Steam library.",
-			"resources": [
-				"./settings.json"
-			],
+			"resources": [],
 			"shortDescription": "A tool for setting the artwork of your Steam library.",
 			"targets": [
 				"appimage",
@@ -110,7 +111,17 @@
 				"timestampUrl": "",
 				"webviewInstallMode": {
 					"type": "offlineInstaller"
-				}
+				},
+        "wix": {
+          "language": {
+            "en-US": {
+              "localePath": "wix/locales/en-US.wxl"
+            }
+          },
+          "license": "wix/short-license.txt",
+          "bannerPath": "wix/bannerImage.jpg",
+          "dialogImagePath": "wix/dialogImage.jpg"
+        }
 			},
 			"appimage": {
 				"bundleMediaFramework": false
@@ -127,7 +138,7 @@
 			"endpoints": [
 				"https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
 			],
-			"dialog": true,
+			"dialog": false,
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
 		},
 		"windows": [

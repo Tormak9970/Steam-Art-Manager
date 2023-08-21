@@ -21,14 +21,14 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
 	.page {
 		padding: 10px;
     padding-bottom: 5px;
     border-top: 2px solid transparent;
     
     background-color: var(--background);
+
+    border-radius: 4px;
 	}
 
   .pages-header {
@@ -66,11 +66,11 @@
 
     cursor: pointer;
 
-    background-color: var(--foreground);
+    background-color: var(--background);
 
     transition: background-color 0.15s ease-in-out;
 
-    border-radius: 2px;
+    border-radius: 4px;
   }
   li:last-child { margin-right: 0px; }
 
@@ -79,8 +79,8 @@
     display: block;
   }
 
-  li.active { background-color: var(--foreground-light); }
+  li.active { background-color: var(--foreground); }
 
-  li.active:hover { background-color: var(--foreground-light-hover) !important; }
-  li:hover { background-color: var(--foreground-hover) !important; }
+  li.active:hover { background-color: var(--foreground-hover) !important; }
+  li:hover { background-color: var(--background) !important; }
 </style>

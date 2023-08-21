@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { checkUpdate } from '@tauri-apps/api/updater';
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
@@ -9,21 +10,25 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog } from "../../Stores";
-	import { WindowController } from "../../lib/controllers/WindowController";
+  import { activeUserId, isOnline, steamUsers } from "../../stores/AppState";
+  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
-  import GridPreviewModal from "../../components/toast-modals/GridPreviewModal.svelte";
+  import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
-  import LogoPositionModal from "../../components/toast-modals/LogoPositionModal.svelte";
-  import BatchApplyModal from "../../components/toast-modals/batch-apply/BatchApplyModal.svelte";
-  import BatchApplyProgressModal from "../../components/toast-modals/batch-apply/BatchApplyProgressModal.svelte";
-  import ManualGamesModal from "../../components/toast-modals/manual-games/ManualGamesModal.svelte";
-  import SettingsModal from "../../components/toast-modals/settings/SettingsModal.svelte";
-  import CleanGridsModal from "../../components/toast-modals/clean-grids/CleanGridsModal.svelte";
-    import CleanConflictDialog from "../../components/toast-modals/clean-grids/CleanConflictDialog.svelte";
+  import LogoPositionModal from "../../components/modals/LogoPositionModal.svelte";
+  import BatchApplyModal from "../../components/modals/batch-apply/BatchApplyModal.svelte";
+  import BatchApplyProgressModal from "../../components/modals/batch-apply/BatchApplyProgressModal.svelte";
+  import ManualGamesModal from "../../components/modals/manual-games/ManualGamesModal.svelte";
+  import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
+  import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
+  import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
+  import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
+  import DialogModal from "../../components/modals/DialogModal.svelte";
+  import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
+    import GameSearchModal from "../../components/modals/GameSearchModal.svelte";
 	
-	let mainFocusUnsub: any;
+  let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
@@ -36,59 +41,6 @@
 		}
 	});
 	let selectedUserId = $activeUserId.toString();
-
-  /**
-   * Function to run when the grid preview modal is closed.
-   */
-	function onGridModalClose() {
-		$showGridModal = false;
-		$gridModalInfo = null;
-	}
-
-  /**
-   * Function to run when the batch apply modal is closed.
-   */
-	function onBatchApplyModalClose() {
-		$showBatchApplyModal = false;
-	}
-
-  /**
-   * Function to run when the batch apply progress modal is closed.
-   */
-  function onBatchApplyProgressClose() {
-    $showBatchApplyProgress = false;
-    $batchApplyProgress = 0;
-    $batchApplyMessage = "Starting batch job...";
-    $batchApplyWasCancelled = false;
-  }
-
-  /**
-   * Function to run when the logo position modal is closed.
-   */
-	function onLogoPositionModalClose() {
-		$showLogoPositionModal = false;
-	}
-
-  /**
-   * Function to run when the manage manual games modal is closed.
-   */
-  function onManageManualGamesModalClose() {
-    $showManualGamesModal = false;
-  }
-
-  /**
-   * Function to run when the add manual games modal is closed.
-   */
-  function onSettingsModalClose() {
-    $showSettingsModal = false;
-  }
-
-  /**
-   * Function to run when the clean grids modal is closed.
-   */
-  function onCleanGridsModalClose() {
-    $showCleanGridsModal = false;
-  }
 
   /**
    * Handler for all main window errors.
@@ -106,11 +58,6 @@
 	onMount(async () => {
     window.addEventListener("error", onError);
 
-    WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = true; //focused;
-    }).then((unsub) => {
-			mainFocusUnsub = unsub;
-		});
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
 			selectedUserId = id.toString();
 		});
@@ -130,12 +77,23 @@
 			if (navigator.onLine) $isOnline = true;
 		}
 
+    try {
+      const { shouldUpdate, manifest } = await checkUpdate();
+
+      if (shouldUpdate) {
+        $updateManifest = manifest;
+        $showUpdateModal = true;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
 		await AppController.setup();
 
-		if (!$isOnline) {
-			const wantsToContinue = await AppController.promptOffline();
+    if (!$isOnline) {
+      const wantsToContinue = await AppController.promptOffline();
       if (!wantsToContinue) exit(0);
-		}
+    }
 
     AppController.init();
 	});
@@ -144,7 +102,7 @@
     window.removeEventListener("error", onError);
 		await AppController.destroy();
 
-		if (mainFocusUnsub) mainFocusUnsub();
+    if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});
@@ -155,32 +113,44 @@
 </div>
 <main class:dim={!isFocused}>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="80px" tooltipPosition="right" />
+		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
   </Titlebar>
 	<div class="content">
+    {#if $showDialogModal}
+      <DialogModal />
+    {/if}
+    {#if $showSteamPathModal}
+      <SteamPathModal />
+    {/if}
+    {#if $showGameSearchModal}
+      <GameSearchModal />
+    {/if}
     {#if $showGridModal}
-		  <GridPreviewModal onClose={onGridModalClose} />
+		  <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
+		  <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal onClose={onBatchApplyModalClose} />
+		  <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+		  <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal onClose={onManageManualGamesModalClose} />
+		  <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal onClose={onCleanGridsModalClose} />
+		  <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal onClose={onSettingsModalClose} />
+		  <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />
+    {/if}
+    {#if $showUpdateModal}
+      <UpdateModal />
     {/if}
 		<Splitpanes>
 			<Options />
@@ -197,8 +167,6 @@
 </div>
 
 <style>
-	@import "/theme.css";
-
 	main {
 		width: 100%;
 		height: 100%;

@@ -19,8 +19,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .prog-bar {
     position: relative;
     height: 20px;

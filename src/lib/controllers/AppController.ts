@@ -20,17 +20,18 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, cleanConflicts, currentPlatform, gridModalInfo, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, showCleanConflictDialog, showGridModal, showSettingsModal, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../Stores";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../stores/AppState";
+import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showDialogModal, showGameSearchModal, showGridModal, showSettingsModal, showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
-import type { SGDBImage } from "../models/SGDB";
+import type { SGDBGame, SGDBImage } from "../models/SGDB";
 import { xml2json } from "../utils/xml2json";
-import { WindowController } from "./WindowController";
 
-import { createTippy, type Tippy } from 'svelte-tippy';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/svg-arrow.css';
+import { createTippy } from 'svelte-tippy';
+import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
+import { exit } from "@tauri-apps/api/process";
+import { DialogController } from "./DialogController";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -48,17 +49,92 @@ const libraryCacheLUT = {
   "logo": GridTypes.LOGO
 }
 
+
 /**
- * The main controller for the application
+ * Gets the id and grid type from a grids filename.
+ * @param gridName The filename of the grid.
+ * @returns A tuple of [appid, gridType].
+ */
+function getIdFromGridName(gridName: string): [string, string] {
+  const dotIndex = gridName.indexOf(".");
+  const underscoreIndex = gridName.indexOf("_");
+  const name = gridName.substring(0, dotIndex);
+
+  if (underscoreIndex > 0) {
+    const id = name.substring(0, underscoreIndex);
+    const type = name.substring(underscoreIndex+1);
+
+    return [id, type];
+  } else if (name.endsWith("p")) {
+    const id = name.substring(0, name.length - 1);
+    return [id, "capsule"];
+  } else {
+    if (gridName.substring(dotIndex+1) == "json") {
+      return [name, "logoposition"];
+    } else {
+      return [name, "wide_capsule"];
+    }
+  }
+}
+
+/**
+ * Handles showing the Steam install path selection dialog.
+ */
+async function steamDialogSequence(): Promise<void> {
+  return new Promise<void>(async (resolve) => {
+    const hasSteamInstalled = await DialogController.ask("Steam Not Found", "WARNING", "SARM could not locate Steam. Do you have it installed?", "Yes", "No");
+
+    if (hasSteamInstalled) {
+      showSteamPathModal.set(true);
+      steamPathModalClose.set(async () => resolve());
+    } else {
+      await DialogController.message("SARM Could Not Initialize", "ERROR", "Please install Steam and login once, then restart SARM.", "Ok");
+      await exit(0);
+      resolve()
+    }
+  });
+}
+
+/**
+ * Handles determining the Steam installation path.
+ * @param savedInstallPath The current saved install path.
+ */
+async function findSteamPath(savedInstallPath: string): Promise<void> {
+  if (savedInstallPath !== "") {
+    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
+    if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
+      steamInstallPath.set(savedInstallPath);
+    } else {
+      await steamDialogSequence();
+    }
+  } else {
+    const returnedInstallPath = await RustInterop.addSteamToScope();
+
+    if (returnedInstallPath === "") {
+      await DialogController.message("Unrecoverable Error", "ERROR", "A Steam installation was found but could not be added to scope. Please restart, and if the problem persists, open an issue on SARM's GitHub repository.", "Ok");
+      await exit(0);
+    } else if (returnedInstallPath === "DNE") {
+      await steamDialogSequence();
+    } else {
+      steamInstallPath.set(returnedInstallPath);
+      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
+    }
+  }
+}
+
+/**
+ * The main controller for the application.
  */
 export class AppController {
-  private static cacheController = null;
+  private static cacheController: CacheController = null;
   private static domParser = new DOMParser();
   private static tippyInstance = null;
 
   static tippy = createTippy({
     hideOnClick: false,
-    duration: 100
+    duration: 100,
+    theme: "sarm",
+    arrow: true
   });
 
   static onTippyShow(instance: Instance<Props>): void {
@@ -75,8 +151,24 @@ export class AppController {
    */
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
+
+    await SettingsManager.setSettingsPath();
+    let settings: AppSettings = await SettingsManager.getSettings();
+
+    await findSteamPath(settings.steamInstallPath);
+
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
+
+    if (Object.keys(users).length === 0) {
+      await DialogController.message(
+        "No Steam Users Found",
+        "ERROR",
+        "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
+        "Ok",
+      );
+      await exit(0);
+    }
 
     //? need to clean the data here bc props can vary in terms of case
     for (const [id, user] of Object.entries(users)) {
@@ -109,9 +201,6 @@ export class AppController {
 
     const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
-    
-    await SettingsManager.setSettingsPath();
-    let settings: AppSettings = await SettingsManager.getSettings();
 
     if (settings.steamGridDbApiKey != "") {
       steamGridDBKey.set(settings.steamGridDbApiKey);
@@ -127,6 +216,9 @@ export class AppController {
       manualSteamGames.set(settings.manualSteamGames);
       LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
     }
+
+    customGameNames.set(settings.customGameNames);
+    LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
 
     theme.set(settings.theme);
     document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
@@ -181,41 +273,15 @@ export class AppController {
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
   }
-
-  /**
-   * Gets the id and grid type from a grids filename.
-   * @param gridName The filename of the grid.
-   * @returns A tuple of [appid, gridType].
-   */
-  private static getIdFromGridName(gridName: string): [string, string] {
-    const dotIndex = gridName.indexOf(".");
-    const underscoreIndex = gridName.indexOf("_");
-    const name = gridName.substring(0, dotIndex);
-  
-    if (underscoreIndex > 0) {
-      const id = name.substring(0, underscoreIndex);
-      const type = name.substring(underscoreIndex+1);
-  
-      return [id, type];
-    } else if (name.endsWith("p")) {
-      const id = name.substring(0, name.length - 1);
-      return [id, "capsule"];
-    } else {
-      if (gridName.substring(dotIndex+1) == "json") {
-        return [name, "logoposition"];
-      } else {
-        return [name, "wide_capsule"];
-      }
-    }
-  }
   
   /**
    * Filters and structures the library grids based on the app's needs.
    * @param gridsDirContents The contents of the grids dir.
+   * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured grids dir.
    * ? Logging complete.
    */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
+  private static filterGridsDir(gridsDirContents: fs.FileEntry[], shortcutsIds: string[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
     let resKeys = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
@@ -226,7 +292,7 @@ export class AppController {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
       } else {
-        const [appid, type] = AppController.getIdFromGridName(fileEntry.name);
+        const [appid, type] = getIdFromGridName(fileEntry.name);
         
         const idTypeString = `${appid}_${type}`;
 
@@ -234,7 +300,8 @@ export class AppController {
           ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
           LogController.warn(`Duplicate grid found for ${appid}.`);
         } else {
-          if (gridTypeLUT[type]) {
+          //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
+          if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
             if (!resKeys.includes(appid)) {
               resKeys.push(appid);
               res[appid] = {} as LibraryCacheEntry;
@@ -252,13 +319,11 @@ export class AppController {
    * Filters and structures the library cache based on the app's needs.
    * @param libraryCacheContents The contents of the library cache.
    * @param gridsInfos The filtered grid infos.
-   * @param shortcuts The list of loaded shortcuts
+   * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured library cache.
    * ? Logging complete.
    */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcuts: GameStruct[]): { [appid: string]: LibraryCacheEntry } {
-    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-
+  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): { [appid: string]: LibraryCacheEntry } {
     let resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
@@ -287,8 +352,8 @@ export class AppController {
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    // const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 4 || shortcutIds.includes(appId)); //! Removed this because it caused issues with games with no grids
-    const filtered = entries;
+    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
+    // const filtered = entries;
     return Object.fromEntries(filtered);
   }
 
@@ -299,11 +364,12 @@ export class AppController {
    */
   private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
-    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents);
+    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
+    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
     const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcuts);
+    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcutIds);
     LogController.log("Library Cache loaded.");
 
     await AppController.cacheLogoConfigs(logoConfigs);
@@ -450,7 +516,7 @@ export class AppController {
     const filteredKeys = Object.keys(filteredCache);
 
     if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
+      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
       console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
@@ -905,6 +971,31 @@ export class AppController {
   }
 
   /**
+   * Searches SGDB for the provided query.
+   * @param query The search query to use.
+   * @returns A promise resolving to the results array.
+   */
+  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
+    return await AppController.cacheController.searchForGame(query);
+  }
+
+  /**
+   * Shows the game search modal and returns the result.
+   * @param defaultName The currently selected game name.
+   * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.
+   */
+  static async getIdForSearchQuery(defaultName: string): Promise<[string, string] | null> {
+    return new Promise<[string, string] | null>((resolve) => {
+      gameSearchModalDefault.set(defaultName);
+      gameSearchModalSelect.set(async (gameName: string, gameId: string) => {
+        resolve([gameName, gameId]);
+      })
+      gameSearchModalCancel.set(() => resolve(null));
+      showGameSearchModal.set(true);
+    });
+  }
+
+  /**
    * Looks through the grids in the user's grid folder, and deletes any for games that no longer exist.
    * @param preset The selected preset for cleaning.
    * @param selectedGameIds The list of ids of games to delete grids for.
@@ -957,7 +1048,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    const shouldReload = await dialog.confirm("Are you sure you want to reload? Any changes will be lost!");
+    const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
     if (shouldReload) {
       LogController.log(`Reloading...`);
       await process.relaunch();

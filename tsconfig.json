@@ -14,8 +14,7 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "isolatedModules": true,
-    "ignoreDeprecations": "5.0"
+    "isolatedModules": true
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
   "references": [{ "path": "./tsconfig.node.json" }]

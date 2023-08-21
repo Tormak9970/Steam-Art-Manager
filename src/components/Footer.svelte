@@ -1,18 +1,16 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import { AppController } from "../lib/controllers/AppController";
-  import { canSave, isOnline, showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal } from "../Stores";
+  import { canSave, isOnline } from "../stores/AppState";
+  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal } from "../stores/Modals";
   import Button from "./interactables/Button.svelte";
   import IconButton from "./interactables/IconButton.svelte";
   import HorizontalSpacer from "./spacers/HorizontalSpacer.svelte";
-  import { dialog } from "@tauri-apps/api";
+  import { DialogController } from "../lib/controllers/DialogController";
 
   async function onCleanGridsClick(): Promise<void> {
     if ($canSave) {
-      const shouldSaveAndOpen = await dialog.ask("You need to save your changes before cleaning. Would you like to save?", {
-        title: "Found existing changes",
-        type: "warning"
-      });
+      const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");
 
       if (shouldSaveAndOpen) {
         await AppController.saveChanges();
@@ -61,7 +59,7 @@
       </svg>
     </IconButton>
     <HorizontalSpacer />
-    <IconButton label="Manage Manul Games" onClick={() => { $showManualGamesModal = true; }} width="auto" tooltipPosition="auto">
+    <IconButton label="Manage Manual Games" onClick={() => { $showManualGamesModal = true; }} width="auto" tooltipPosition="auto">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="height: 12px; width: 12px;">
         <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
         <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
@@ -99,13 +97,11 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .footer {
     height: 30px;
     width: 100%;
 
-    background: var(--foreground-hover);
+    background: var(--background);
     user-select: none;
     display: inline-flex;
     align-items: center;

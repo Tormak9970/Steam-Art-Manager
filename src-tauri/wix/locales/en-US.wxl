@@ -1,0 +1,20 @@
+<WixLocalization Culture="en-US" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="LicenseAgreementDlgTitle">End-User License Agreement</String>
+  <String Id="LicenseAgreementDlgDescription">Please read the following license agreement carefully</String>
+  
+  <String Id="InstallDirDlgTitle">Destination Folder</String>
+  <String Id="InstallDirDlgDescription">Click Next to install to the default folder or click Change to choose another</String>
+  
+  <String Id="BrowseDlgTitle">Change destination folder</String>
+  <String Id="BrowseDirDlgDescription">Browse to the destination folder</String>
+
+  <String Id="VerifyReadyDlgInstallTitle">Ready to install [ProductName]</String>
+
+  <String Id="VerifyReadyDlgUpdateTitle">Ready to update [ProductName]</String>
+
+  <String Id="VerifyReadyDlgChangeTitle">Ready to change [ProductName]</String>
+
+  <String Id="VerifyReadyDlgRepairTitle">Ready to repair [ProductName]</String>
+
+  <String Id="VerifyReadyDlgRemoveTitle">Ready to remove [ProductName]</String>
+</WixLocalization>

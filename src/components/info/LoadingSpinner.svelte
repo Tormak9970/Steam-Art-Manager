@@ -13,8 +13,6 @@
 </div>
 
 <style>
-  @import "/theme.css";
-
   .spinner {
     color: var(--highlight);
 
