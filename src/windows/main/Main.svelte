@@ -26,7 +26,7 @@
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
-    import GameSearchModal from "../../components/modals/GameSearchModal.svelte";
+    import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;

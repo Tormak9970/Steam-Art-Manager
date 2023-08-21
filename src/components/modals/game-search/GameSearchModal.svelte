@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "../../stores/Modals";
-  import { LogController } from "../../lib/controllers/LogController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import Button from "../interactables/Button.svelte";
-  import ModalBody from "./modal-utils/ModalBody.svelte";
-  import SearchBar from "../interactables/SearchBar.svelte";
-  import type { SGDBGame } from "../../lib/models/SGDB";
-  import { AppController } from "../../lib/controllers/AppController";
+  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "../../../stores/Modals";
+  import { LogController } from "../../../lib/controllers/LogController";
+  import { ToastController } from "../../../lib/controllers/ToastController";
+  import Button from "../../interactables/Button.svelte";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
+  import SearchBar from "../../interactables/SearchBar.svelte";
+  import type { SGDBGame } from "../../../lib/models/SGDB";
+  import { AppController } from "../../../lib/controllers/AppController";
   import { onMount } from "svelte";
 
   let canApply = false;

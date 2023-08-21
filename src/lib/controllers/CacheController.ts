@@ -362,14 +362,14 @@ export class CacheController {
         }
       }
       
-      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : null;
-      choosenResult ||= results.find((game) => game.id.toString() == gameId);
-      if (!choosenResult && results.length > 0) choosenResult = results[0];
+      let chosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() === selectedSteamGridId) : null;
+      chosenResult ||= results.find((game) => game.id.toString() === gameId);
+      if (!chosenResult && results.length > 0) chosenResult = results[0];
 
-      if (choosenResult?.id) {
-        if (useCoreFile) selectedSteamGridGameId.set(choosenResult.id.toString());
+      if (chosenResult?.id) {
+        if (useCoreFile) selectedSteamGridGameId.set(chosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForGame(choosenResult.id, type, page, useCoreFile);
+        return await this.fetchGridsForGame(chosenResult.id, type, page, useCoreFile);
       } else {
         logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
         return [];
@@ -392,13 +392,13 @@ export class CacheController {
         }
       }
 
-      let choosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() == selectedSteamGridId) : results.find((game) => game.name == gameName);
-      if (!choosenResult && results.length > 0) choosenResult = results[0];
+      let chosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() === selectedSteamGridId) : results.find((game) => game.name === gameName);
+      if (!chosenResult && results.length > 0) chosenResult = results[0];
 
-      if (choosenResult?.id) {
-        if (useCoreFile) selectedSteamGridGameId.set(choosenResult.id.toString());
+      if (chosenResult?.id) {
+        if (useCoreFile) selectedSteamGridGameId.set(chosenResult.id.toString());
         steamGridSearchCache.set(searchCache);
-        return await this.fetchGridsForGame(choosenResult.id, type, page, useCoreFile);
+        return await this.fetchGridsForGame(chosenResult.id, type, page, useCoreFile);
       } else {
         logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
         return [];

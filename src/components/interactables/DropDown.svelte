@@ -15,7 +15,7 @@
 
   let customSelectElem: HTMLDivElement;
   let customSelectElemWrapper: HTMLDivElement;
-  let internalValue = options.find((opt) => opt.data == value)?.label;
+  let internalValue = options.find((opt) => opt.data === value)?.label;
   
   let active = false;
 
@@ -44,7 +44,6 @@
     
     onChange(targetElement.id);
     value = targetElement.id;
-    internalValue = targetElement.innerHTML;
 
     toggleDropdown();
   }
