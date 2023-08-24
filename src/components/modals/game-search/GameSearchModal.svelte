@@ -22,9 +22,6 @@
   }
 
 	async function applyChoice() {
-
-    // TODO: resolve caller here
-
     canApply = false;
 
     LogController.log(`Applied game choice ${chosenName}`);
@@ -34,8 +31,9 @@
   }
 
   function setSelected(entry: SGDBGame): void {
-    // TODO: set values here
     canApply = true;
+    chosenId = entry.id.toString();
+    chosenName = entry.name;
   }
 
   /**
@@ -47,9 +45,7 @@
   }
 
   onMount(async () => {
-    console.log("ran on mount for:", searchQuery);
     results = await AppController.searchSGDBForGame(searchQuery);
-    console.log("results:", results);
   });
 </script>
 
