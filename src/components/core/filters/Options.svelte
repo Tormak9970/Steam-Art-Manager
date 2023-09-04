@@ -55,40 +55,42 @@
 </script>
 
 <Pane minSize={15} size={20}>
-  <SectionTitle title="Options" />
+  <div class="inner">
+    <SectionTitle title="Options" />
   
-  <div class="content" style="height: 39px;">
-    <div style="margin-left: 6px; margin-top: 4px; display: flex; justify-content: space-between;">
-      <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
+    <div class="content" style="height: 39px;">
+      <div style="padding-left: 6px; margin-top: 4px; display: flex; justify-content: space-between;">
+        <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
+      </div>
+      
+      <Divider />
+      <VerticalSpacer />
     </div>
-    
-    <Divider />
-    <VerticalSpacer />
-  </div>
 
-  <div class="content" style="height: calc(100% - 85px);">
-    <div class="overflow-shadow-container" bind:this={overflowContainer}>
-      <div class="scroll-container" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
-        <div class="scroll-target" bind:this={scrollTarget}>
-          {#each Object.keys($dbFilters[$gridType]) as section, i}
-            <Accordion
-              label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
-              open={true}
-            >
-              <VerticalSpacer />
-              {#each Object.keys($dbFilters[$gridType][section]) as filter}
-                <Toggle
-                  label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-                  value={$dbFilters[$gridType][section][filter]}
-                  onChange={updateFilters(section, filter)}
-                />
+    <div class="content" style="height: calc(100% - 85px);">
+      <div class="overflow-shadow-container" bind:this={overflowContainer}>
+        <div class="scroll-container" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
+          <div class="scroll-target" bind:this={scrollTarget}>
+            {#each Object.keys($dbFilters[$gridType]) as section, i}
+              <Accordion
+                label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+                open={true}
+              >
                 <VerticalSpacer />
-              {/each}
-            </Accordion>
-            {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
-              <VerticalSpacer />
-            {/if}
-          {/each}
+                {#each Object.keys($dbFilters[$gridType][section]) as filter}
+                  <Toggle
+                    label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                    value={$dbFilters[$gridType][section][filter]}
+                    onChange={updateFilters(section, filter)}
+                  />
+                  <VerticalSpacer />
+                {/each}
+              </Accordion>
+              {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
+                <VerticalSpacer />
+              {/if}
+            {/each}
+          </div>
         </div>
       </div>
     </div>
@@ -96,9 +98,12 @@
 </Pane>
 
 <style>
+  .inner {
+    margin-left: 1px;
+    height: 100%;
+    width: 100%;
+  }
   .content {
-    /* margin: 0px 6px; */
-    margin-left: 6px;
     padding: 0px 6px;
     overflow: auto;
     max-height: calc(100% - 65px)
