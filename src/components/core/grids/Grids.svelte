@@ -6,7 +6,6 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames } from "../../../stores/AppState";
-  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
@@ -19,6 +18,7 @@
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
   import { showLogoPositionModal } from "../../../stores/Modals";
+    import GridShinePlaceholder from "../../layout/GridShinePlaceholder.svelte";
   
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -266,9 +266,11 @@
             <div class="overflow-shadow-container" bind:this={overflowContainer}>
               <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
                 {#if isLoading}
-                  <div class="loader-container">
-                    <LoadingSpinner />
-                  </div>
+                <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+                  {#each new Array(100) as _}
+                    <GridShinePlaceholder />
+                  {/each}
+                </div>
                 {:else}
                   {#if grids.length > 0}
                     <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
@@ -305,7 +307,6 @@
 
 <style>
   .content {
-    /* margin: 0px 6px; */
     margin-right: 6px;
     padding: 0px 6px;
     overflow: auto;
@@ -338,15 +339,6 @@
     text-align: center;
     opacity: 0.5;
     padding-top: 40px;
-  }
-
-  .loader-container {
-    width: 100%;
-    padding-top: 14px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
   .buttons-cont {

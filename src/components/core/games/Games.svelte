@@ -3,7 +3,6 @@
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
   import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, showHidden, steamGames } from "../../../stores/AppState";
-  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
@@ -13,6 +12,7 @@
   import { heights, widths } from "../imageDimensions";
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
+    import GridShinePlaceholder from "../../layout/GridShinePlaceholder.svelte";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -156,8 +156,10 @@
       <div class="overflow-shadow-container" bind:this={overflowContainer}>
         <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 8 }}>
           {#if isLoading || $loadingGames}
-            <div class="loader-container">
-              <LoadingSpinner />
+            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+              {#each new Array(100) as _}
+                <GridShinePlaceholder />
+              {/each}
             </div>
           {:else}
             {#if games.length > 0}
@@ -222,14 +224,5 @@
     text-align: center;
     opacity: 0.5;
     padding-top: 40px;
-  }
-
-  .loader-container {
-    width: 100%;
-    padding-top: 14px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 </style>
