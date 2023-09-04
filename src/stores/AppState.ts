@@ -1,5 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
+import { sharedStore } from "../lib/utils/SharedStore";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -29,7 +30,7 @@ export enum Theme {
   LIGHT
 }
 
-export const theme = writable(Theme.DARK);
+export const theme = sharedStore(Theme.DARK, "theme");
 
 export const requestTimeoutLength = writable(5000);
 
@@ -80,6 +81,10 @@ export const selectedSteamGridGameId = writable("None");
 
 export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
 export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
+
+
+export const ctxMenuSourceIsImage = sharedStore<boolean>(false, "ctxMenuSourceIsImage");
+export const ctxMenuSourceSrc = sharedStore<string>(null, "ctxMenuSourceSrc");
 
 
 export const dbFilters:Writable<DBFilters> = writable({

@@ -144,17 +144,30 @@
 		"windows": [
 			{
 				"label": "main",
-				"fullscreen": false,
+				"title": "Steam Art Manager",
+				"url": "src/windows/main/main.html",
 				"height": 800,
 				"minHeight": 740,
-				"resizable": true,
-				"title": "Steam Art Manager",
 				"width": 1300,
 				"minWidth": 1150,
+				"fullscreen": false,
+				"resizable": true,
 				"decorations": false,
 				"center": true,
-				"visible": true,
-				"url": "src/windows/main/main.html"
+				"visible": true
+			},
+			{
+				"label": "context-menu",
+				"title": "Context Menu",
+				"url": "src/windows/context-menu/contextMenu.html",
+				"height": 170,
+				"width": 170,
+        "alwaysOnTop": true,
+				"fullscreen": false,
+				"resizable": false,
+				"decorations": false,
+				"visible": false,
+        "transparent": true
 			}
 		]
 	}

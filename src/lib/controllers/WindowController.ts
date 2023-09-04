@@ -16,25 +16,48 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { PhysicalPosition, PhysicalSize, WebviewWindow } from "@tauri-apps/api/window";
 import { LogController } from "./LogController";
+import { ctxMenuSourceIsImage, ctxMenuSourceSrc } from "../../stores/AppState";
 
 /**
  * Controller class for managing app windows.
  */
 export class WindowController {
   static mainWindow = WebviewWindow.getByLabel('main');
-  static settingsWindow = WebviewWindow.getByLabel('settings');
+  static contextMenuWindow = WebviewWindow.getByLabel('context-menu');
 
-  /**
-   * Closes the window with the provided label.
-   * @param title The title of the window to close.
-   * ? Logging Complete.
-   */
-  static async closeWindowByTitle(title: string): Promise<void> {
-    LogController.log(`Closing ${title} window.`);
-    const targetWindow = WebviewWindow.getByLabel(title.toLowerCase());
-    await targetWindow.hide();
-    await targetWindow.setFocus();
+  private static async calcContextMenuHeightFromEvent(e: PointerEvent): Promise<void> {
+    // Add entry for reload
+    let numElements = 1;
+
+    // Add entry for inspector
+    if (IS_DEBUG) numElements += 1;
+
+    // Add entry for saving an image
+    const currentSrc = (e.target as HTMLImageElement).currentSrc;
+    if (currentSrc) {
+      numElements += 1;
+      ctxMenuSourceIsImage.set(true);
+      ctxMenuSourceSrc.set(currentSrc);
+    }
+
+    await this.contextMenuWindow.setSize(new PhysicalSize(120, 5 + 30 * numElements));
+  }
+
+  static async showContextMenu(e: PointerEvent): Promise<void> {
+    await WindowController.calcContextMenuHeightFromEvent(e);
+
+    const mainWindowPosition = await WindowController.mainWindow.innerPosition();
+    await WindowController.contextMenuWindow.setPosition(new PhysicalPosition(mainWindowPosition.x + e.clientX, mainWindowPosition.y + e.clientY));
+
+    await WindowController.contextMenuWindow.show();
+    await WindowController.contextMenuWindow.setFocus();
+  }
+
+  static async closeContextMenu(): Promise<void> {
+    ctxMenuSourceIsImage.set(false);
+    ctxMenuSourceSrc.set(null);
+    await WindowController.contextMenuWindow.hide();
   }
 }

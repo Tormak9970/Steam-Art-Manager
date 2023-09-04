@@ -17,20 +17,19 @@
   let isMaxed = false;
 
   async function onCloseListener() {
-      console.log(title);
-      if (title == "Steam Art Manager") {
-        if ($canSave) {
-          const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
-          if (shouldQuit) {
-            const success = await exit(0);
-            LogController.log(`Program exited: ${success}`);
-          }
-        } else {
+    if (title === "Steam Art Manager") {
+      if ($canSave) {
+        const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+        if (shouldQuit) {
           const success = await exit(0);
           LogController.log(`Program exited: ${success}`);
         }
+      } else {
+        const success = await exit(0);
+        LogController.log(`Program exited: ${success}`);
       }
     }
+  }
 
   onMount(async () => {
     minimize.addEventListener("click", () => appWindow.minimize());

@@ -9,8 +9,8 @@ dependencies:
     specifier: ^3.7.1
     version: 3.7.1
   '@tauri-apps/api':
-    specifier: ^1.2.0
-    version: 1.2.0
+    specifier: ^1.4.0
+    version: 1.4.0
   '@zerodevx/svelte-toast':
     specifier: ^0.8.0
     version: 0.8.0
@@ -550,8 +550,8 @@ packages:
       - supports-color
     dev: true
 
-  /@tauri-apps/api@1.2.0:
-    resolution: {integrity: sha512-lsI54KI6HGf7VImuf/T9pnoejfgkNoXveP14pVV7XarrQ46rOejIVJLFqHI9sRReJMGdh2YuCoI3cc/yCWCsrw==}
+  /@tauri-apps/api@1.4.0:
+    resolution: {integrity: sha512-Jd6HPoTM1PZSFIzq7FB8VmMu3qSSyo/3lSwLpoapW+lQ41CL5Dow2KryLg+gyazA/58DRWI9vu/XpEeHK4uMdw==}
     engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
     dev: false
 

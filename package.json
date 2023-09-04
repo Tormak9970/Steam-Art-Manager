@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@petamoriken/float16": "^3.7.1",
-    "@tauri-apps/api": "^1.2.0",
+    "@tauri-apps/api": "^1.4.0",
     "@zerodevx/svelte-toast": "^0.8.0",
     "markdown-it": "^13.0.1",
     "svelte-lazy": "^1.2.1",

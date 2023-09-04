@@ -11,7 +11,7 @@
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
   import { activeUserId, isOnline, steamUsers } from "../../stores/AppState";
-  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
+  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
@@ -26,13 +26,12 @@
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
-    import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
+  import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
+  import { WindowController } from "../../lib/controllers/WindowController";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
-
-	let isFocused = true;
 
 	let users = Object.values($steamUsers).map((user) => {
 		return {
@@ -53,6 +52,10 @@
     const lineNumber = e.lineno;
 
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
+  function onContextMenu(e: Event): void {
+    WindowController.showContextMenu(e as PointerEvent);
   }
 
 	onMount(async () => {
@@ -108,10 +111,12 @@
 	});
 </script>
 
+<svelte:window on:mouseup={WindowController.closeContextMenu} on:contextmenu|preventDefault={onContextMenu} />
+
 <div class="wrap">
 	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
 </div>
-<main class:dim={!isFocused}>
+<main>
 	<Titlebar title="Steam Art Manager">
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
   </Titlebar>
@@ -216,9 +221,5 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-	}
-
-	.dim {
-		opacity: 0.8;
 	}
 </style>
