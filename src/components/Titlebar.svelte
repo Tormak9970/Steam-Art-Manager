@@ -1,10 +1,12 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
+
+  let windowCloseUnsub: () => void;
 
   export let title: string;
 
@@ -14,13 +16,7 @@
 
   let isMaxed = false;
 
-  onMount(async () => {
-    minimize.addEventListener("click", () => appWindow.minimize());
-    maximize.addEventListener("click", () => {
-      appWindow.toggleMaximize();
-      isMaxed = !isMaxed;
-    });
-    close.addEventListener("click", async () => {
+  async function onCloseListener() {
       console.log(title);
       if (title == "Steam Art Manager") {
         if ($canSave) {
@@ -34,7 +30,23 @@
           LogController.log(`Program exited: ${success}`);
         }
       }
+    }
+
+  onMount(async () => {
+    minimize.addEventListener("click", () => appWindow.minimize());
+    maximize.addEventListener("click", () => {
+      appWindow.toggleMaximize();
+      isMaxed = !isMaxed;
     });
+    close.addEventListener("click", onCloseListener);
+    appWindow.onCloseRequested(async (event) => {
+      event.preventDefault();
+      await onCloseListener();
+    }).then((listener) => windowCloseUnsub = listener);
+  });
+
+  onDestroy(() => {
+    if (windowCloseUnsub) windowCloseUnsub();
   });
 </script>
 
