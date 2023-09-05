@@ -124,6 +124,58 @@ jobs:
           git_branch: "release"
           change_log: ${{ needs.create-release.outputs.change_log }}
 
+      - name: "Update CHANGELOG.md"
+        uses: actions/github-script@v6
+        env:
+          git_branch: "release"
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          release_tag: ${{ needs.create-release.outputs.tag }}
+          change_log: ${{ needs.create-release.outputs.change_log }}
+        with:
+          script: |
+            const fs = require("fs");
+            const child_process = require("child_process");
+            const path = require("path");
+            
+            const config = (prop, value) => exec.exec(`git config ${prop} "${value}"`);
+            const add = (file) => exec.exec(`git add ${file}`);
+            const commit = (message) => exec.exec(`git commit -m "${message}"`);
+            const push = (branch) => exec.exec(`git push origin ${branch} --follow-tags`);
+            const updateOrigin = (repo) => exec.exec(`git remote set-url origin ${repo}`);
+            
+            core.setSecret(process.env.GITHUB_TOKEN);
+            
+            updateOrigin(`https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`);
+            config('user.email', "sarm.release.action@github.com");
+            config('user.name', "SARM Release Action");
+
+            async function uploadReleaseAsset(name, contents) {
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: process.env.release_id,
+                name: name,
+                data: contents
+              });
+            }
+
+            const cwdPath = path.resolve(process.cwd());
+            const changelogFilePath = path.join(cwdPath, "CHANGELOG.md");
+            let changelogFileContents = fs.readFileSync(changelogFilePath, 'utf8');
+
+            const changelogReplacer = `<!-- replace me with new updates! -->
+
+            ## ${process.env.release_tag}
+
+            ${process.env.change_log}`;
+
+            changelogFileContents = changelogFileContents.replace("<!-- replace me with new updates! -->", changelogReplacer);
+            fs.writeFileSync(changelogFilePath, changelogFileContents);
+
+            await add(".");
+            await commit("chore(release): updated changelog file");
+            await push(process.env.git_branch);
+
       # Bump all distributions/package managers here
           
       - name: Publish Release
