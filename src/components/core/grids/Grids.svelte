@@ -18,7 +18,7 @@
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
   import { showLogoPositionModal } from "../../../stores/Modals";
-    import GridShinePlaceholder from "../../layout/GridShinePlaceholder.svelte";
+  import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -57,7 +57,7 @@
     const res = await AppController.getIdForSearchQuery($selectedGameName);
 
     if (res) {
-      const [selectedName, selectedId] = res;
+      
       // TODO: update the search cache for this game to include this result at the top.
       // await onSgdbGameChange(selectedId);
     }
@@ -269,7 +269,7 @@
                   {#if isLoading}
                     <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
                       {#each new Array(100) as _}
-                        <GridShinePlaceholder />
+                        <GridLoadingSkeleton />
                       {/each}
                     </div>
                   {:else}

@@ -973,9 +973,9 @@ export class AppController {
   /**
    * Searches SGDB for the provided query.
    * @param query The search query to use.
-   * @returns A promise resolving to the results array.
+   * @returns A promise resolving to the results array, or null if it timed out.
    */
-  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
+  static async searchSGDBForGame(query: string): Promise<SGDBGame[] | null> {
     return await AppController.cacheController.searchForGame(query);
   }
 
@@ -984,12 +984,12 @@ export class AppController {
    * @param defaultName The currently selected game name.
    * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.
    */
-  static async getIdForSearchQuery(defaultName: string): Promise<[string, string] | null> {
-    return new Promise<[string, string] | null>((resolve) => {
+  static async getIdForSearchQuery(defaultName: string): Promise<SGDBGame | null> {
+    return new Promise<SGDBGame | null>((resolve) => {
       gameSearchModalDefault.set(defaultName);
-      gameSearchModalSelect.set(async (gameName: string, gameId: string) => {
-        resolve([gameName, gameId]);
-      })
+      gameSearchModalSelect.set((game: SGDBGame) => {
+        resolve(game);
+      });
       gameSearchModalCancel.set(() => resolve(null));
       showGameSearchModal.set(true);
     });

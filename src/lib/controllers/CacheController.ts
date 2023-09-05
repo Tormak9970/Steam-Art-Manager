@@ -19,7 +19,7 @@ import { fs, path } from "@tauri-apps/api";
 import { appCacheDir } from '@tauri-apps/api/path';
 
 import { get, type Unsubscriber } from "svelte/store";
-import { SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
+import { RequestError, SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
 import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, gridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
 import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, batchApplyMessage  } from "../../stores/Modals";
 import { LogController } from "./LogController";
@@ -409,10 +409,16 @@ export class CacheController {
   /**
    * Searches SGDB for the provided query.
    * @param query The search query to use.
-   * @returns A promise resolving to the results array.
+   * @returns A promise resolving to the results array, or null if the request timed out.
    */
-  async searchForGame(query: string): Promise<SGDBGame[]> {
-    return await this.client.searchGame(query);
+  async searchForGame(query: string): Promise<SGDBGame[] | null> {
+    try {
+      return await this.client.searchGame(query);
+    } catch (e: any) {
+      const error = e as RequestError;
+      LogController.warn(`SGDB Search Request "${query}" timed out. Message: ${error.message}`);
+      return null;
+    }
   }
 
   /**

@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import type { SGDBImage } from "../lib/models/SGDB";
+import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
 import type { UpdateManifest } from "@tauri-apps/api/updater";
 import { sharedStore } from "../lib/utils/SharedStore";
 
@@ -32,7 +32,7 @@ export const steamPathModalClose = writable(async () => {});
 
 export const showGameSearchModal = writable(false);
 export const gameSearchModalDefault = writable("");
-export const gameSearchModalSelect = writable(async (gameName: string, gameId: string) => {});
+export const gameSearchModalSelect = writable((game: SGDBGame) => {});
 export const gameSearchModalCancel = writable(() => {});
 
 export const showDialogModal = sharedStore(false, "showDialogModal");

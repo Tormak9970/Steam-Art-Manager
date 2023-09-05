@@ -12,7 +12,7 @@
   import { heights, widths } from "../imageDimensions";
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
-    import GridShinePlaceholder from "../../layout/GridShinePlaceholder.svelte";
+  import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -158,7 +158,7 @@
           {#if isLoading || $loadingGames}
             <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
               {#each new Array(100) as _}
-                <GridShinePlaceholder />
+                <GridLoadingSkeleton />
               {/each}
             </div>
           {:else}
