@@ -5,6 +5,7 @@
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
+    import { WindowController } from "../lib/controllers/WindowController";
 
   let windowCloseUnsub: () => void;
 
@@ -49,7 +50,7 @@
   });
 </script>
 
-<div data-tauri-drag-region class="titlebar">
+<div data-tauri-drag-region on:mousedown={WindowController.closeContextMenu} on:contextmenu|preventDefault|stopPropagation class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />
