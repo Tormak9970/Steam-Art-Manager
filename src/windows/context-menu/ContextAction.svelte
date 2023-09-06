@@ -1,6 +1,7 @@
 <script lang="ts">
   export let label: string;
   export let width = "40px";
+  export let marginBottom = "5px";
   export let onClick: (e: MouseEvent) => void;
   export let disabled = false;
   export let highlight = false;
@@ -8,7 +9,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width};" on:mouseup={onClick}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; margin-bottom: {marginBottom};" on:mouseup={onClick}>
   <slot />
   <div style="user-select: none; margin-left: 7px">{label}</div>
 </button>
@@ -33,8 +34,6 @@
     color: var(--font-color);
 
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
-
-    margin-bottom: 5px;
   }
 
   .button:hover {
