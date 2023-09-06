@@ -19,7 +19,7 @@
 
     position: relative;
 
-    z-index: 44;
+    z-index: 1;
 
     overflow: hidden;
 
