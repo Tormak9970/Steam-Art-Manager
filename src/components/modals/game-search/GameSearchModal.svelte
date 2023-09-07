@@ -11,9 +11,9 @@
   import GameSearchEntry from "./GameSearchEntry.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
-  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
+  import { steamGridNameSearchCache } from "../../../stores/AppState";
 
   let canApply = false;
   let loading = true;
@@ -43,12 +43,14 @@
   }
 
   async function makeRequest(query: string): Promise<void> {
+    const cache = steamGridNameSearchCache[query];
     loading = true;
     requestTimedOut = false;
-    const res = await AppController.searchSGDBForGame(query);
+    const res = cache ?? await AppController.searchSGDBForGame(query);
 
     if (res) {
       results = res as SGDBGame[];
+      if (!cache) steamGridNameSearchCache[query] = results;
     } else {
       requestTimedOut = true;
       results = [];
