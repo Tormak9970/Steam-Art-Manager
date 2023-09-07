@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { scrollShadow } from "../directives/scrollShadow";
+  import { scrollShadow } from "../directives/scrollShadow";
 
   export let height = "400px";
   export let marginLeft = "7px";

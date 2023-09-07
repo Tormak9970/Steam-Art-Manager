@@ -35,12 +35,14 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
   const scrollListener = (e: UIEvent) => {
     const eventTarget = e.currentTarget as HTMLElement;
     if (eventTarget.scrollTop === 0) {
+      console.log("at top")
       scrollContainer.classList.add("is-scrolled-top");
     } else {
       scrollContainer.classList.remove("is-scrolled-top");
     }
   
     if (eventTarget.scrollTop + eventTarget.offsetHeight === scrollTarget?.offsetHeight + heightBump) {
+      console.log("at bottom")
       scrollContainer.classList.add("is-scrolled-bottom");
     } else {
       scrollContainer.classList.remove("is-scrolled-bottom");
