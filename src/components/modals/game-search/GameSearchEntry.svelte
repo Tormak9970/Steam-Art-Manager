@@ -16,7 +16,7 @@
 
 <style>
   .game-search-entry {
-    width: calc(100% - 20px);
+    width: calc(100% - 14px);
     
     padding: 3px 7px;
     margin-bottom: 7px;
@@ -29,6 +29,9 @@
     background-color: var(--foreground);
 
     cursor: pointer;
+  }
+  .game-search-entry:last-child {
+    margin-bottom: 0px;
   }
 
   .game-search-entry:hover {

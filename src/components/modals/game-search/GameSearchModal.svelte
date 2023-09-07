@@ -13,6 +13,7 @@
   import IconButton from "../../interactables/IconButton.svelte";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
+  import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
 
   let canApply = false;
   let loading = true;
@@ -80,9 +81,11 @@
         <HorizontalSpacer />
         <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="250px" reversed />
       </div>
-      <PaddedScrollContainer width="calc(100% - 14px)" height="200px">
+      <PaddedScrollContainer width="calc(100% - 14px)" height="200px" loading={loading}>
         {#if loading}
-          <LoadingSpinner />
+          {#each new Array(10) as _}
+            <EntryLoadingSkeleton />
+          {/each}
         {:else if requestTimedOut}
           <div>Request timed out. Check your internet connection or click retry.</div>
         {:else}

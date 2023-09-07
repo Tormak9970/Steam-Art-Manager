@@ -1,11 +1,14 @@
 <script lang="ts">
   export let width = "100%";
   export let height = "auto";
+  export let loading = false;
 </script>
 
 <div class="padded-scroll-container" style="width: {width}; height: {height};">
-  <div class="padded-scroll-inner">
-    <slot />
+  <div class="padded-scroll-inner" style="overflow: {loading ? "hidden" : "auto"};">
+    <div class="padded-scroll-padding" style="padding-right: {loading ? "0px" : "7px"};">
+      <slot />
+    </div>
   </div>
 </div>
 
@@ -28,7 +31,9 @@
   .padded-scroll-inner {
     width: calc(100% - 4px);
     height: calc(100% - 4px);
+  }
 
-    overflow: auto;
+  .padded-scroll-padding {
+    height: auto;
   }
 </style>
