@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import TextInput from "../../interactables/TextInput.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
 
   export let label: string;
   export let description: string;
@@ -34,12 +34,12 @@
     {@html description}<br/>
 
     {#if notes != ""}
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
       <b>Notes:</b><br/>
       {@html notes}
     {/if}
     
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
     <b>Required:</b> {required ? "Yes" : "No"}<br/>
   </div>
 </div>

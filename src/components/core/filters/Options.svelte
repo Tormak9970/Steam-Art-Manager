@@ -2,13 +2,13 @@
   import { Pane } from "svelte-splitpanes";
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
   import { dbFilters, gridType, theme } from "../../../stores/AppState";
+  import Spacer from "../../layout/Spacer.svelte";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -64,7 +64,7 @@
       </div>
       
       <Divider />
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
@@ -76,18 +76,18 @@
                 label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
                 open={true}
               >
-                <VerticalSpacer />
+                <Spacer orientation="VERTICAL" />
                 {#each Object.keys($dbFilters[$gridType][section]) as filter}
                   <Toggle
                     label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
                     value={$dbFilters[$gridType][section][filter]}
                     onChange={updateFilters(section, filter)}
                   />
-                  <VerticalSpacer />
+                  <Spacer orientation="VERTICAL" />
                 {/each}
               </Accordion>
               {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
-                <VerticalSpacer />
+                <Spacer orientation="VERTICAL" />
               {/if}
             {/each}
           </div>

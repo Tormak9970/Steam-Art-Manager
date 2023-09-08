@@ -3,7 +3,7 @@
   import Button from "../../../interactables/Button.svelte";
   import NumberInput from "../../../interactables/NumberInput.svelte";
   import TextInput from "../../../interactables/TextInput.svelte";
-  import VerticalSpacer from "../../../spacers/VerticalSpacer.svelte";
+  import Spacer from "../../../layout/Spacer.svelte";
   
   export let onGameSave: (game:GameStruct) => void;
 
@@ -29,7 +29,7 @@
   <div class="description">
     The name of the game you're adding. Try to be as accurate as possible.
   </div>
-  <VerticalSpacer />
+  <Spacer orientation="VERTICAL" />
   <NumberInput label={"App Id"} bind:value={appId} onChange={() => {}} />
   <div class="description">
     The appid of the game. You can find this by going to the game's steam page, and looking at the number in the url, or looking up "what is the steam appid for GAME_NAME".

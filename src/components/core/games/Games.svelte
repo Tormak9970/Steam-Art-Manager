@@ -5,7 +5,6 @@
   import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, showHidden, steamGames } from "../../../stores/AppState";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import Game from "./Game.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
@@ -13,6 +12,7 @@
   import Divider from "../Divider.svelte";
   import { scrollShadow } from "../../directives/scrollShadow";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
+    import Spacer from "../../layout/Spacer.svelte";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -148,7 +148,7 @@
     </div>
     
     <Divider marginTop={"7px"} />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
   </div>
 
   <div class="content" style="height: calc(100% - 85px);">

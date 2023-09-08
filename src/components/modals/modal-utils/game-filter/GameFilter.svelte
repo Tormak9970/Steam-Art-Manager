@@ -2,11 +2,11 @@
   import { Platforms, appLibraryCache, gridType, hiddenGameIds, manualSteamGames, nonSteamGames, steamGames } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
   import DropDown from "../../../interactables/DropDown.svelte";
-  import VerticalSpacer from "../../../spacers/VerticalSpacer.svelte";
   import SelectedGameEntry from "./SelectedGameEntry.svelte";
   import { onMount } from "svelte";
   import Toggle from "../../../interactables/Toggle.svelte";
   import Table from "../../../layout/Table.svelte";
+  import Spacer from "../../../layout/Spacer.svelte";
   
   export let selectedGameIds: string[];
   export let showFilters = true;
@@ -65,9 +65,9 @@
         <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
     </div>
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
     <Toggle label="Include Hidden" bind:value={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
   </div>
   <Table>
     <span slot="header">

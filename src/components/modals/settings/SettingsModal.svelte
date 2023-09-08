@@ -4,11 +4,11 @@
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Button from "../../interactables/Button.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
   import SettingsFilePathEntry from "./SettingsFilePathEntry.svelte";
   import { showSettingsModal } from "../../../stores/Modals";
+  import Spacer from "../../layout/Spacer.svelte";
 
   function onClose() {
     $showSettingsModal = false;
@@ -101,8 +101,8 @@
 
 <ModalBody title={"Settings"} onClose={onClose}>
   <div class="content">
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
       description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}
@@ -110,8 +110,8 @@
       onChange={onInstallLocationChange}
       required
     />
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="SteamGrid Api Key"
       description={`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}
@@ -119,8 +119,8 @@
       onChange={onGridKeyChange}
       required
     />
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="Steam Api key"
       description={`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}

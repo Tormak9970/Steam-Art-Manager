@@ -6,8 +6,6 @@
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames } from "../../../stores/AppState";
-  import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
@@ -20,6 +18,7 @@
   import { showLogoPositionModal } from "../../../stores/Modals";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
+    import Spacer from "../../layout/Spacer.svelte";
   
   let skipUpdate = false;
 
@@ -267,7 +266,7 @@
       <div style="margin-left: 6px; display: flex; justify-content: space-between;">
         <div style="display: flex;">
           <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
-          <HorizontalSpacer />
+          <Spacer orientation="HORIZONTAL" />
           <IconButton label="Customize Search" onClick={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId == null} height="24px" width="24px">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
               <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -277,7 +276,7 @@
         </div>
 
         <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
-        <HorizontalSpacer />
+          <Spacer orientation="HORIZONTAL" />
 
         <div class="buttons-cont">
           <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId == null || !$appLibraryCache[$selectedGameAppId]?.Logo}>
@@ -286,7 +285,7 @@
               <path d="M160 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v64H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96c17.7 0 32-14.3 32-32V64zM32 320c-17.7 0-32 14.3-32 32s14.3 32 32 32H96v64c0 17.7 14.3 32 32 32s32-14.3 32-32V352c0-17.7-14.3-32-32-32H32zM352 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V64zM320 320c-17.7 0-32 14.3-32 32v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H320z"/>
             </svg>
           </IconButton>
-          <HorizontalSpacer />
+          <Spacer orientation="HORIZONTAL" />
 
           <IconButton label="Upload Your Own Art!" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId == null}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
@@ -298,7 +297,7 @@
       </div>
       
       <Divider marginTop={"7px"} />
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
     </div>
 
     <div class="content" style="height: calc(100% - 85px);position: relative; z-index: 1;">

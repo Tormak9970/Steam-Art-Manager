@@ -4,11 +4,11 @@
 
   import Lazy from "svelte-lazy";
   import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
-  import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { gridModalInfo, showGridModal } from "../../stores/Modals";
+  import Spacer from "../layout/Spacer.svelte";
 
   function onClose() {
     $showGridModal = false;
@@ -77,15 +77,15 @@
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
-        <VerticalSpacer />
+        <Spacer orientation="VERTICAL" />
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
         <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
-        <VerticalSpacer />
+        <Spacer orientation="VERTICAL" />
         {#if $gridModalInfo?.notes}
-          <VerticalSpacer />
+          <Spacer orientation="VERTICAL" />
           <div class="label">Notes:</div>
           <div class="border" />
-          <VerticalSpacer />
+          <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
         {:else}

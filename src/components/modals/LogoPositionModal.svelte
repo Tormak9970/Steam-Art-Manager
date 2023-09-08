@@ -24,9 +24,9 @@
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
-  import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { showLogoPositionModal } from "../../stores/Modals";
+  import Spacer from "../layout/Spacer.svelte";
 
   function onClose() {
     $showLogoPositionModal = false;
@@ -187,8 +187,8 @@
       </div>
       {#if canClear}
         <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <HorizontalSpacer />
-        <HorizontalSpacer />
+        <Spacer orientation="HORIZONTAL" />
+        <Spacer orientation="HORIZONTAL" />
         <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
         <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />

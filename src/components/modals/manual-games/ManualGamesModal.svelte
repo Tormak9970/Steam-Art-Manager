@@ -2,7 +2,6 @@
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import DropDown from "../../interactables/DropDown.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import ManualGameEntry from "./ManualGameEntry.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import Search from "./add-methods/Search.svelte";
@@ -13,6 +12,7 @@
   import { LogController } from "../../../lib/controllers/LogController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import ModalBody from "../modal-utils/ModalBody.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
 
   function onClose() {
     $showManualGamesModal = false;
@@ -95,7 +95,7 @@
       <div class="info">
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
       <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
       <Table>
         <span slot="header">
@@ -138,11 +138,11 @@
           <div style="margin-right: 7px;">Method for Adding Games:</div>
           <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={() => {}} showTooltip={false} />
         </div>
-        <VerticalSpacer />
+        <Spacer orientation="VERTICAL" />
       </div>
       <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
       {#if selectedAddMethod == "search"}
         <Search onGameSave={addNewGame} />
       {:else if selectedAddMethod == "manual"}

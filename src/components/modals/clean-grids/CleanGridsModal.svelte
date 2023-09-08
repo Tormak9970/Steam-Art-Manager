@@ -3,7 +3,7 @@
   import { showCleanGridsModal } from "../../../stores/Modals";
   import Button from "../../interactables/Button.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
@@ -33,7 +33,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={"Clean Grids"} onClose={onClose}>
   <div class="content">
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can tidy up your custom artwork.<br/>
       <ul>
@@ -41,13 +41,13 @@
         <li><b>Custom</b>: Allows you to customize which games you want to delete the grids for.</li>
       </ul>
     </div>
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <div class="options">
       <DropDown label={"Preset"} options={presets} bind:value={selectedPreset} width="100px" showTooltip={false} />
     </div>
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <div class="view">
       {#if selectedPreset == "custom"}
         <GameFilter bind:selectedGameIds={selectedGameIds} showFilters={false}/>
