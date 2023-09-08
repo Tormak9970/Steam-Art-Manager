@@ -564,11 +564,12 @@ export class AppController {
    * @param appId The id of the app to get.
    * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
+   * @param isCustomName Whether the app name is custom or not.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId);
+  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId: string | null, isCustomName: boolean): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId, isCustomName);
   }
 
   /**
@@ -590,6 +591,7 @@ export class AppController {
       gameSearchModalDefault.set(defaultName);
       gameSearchModalSelect.set((game: SGDBGame) => {
         resolve(game);
+        showGameSearchModal.set(false);
       });
       gameSearchModalCancel.set(() => resolve(null));
       showGameSearchModal.set(true);
