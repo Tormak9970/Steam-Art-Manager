@@ -720,6 +720,17 @@ export class AppController {
   }
 
   /**
+   * Clears the custom name for a given app.
+   * @param appId The id of the app to clear the name of.
+   */
+  static clearCustomNameForGame(appId: number): void {
+    const customNames = get(customGameNames);
+    delete customNames[appId];
+    customGameNames.set(customNames);
+    LogController.log(`Cleared custom name for ${appId}`);
+  }
+
+  /**
    * Clears the logo position for a given app.
    * @param appid The id of the app to clear the logo position of.
    */

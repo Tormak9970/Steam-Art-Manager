@@ -174,20 +174,22 @@
     });
 
     manualGamesUnsub = manualSteamGames.subscribe((games) => {
-      if ($selectedGameAppId && !games.find((game) => game.appid == $selectedGameAppId)) {
+      if ($selectedGameAppId && !games.find((game) => game.appid === $selectedGameAppId)) {
         isLoading = true;
         resetGridStores();
         isLoading = false;
       }
     });
 
-    customGameNamesUnsub = customGameNames.subscribe((customNames) => {
+    customGameNamesUnsub = customGameNames.subscribe(async (customNames) => {
       if (customNames[$selectedGameAppId] && !customName) {
         $selectedGameName = customNames[$selectedGameAppId];
-        // TODO: update the search cache by retriggering the fetch from SGDB
+        delete $steamGridSearchCache[$selectedGameAppId];
+        await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, null);
       } else if (!customNames[$selectedGameAppId] && customName) {
         $selectedGameName = originalName;
-        // TODO: update the search cache by retriggering the fetch from SGDB
+        delete $steamGridSearchCache[$selectedGameAppId];
+        await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, null);
       }
     });
 
