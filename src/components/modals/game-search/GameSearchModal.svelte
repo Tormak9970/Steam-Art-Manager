@@ -13,7 +13,7 @@
   import IconButton from "../../interactables/IconButton.svelte";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
-  import { steamGridNameSearchCache } from "../../../stores/AppState";
+  import { selectedGameName, steamGridNameSearchCache } from "../../../stores/AppState";
 
   let canApply = false;
   let loading = true;
@@ -92,7 +92,7 @@
           <div>Request timed out. Check your internet connection or click retry.</div>
         {:else}
           {#each results as sgdbGame (sgdbGame.id)}
-            <GameSearchEntry game={sgdbGame} isSelected={sgdbGame.id === selectedGame?.id} onSelect={setSelected} />
+            <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
           {/each}
         {/if}
       </PaddedScrollContainer>

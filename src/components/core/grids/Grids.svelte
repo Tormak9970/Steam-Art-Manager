@@ -5,7 +5,7 @@
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames } from "../../../stores/AppState";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames } from "../../../stores/AppState";
   import HorizontalSpacer from "../../spacers/HorizontalSpacer.svelte";
   import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import SectionTitle from "../SectionTitle.svelte";
@@ -19,12 +19,14 @@
   import { scrollShadow } from "../../directives/scrollShadow";
   import { showLogoPositionModal } from "../../../stores/Modals";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
+  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let manualGamesUnsub: Unsubscriber;
+  let customGameNamesUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
@@ -52,14 +54,27 @@
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let grids: SGDBImage[] = [];
   let numPages = 1;
+  $: customName = $customGameNames[$selectedGameAppId];
+  $: originalName = ($steamGames[$selectedGameAppId] ?? $nonSteamGames[$selectedGameAppId]).name;
 
+
+  /**
+   * Handles when the user changes the custom game name
+   */
   async function handleCustomNameInput() {
     const res = await AppController.getIdForSearchQuery($selectedGameName);
 
     if (res) {
-      
-      // TODO: update the search cache for this game to include this result at the top.
-      // await onSgdbGameChange(selectedId);
+      if (customName && res.name === originalName) {
+        delete $customGameNames[$selectedGameAppId];
+      } else {
+        $customGameNames[$selectedGameAppId] = res.name;
+      }
+
+      $customGameNames = { ...$customGameNames };
+      // await SettingsManager.updateSetting("customGameNames", $customGameNames);
+
+      await onSgdbGameChange(res.id.toString());
     }
   }
 
@@ -123,6 +138,9 @@
     }
   }
 
+  /**
+   * Resets the grid related stores.
+   */
   function resetGridStores(): void {
     availableSteamGridGames = [{ label: "None", data: "None"}];
     $selectedGameAppId = null;
@@ -160,6 +178,16 @@
         isLoading = true;
         resetGridStores();
         isLoading = false;
+      }
+    });
+
+    customGameNamesUnsub = customGameNames.subscribe((customNames) => {
+      if (customNames[$selectedGameAppId] && !customName) {
+        $selectedGameName = customNames[$selectedGameAppId];
+        // TODO: update the search cache by retriggering the fetch from SGDB
+      } else if (!customNames[$selectedGameAppId] && customName) {
+        $selectedGameName = originalName;
+        // TODO: update the search cache by retriggering the fetch from SGDB
       }
     });
 
@@ -208,6 +236,7 @@
   onDestroy(() => {
     if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
     if (manualGamesUnsub) manualGamesUnsub();
+    if (customGameNamesUnsub) customGameNamesUnsub();
     if (selectedPlatformUnsub) selectedPlatformUnsub();
     if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (dbFiltersUnsub) dbFiltersUnsub();
