@@ -22,7 +22,7 @@
     --track-focus: var(--highlight-hover);
 		--track-highlight-bgcolor: var(--highlight-hover);
 		--track-highlight-bg: var(--highlight);
-		--thumb-holding-outline: rgba(94, 255, 0, 0.3);
+		--thumb-holding-outline: transparent;
 
     --track-bgcolor: var(--foreground);
     --thumb-bgcolor: var(--foreground-light);

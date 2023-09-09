@@ -73,7 +73,7 @@
     background-color: var(--foreground-hover);
   }
   input:focus {
-    border: 1px solid var(--highlight);
+    background-color: var(--foreground-hover);
     outline: none;
   }
 

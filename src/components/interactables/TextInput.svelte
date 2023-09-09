@@ -60,6 +60,6 @@
   }
   .input > input:focus {
     outline: none;
-    border: 1px solid var(--highlight);
+    background-color: var(--foreground-hover);
   }
 </style>
