@@ -10,13 +10,9 @@
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
   import { heights, widths } from "../imageDimensions";
   import Divider from "../Divider.svelte";
-  import { scrollShadow } from "../../directives/scrollShadow";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
-    import Spacer from "../../layout/Spacer.svelte";
-    import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-
-  let overflowContainer: HTMLDivElement;
-  let scrollTarget: HTMLDivElement;
+  import Spacer from "../../layout/Spacer.svelte";
+  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -156,14 +152,14 @@
     <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
       <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading || $loadingGames} marginTop="0px">
         {#if isLoading || $loadingGames}
-          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
             {#each new Array(100) as _}
               <GridLoadingSkeleton />
             {/each}
           </div>
         {:else}
           {#if games.length > 0}
-            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
               {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
                 <Game game={game} />
               {/each}

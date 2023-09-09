@@ -1,11 +1,8 @@
 <script lang="ts">
-  import { scrollShadow } from "../directives/scrollShadow";
+  import PaddedScrollContainer from "./PaddedScrollContainer.svelte";
 
   export let height = "400px";
   export let marginLeft = "7px";
-
-  let overflowContainer: HTMLDivElement;
-  let scrollTarget: HTMLDivElement;
 </script>
 
 <div class="table" style="height: {height}; margin-left: {marginLeft};">
@@ -13,13 +10,9 @@
     <slot name="header" />
   </div>
   <div class="border" style="margin-top: 3px;"></div>
-  <div class="overflow-shadow-container" bind:this={overflowContainer} >
-    <div class="data-scroller" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 8 }}>
-      <div class="data" bind:this={scrollTarget}>
-        <slot name="data" />
-      </div>
-    </div>
-  </div>
+  <PaddedScrollContainer height={"calc(100% - 20px)"} width={"100%"} background={"transparent"} padding={"5px 0px 0px 0px"} marginTop="0px">
+    <slot name="data" />
+  </PaddedScrollContainer>
 </div>
 
 <style>
@@ -48,28 +41,5 @@
 
     display: flex;
     justify-content: flex-start;
-  }
-
-  .data {
-    margin-top: 3px;
-    width: 100%;
-
-    overflow: hidden;
-  }
-
-  .data-scroller {
-    padding: 3px;
-    width: calc(100% - 6px);
-    margin-right: 6px;
-
-    margin-top: 5px;
-
-    height: 100%;
-
-    overflow: scroll;
-  }
-
-  .overflow-shadow-container {
-    height: calc(100% - 20px);
   }
 </style>

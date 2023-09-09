@@ -13,12 +13,12 @@
     <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
   </div>
   <div class="name">{game.name}</div>
-  <div class="platform" style="margin-left: auto; margin-right: {platform == Platforms.STEAM ? "47px" : "20px"};">{platform}</div>
+  <div class="platform" style="margin-left: auto; margin-right: {platform == Platforms.STEAM ? "45px" : "18px"};">{platform}</div>
 </div>
 
 <style>
   .selected-game-entry {
-    width: calc(100% - 20px);
+    width: calc(100% - 14px);
     
     padding: 3px 7px;
     margin-bottom: 7px;
