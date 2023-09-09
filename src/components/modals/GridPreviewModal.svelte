@@ -65,7 +65,7 @@
 
 <ModalBody title={`${games.find((game) => game.appid == $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont">
+    <div class="img-cont" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
         <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
           <img src="{$gridType == GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
@@ -169,7 +169,7 @@
     flex-direction: column;
   }
 
-  .img-cont { padding: 10px; }
+  .img-cont { padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
   .img-cont > .img {
     border-radius: 2px;
