@@ -267,7 +267,6 @@ export class SteamController {
   static async getUserApps(): Promise<void> {
     const online = get(isOnline);
     const needsSteamAPIKey = get(needsSteamKey);
-    const id = ToastController.showLoaderToast("Loading games...");
     
     const userId = get(activeUserId);
     const bUserId = BigInt(userId) + 76561197960265728n;
@@ -347,7 +346,6 @@ export class SteamController {
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }
     
-    ToastController.remLoaderToast(id);
     ToastController.showSuccessToast("Games Loaded!");
   }
 }
