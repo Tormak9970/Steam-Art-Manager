@@ -1,9 +1,8 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import TextInput from "../../interactables/TextInput.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import FileButton from "../../interactables/FileButton.svelte";
-    import Spacer from "../../layout/Spacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
 
   export let label: string;
   export let description: string;

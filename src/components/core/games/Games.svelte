@@ -13,6 +13,7 @@
   import { scrollShadow } from "../../directives/scrollShadow";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
     import Spacer from "../../layout/Spacer.svelte";
+    import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
   let overflowContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -153,29 +154,27 @@
 
   <div class="content" style="height: calc(100% - 85px);">
     <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
-      <div class="overflow-shadow-container" bind:this={overflowContainer}>
-        <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 8 }}>
-          {#if isLoading || $loadingGames}
+      <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading || $loadingGames} marginTop="0px">
+        {#if isLoading || $loadingGames}
+          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
+            {#each new Array(100) as _}
+              <GridLoadingSkeleton />
+            {/each}
+          </div>
+        {:else}
+          {#if games.length > 0}
             <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
-              {#each new Array(100) as _}
-                <GridLoadingSkeleton />
+              {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
+                <Game game={game} />
               {/each}
             </div>
           {:else}
-            {#if games.length > 0}
-              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
-                {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-                  <Game game={game} />
-                {/each}
-              </div>
-            {:else}
-              <div class="message">
-                No {$currentPlatform} games found.
-              </div>
-            {/if}
+            <div class="message">
+              No {$currentPlatform} games found.
+            </div>
           {/if}
-        </div>
-      </div>
+        {/if}
+      </PaddedScrollContainer>
     </ListTabs>
   </div>
 </Pane>
@@ -186,18 +185,8 @@
     --img-height: 150px;
   }
   .content {
-    /* margin: 0px 6px; */
     padding: 0px 6px;
-    overflow: hidden;
     max-height: calc(100% - 65px)
-  }
-
-  .grids-cont {
-    height: 100%;
-    max-height: 100%;
-    width: 100%;
-    overflow: scroll;
-    position: relative;
   }
 
   .game-grid {
@@ -206,17 +195,11 @@
     
     grid-template-columns: repeat(auto-fit, var(--img-width));
     row-gap: 15px;
-    column-gap: 30px;
+    column-gap: 15px;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
-
-    padding: 14px 0px;
-  }
-
-  .overflow-shadow-container::after {
-    bottom: 7px;
   }
 
   .message {

@@ -152,16 +152,11 @@
 
     user-select: none;
 
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out;
   }
-  .game:hover {
-    background-color: var(--foreground-hover);
-  }
+  .game:hover { background-color: var(--foreground-hover); }
 
-  .selected {
-    background-color: var(--foreground-light);
-    transform: scale(1.1);
-  }
+  .selected { background-color: var(--foreground-light); }
   .selected:hover { background-color: var(--foreground-light-hover); }
 
   .name {

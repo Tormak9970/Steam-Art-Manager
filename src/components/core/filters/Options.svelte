@@ -6,12 +6,9 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
-  import { scrollShadow } from "../../directives/scrollShadow";
   import { dbFilters, gridType, theme } from "../../../stores/AppState";
   import Spacer from "../../layout/Spacer.svelte";
-
-  let overflowContainer: HTMLDivElement;
-  let scrollTarget: HTMLDivElement;
+  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
   /**
    * Creates a function to update the specified filter.
@@ -54,12 +51,12 @@
   }
 </script>
 
-<Pane minSize={15} size={20}>
+<Pane minSize={15} size={16}>
   <div class="inner">
     <SectionTitle title="Options" />
   
-    <div class="content" style="height: 39px;">
-      <div style="padding-left: 6px; margin-top: 4px; display: flex; justify-content: space-between;">
+    <div class="content" style="height: 35px;">
+      <div style="padding-left: 6px; margin-top: 10px; display: flex; justify-content: space-between;">
         <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
       </div>
       
@@ -68,31 +65,27 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <div class="overflow-shadow-container" bind:this={overflowContainer}>
-        <div class="scroll-container" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
-          <div class="scroll-target" bind:this={scrollTarget}>
-            {#each Object.keys($dbFilters[$gridType]) as section, i}
-              <Accordion
-                label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
-                open={true}
-              >
-                <Spacer orientation="VERTICAL" />
-                {#each Object.keys($dbFilters[$gridType][section]) as filter}
-                  <Toggle
-                    label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-                    value={$dbFilters[$gridType][section][filter]}
-                    onChange={updateFilters(section, filter)}
-                  />
-                  <Spacer orientation="VERTICAL" />
-                {/each}
-              </Accordion>
-              {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
-                <Spacer orientation="VERTICAL" />
-              {/if}
+      <PaddedScrollContainer height={"100%"} width={"100%"} background={"transparent"} marginTop="0px" padding="0px">
+        {#each Object.keys($dbFilters[$gridType]) as section, i}
+          <Accordion
+            label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+            open={true}
+          >
+            <Spacer orientation="VERTICAL" />
+            {#each Object.keys($dbFilters[$gridType][section]) as filter}
+              <Toggle
+                label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                value={$dbFilters[$gridType][section][filter]}
+                onChange={updateFilters(section, filter)}
+              />
+              <Spacer orientation="VERTICAL" />
             {/each}
-          </div>
-        </div>
-      </div>
+          </Accordion>
+          {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
+            <Spacer orientation="VERTICAL" />
+          {/if}
+        {/each}
+      </PaddedScrollContainer>
     </div>
   </div>
 </Pane>
@@ -105,17 +98,6 @@
   }
   .content {
     padding: 0px 6px;
-    overflow: auto;
     max-height: calc(100% - 65px)
-  }
-
-  .scroll-container {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
-  }
-
-  .scroll-target {
-    width: 100%;
   }
 </style>

@@ -12,18 +12,15 @@
   import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
-  import { filterGrids } from "../../../lib/utils/Utils";
+  import { debounce, filterGrids } from "../../../lib/utils/Utils";
   import Divider from "../Divider.svelte";
-  import { scrollShadow } from "../../directives/scrollShadow";
   import { showLogoPositionModal } from "../../../stores/Modals";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
-    import Spacer from "../../layout/Spacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
+  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
   
   let skipUpdate = false;
-
-  let overflowContainer: HTMLDivElement;
-  let scrollTarget: HTMLDivElement;
 
   let steamGridSearchCacheUnsub: Unsubscriber;
   let manualGamesUnsub: Unsubscriber;
@@ -35,6 +32,8 @@
   let gridTypeUnsub: Unsubscriber;
   let onlineUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
+
+  let windowWidth: number;
 
   const padding = 20;
   let oldSelectedGameId = null;
@@ -169,6 +168,8 @@
     }
   }
 
+  const debouncedWidthUpdate = debounce(() => windowWidth = window.innerWidth, 50);
+
   onMount(() => {
     steamGridSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
       isLoading = true;
@@ -258,6 +259,8 @@
   });
 </script>
 
+<svelte:window on:resize={debouncedWidthUpdate} />
+
 <Pane minSize={20}>
   <div class="inner">
     <SectionTitle title="Grids" />
@@ -265,7 +268,11 @@
     <div class="content" style="position: relative; z-index: 2; overflow: initial;">
       <div style="margin-left: 6px; display: flex; justify-content: space-between;">
         <div style="display: flex;">
-          <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
+          {#if !windowWidth || windowWidth >= 1265}
+            <DropDown label="Browsing" options={availableSteamGridGames} onChange={onSgdbGameChange} width={"130px"} bind:value={$selectedSteamGridGameId} />
+          {:else}
+            <DropDown options={availableSteamGridGames} onChange={onSgdbGameChange} width={"200px"} bind:value={$selectedSteamGridGameId} />
+          {/if}
           <Spacer orientation="HORIZONTAL" />
           <IconButton label="Customize Search" onClick={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId == null} height="24px" width="24px">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
@@ -275,8 +282,12 @@
           </IconButton>
         </div>
 
-        <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
-          <Spacer orientation="HORIZONTAL" />
+        {#if !windowWidth || windowWidth >= 1265}
+          <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
+        {:else}
+          <DropDown options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
+        {/if}
+        <Spacer orientation="HORIZONTAL" />
 
         <div class="buttons-cont">
           <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId == null || !$appLibraryCache[$selectedGameAppId]?.Logo}>
@@ -305,29 +316,27 @@
         {#if !$needsSGDBAPIKey}
           {#if $selectedGameAppId != null}
             <Pages numPages={numPages} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
-              <div class="overflow-shadow-container" bind:this={overflowContainer}>
-                <div class="grids-cont" use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
-                  {#if isLoading}
-                    <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
-                      {#each new Array(100) as _}
-                        <GridLoadingSkeleton />
+              <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
+                {#if isLoading}
+                  <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                    {#each new Array(100) as _}
+                      <GridLoadingSkeleton />
+                    {/each}
+                  </div>
+                {:else}
+                  {#if grids.length > 0}
+                    <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                      {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                        <Grid grid={grid} />
                       {/each}
                     </div>
                   {:else}
-                    {#if grids.length > 0}
-                      <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;" bind:this={scrollTarget}>
-                        {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                          <Grid grid={grid} />
-                        {/each}
-                      </div>
-                    {:else}
-                      <div class="message">
-                        No results for {$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
-                      </div>
-                    {/if}
+                    <div class="message">
+                      No results for {$gridType == GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+                    </div>
                   {/if}
-                </div>
-              </div>
+                {/if}
+              </PaddedScrollContainer>
             </Pages>
           {:else}
             <div class="message">
@@ -356,14 +365,7 @@
 
   .content {
     padding: 0px 6px;
-    overflow: auto;
     max-height: calc(100% - 65px);
-  }
-
-  .grids-cont {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
   }
 
   .game-grid {
@@ -372,13 +374,11 @@
     
     grid-template-columns: repeat(auto-fit, var(--img-width));
     row-gap: 15px;
-    column-gap: 30px;
+    column-gap: 15px;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
-
-    padding: 14px 0px;
   }
 
   .message {
