@@ -28,7 +28,10 @@
   import { showLogoPositionModal } from "../../stores/Modals";
   import Spacer from "../layout/Spacer.svelte";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showLogoPositionModal = false;
   }
 
@@ -78,6 +81,12 @@
     "Logo": 402
   };
 
+  /**
+   * Gets the css styles for the current logo settings.
+   * @param pos The position of the logo.
+   * @param heightPct The height offset of the logo.
+   * @param widthPct The width offset of the logo.
+   */
   function getLogoPosition(pos: LogoPinPositions, heightPct: number, widthPct: number): LogoCssStyles {
     const positions = {
       BottomLeft: {
@@ -117,7 +126,7 @@
   /**
    * Apply the logo position changes.
    */
-  function applyChanges() {
+  function applyChanges(): void {
     AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
   }
@@ -125,7 +134,7 @@
   /**
    * Clears any changes made to the logo position.
    */
-  function clearLogoPosition() {
+  function clearLogoPosition(): void {
     AppController.clearLogoPosition($selectedGameAppId);
     onClose();
   }

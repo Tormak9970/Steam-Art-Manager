@@ -14,7 +14,7 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-   function clickListener(e: Event) {
+  function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
   
     if (origin) {

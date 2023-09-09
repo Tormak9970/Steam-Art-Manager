@@ -17,7 +17,12 @@
   let scrollContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
 
-  function checkOverflow(element: HTMLElement) {
+  /**
+   * Check if the content of the scroll container needs a scroll bar.
+   * @param element The element to use for checking.
+   * @returns True if the container needs scrolling.
+   */
+  function checkOverflow(element: HTMLElement): boolean {
     const curOverflow = element.style.overflow;
 
     if (!curOverflow || curOverflow === "visible") element.style.overflow = "hidden";
@@ -29,9 +34,7 @@
     return isOverflowing;
   }
 
-  const setIsOverflowing = () => {
-    if (scrollContainer) isOverflowing = checkOverflow(scrollContainer);
-  };
+  const setIsOverflowing = () => { if (scrollContainer) isOverflowing = checkOverflow(scrollContainer); };
   const debouncedCheck: () => void = debounce(setIsOverflowing, 100);
 </script>
 

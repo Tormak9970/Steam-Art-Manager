@@ -30,6 +30,13 @@ export function throttle(func: any, wait: number) {
   };
 }
 
+/**
+ * Debounces a function by the provided interval.
+ * @param func The function to debounce.
+ * @param wait How long to wait before running the function after the last call.
+ * @param immediate Whether to run the function immediately, then debounce, or debounce from the start.
+ * @returns The debounced function.
+ */
 export function debounce(func:Function, wait:number, immediate?:boolean) {
   let timeout:NodeJS.Timeout|null;
   return function (this:any) {

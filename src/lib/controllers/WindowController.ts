@@ -17,7 +17,6 @@
  */
 
 import { PhysicalPosition, PhysicalSize, WebviewWindow } from "@tauri-apps/api/window";
-import { LogController } from "./LogController";
 import { ctxMenuSourceIsImage, ctxMenuSourceSrc } from "../../stores/AppState";
 
 /**
@@ -45,6 +44,10 @@ export class WindowController {
     await this.contextMenuWindow.setSize(new PhysicalSize(120, 5 + 30 * numElements));
   }
 
+  /**
+   * Shows the context menu window.
+   * @param e The pointer event that triggered the call.
+   */
   static async showContextMenu(e: PointerEvent): Promise<void> {
     await WindowController.calcContextMenuHeightFromEvent(e);
 
@@ -55,6 +58,9 @@ export class WindowController {
     await WindowController.contextMenuWindow.setFocus();
   }
 
+  /**
+   * Closes the context menu window.
+   */
   static async closeContextMenu(): Promise<void> {
     ctxMenuSourceIsImage.set(false);
     ctxMenuSourceSrc.set(null);

@@ -10,6 +10,9 @@
   let gameName: string = "";
   let appId: number = 0;
 
+  /**
+   * Wrapper function for saving the manual game.
+   */
   function saveWrapper(): void {
     ToastController.showSuccessToast(`Added ${gameName}!`);
     onGameSave({ appid: appId, name: gameName });
@@ -17,6 +20,9 @@
     appId = 0;
   }
 
+  /**
+   * Clears any user input.
+   */
   function clear(): void {
     ToastController.showGenericToast(`Cleared info.`);
     gameName = "";

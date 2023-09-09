@@ -5,11 +5,19 @@
 
   let canQuit = false;
 
-  function checkCanQuit(e: Event) {
+  /**
+   * Function to run on mouse down to see if the modal should close.
+   * @param e The associated event.
+   */
+  function checkCanQuit(e: Event): void {
     canQuit = e.currentTarget === e.target;
   }
 
-  function closeWrapper(e: Event) {
+  /**
+   * Function to run on mouse up to see if the modal should still close.
+   * @param e The associated event.
+   */
+  function closeWrapper(e: Event): void {
     if (e.currentTarget === e.target && canQuit) onClose();
   }
 </script>

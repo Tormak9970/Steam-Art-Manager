@@ -10,6 +10,9 @@
   import { showSettingsModal } from "../../../stores/Modals";
   import Spacer from "../../layout/Spacer.svelte";
 
+  /**
+   * The function to run when the modal closes.
+   */
   function onClose() {
     $showSettingsModal = false;
   }
@@ -20,7 +23,10 @@
   let steamAPIKey = $steamKey;
   let steamInstallLocation = $steamInstallPath;
 
-	async function saveSettings() {
+  /**
+   * Saves the changed settings.
+   */
+	async function saveSettings(): Promise<void> {
     LogController.log("Saving settings...");
     
     $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
@@ -48,7 +54,10 @@
     onClose();
   }
 
-  function cancel() {
+  /**
+   * Discards the changed settings.
+   */
+  function cancel(): void {
     LogController.log("Reverting settings...");
 
     steamGridKey = $steamGridDBKey;

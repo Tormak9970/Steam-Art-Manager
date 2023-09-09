@@ -11,7 +11,11 @@
   export let notes: string = "";
   export let onChange: (path: string) => void = () => {};
 
-  function changeWrapper(e: Event) {
+  /**
+   * A wrapper for the onChange event.
+   * @param e The change event.
+   */
+  function changeWrapper(e: Event): void {
     onChange((e.currentTarget as HTMLInputElement).value);
   }
   

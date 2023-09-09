@@ -12,7 +12,10 @@
   export let highlight = false;
   export let warn = false;
 
-  async function onClick(e: MouseEvent) {
+  /**
+   * Handles the onClick event of the icon button.
+   */
+  async function onClick(): Promise<void> {
     const path = await dialog.open({
       title: "Select your steam install",
       directory: true,

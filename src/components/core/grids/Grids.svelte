@@ -60,7 +60,7 @@
   /**
    * Handles when the user changes the custom game name
    */
-  async function handleCustomNameInput() {
+  async function handleCustomNameInput(): Promise<void> {
     const res = await AppController.getIdForSearchQuery($selectedGameName);
 
     if (res) {
@@ -79,7 +79,7 @@
   /**
    * Prompts the user to select their custom game art.
    */
-  async function prompUserForArt() {
+  async function prompUserForArt(): Promise<void> {
     const path = await dialog.open({
       title: "Select your game art",
       filters: [
@@ -109,7 +109,7 @@
    * Refilters the grids when the selected SGDB game changes.
    * @param id The id of the game.
    */
-  async function onSgdbGameChange(id: string) {
+  async function onSgdbGameChange(id: string): Promise<void> {
     if ($isOnline && $steamGridDBKey != "" && $selectedGameAppId != null && oldSelectedGameId != id) {
       grids = filterGridsWrapper(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id, false), $gridType, $dbFilters);
       numPages = $steamGridSearchCache[$selectedGameAppId]?.find((game) => game.id.toString() == id)?.numResultPages ?? 3;

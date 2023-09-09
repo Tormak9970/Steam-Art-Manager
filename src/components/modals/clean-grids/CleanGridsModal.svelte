@@ -7,7 +7,10 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showCleanGridsModal = false;
   }
 
@@ -20,12 +23,18 @@
 
   let selectedGameIds: string[] = [];
 
-  function cleanGrids() {
+  /**
+   * Cleans out the undesired grids.
+   */
+  function cleanGrids(): void {
     AppController.cleanDeadGrids(selectedPreset, selectedGameIds);
     onClose();
   }
 
-  function cancel() {
+  /**
+   * The function to run when the process is canceled.
+   */
+  function cancel(): void {
     onClose();
   }
 </script>

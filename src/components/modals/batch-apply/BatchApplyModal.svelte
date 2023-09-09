@@ -7,7 +7,10 @@
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
   import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showBatchApplyModal = false;
   }
 
@@ -16,7 +19,7 @@
   /**
    * Batch applies grids to all games.
    */
-  function batchApply() {
+  function batchApply(): void {
     AppController.batchApplyGrids(selectedGameIds);
     $showBatchApplyProgress = true;
     onClose();
@@ -25,7 +28,7 @@
   /**
    * Cancels batch applying grids.
    */
-  function cancel() {
+  function cancel(): void {
     ToastController.showGenericToast("Cancelled Batch Apply.");
     onClose();
   }

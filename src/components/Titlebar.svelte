@@ -5,7 +5,7 @@
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
-    import { WindowController } from "../lib/controllers/WindowController";
+  import { WindowController } from "../lib/controllers/WindowController";
 
   let windowCloseUnsub: () => void;
 
@@ -17,7 +17,10 @@
 
   let isMaxed = false;
 
-  async function onCloseListener() {
+  /**
+   * Function to run when the user attempts to close the main window.
+   */
+  async function onCloseListener(): Promise<void> {
     if (title === "Steam Art Manager") {
       if ($canSave) {
         const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");

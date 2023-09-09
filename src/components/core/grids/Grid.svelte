@@ -16,7 +16,7 @@
   /**
    * Sets this grid to be the current grid for the selected game.
    */
-  function selectGame() {
+  function selectGame(): void {
     onSelect();
   }
 </script>

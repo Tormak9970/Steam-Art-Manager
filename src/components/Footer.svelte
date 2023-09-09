@@ -8,6 +8,9 @@
   import { DialogController } from "../lib/controllers/DialogController";
   import Spacer from "./layout/Spacer.svelte";
 
+  /**
+   * Wrapper function for handling when the Clean Grids action is selected.
+   */
   async function onCleanGridsClick(): Promise<void> {
     if ($canSave) {
       const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");

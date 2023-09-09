@@ -13,7 +13,10 @@
 
   let steamInstallLocation = $steamInstallPath;
 
-	async function saveInstallLocation() {
+  /**
+   * Saves the selected install location.
+   */
+	async function saveInstallLocation(): Promise<void> {
     LogController.log("Setting Steam Install Location...");
     
     $steamInstallPath = steamInstallLocation;

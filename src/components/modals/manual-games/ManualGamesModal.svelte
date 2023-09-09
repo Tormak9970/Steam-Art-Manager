@@ -14,7 +14,10 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import Spacer from "../../layout/Spacer.svelte";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showManualGamesModal = false;
   }
   

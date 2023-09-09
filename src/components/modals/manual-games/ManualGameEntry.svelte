@@ -5,10 +5,18 @@
   export let game: GameStruct;
   export let onRemove: (game: GameStruct) => void;
 
+  /**
+   * Checks if the entry has any existing steam art on the pc.
+   * @returns True if it does, false if not.
+   */
   function getSteamArtStatus(): boolean {
     return !!$unfilteredLibraryCache[game.appid];
   }
 
+  /**
+   * Checks if the entry has any existing custom art on the pc.
+   * @returns True if it does, false if not.
+   */
   function getCustomArtStatus(): boolean {
     return $unfilteredLibraryCache[game.appid] && $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
   }

@@ -23,25 +23,40 @@
 
   let results: SGDBGame[] = [];
   
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showGameSearchModal = false;
     $gameSearchModalCancel();
   }
 
-	async function applyChoice() {
+  /**
+   * Applies the users choice.
+   */
+	function applyChoice(): void {
     canApply = false;
 
     LogController.log(`Applied game choice ${selectedGame.name}`);
     ToastController.showSuccessToast("Choice applied!");
 
     $gameSearchModalSelect(selectedGame);
+    onClose();
   }
 
+  /**
+   * Sets the selected game.
+   * @param game The game to select.
+   */
   function setSelected(game: SGDBGame): void {
     canApply = true;
     selectedGame = game;
   }
 
+  /**
+   * Requests a list of results from SGDB.
+   * @param query The query to use.
+   */
   async function makeRequest(query: string): Promise<void> {
     const cache = steamGridNameSearchCache[query];
     loading = true;
@@ -60,6 +75,9 @@
     loading = false;
   }
 
+  /**
+   * Retries the last request.
+   */
   async function retryRequest(): Promise<void> {
     await makeRequest(searchQuery);
   }

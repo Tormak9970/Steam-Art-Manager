@@ -19,7 +19,7 @@
   /**
    * Wraps the onChange handler.
    */
-  function inputWrapper() {
+  function inputWrapper(): void {
     searching = false;
     onChange(value);
   }
@@ -27,7 +27,7 @@
   /**
    * Handles debouncing the search.
    */
-  function handleSearch() {
+  function handleSearch(): void {
     searching = true;
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(inputWrapper, interval);
@@ -36,14 +36,14 @@
   /**
    * Wrapper to check if search should be done on each input.
    */
-  function onInputWrapper() {
+  function onInputWrapper(): void {
     if (updateOnInput) handleSearch();
   }
 
   /**
    * Wrapper to check if search should be done only on input changes.
    */
-  function onChangeWrapper() {
+  function onChangeWrapper(): void {
     if (!updateOnInput) handleSearch();
   }
 </script>

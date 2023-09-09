@@ -27,7 +27,7 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-   function clickListener(e: Event) {
+  function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
   
     if (origin) {
@@ -37,7 +37,10 @@
     }
   }
 
-  async function update() {
+  /**
+   * Applies the update
+   */
+  async function update(): Promise<void> {
     LogController.log(`Installing update v${$updateManifest.version}, released on ${$updateManifest.date}.`);
     ToastController.showGenericToast("Installing update...");
 
@@ -49,7 +52,10 @@
     await relaunch();
   }
 
-  async function ignoreUpdate() {
+  /**
+   * Ignores the update.
+   */
+  async function ignoreUpdate(): Promise<void> {
     LogController.log(`Skipping update v${$updateManifest.version}.`);
     $showUpdateModal = false;
   }

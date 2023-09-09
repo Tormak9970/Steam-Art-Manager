@@ -10,7 +10,10 @@
   import { gridModalInfo, showGridModal } from "../../stores/Modals";
   import Spacer from "../layout/Spacer.svelte";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showGridModal = false;
 		$gridModalInfo = null;
   }
@@ -41,7 +44,7 @@
   /**
    * Apply the grid being previewed.
    */
-  function applyGrid() {
+  function applyGrid(): void {
     AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
   }
 
@@ -49,7 +52,7 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-  function clickListener(e: Event) {
+  function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
   
     if (origin) {

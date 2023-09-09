@@ -34,7 +34,7 @@
    * Overwrites the default search function.
    * @param e The keyboard event.
    */
-  function overwriteCtrlF(e: Event) {
+  function overwriteCtrlF(e: Event): void {
     if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key == "f") {
       e.preventDefault();
       setSearchFocus();

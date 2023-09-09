@@ -591,7 +591,6 @@ export class AppController {
       gameSearchModalDefault.set(defaultName);
       gameSearchModalSelect.set((game: SGDBGame) => {
         resolve(game);
-        showGameSearchModal.set(false);
       });
       gameSearchModalCancel.set(() => resolve(null));
       showGameSearchModal.set(true);

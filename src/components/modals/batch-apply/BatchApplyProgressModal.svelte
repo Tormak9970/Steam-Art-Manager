@@ -4,7 +4,10 @@
   import Button from "../../interactables/Button.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showBatchApplyProgress = false;
     $batchApplyProgress = 0;
     $batchApplyMessage = "Starting batch job...";
@@ -14,18 +17,21 @@
   /**
    * Batch applies grids to all games.
    */
-  function closeAfterComplete() {
+  function closeAfterComplete(): void {
     onClose();
   }
 
   /**
    * Cancels batch applying grids.
    */
-  function cancel() {
+  function cancel(): void {
     $batchApplyWasCancelled = true;
   }
 
-  function onFinish() {
+  /**
+   * The function to run when the progress bar completes.
+   */
+  function onFinish(): void {
     $batchApplyMessage = "Batch apply complete."
   }
 </script>

@@ -54,6 +54,10 @@
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
   }
 
+  /**
+   * Handler for context menu events.
+   * @param e The context menu event.
+   */
   function onContextMenu(e: Event): void {
     WindowController.showContextMenu(e as PointerEvent);
   }

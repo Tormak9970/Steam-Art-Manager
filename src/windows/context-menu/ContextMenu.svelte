@@ -12,12 +12,20 @@
   let windowCloseUnsub: () => void;
   let windowFocusUnsub: () => void;
 
-  async function getImageBlob(imageUrl: string) {
+  /**
+   * Gets a Blob from an image url.
+   * @param imageUrl The url of the image to get.
+   * @returns A promise resolving to the Blob.
+   */
+  async function getImageBlob(imageUrl: string): Promise<Blob> {
     const response = await fetch(imageUrl)
     return response.blob()
   }
 
-  async function saveImageAs() {
+  /**
+   * Opens the save dialog for the selected image.
+   */
+  async function saveImageAs(): Promise<void> {
     await WindowController.closeContextMenu();
     
     const blob = await getImageBlob($ctxMenuSourceSrc);
@@ -25,12 +33,18 @@
     await fs.writeBinaryFile(destPath, await blob.arrayBuffer());
   }
 
-  async function reloadApp() {
+  /**
+   * Reloads the app.
+   */
+  async function reloadApp(): Promise<void> {
     await WindowController.closeContextMenu();
     await AppController.reload();
   }
 
-  async function inspectElement() {
+  /**
+   * Opens the inspector for the main window.
+   */
+  async function inspectElement(): Promise<void> {
     await WindowController.closeContextMenu();
     await invoke("open_main_dev_tools");
   }

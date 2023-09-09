@@ -13,7 +13,7 @@
    * Function to run when the user starts hovering over a video.
    * @param e The associated MouseEvent.
    */
-  function onEnter(e: Event) {
+  function onEnter(e: Event): void {
     (e.target as HTMLVideoElement).play();
   }
 
@@ -21,7 +21,7 @@
    * Function to run when the user stops hovering over a video.
    * @param e The associated MouseEvent.
    */
-  function onLeave(e: Event) {
+  function onLeave(e: Event): void {
     (e.target as HTMLVideoElement).pause();
   }
 </script>

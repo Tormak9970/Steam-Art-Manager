@@ -29,7 +29,7 @@ export class SettingsManager {
   /**
    * Sets `settingsPath` and copies default settings if necessary
    */
-  static async setSettingsPath() {
+  static async setSettingsPath(): Promise<void> {
     const appDir = await path.appConfigDir();
     if (!(await fs.exists(appDir))) await fs.createDir(appDir);
 
@@ -89,7 +89,7 @@ export class SettingsManager {
    * @param prop The setting to update.
    * @param val The new value.
    */
-  static async updateSetting<T>(prop: string, val: T) {
+  static async updateSetting<T>(prop: string, val: T): Promise<void> {
     const settingsData = await fs.readTextFile(SettingsManager.settingsPath);
 
     const settings = JSON.parse(settingsData);

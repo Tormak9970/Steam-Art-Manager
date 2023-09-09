@@ -3,17 +3,26 @@
   import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
-  async function onConfirm() {
+  /**
+   * Function to run on confirmation.
+   */
+  async function onConfirm(): Promise<void> {
     await $dialogModalConfirm();
     onComplete();
   }
 
-  async function onCancel() {
+  /**
+   * Function to run on cancel.
+   */
+  async function onCancel(): Promise<void> {
     await $dialogModalCancel();
     onComplete();
   }
 
-  function onComplete() {
+  /**
+   * Function to run ultimately after any choice.
+   */
+  function onComplete(): void {
     $showDialogModal = false;
     setTimeout(() => {
       $dialogModalTitle = "";
