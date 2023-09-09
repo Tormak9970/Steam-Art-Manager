@@ -33,6 +33,15 @@ export class LogController {
    * @param message Message to log.
    */
   static async log(message:string): Promise<void> {
+    if (IS_DEBUG) {
+      console.log(
+        `%c SARM %c INFO %c`,
+        'background: #04e200; color: black;',
+        'background: #1abc9c; color: black;',
+        'background: transparent;',
+        message
+      );
+    }
     await RustInterop.logToCoreFile(message, LogLevel.INFO);
   }
 
@@ -41,6 +50,15 @@ export class LogController {
    * @param message Message to log.
    */
   static async warn(message:string): Promise<void> {
+    if (IS_DEBUG) {
+      console.warn(
+        `%c SARM %c WARNING %c`,
+        'background: #04e200; color: black;',
+        'background: #e3c907; color: black;',
+        'background: transparent;',
+        message
+      );
+    }
     await RustInterop.logToCoreFile(message, LogLevel.WARN);
   }
 
@@ -49,6 +67,15 @@ export class LogController {
    * @param message Message to log.
    */
   static async error(message:string): Promise<void> {
+    if (IS_DEBUG) {
+      console.error(
+        `%c SARM %c ERROR %c`,
+        'background: #04e200; color: black;',
+        'background: #c70808; color: black;',
+        'background: transparent;',
+        message
+      );
+    }
     await RustInterop.logToCoreFile(message, LogLevel.ERROR);
   }
 
