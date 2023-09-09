@@ -70,8 +70,6 @@
         skipUpdate = true;
         $customGameNames[$selectedGameAppId] = res.name;
       }
-      
-      console.log("customName after handler:", $customGameNames[$selectedGameAppId]);
 
       $customGameNames = { ...$customGameNames };
       await SettingsManager.updateSetting("customGameNames", $customGameNames);

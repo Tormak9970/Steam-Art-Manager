@@ -278,43 +278,6 @@ export class CacheController {
   }
 
   /**
-   * ! This is bad for the SGDB API.
-   * Gets the number of result pages for each game in the results list.
-   * @param results The SGDBGame array.
-   * @param platform The platform of the games.
-   * @param type The type of grids to get.
-   * @param useCoreFile Whether or not to use the core log file.
-   * ? Logging complete.
-   */
-  private async cacheAllGridsForGame(results: SGDBGame[], platform: Platforms, type: GridTypes, useCoreFile: boolean): Promise<void> {
-    LogController.log(`Caching all grids for results and determining numPages...`);
-
-    results = await Promise.all(results.map(async (game) => {
-      let numPages = 0;
-
-      while (true) {
-        try {
-          const grids = await this.fetchGridsForGame(game.id, type, numPages, useCoreFile);
-          if (grids.length > 0) {
-            numPages++;
-          } else {
-            break;
-          }
-        } catch (e: any) {
-          console.log(e);
-          break;
-        }
-      }
-
-      game.numResultPages = numPages;
-      LogController.log(`Found ${numPages} pages for ${game.name}.`);
-      return game;
-    }));
-
-    LogController.log(`Cached all grids for results and determined numPages.`);
-  }
-
-  /**
    * Gets the current type of grid for the provided app id.
    * @param appId The id of the app to fetch.
    * @param gameName The name of the game to fetch grids for.

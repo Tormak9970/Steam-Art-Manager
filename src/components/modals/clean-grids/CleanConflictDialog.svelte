@@ -15,7 +15,6 @@
   $: conflictGridType = conflict ? conflict.gridType : "";
   $: fileAPath = conflict ? tauri.convertFileSrc(conflict.fileAPath) : "";
   $: fileBPath = conflict ? tauri.convertFileSrc(conflict.fileBPath) : "";
-  $: console.log(conflictGridType);
 
   function getNextConflict(): CleanConflict | null {
     conflictNumber++;

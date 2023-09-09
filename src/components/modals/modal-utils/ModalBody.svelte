@@ -10,8 +10,6 @@
   }
 
   function closeWrapper(e: Event) {
-    console.log("canQuit:", canQuit);
-    console.log("areEqual:", e.currentTarget === e.target);
     if (e.currentTarget === e.target && canQuit) onClose();
   }
 </script>
