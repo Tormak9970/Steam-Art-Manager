@@ -19,7 +19,8 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-  
+
+  let windowWidth: number;
   let skipUpdate = false;
 
   let steamGridSearchCacheUnsub: Unsubscriber;
@@ -32,8 +33,6 @@
   let gridTypeUnsub: Unsubscriber;
   let onlineUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
-
-  let windowWidth: number;
 
   const padding = 20;
   let oldSelectedGameId = null;
