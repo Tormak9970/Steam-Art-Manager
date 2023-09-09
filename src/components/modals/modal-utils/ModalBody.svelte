@@ -3,13 +3,21 @@
   export let onClose: () => void = () => {};
   export let canClose = true;
 
+  let canQuit = false;
+
+  function checkCanQuit(e: Event) {
+    canQuit = e.currentTarget === e.target;
+  }
+
   function closeWrapper(e: Event) {
-    if (e.currentTarget == e.target) onClose();
+    console.log("canQuit:", canQuit);
+    console.log("areEqual:", e.currentTarget === e.target);
+    if (e.currentTarget === e.target && canQuit) onClose();
   }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="background" on:click={closeWrapper}>
+<div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper}>
   <div class="modal-body">
     {#if canClose}
       <div class="close-btn" on:click={onClose}>
