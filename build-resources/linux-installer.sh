@@ -13,14 +13,6 @@ uninstallComment="Uninstalls all files related to SARM."
 
 currentVersion="VALUE_TO_SEARCH_FOR"
 
-# if [[ $currentVersion == v* ]]; then
-#   #? This is a production release. Starts with "v".
-#   currentVersionNumber="${currentVersion:1}"
-# else 
-#   #? This is a debug release. Starts with "debug-".
-#   currentVersionNumber="${currentVersion:6}"
-# fi
-
 # Show starting message.
 echo -e "${infoCyan}[INFO]${noColor}: Installing Steam Art Manager (SARM) $currentVersion..."
 echo ""
@@ -55,21 +47,21 @@ echo ""
 
 # Download the latest appimage from GitHub.
 echo -e "${infoCyan}[INFO]${noColor}: Downloading AppImage..."
-curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/latest/download/steam-art-manager.AppImage --output ~/.sarm/steam-art-manager.AppImage 
+curl -L https://github.com/Tormak9970/Steam-Art-Manager/releases/download/$currentVersion/steam-art-manager.AppImage --output ~/.sarm/steam-art-manager.AppImage 
 chmod 700 ~/.sarm/steam-art-manager.AppImage
 echo -e "${successGreen}[INFO]${noColor}: Downloaded AppImage."
 echo ""
 
 # Download the uninstall script from GitHub.
 echo -e "${infoCyan}[INFO]${noColor}: Downloading Uninstall Script..."
-curl -L https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/main/build-resources/linux-uninstaller.sh --output ~/.sarm/linux-uninstaller.sh
+curl -L https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/build-resources/linux-uninstaller.sh --output ~/.sarm/linux-uninstaller.sh
 chmod 700 ~/.sarm/linux-uninstaller.sh
 echo -e "${successGreen}[INFO]${noColor}: Downloaded Uninstall Script."
 echo ""
 
 # Download the icon from GitHub.
 echo -e "${infoCyan}[INFO]${noColor}: Downloading Icon..."
-curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/main/public/logo.svg --output ~/.sarm/icon.svg
+curl https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/public/logo.svg --output ~/.sarm/icon.svg
 echo -e "${successGreen}[INFO]${noColor}: Downloaded Icon."
 echo ""
 
