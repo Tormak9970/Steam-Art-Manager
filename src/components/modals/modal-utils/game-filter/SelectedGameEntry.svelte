@@ -30,6 +30,9 @@
 
     background-color: var(--foreground);
   }
+  .selected-game-entry:last-child {
+    margin-bottom: 0px;
+  }
 
   .name {
     font-size: 12px;
