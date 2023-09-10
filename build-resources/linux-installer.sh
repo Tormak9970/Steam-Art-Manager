@@ -78,7 +78,7 @@ read -r -d '' shortcutContents <<- EOM
   [Desktop Entry]
   Comment=$comment
   Name=Steam Art Manager
-  Exec=GTK_USE_PORTAL=1 $appImagePath
+  Exec=GTK_USE_PORTAL=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 $appImagePath
   Icon=$iconPath
   Terminal=false
   Type=Application
