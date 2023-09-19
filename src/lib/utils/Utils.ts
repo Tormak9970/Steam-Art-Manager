@@ -151,7 +151,7 @@ export async function steamDialogSequence(): Promise<void> {
     } else {
       await DialogController.message("SARM Could Not Initialize", "ERROR", "Please install Steam and login once, then restart SARM.", "Ok");
       await exit(0);
-      resolve()
+      resolve();
     }
   });
 }
