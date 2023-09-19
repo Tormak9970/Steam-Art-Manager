@@ -8,7 +8,7 @@
    */
   async function onConfirm(): Promise<void> {
     await $dialogModalConfirm();
-    onComplete();
+    $showDialogModal = false;
   }
 
   /**
@@ -16,23 +16,7 @@
    */
   async function onCancel(): Promise<void> {
     await $dialogModalCancel();
-    onComplete();
-  }
-
-  /**
-   * Function to run ultimately after any choice.
-   */
-  function onComplete(): void {
     $showDialogModal = false;
-    setTimeout(() => {
-      $dialogModalTitle = "";
-      $dialogModalType = "INFO";
-      $dialogModalMessage = "";
-      $dialogModalConfirmText = "";
-      $dialogModalConfirm = async () => {};
-      $dialogModalCancelText = "";
-      $dialogModalCancel = async () => {};
-    }, 10);
   }
 </script>
 
