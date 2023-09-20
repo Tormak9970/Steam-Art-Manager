@@ -53,7 +53,7 @@
   });
 </script>
 
-<div data-tauri-drag-region on:mousedown={WindowController.closeContextMenu} on:contextmenu|preventDefault|stopPropagation class="titlebar">
+<div data-tauri-drag-region on:contextmenu|preventDefault class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />

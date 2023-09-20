@@ -146,7 +146,7 @@
 				"label": "main",
 				"title": "Steam Art Manager",
 				"url": "src/windows/main/main.html",
-				"height": 799,
+				"height": 802,
 				"minHeight": 740,
 				"width": 1400,
 				"minWidth": 1150,
@@ -155,19 +155,6 @@
 				"decorations": false,
 				"center": true,
 				"visible": true
-			},
-			{
-				"label": "context-menu",
-				"title": "Context Menu",
-				"url": "src/windows/context-menu/contextMenu.html",
-				"height": 120,
-				"width": 120,
-        "alwaysOnTop": true,
-				"fullscreen": false,
-				"resizable": false,
-				"decorations": false,
-				"visible": false,
-        "transparent": true
 			}
 		]
 	}

@@ -54,14 +54,6 @@
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
   }
 
-  /**
-   * Handler for context menu events.
-   * @param e The context menu event.
-   */
-  function onContextMenu(e: Event): void {
-    WindowController.showContextMenu(e as PointerEvent);
-  }
-
 	onMount(async () => {
     window.addEventListener("error", onError);
 
@@ -114,8 +106,6 @@
 		if (usersUnsub) usersUnsub();
 	});
 </script>
-
-<svelte:window on:mouseup={WindowController.closeContextMenu} on:contextmenu|preventDefault={onContextMenu} />
 
 <div class="wrap">
 	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />

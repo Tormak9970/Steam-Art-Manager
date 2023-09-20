@@ -84,10 +84,6 @@ export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }
 export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
 
 
-export const ctxMenuSourceIsImage = sharedStore<boolean>(false, "ctxMenuSourceIsImage");
-export const ctxMenuSourceSrc = sharedStore<string>(null, "ctxMenuSourceSrc");
-
-
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {
     "styles": {
