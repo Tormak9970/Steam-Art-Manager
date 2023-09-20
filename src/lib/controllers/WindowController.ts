@@ -16,11 +16,56 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-import { PhysicalPosition, PhysicalSize, WebviewWindow } from "@tauri-apps/api/window";
+import { dialog, fs, invoke } from "@tauri-apps/api";
+import { WebviewWindow } from "@tauri-apps/api/window";
+import { AppController } from "./AppController";
+
+/**
+ * Gets a Blob from an image url.
+ * @param imageUrl The url of the image to get.
+ * @returns A promise resolving to the Blob.
+ */
+async function getImageBlob(imageUrl: string): Promise<Blob> {
+  const response = await fetch(imageUrl)
+  return response.blob()
+}
+/**
+ * Opens the save dialog for the selected image.
+ * @param src The image source.
+ */
+async function saveImageAs(src: string): Promise<void> {
+  const blob = await getImageBlob(src);
+  const destPath = await dialog.save({ title: "Save Image", defaultPath: `image.${blob.type.substring(blob.type.indexOf("/") + 1)}` })
+  await fs.writeBinaryFile(destPath, await blob.arrayBuffer());
+}
+/**
+ * Reloads the app.
+ */
+async function reloadApp(): Promise<void> {
+  await AppController.reload();
+}
+/**
+ * Opens the inspector for the main window.
+ */
+async function inspectElement(): Promise<void> {
+  await invoke("open_main_dev_tools");
+}
 
 /**
  * Controller class for managing app windows.
  */
 export class WindowController {
   static mainWindow = WebviewWindow.getByLabel('main');
+
+  static async registerContextMenuListeners(): Promise<void> {
+
+  }
+
+  static async destroyContextMenuListeners(): Promise<void> {
+
+  }
+
+  static async onContextMenuClicked(e: MouseEvent): Promise<void> {
+    
+  }
 }
