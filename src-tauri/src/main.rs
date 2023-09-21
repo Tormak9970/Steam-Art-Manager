@@ -86,9 +86,9 @@ fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str)
 }
 
 /// Filters the grid paths based on which have change.
-fn filter_paths(app_handle: &AppHandle, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache, shortcut_icons: &Map<String, Value>) -> Vec<ChangedPath> {
-  let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id));
-  let lib_cache_dir = PathBuf::from(steam::get_library_cache_directory(app_handle.to_owned()));
+fn filter_paths(app_handle: &AppHandle, steam_path: String, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache, shortcut_icons: &Map<String, Value>) -> Vec<ChangedPath> {
+  let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_path.to_owned(), steam_active_user_id));
+  let lib_cache_dir = PathBuf::from(steam::get_library_cache_directory(app_handle.to_owned(), steam_path.to_owned()));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -156,7 +156,7 @@ fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shor
 
 #[tauri::command]
 /// Exports the users grids to a Grids zip file.
-async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
+async fn export_grids_to_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Save Grids Zip")
     .set_file_name("Steam_Grids_Export.zip")
@@ -169,7 +169,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
     let zip_path = file_path.unwrap();
     logger::log_to_core_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
-    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
     let succeeded = zip_controller::generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &platform_id_map, &id_name_map);
 
     if succeeded {
@@ -187,7 +187,7 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_active_user_id: String
 
 #[tauri::command]
 /// Sets the users grids from a Grids zip file.
-async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
+async fn import_grids_from_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
   let file_dialog = FileDialogBuilder::new()
     .set_title("Pick a Grids Zip")
     .add_filter("zip", &["zip"])
@@ -199,7 +199,7 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
     let zip_path = file_path.unwrap();
     logger::log_to_core_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
-    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
     let (success, icon_map) = zip_controller::set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &name_id_map);
 
     if success {
@@ -217,16 +217,16 @@ async fn import_grids_from_zip(app_handle: AppHandle, steam_active_user_id: Stri
 
 #[tauri::command]
 /// Reads the user's appinfo.vdf file.
-async fn read_appinfo_vdf(app_handle: AppHandle) -> String {
-  let appinfo_path: PathBuf = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned()));
+async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
+  let appinfo_path: PathBuf = PathBuf::from(steam::get_appinfo_path(app_handle.to_owned(), steam_path));
   let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 }
 
 #[tauri::command]
 /// Reads the user's shortcuts.vdf file.
-async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
-  let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
+async fn read_shortcuts_vdf(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
+  let shortcuts_path = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_path, steam_active_user_id));
     
   if shortcuts_path.as_path().exists() {
     logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
@@ -240,8 +240,8 @@ async fn read_shortcuts_vdf(app_handle: AppHandle, steam_active_user_id: String)
 
 #[tauri::command]
 /// Reads the user's localconfig.vdf file.
-async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: String) -> String {
-  let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_active_user_id));
+async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
+  let localconfig_path = PathBuf::from(steam::get_localconfig_path(app_handle.to_owned(), steam_path, steam_active_user_id));
     
   if localconfig_path.as_path().exists() {
     logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
@@ -268,12 +268,12 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_active_user_id: Strin
 
 #[tauri::command]
 /// Applies the changes the user has made.
-async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>, changed_logo_positions: Map<String, Value>) -> String {
+async fn save_changes(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>, changed_logo_positions: Map<String, Value>) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
   logger::log_to_core_file(app_handle.to_owned(), "Converting current path entries to grid paths...", 0);
-  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_active_user_id.clone(), &current_art_dict, &original_art_dict, &shortcut_icons);
+  let paths_to_set: Vec<ChangedPath> = filter_paths(&app_handle, steam_path.to_owned(), steam_active_user_id.clone(), &current_art_dict, &original_art_dict, &shortcut_icons);
   let paths_id_map: HashMap<String, ChangedPath> = paths_to_set.clone().iter().map(| entry | (format!("{}_{}", entry.appId.to_owned(), entry.gridType.to_owned()).to_string(), entry.to_owned())).collect();
   logger::log_to_core_file(app_handle.to_owned(), "Current path entries converted to grid paths.", 0);
 
@@ -313,7 +313,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     }
   }
 
-  let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id.clone()));
+  let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_path.to_owned(), steam_active_user_id.clone()));
   for (appid, steam_logo_str_val) in changed_logo_positions.into_iter() {
     let steam_logo_str: &str = steam_logo_str_val.as_str().expect("Should have been able to convert steamLogo pos into str.");
     let logo_config_path: PathBuf = grids_directory.join(format!("{}.json", appid));
@@ -365,7 +365,7 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
     modified_shortcuts_data.insert(String::from("shortcuts"), shortcuts_obj_map.to_owned());
     shortcuts_data = Value::Object(modified_shortcuts_data);
 
-    let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
+    let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_path.to_owned(), steam_active_user_id));
     write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
     logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
   } else {
@@ -385,9 +385,9 @@ async fn save_changes(app_handle: AppHandle, steam_active_user_id: String, curre
 
 #[tauri::command]
 /// Writes the user's shortcuts.vdf file.
-async fn write_shortcuts(app_handle: AppHandle, steam_active_user_id: String, shortcuts_str: String) -> bool {
+async fn write_shortcuts(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, shortcuts_str: String) -> bool {
   logger::log_to_core_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
-  let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_active_user_id));
+  let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(app_handle.to_owned(), steam_path, steam_active_user_id));
   let shortcuts_data: Value = serde_json::from_str(shortcuts_str.as_str()).expect("Should have been able to parse json string.");
 
   let success: bool = write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
@@ -435,12 +435,12 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 
 #[tauri::command]
 /// Downloads a file from a url.
-async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset: String, all_appids: String, selected_game_ids: String) -> String {
+async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, preset: String, all_appids: String, selected_game_ids: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), format!("Starting {} grid cleaning.", preset).as_str(), 0);
   
   let appids_arr: Vec<String> = serde_json::from_str(all_appids.as_str()).expect("Should have been able to deserialize appids array.");
   
-  let grids_dir_path: String = steam::get_grids_directory(app_handle.to_owned(), steam_active_user_id);
+  let grids_dir_path: String = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
   let grids_dir_contents = fs::read_dir(grids_dir_path).unwrap();
 
   let mut found_apps: HashMap<String, (String, String)> = HashMap::new();
@@ -514,45 +514,81 @@ async fn clean_grids(app_handle: AppHandle, steam_active_user_id: String, preset
   return serde_json::to_string(&conflicts).expect("Should have been able to serialize conflict array.");
 }
 
+#[tauri::command]
+/// Open dev tools for the main window
+async fn open_main_dev_tools(app_handle: AppHandle) -> () {
+  let window = app_handle.get_window("main").unwrap();
+  window.open_devtools();
+  window.close_devtools();
+}
+
+#[tauri::command]
+/// Open dev tools for the main window
+async fn check_if_main_focused(app_handle: AppHandle) -> bool {
+  let window = app_handle.get_window("main").unwrap();
+  let is_focused_res = window.is_focused();
+
+  if is_focused_res.is_ok() {
+    return is_focused_res.expect("Should have been able to get focus state");
+  } else {
+    return false;
+  }
+}
+
+
+#[tauri::command]
+/// Adds the provided path to Tauri FS and Asset scope.
+async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
+  let path_as_buf: PathBuf = PathBuf::from(&target_path);
+
+  let fs_scope = app_handle.fs_scope();
+  let asset_scope = app_handle.asset_protocol_scope();
+
+  let fs_res = FsScope::allow_directory(&fs_scope, &path_as_buf, true);
+  let asset_res = FsScope::allow_directory(&asset_scope, &path_as_buf, true);
+
+  if fs_res.is_ok() && asset_res.is_ok() {
+    logger::log_to_core_file(app_handle.to_owned(), format!("Added {} to scope.", &target_path).as_str(), 0);
+    return true;
+  } else if fs_res.is_err() {
+    let err = fs_res.err().unwrap();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. FS Scope Error: {}", &target_path, err.to_string()).as_str(), 0);
+  } else if asset_res.is_err() {
+    let err = asset_res.err().unwrap();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Asset Scope Error: {}", &target_path, err.to_string()).as_str(), 0);
+  } else {
+    let fs_err = fs_res.err().unwrap();
+    let asset_err = asset_res.err().unwrap();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. FS Scope Error: {}. Asset Scope Error: {}", &target_path, fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+  }
+
+  return false;
+}
 
 #[tauri::command]
 /// Adds the user's steam directory to Tauri FS and Asset scope.
-async fn add_steam_to_scope(app_handle: AppHandle) {
+async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   let steam_path_res = get_steam_root_dir();
 
   if steam_path_res.is_ok() {
-    let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get Steam install path result.");
+    let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get steam path from result.");
+    let steam_path_str: String = steam_path.as_path().display().to_string();
+    let was_added: bool = add_path_to_scope(app_handle, steam_path_str.to_owned()).await;
 
-    let fs_scope = app_handle.fs_scope();
-    let asset_scope = app_handle.asset_protocol_scope();
-
-    let fs_res = FsScope::allow_directory(&fs_scope, &steam_path, true);
-    let asset_res = FsScope::allow_directory(&asset_scope, &steam_path, true);
-
-    if fs_res.is_ok() && asset_res.is_ok() {
-      logger::log_to_core_file(app_handle.to_owned(), "Added Steam directory to scope.", 0);
-    } else if fs_res.is_err() {
-      let err = fs_res.err().unwrap();
-      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}", err.to_string()).as_str(), 0);
-    } else if asset_res.is_err() {
-      let err = asset_res.err().unwrap();
-      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. Asset Scope Error: {}", err.to_string()).as_str(), 0);
+    if was_added {
+      if &steam_path_str == "c:/program files (x86)/steam" {
+        return String::from("C:/Program Files (x86)/Steam");
+      } else {
+        return steam_path_str;
+      }
     } else {
-      let fs_err = fs_res.err().unwrap();
-      let asset_err = asset_res.err().unwrap();
-      logger::log_to_core_file(app_handle.to_owned(), format!("Error adding Steam directory to scope. FS Scope Error: {}. Asset Scope Error: {}", fs_err.to_string(), asset_err.to_string()).as_str(), 0);
+      return String::from("");
     }
   } else {
     let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
     logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
 
-    let hit_ok = MessageDialogBuilder::new("SARM Initialization Error", "Steam was not found on your PC. Steam needs to be installed for SARM to work.")
-      .buttons(MessageDialogButtons::Ok)
-      .show();
-
-    if hit_ok {
-      exit(1);
-    }
+    return String::from("DNE");
   }
 }
 
@@ -569,6 +605,7 @@ fn main() {
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
       steam::get_localconfig_path,
+      add_path_to_scope,
       add_steam_to_scope,
       export_grids_to_zip,
       import_grids_from_zip,
@@ -578,7 +615,9 @@ fn main() {
       save_changes,
       write_shortcuts,
       download_grid,
-      clean_grids
+      clean_grids,
+      open_main_dev_tools,
+      check_if_main_focused
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);

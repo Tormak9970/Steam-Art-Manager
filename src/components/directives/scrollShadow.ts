@@ -6,6 +6,9 @@ type ScrollShadowParams = {
   heightBump: number
 }
 
+/**
+ * A Svelte directive for applying scroll shadow to elements.
+ */
 export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTMLElement, { target, container, heightBump }) => {
   let hasObserved = false;
 

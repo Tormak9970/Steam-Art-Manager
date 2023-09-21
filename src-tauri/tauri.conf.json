@@ -144,17 +144,17 @@
 		"windows": [
 			{
 				"label": "main",
-				"fullscreen": false,
-				"height": 800,
-				"minHeight": 740,
-				"resizable": true,
 				"title": "Steam Art Manager",
-				"width": 1300,
+				"url": "src/windows/main/main.html",
+				"height": 802,
+				"minHeight": 740,
+				"width": 1400,
 				"minWidth": 1150,
+				"fullscreen": false,
+				"resizable": true,
 				"decorations": false,
 				"center": true,
-				"visible": true,
-				"url": "src/windows/main/main.html"
+				"visible": true
 			}
 		]
 	}

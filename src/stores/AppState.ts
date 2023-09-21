@@ -1,7 +1,6 @@
 import { writable, type Writable } from "svelte/store";
-import type { SGDBGame, SGDBImage } from "./lib/models/SGDB";
-import { sharedStore } from "./lib/utils/SharedStore";
-import type { UpdateManifest } from "@tauri-apps/api/updater";
+import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
+import { sharedStore } from "../lib/utils/SharedStore";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -35,11 +34,14 @@ export const theme = sharedStore(Theme.DARK, "theme");
 
 export const requestTimeoutLength = writable(5000);
 
-export const needsSGDBAPIKey = sharedStore(true, "needsSGDBAPIKey");
-export const needsSteamKey = sharedStore(true, "needsSteamKey");
+export const needsSGDBAPIKey = writable(true);
+export const steamGridDBKey = writable("");
 
-export const steamGridDBKey = sharedStore("", "steamGridDBKey");
-export const steamKey = sharedStore("", "steamKey");
+export const needsSteamKey = writable(true);
+export const steamKey = writable("");
+
+export const steamInstallPath = writable("");
+
 export const selectedResultPage = writable(0);
 
 export const canSave = writable(false);
@@ -55,7 +57,7 @@ export const dowloadingGridId: Writable<number> = writable(null);
 export const showHidden = writable(false);
 
 export const steamUsers: Writable<{ [id: string]: SteamUser }> = writable({});
-export const activeUserId = sharedStore(0, "activeUserId");
+export const activeUserId = writable(0);
 
 
 export const originalSteamShortcuts: Writable<SteamShortcut[]> = writable([]);
@@ -65,6 +67,7 @@ export const steamGames: Writable<GameStruct[]> = writable([]);
 export const nonSteamGames: Writable<GameStruct[]> = writable([]);
 export const hiddenGameIds: Writable<number[]> = writable([]);
 export const manualSteamGames: Writable<GameStruct[]> = writable([]);
+export const customGameNames: Writable<{ [appid: string]: string }> = writable({});
 
 export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
 export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
@@ -72,36 +75,14 @@ export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> =
 
 
 export const steamGridSteamAppIdMap: { [appid: number]: string } = {};
-export const steamGridsCache:{ [appid: number]: SGDBImage[] } = {};
 export const steamGridSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = writable({});
-export const nonSteamGridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
+export const steamGridNameSearchCache: { [query: string]: SGDBGame[] } = {};
+export const gridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
 export const selectedSteamGridGameId = writable("None");
-
-export const showGridModal = writable(false);
-export const gridModalInfo: Writable<SGDBImage> = writable(null);
 
 export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
 export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
-export const showLogoPositionModal = writable(false);
 
-export const showBatchApplyModal = writable(false);
-
-export const batchApplyWasCancelled = writable(false);
-export const batchApplyProgress = writable(0);
-export const batchApplyMessage = writable("Starting batch job...");
-export const showBatchApplyProgress = writable(false);
-
-export const showManualGamesModal = writable(false);
-
-export const showCleanGridsModal = writable(false);
-
-export const showSettingsModal = writable(false);
-
-export const showCleanConflictDialog = writable(false);
-export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
-
-export const showUpdateModal = writable(false);
-export const updateManifest: Writable<UpdateManifest> = writable(null);
 
 export const dbFilters:Writable<DBFilters> = writable({
   "Capsule": {

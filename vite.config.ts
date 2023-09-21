@@ -69,7 +69,8 @@ export default defineConfig(async () => ({
 
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/windows/main/main.html')
+        main: resolve(__dirname, 'src/windows/main/main.html'),
+        contextMenu: resolve(__dirname, 'src/windows/context-menu/contextMenu.html')
       },
       external: [
         "/public/progress-images"
@@ -78,5 +79,6 @@ export default defineConfig(async () => ({
   },
   define: {
     'APP_VERSION': JSON.stringify(process.env.npm_package_version),
+    'IS_DEBUG': !!process.env.TAURI_DEBUG
   }
 }));

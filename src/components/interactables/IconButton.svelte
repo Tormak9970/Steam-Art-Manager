@@ -45,7 +45,6 @@
   }
 
   .button:focus {
-    border: 1px solid var(--highlight);
     outline: none;
   }
 

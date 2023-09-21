@@ -3,13 +3,20 @@
   import { open } from "@tauri-apps/api/shell";
 
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridModalInfo, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../Stores";
-  import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
+  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
+  import { gridModalInfo, showGridModal } from "../../stores/Modals";
+  import Spacer from "../layout/Spacer.svelte";
 
-  export let onClose: () => void;
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
+    $showGridModal = false;
+		$gridModalInfo = null;
+  }
 
   const mdIt = new MarkDownIt({
     html: true,
@@ -37,7 +44,7 @@
   /**
    * Apply the grid being previewed.
    */
-  function applyGrid() {
+  function applyGrid(): void {
     AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
   }
 
@@ -45,7 +52,7 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-  function clickListener(e: Event) {
+  function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
   
     if (origin) {
@@ -58,7 +65,7 @@
 
 <ModalBody title={`${games.find((game) => game.appid == $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont">
+    <div class="img-cont" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
         <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
           <img src="{$gridType == GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
@@ -73,15 +80,15 @@
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
-        <VerticalSpacer />
+        <Spacer orientation="VERTICAL" />
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
         <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
-        <VerticalSpacer />
+        <Spacer orientation="VERTICAL" />
         {#if $gridModalInfo?.notes}
-          <VerticalSpacer />
+          <Spacer orientation="VERTICAL" />
           <div class="label">Notes:</div>
           <div class="border" />
-          <VerticalSpacer />
+          <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
         {:else}
@@ -162,7 +169,7 @@
     flex-direction: column;
   }
 
-  .img-cont { padding: 10px; }
+  .img-cont { padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
   .img-cont > .img {
     border-radius: 2px;

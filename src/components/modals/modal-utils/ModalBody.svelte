@@ -3,14 +3,29 @@
   export let onClose: () => void = () => {};
   export let canClose = true;
 
-  function closeWrapper(e: Event) {
-    if (e.currentTarget == e.target) onClose();
+  let canQuit = false;
+
+  /**
+   * Function to run on mouse down to see if the modal should close.
+   * @param e The associated event.
+   */
+  function checkCanQuit(e: MouseEvent): void {
+    canQuit = e.currentTarget === e.target && e.button === 0;
+  }
+
+  /**
+   * Function to run on mouse up to see if the modal should still close.
+   * @param e The associated event.
+   */
+  function closeWrapper(e: MouseEvent): void {
+    if (e.currentTarget === e.target && canQuit) onClose();
   }
 </script>
 
+<div class="blur" />
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="background" on:click={closeWrapper}>
-  <div class="modal-body">
+<div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper} on:contextmenu|preventDefault|stopPropagation>
+  <div class="modal-body" on:contextmenu|stopPropagation>
     {#if canClose}
       <div class="close-btn" on:click={onClose}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
@@ -28,12 +43,21 @@
 <style>
   .background {
     font-size: 12px;
-    z-index: 3;
+    z-index: 4;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.6);
     width: 100%;
     height: calc(100% - 30px);
     display: flex;
+  }
+
+  .blur {
+    z-index: 3;
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 30px);
+
+    background: rgba(6, 6, 6, 0.85);
+    backdrop-filter: blur(1px);
   }
 
   .border {

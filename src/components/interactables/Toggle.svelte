@@ -7,7 +7,7 @@
    * Handles when the slider is clicked.
    * @param event The MouseEvent passed to the handler.
    */
-  function handleClick(event: MouseEvent) {
+  function handleClick(event: MouseEvent): void {
     const target = event.target as HTMLInputElement;
 
     const state = target.getAttribute("aria-checked");

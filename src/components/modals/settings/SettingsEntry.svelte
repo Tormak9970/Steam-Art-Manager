@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import TextInput from "../../interactables/TextInput.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
 
   export let label: string;
   export let description: string;
@@ -14,7 +14,7 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-   function clickListener(e: Event) {
+  function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
   
     if (origin) {
@@ -27,19 +27,19 @@
 
 <div class="setting">
   <h1 class="label">{label}</h1>
-  <TextInput placeholder={"Your API key"} onChange={onChange} width="{220}" bind:value={value} />
+  <TextInput placeholder={"Your API key"} onInput={onChange} width="{220}" bind:value={value} />
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
     {@html description}<br/>
 
     {#if notes != ""}
-      <VerticalSpacer />
+      <Spacer orientation="VERTICAL" />
       <b>Notes:</b><br/>
       {@html notes}
     {/if}
     
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
     <b>Required:</b> {required ? "Yes" : "No"}<br/>
   </div>
 </div>

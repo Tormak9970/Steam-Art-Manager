@@ -4,7 +4,7 @@
   import type { SGDBImage } from "../../../lib/models/SGDB";
   import { throttle } from "../../../lib/utils/Utils";
 
-  import { dowloadingGridId, gridType } from "../../../Stores";
+  import { dowloadingGridId, gridType } from "../../../stores/AppState";
   import LoadingSpinner from "../../info/LoadingSpinner.svelte";
   import GridImage from "../GridImage.svelte";
 
@@ -16,7 +16,7 @@
   /**
    * Sets this grid to be the current grid for the selected game.
    */
-  function selectGame() {
+  function selectGame(): void {
     onSelect();
   }
 </script>

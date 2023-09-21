@@ -10,8 +10,8 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, isOnline, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, steamUsers, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest } from "../../Stores";
-	import { WindowController } from "../../lib/controllers/WindowController";
+  import { activeUserId, isOnline, steamUsers } from "../../stores/AppState";
+  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
@@ -24,12 +24,13 @@
   import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
   import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
+  import DialogModal from "../../components/modals/DialogModal.svelte";
+  import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
+  import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
 	
-	let mainFocusUnsub: any;
+  let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
-
-	let isFocused = true;
 
 	let users = Object.values($steamUsers).map((user) => {
 		return {
@@ -38,59 +39,6 @@
 		}
 	});
 	let selectedUserId = $activeUserId.toString();
-
-  /**
-   * Function to run when the grid preview modal is closed.
-   */
-	function onGridModalClose() {
-		$showGridModal = false;
-		$gridModalInfo = null;
-	}
-
-  /**
-   * Function to run when the batch apply modal is closed.
-   */
-	function onBatchApplyModalClose() {
-		$showBatchApplyModal = false;
-	}
-
-  /**
-   * Function to run when the batch apply progress modal is closed.
-   */
-  function onBatchApplyProgressClose() {
-    $showBatchApplyProgress = false;
-    $batchApplyProgress = 0;
-    $batchApplyMessage = "Starting batch job...";
-    $batchApplyWasCancelled = false;
-  }
-
-  /**
-   * Function to run when the logo position modal is closed.
-   */
-	function onLogoPositionModalClose() {
-		$showLogoPositionModal = false;
-	}
-
-  /**
-   * Function to run when the manage manual games modal is closed.
-   */
-  function onManageManualGamesModalClose() {
-    $showManualGamesModal = false;
-  }
-
-  /**
-   * Function to run when the add manual games modal is closed.
-   */
-  function onSettingsModalClose() {
-    $showSettingsModal = false;
-  }
-
-  /**
-   * Function to run when the clean grids modal is closed.
-   */
-  function onCleanGridsModalClose() {
-    $showCleanGridsModal = false;
-  }
 
   /**
    * Handler for all main window errors.
@@ -108,11 +56,6 @@
 	onMount(async () => {
     window.addEventListener("error", onError);
 
-    WindowController.mainWindow.onFocusChanged(({ payload: focused }) => {
-      isFocused = true; //focused;
-    }).then((unsub) => {
-			mainFocusUnsub = unsub;
-		});
 		activeUserIdUnsub = activeUserId.subscribe((id) => {
 			selectedUserId = id.toString();
 		});
@@ -157,40 +100,46 @@
     window.removeEventListener("error", onError);
 		await AppController.destroy();
 
-		if (mainFocusUnsub) mainFocusUnsub();
+    if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});
 </script>
 
-<div class="wrap">
-	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
-</div>
-<main class:dim={!isFocused}>
+<main>
 	<Titlebar title="Steam Art Manager">
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
   </Titlebar>
 	<div class="content">
+    {#if $showDialogModal}
+      <DialogModal />
+    {/if}
+    {#if $showSteamPathModal}
+      <SteamPathModal />
+    {/if}
+    {#if $showGameSearchModal}
+      <GameSearchModal />
+    {/if}
     {#if $showGridModal}
-		  <GridPreviewModal onClose={onGridModalClose} />
+		  <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal onClose={onBatchApplyProgressClose} />
+		  <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal onClose={onBatchApplyModalClose} />
+		  <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal onClose={onLogoPositionModalClose} />
+		  <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal onClose={onManageManualGamesModalClose} />
+		  <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal onClose={onCleanGridsModalClose} />
+		  <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal onClose={onSettingsModalClose} />
+		  <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />
@@ -235,25 +184,6 @@
     --toastMinHeight: 3rem;
   }
 
-	.wrap {
-		--toastContainerTop: 0.5rem;
-		--toastContainerRight: 0.5rem;
-		--toastContainerBottom: auto;
-		--toastContainerLeft: calc(50vw - 13rem) !important;
-		--toastBoxShadow: transparent 0px 0px 0px 0px;
-		--toastWidth: 26rem !important;
-		--toastMinHeight: 100px;
-		--toastPadding: 0 0.5rem !important;
-		font-size: 14px;
-	}
-	@media (min-width: 40rem) {
-		.wrap {
-			--toastContainerRight: auto;
-			--toastContainerLeft: calc(50vw - 20rem);
-			--toastWidth: 40rem;
-		}
-	}
-
 	.content {
 		width: 100%;
 		height: calc(100% - 60px);
@@ -262,9 +192,5 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-	}
-
-	.dim {
-		opacity: 0.8;
 	}
 </style>

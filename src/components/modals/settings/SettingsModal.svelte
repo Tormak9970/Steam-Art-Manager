@@ -1,21 +1,32 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId } from "../../../Stores";
+  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Button from "../../interactables/Button.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import SettingsEntry from "./SettingsEntry.svelte";
+  import SettingsFilePathEntry from "./SettingsFilePathEntry.svelte";
+  import { showSettingsModal } from "../../../stores/Modals";
+  import Spacer from "../../layout/Spacer.svelte";
 
-  export let onClose: () => void;
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose() {
+    $showSettingsModal = false;
+  }
 
   let canSave = false;
 
   let steamGridKey = $steamGridDBKey;
   let steamAPIKey = $steamKey;
+  let steamInstallLocation = $steamInstallPath;
 
-	async function saveSettings() {
+  /**
+   * Saves the changed settings.
+   */
+	async function saveSettings(): Promise<void> {
     LogController.log("Saving settings...");
     
     $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
@@ -30,6 +41,10 @@
     steamUserKeyMap[$activeUserId] = steamAPIKey;
     await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
 
+    
+    $steamInstallPath = steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
+    if (steamInstallLocation !== "") await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
+
     LogController.log("Saved settings.");
 
     canSave = false;
@@ -39,7 +54,10 @@
     onClose();
   }
 
-  function cancel() {
+  /**
+   * Discards the changed settings.
+   */
+  function cancel(): void {
     LogController.log("Reverting settings...");
 
     steamGridKey = $steamGridDBKey;
@@ -79,12 +97,30 @@
       canSave = true;
     }
   }
+
+  /**
+   * Function to run on steam install location change.
+   * @param path The updated installation path.
+   */
+   function onInstallLocationChange(path: string): void {
+    steamInstallLocation = path;
+    canSave = true;
+  }
 </script>
 
 <ModalBody title={"Settings"} onClose={onClose}>
   <div class="content">
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
+    <SettingsFilePathEntry
+      label="Steam Install Path"
+      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}
+      value={steamInstallLocation}
+      onChange={onInstallLocationChange}
+      required
+    />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="SteamGrid Api Key"
       description={`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}
@@ -92,8 +128,8 @@
       onChange={onGridKeyChange}
       required
     />
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="Steam Api key"
       description={`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}

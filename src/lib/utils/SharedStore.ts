@@ -31,7 +31,7 @@ export function sharedStore<T>(initialValue:T, name:string) {
     set(value);
     bc.postMessage({
       "name": name,
-      "data": value
+      "data": JSON.stringify(value)
     });
   }
   
@@ -41,7 +41,7 @@ export function sharedStore<T>(initialValue:T, name:string) {
 
       bc.postMessage({
         "name": name,
-        "data": updatedValue
+        "data": JSON.stringify(updatedValue)
       });
 
       return updatedValue;
@@ -51,7 +51,7 @@ export function sharedStore<T>(initialValue:T, name:string) {
   bc.onmessage = (event:MessageEvent<any>) => {
     const data = event.data;
     if (data.name === name) {
-      set(data.data);
+      set(JSON.parse(data.data));
     }
   }
 

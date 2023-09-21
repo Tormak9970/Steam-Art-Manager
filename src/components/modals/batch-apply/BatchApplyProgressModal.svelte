@@ -1,26 +1,37 @@
 <script lang="ts">
-  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled } from "../../../Stores";
+  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "../../../stores/Modals";
   import ProgressBar from "../../info/ProgressBar.svelte";
   import Button from "../../interactables/Button.svelte";
-    import ModalBody from "../modal-utils/ModalBody.svelte";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
 
-  export let onClose: () => void;
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
+    $showBatchApplyProgress = false;
+    $batchApplyProgress = 0;
+    $batchApplyMessage = "Starting batch job...";
+    $batchApplyWasCancelled = false;
+  }
 
   /**
    * Batch applies grids to all games.
    */
-  function closeAfterComplete() {
+  function closeAfterComplete(): void {
     onClose();
   }
 
   /**
    * Cancels batch applying grids.
    */
-  function cancel() {
+  function cancel(): void {
     $batchApplyWasCancelled = true;
   }
 
-  function onFinish() {
+  /**
+   * The function to run when the progress bar completes.
+   */
+  function onFinish(): void {
     $batchApplyMessage = "Batch apply complete."
   }
 </script>
