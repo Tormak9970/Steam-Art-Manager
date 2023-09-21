@@ -106,9 +106,6 @@
 	});
 </script>
 
-<div class="wrap">
-	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
-</div>
 <main>
 	<Titlebar title="Steam Art Manager">
 		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
@@ -186,25 +183,6 @@
     --toastWidth: 13rem;
     --toastMinHeight: 3rem;
   }
-
-	.wrap {
-		--toastContainerTop: 0.5rem;
-		--toastContainerRight: 0.5rem;
-		--toastContainerBottom: auto;
-		--toastContainerLeft: calc(50vw - 13rem) !important;
-		--toastBoxShadow: transparent 0px 0px 0px 0px;
-		--toastWidth: 26rem !important;
-		--toastMinHeight: 100px;
-		--toastPadding: 0 0.5rem !important;
-		font-size: 14px;
-	}
-	@media (min-width: 40rem) {
-		.wrap {
-			--toastContainerRight: auto;
-			--toastContainerLeft: calc(50vw - 20rem);
-			--toastWidth: 40rem;
-		}
-	}
 
 	.content {
 		width: 100%;
