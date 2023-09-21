@@ -22,6 +22,7 @@
   }
 </script>
 
+<div class="blur" />
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper} on:contextmenu|preventDefault|stopPropagation>
   <div class="modal-body" on:contextmenu|stopPropagation>
@@ -42,12 +43,21 @@
 <style>
   .background {
     font-size: 12px;
-    z-index: 3;
+    z-index: 4;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.6);
     width: 100%;
     height: calc(100% - 30px);
     display: flex;
+  }
+
+  .blur {
+    z-index: 3;
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 30px);
+
+    background: rgba(6, 6, 6, 0.85);
+    backdrop-filter: blur(1px);
   }
 
   .border {
