@@ -9,22 +9,22 @@
    * Function to run on mouse down to see if the modal should close.
    * @param e The associated event.
    */
-  function checkCanQuit(e: Event): void {
-    canQuit = e.currentTarget === e.target;
+  function checkCanQuit(e: MouseEvent): void {
+    canQuit = e.currentTarget === e.target && e.button === 0;
   }
 
   /**
    * Function to run on mouse up to see if the modal should still close.
    * @param e The associated event.
    */
-  function closeWrapper(e: Event): void {
+  function closeWrapper(e: MouseEvent): void {
     if (e.currentTarget === e.target && canQuit) onClose();
   }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper}>
-  <div class="modal-body">
+<div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper} on:contextmenu|preventDefault|stopPropagation>
+  <div class="modal-body" on:contextmenu|stopPropagation>
     {#if canClose}
       <div class="close-btn" on:click={onClose}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
