@@ -10,6 +10,8 @@ import { RustInterop } from "./RustInterop";
 
 import { SettingsManager } from "../utils/SettingsManager";
 import { getIdFromGridName } from "../utils/Utils";
+import { DialogController } from "./DialogController";
+import { exit } from "@tauri-apps/api/process";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -143,12 +145,21 @@ export class SteamController {
    * @returns A promise resolving to the image data.
    */
   static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
+    const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
+    const gridDirContents = (await fs.readDir(gridsDir));
+
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
     const [filteredGrids, logoConfigs] = SteamController.filterGridsDir(gridDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
-    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
+    const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
+
+    if (libraryCacheDir.startsWith("DNE")) {
+      await DialogController.message("LibraryCache Did Not Exist!", "ERROR", `SARM was unable to read your librarycache folder. The path ${libraryCacheDir.substring(3)} did not exist. Please open Steam and go to the library tab so it caches a few game grids.`, "Ok");
+      await exit(0);
+    }
+
+    const libraryCacheContents = (await fs.readDir(libraryCacheDir));
     const filteredCache = SteamController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcutIds);
     LogController.log("Library Cache loaded.");
 

@@ -77,7 +77,16 @@ pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) ->
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam library cache folder...", 0);
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  return steam_root.join("appcache/librarycache").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let library_cache_path: PathBuf = steam_root.join("appcache/librarycache");
+  let library_cache_str: String = library_cache_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+
+  if library_cache_path.exists() {
+    return library_cache_str;
+  } else {
+    let mut return_value: String = String::from("DNE");
+    return_value.push_str(&library_cache_str);
+    return return_value;
+  }
 }
 
 #[tauri::command]
