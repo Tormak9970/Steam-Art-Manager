@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { GridTypes, cleanConflicts, showCleanConflictDialog } from "../../../Stores";
+  import { GridTypes } from "../../../stores/AppState";
+  import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { LogController } from "../../../lib/controllers/LogController";
@@ -14,8 +15,10 @@
   $: conflictGridType = conflict ? conflict.gridType : "";
   $: fileAPath = conflict ? tauri.convertFileSrc(conflict.fileAPath) : "";
   $: fileBPath = conflict ? tauri.convertFileSrc(conflict.fileBPath) : "";
-  $: console.log(conflictGridType);
 
+  /**
+   * Get the next grid conflict.
+   */
   function getNextConflict(): CleanConflict | null {
     conflictNumber++;
     return $cleanConflicts.length > 0 ? $cleanConflicts.shift() : null;
@@ -37,6 +40,10 @@
     "icon": 256,
   };
 
+  /**
+   * Removes one of the two conflicting files.
+   * @param keepChoiceA If true, keep choice A, if false, keep choice B.
+   */
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
     await fs.removeFile(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
 
@@ -52,6 +59,9 @@
     }
   }
 
+  /**
+   * Function to call when the user wants to keep both grids.
+   */
   function keepBoth(): void {
     LogController.log(`Appid: ${conflict.appid}. Keeping both ${conflict.fileAName} and ${conflict.fileBName}.`);
 

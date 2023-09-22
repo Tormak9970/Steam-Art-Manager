@@ -21,7 +21,7 @@ let GLOBAL_ENDIANNESS = true;
 /**
  * A custom Reader class for ease of use.
  */
-class Reader {
+export class Reader {
   data: ArrayBuffer;
   offset: number;
   length: number;
@@ -58,7 +58,7 @@ class Reader {
    * @param  {number} offset the new offset.
    * @param  {number} position the position to update from. 0 = start, 1 = current offset, 2 = end.
    */
-  seek(offset: number, position: number = 0) {
+  seek(offset: number, position: number = 0): void {
     if (position == 0) {
       this.offset = Number(offset);
     } else if (position == 1) {
@@ -90,7 +90,7 @@ class Reader {
    * read the next char and return a string.
    * @param  {boolean} endianness whether or not to use littleEdian. Default is true.
    */
-  readChar(endianness?: boolean) {
+  readChar(endianness?: boolean): string {
     const res = this.#readI("getInt8", 1)(endianness);
     return String.fromCharCode(res);
   }
@@ -100,7 +100,7 @@ class Reader {
    * @param  {number} length the number of bytes to read
    * @param  {boolean} endianness whether or not to use littleEdian. Default is true.
    */
-  readSignedBytes(length: number, endianness?: boolean) {
+  readSignedBytes(length: number, endianness?: boolean): Int8Array {
     const res = new Int8Array(this.data, this.offset, length);
     this.offset += length;
     return (endianness ? endianness : GLOBAL_ENDIANNESS) ? res : res.reverse();
@@ -111,7 +111,7 @@ class Reader {
    * @param  {number} length the number of bytes to read
    * @param  {boolean} endianness whether or not to use littleEdian. Default is true.
    */
-  readUnsignedBytes(length: number, endianness?: boolean) {
+  readUnsignedBytes(length: number, endianness?: boolean): Uint8Array {
     const res = new Uint8Array(this.data, this.offset, length);
     this.offset += length;
     return (endianness ? endianness : GLOBAL_ENDIANNESS) ? res : res.reverse();
@@ -191,7 +191,7 @@ class Reader {
    * Reads the next null terminated string.
    * @param  {number} length optional length of the string. Reads until 00 byte if undefined.
    */
-  readString(length?: number) {
+  readString(length?: number): string {
     let outString = "";
     if (length === undefined) {
       let curChar = new Uint8Array(this.data, this.offset++, 1)[0];
@@ -209,5 +209,3 @@ class Reader {
     return outString;
   }
 }
-
-export { Reader };

@@ -1,10 +1,13 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
-  import { canSave } from "../Stores";
-  import { dialog } from "@tauri-apps/api";
+  import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
+  import { DialogController } from "../lib/controllers/DialogController";
+  import { WindowController } from "../lib/controllers/WindowController";
+
+  let windowCloseUnsub: () => void;
 
   export let title: string;
 
@@ -14,31 +17,43 @@
 
   let isMaxed = false;
 
+  /**
+   * Function to run when the user attempts to close the main window.
+   */
+  async function onCloseListener(): Promise<void> {
+    if (title === "Steam Art Manager") {
+      if ($canSave) {
+        const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+        if (shouldQuit) {
+          const success = await exit(0);
+          LogController.log(`Program exited: ${success}`);
+        }
+      } else {
+        const success = await exit(0);
+        LogController.log(`Program exited: ${success}`);
+      }
+    }
+  }
+
   onMount(async () => {
     minimize.addEventListener("click", () => appWindow.minimize());
     maximize.addEventListener("click", () => {
       appWindow.toggleMaximize();
       isMaxed = !isMaxed;
     });
-    close.addEventListener("click", async () => {
-      console.log(title);
-      if (title == "Steam Art Manager") {
-        if ($canSave) {
-          const shouldQuit = await dialog.confirm("You have unsaved changes! Quitting will cause you to loose them", {
-            title: "Unsaved Changes!",
-            type: "warning"
-          });
-          if (shouldQuit) await exit(0);
-        } else {
-          const success = await exit(0);
-          LogController.log(`Program exited: ${success}`);
-        }
-      }
-    });
+    close.addEventListener("click", onCloseListener);
+    appWindow.onCloseRequested(async (event) => {
+      event.preventDefault();
+      await onCloseListener();
+    }).then((listener) => windowCloseUnsub = listener);
+  });
+
+  onDestroy(() => {
+    if (windowCloseUnsub) windowCloseUnsub();
   });
 </script>
 
-<div data-tauri-drag-region class="titlebar">
+<div data-tauri-drag-region on:contextmenu|preventDefault class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />

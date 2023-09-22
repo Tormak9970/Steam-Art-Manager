@@ -16,7 +16,7 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, showLogoPositionModal, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../Stores";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../stores/AppState";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -24,10 +24,16 @@
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
-  import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
-    import ModalBody from "./modal-utils/ModalBody.svelte";
+  import ModalBody from "./modal-utils/ModalBody.svelte";
+  import { showLogoPositionModal } from "../../stores/Modals";
+  import Spacer from "../layout/Spacer.svelte";
 
-  export let onClose: () => void;
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
+    $showLogoPositionModal = false;
+  }
 
   type LogoCssStyles = {
     top: number,
@@ -75,6 +81,12 @@
     "Logo": 402
   };
 
+  /**
+   * Gets the css styles for the current logo settings.
+   * @param pos The position of the logo.
+   * @param heightPct The height offset of the logo.
+   * @param widthPct The width offset of the logo.
+   */
   function getLogoPosition(pos: LogoPinPositions, heightPct: number, widthPct: number): LogoCssStyles {
     const positions = {
       BottomLeft: {
@@ -114,7 +126,7 @@
   /**
    * Apply the logo position changes.
    */
-  function applyChanges() {
+  function applyChanges(): void {
     AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
   }
@@ -122,7 +134,7 @@
   /**
    * Clears any changes made to the logo position.
    */
-  function clearLogoPosition() {
+  function clearLogoPosition(): void {
     AppController.clearLogoPosition($selectedGameAppId);
     onClose();
   }
@@ -184,8 +196,8 @@
       </div>
       {#if canClear}
         <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <HorizontalSpacer />
-        <HorizontalSpacer />
+        <Spacer orientation="HORIZONTAL" />
+        <Spacer orientation="HORIZONTAL" />
         <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
         <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />

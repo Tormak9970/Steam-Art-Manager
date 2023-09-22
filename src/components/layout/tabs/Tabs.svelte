@@ -8,7 +8,11 @@
   
   let labels: string[] = [];
 
-  function onClick(label: string) {
+  /**
+   * Handles the onClick event.
+   * @param label The label of the tab to render.
+   */
+  function onClick(label: string): void {
     $tabsDict[tabsId].selected = label;
     selected = label;
   }

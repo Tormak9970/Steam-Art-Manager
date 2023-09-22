@@ -1,19 +1,25 @@
 <script lang="ts">
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, showBatchApplyProgress, steamGames } from "../../../Stores";
+  import { GridTypes, gridType } from "../../../stores/AppState";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
+  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
-  export let onClose: () => void;
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
+    $showBatchApplyModal = false;
+  }
 
   let selectedGameIds: string[] = [];
 
   /**
    * Batch applies grids to all games.
    */
-  function batchApply() {
+  function batchApply(): void {
     AppController.batchApplyGrids(selectedGameIds);
     $showBatchApplyProgress = true;
     onClose();
@@ -22,7 +28,7 @@
   /**
    * Cancels batch applying grids.
    */
-  function cancel() {
+  function cancel(): void {
     ToastController.showGenericToast("Cancelled Batch Apply.");
     onClose();
   }

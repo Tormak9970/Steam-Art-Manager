@@ -65,7 +65,7 @@ export class Writer {
   /**
    * Removes all trailing 0x00 bytes from the writer
    */
-  trim() {
+  trim(): void {
     const newDat = this.data.slice(0, this.offset);
 
     this.data = newDat;
@@ -97,7 +97,7 @@ export class Writer {
    * @param  {number} offset the new offset.
    * @param  {number} position the position to update from. 0 = start, 1 = current offset, 2 = end.
    */
-  seek(offset: number, position: number = 0) {
+  seek(offset: number, position: number = 0): void {
     if (position == 0) {
       this.offset = Number(offset);
     } else if (position == 1) {

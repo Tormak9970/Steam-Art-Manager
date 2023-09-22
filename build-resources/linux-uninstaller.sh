@@ -4,8 +4,8 @@
 errorRed='\033[1;91m'
 warningYellow='\033[1;93m'
 tipBlue='\033[1;94m'
-successGreen='\033[1;92m'
-infoCyan='\033[1;96m'
+successGreen='\033[1;96m'
+infoCyan='\033[1;92m'
 noColor='\033[0m'
 
 if zenity --question --title="Warning!" --text="You are about to uninstall SARM and all of its files.\n\n Are you sure you want to proceed?" --width=600; then
@@ -21,30 +21,30 @@ if zenity --question --title="Warning!" --text="You are about to uninstall SARM 
   fi
 
   # Remove Desktop icons
-  if [ -d "$HOME/Desktop/SARM.desktop" ]; then
-    rm -rf "$HOME/Desktop/SARM.desktop"
+  if [ -d "$HOME/Desktop/steam-art-manager.desktop" ]; then
+    rm -rf "$HOME/Desktop/steam-art-manager.desktop"
     echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop launch shortcut."
   else
     echo -e "${infoCyan}[INFO]${noColor}: SARM desktop launch shortcut already removed."
   fi
 
-  if [ -d "$HOME/Desktop/UninstallSARM.desktop" ]; then
-    rm -rf "$HOME/Desktop/UninstallSARM.desktop"
+  if [ -d "$HOME/Desktop/uninstall-steam-art-manager.desktop" ]; then
+    rm -rf "$HOME/Desktop/uninstall-steam-art-manager.desktop"
     echo -e "${successGreen}[INFO]${noColor}: Removed SARM desktop uninstall shortcut."
   else
     echo -e "${infoCyan}[INFO]${noColor}: SARM desktop uninstall shortcut already removed."
   fi
 
   # Remove Start Menu shortcuts
-  if [ -d "$HOME/.local/share/applications/SARM.desktop" ]; then
-    rm -rf "$HOME/.local/share/applications/SARM.desktop"
+  if [ -d "$HOME/.local/share/applications/steam-art-manager.desktop" ]; then
+    rm -rf "$HOME/.local/share/applications/steam-art-manager.desktop"
     echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu launch shortcut."
   else
     echo -e "${infoCyan}[INFO]${noColor}: SARM start menu launch shortcut already removed."
   fi
 
-  if [ -d "$HOME/.local/share/applications/UninstallSARM.desktop" ]; then
-    rm -rf "$HOME/.local/share/applications/UninstallSARM.desktop"
+  if [ -d "$HOME/.local/share/applications/uninstall-steam-art-manager.desktop" ]; then
+    rm -rf "$HOME/.local/share/applications/uninstall-steam-art-manager.desktop"
     echo -e "${successGreen}[INFO]${noColor}: Removed SARM start menu uninstall shortcut."
   else
     echo -e "${infoCyan}[INFO]${noColor}: SARM start menu uninstall shortcut already removed."

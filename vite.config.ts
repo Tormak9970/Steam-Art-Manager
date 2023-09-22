@@ -78,5 +78,6 @@ export default defineConfig(async () => ({
   },
   define: {
     'APP_VERSION': JSON.stringify(process.env.npm_package_version),
+    'IS_DEBUG': !!process.env.TAURI_DEBUG
   }
 }));
