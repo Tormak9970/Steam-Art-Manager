@@ -514,27 +514,6 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
   return serde_json::to_string(&conflicts).expect("Should have been able to serialize conflict array.");
 }
 
-#[tauri::command]
-/// Open dev tools for the main window
-async fn open_main_dev_tools(app_handle: AppHandle) -> () {
-  let window = app_handle.get_window("main").unwrap();
-  window.open_devtools();
-  window.close_devtools();
-}
-
-#[tauri::command]
-/// Open dev tools for the main window
-async fn check_if_main_focused(app_handle: AppHandle) -> bool {
-  let window = app_handle.get_window("main").unwrap();
-  let is_focused_res = window.is_focused();
-
-  if is_focused_res.is_ok() {
-    return is_focused_res.expect("Should have been able to get focus state");
-  } else {
-    return false;
-  }
-}
-
 
 #[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
@@ -615,9 +594,7 @@ fn main() {
       save_changes,
       write_shortcuts,
       download_grid,
-      clean_grids,
-      open_main_dev_tools,
-      check_if_main_focused
+      clean_grids
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);
