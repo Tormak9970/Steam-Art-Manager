@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
-      change_log: ${{ steps.changelog.outputs.clean_changelog }}
+      change_log: ${{ steps.changelog.outputs.changelog }}
       version: ${{ steps.changelog.outputs.version }}
       tag: ${{ steps.changelog.outputs.tag }}
 
@@ -32,14 +32,14 @@ jobs:
           github-token: ${{ secrets.github_token }}
           current-version: "./package.json"
           version-path: "version"
-          patch-commit-bump-interval: "10"
+          patch-version-bump-interval: "10"
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
         env:
           RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
-          RELEASE_LOG: ${{ steps.changelog.outputs.clean_changelog }}
+          RELEASE_LOG: ${{ steps.changelog.outputs.changelog }}
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
