@@ -1,7 +1,7 @@
 /**
  * Steam Art Manager is a tool for setting the artwork of your Steam library.
  * Copyright (C) 2023 Travis Lane (Tormak)
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -26,8 +26,8 @@ import { AppController } from "./AppController";
  * @returns A promise resolving to the Blob.
  */
 async function getImageBlob(imageUrl: string): Promise<Blob> {
-  const response = await fetch(imageUrl)
-  return response.blob()
+  const response = await fetch(imageUrl);
+  return response.blob();
 }
 /**
  * Opens the save dialog for the selected image.
@@ -35,7 +35,10 @@ async function getImageBlob(imageUrl: string): Promise<Blob> {
  */
 async function saveImageAs(src: string): Promise<void> {
   const blob = await getImageBlob(src);
-  const destPath = await dialog.save({ title: "Save Image", defaultPath: `image.${blob.type.substring(blob.type.indexOf("/") + 1)}` })
+  const destPath = await dialog.save({
+    title: "Save Image",
+    defaultPath: `image.${blob.type.substring(blob.type.indexOf("/") + 1)}`,
+  });
   await fs.writeBinaryFile(destPath, await blob.arrayBuffer());
 }
 /**
@@ -55,17 +58,11 @@ async function inspectElement(): Promise<void> {
  * Controller class for managing app windows.
  */
 export class WindowController {
-  static mainWindow = WebviewWindow.getByLabel('main');
+  static mainWindow = WebviewWindow.getByLabel("main");
 
-  static async registerContextMenuListeners(): Promise<void> {
+  static async registerContextMenuListeners(): Promise<void> {}
 
-  }
+  static async destroyContextMenuListeners(): Promise<void> {}
 
-  static async destroyContextMenuListeners(): Promise<void> {
-
-  }
-
-  static async onContextMenuClicked(e: MouseEvent): Promise<void> {
-    
-  }
+  static async onContextMenuClicked(e: MouseEvent): Promise<void> {}
 }

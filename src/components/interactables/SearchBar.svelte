@@ -1,7 +1,9 @@
 <script lang="ts">
   import LoadingSpinner from "../info/LoadingSpinner.svelte";
 
-  export const setSearchFocus = () => { searchInput.focus(); }
+  export const setSearchFocus = () => {
+    searchInput.focus();
+  };
 
   export let label: string;
   export let value = "";
@@ -9,12 +11,12 @@
   export let interval = 300;
   export let reversed = false;
   export let updateOnInput = true;
-  export let onChange: (query:string) => void = () => {};
+  export let onChange: (query: string) => void = () => {};
 
   let searching = false;
-  let timeout:NodeJS.Timeout|null;
+  let timeout: NodeJS.Timeout | null;
 
-  let searchInput:HTMLInputElement;
+  let searchInput: HTMLInputElement;
 
   /**
    * Wraps the onChange handler.
@@ -48,11 +50,23 @@
   }
 </script>
 
-<div class="search-bar" style="width: {width}; flex-direction: {reversed ? "row-reverse" : "row"};">
-  <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 7px;" class:showing={searching}>
+<div
+  class="search-bar"
+  style="width: {width}; flex-direction: {reversed ? 'row-reverse' : 'row'};">
+  <div
+    class="spinner-cont"
+    style="margin-{reversed ? 'left' : 'right'}: 7px;"
+    class:showing="{searching}">
     <LoadingSpinner width="20px" height="20px" />
   </div>
-  <input style="width: calc(100% - 6px);" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
+  <input
+    style="width: calc(100% - 6px);"
+    type="text"
+    placeholder="{label}"
+    on:input="{onInputWrapper}"
+    on:change="{onChangeWrapper}"
+    bind:value
+    bind:this="{searchInput}" />
 </div>
 
 <style>
@@ -66,8 +80,10 @@
     color: var(--font-color);
     border-radius: 4px;
     padding: 3px;
-    
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
   input:hover {
     background-color: var(--foreground-hover);
@@ -82,5 +98,7 @@
     display: flex;
   }
 
-  .showing { visibility: visible; }
+  .showing {
+    visibility: visible;
+  }
 </style>

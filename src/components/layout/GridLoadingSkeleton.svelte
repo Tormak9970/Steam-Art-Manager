@@ -1,18 +1,17 @@
 <script lang="ts">
-
 </script>
 
 <div class="grid-placeholder">
-  <div class="shine" />
-  <div class="img-placeholder" />
-  <div class="title-placeholder" />
+  <div class="shine"></div>
+  <div class="img-placeholder"></div>
+  <div class="title-placeholder"></div>
 </div>
 
 <style>
   .grid-placeholder {
     height: 100%;
     width: 100%;
-    
+
     border-radius: 4px;
 
     background-color: var(--foreground);
@@ -58,17 +57,24 @@
 
     left: -100%;
 
-    background-image: linear-gradient(to left, rgba(var(--foreground-light_rgb), 0.05), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), .5), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), 0.05));
+    background-image: linear-gradient(
+      to left,
+      rgba(var(--foreground-light_rgb), 0.05),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.5),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.05)
+    );
     animation: loading 1.2s infinite;
 
     z-index: 45;
   }
 
   @keyframes loading {
-    0%{
+    0% {
       left: -100%;
     }
-    100%{
+    100% {
       left: 100%;
     }
   }

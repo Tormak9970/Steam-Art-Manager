@@ -3,7 +3,10 @@
   export let marginBottom: string = "0px";
 </script>
 
-<div class="divider" style="margin-top: {marginTop}; margin-bottom: {marginBottom};" />
+<div
+  class="divider"
+  style="margin-top: {marginTop}; margin-bottom: {marginBottom};">
+</div>
 
 <style>
   .divider {

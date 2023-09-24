@@ -1,14 +1,19 @@
 <script lang="ts">
-	import { slide } from "svelte/transition";
-	export let label: string;
+  import { slide } from "svelte/transition";
+  export let label: string;
   export let open = false;
-	let isOpen = open;
-  
-	const toggle = () => { isOpen = !isOpen; }
+  let isOpen = open;
+
+  const toggle = () => {
+    isOpen = !isOpen;
+  };
 </script>
 
 <div class="accordion">
-  <button on:click={toggle} aria-expanded={isOpen} class:all-corners={!isOpen}>
+  <button
+    on:click="{toggle}"
+    aria-expanded="{isOpen}"
+    class:all-corners="{!isOpen}">
     <svg
       style="tran"
       width="12"
@@ -19,12 +24,12 @@
       stroke-width="2"
       viewBox="0 0 24 24"
       stroke="currentColor">
-      <path d="M9 5l7 7-7 7" />
-    </svg> 
+      <path d="M9 5l7 7-7 7"></path>
+    </svg>
     {label}
   </button>
   {#if isOpen}
-    <div class="content" transition:slide={{ duration: 300 }}>
+    <div class="content" transition:slide="{{ duration: 300 }}">
       <slot />
     </div>
   {/if}
@@ -38,14 +43,14 @@
     user-select: none;
   }
 
-	button {
+  button {
     color: var(--font-color);
     border: none;
     background: none;
     display: flex;
 
     align-items: center;
-    
+
     font-size: 14px;
     cursor: pointer;
 
@@ -64,7 +69,9 @@
     border-radius: 4px;
     transition: border-radius 0.15s ease-in-out 0.15s;
   }
-  button:hover { background-color: var(--background-hover); }
+  button:hover {
+    background-color: var(--background-hover);
+  }
 
   .content {
     padding: 0px 6px;
@@ -73,6 +80,11 @@
     border-radius: 0px 0px 4px 4px;
   }
 
-	svg { transition: transform 0.2s ease-in; margin-right: 3px; }
-	[aria-expanded=true] svg { transform: rotate(0.25turn); }
+  svg {
+    transition: transform 0.2s ease-in;
+    margin-right: 3px;
+  }
+  [aria-expanded="true"] svg {
+    transform: rotate(0.25turn);
+  }
 </style>

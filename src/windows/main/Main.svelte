@@ -1,19 +1,33 @@
 <script lang="ts">
-  import { checkUpdate } from '@tauri-apps/api/updater';
-	import { SvelteToast } from "@zerodevx/svelte-toast";
-	import { onDestroy, onMount } from "svelte";
-	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes } from 'svelte-splitpanes';
-	import Footer from "../../components/Footer.svelte";
-	import Options from "../../components/core/filters/Options.svelte";
-	import Games from "../../components/core/games/Games.svelte";
-	import Grids from "../../components/core/grids/Grids.svelte";
+  import { checkUpdate } from "@tauri-apps/api/updater";
+  import { SvelteToast } from "@zerodevx/svelte-toast";
+  import { onDestroy, onMount } from "svelte";
+  import Titlebar from "../../components/Titlebar.svelte";
+  import { Splitpanes } from "svelte-splitpanes";
+  import Footer from "../../components/Footer.svelte";
+  import Options from "../../components/core/filters/Options.svelte";
+  import Games from "../../components/core/games/Games.svelte";
+  import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
   import { activeUserId, isOnline, steamUsers } from "../../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
-	import DropDown from "../../components/interactables/DropDown.svelte";
-	import type { Unsubscriber } from "svelte/store";
+  import {
+    showManualGamesModal,
+    showBatchApplyModal,
+    showBatchApplyProgress,
+    showGridModal,
+    showLogoPositionModal,
+    showSettingsModal,
+    showCleanGridsModal,
+    showCleanConflictDialog,
+    showUpdateModal,
+    updateManifest,
+    showDialogModal,
+    showSteamPathModal,
+    showGameSearchModal,
+  } from "../../stores/Modals";
+  import DropDown from "../../components/interactables/DropDown.svelte";
+  import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
   import { LogController } from "../../lib/controllers/LogController";
   import LogoPositionModal from "../../components/modals/LogoPositionModal.svelte";
@@ -27,18 +41,18 @@
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
-	
-  let updateUnsub: any;
-	let activeUserIdUnsub: Unsubscriber;
-	let usersUnsub: Unsubscriber;
 
-	let users = Object.values($steamUsers).map((user) => {
-		return {
-			"label": user.PersonaName,
-			"data": user.id32
-		}
-	});
-	let selectedUserId = $activeUserId.toString();
+  let updateUnsub: any;
+  let activeUserIdUnsub: Unsubscriber;
+  let usersUnsub: Unsubscriber;
+
+  let users = Object.values($steamUsers).map((user) => {
+    return {
+      label: user.PersonaName,
+      data: user.id32,
+    };
+  });
+  let selectedUserId = $activeUserId.toString();
 
   /**
    * Handler for all main window errors.
@@ -50,30 +64,32 @@
     const columnNumber = e.colno;
     const lineNumber = e.lineno;
 
-    LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+    LogController.error(
+      `MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`
+    );
   }
 
-	onMount(async () => {
+  onMount(async () => {
     window.addEventListener("error", onError);
 
-		activeUserIdUnsub = activeUserId.subscribe((id) => {
-			selectedUserId = id.toString();
-		});
-		usersUnsub = steamUsers.subscribe((sUsers) => {
-			users = Object.values(sUsers).map((user) => {
-				return {
-					"label": user.PersonaName,
-					"data": user.id32
-				}
-			});
-			if (!selectedUserId) selectedUserId = $activeUserId.toString();
-		});
+    activeUserIdUnsub = activeUserId.subscribe((id) => {
+      selectedUserId = id.toString();
+    });
+    usersUnsub = steamUsers.subscribe((sUsers) => {
+      users = Object.values(sUsers).map((user) => {
+        return {
+          label: user.PersonaName,
+          data: user.id32,
+        };
+      });
+      if (!selectedUserId) selectedUserId = $activeUserId.toString();
+    });
 
-		let i = 0;
+    let i = 0;
 
-		while(!$isOnline && i < 4) {
-			if (navigator.onLine) $isOnline = true;
-		}
+    while (!$isOnline && i < 4) {
+      if (navigator.onLine) $isOnline = true;
+    }
 
     try {
       const { shouldUpdate, manifest } = await checkUpdate();
@@ -86,7 +102,7 @@
       console.error(error);
     }
 
-		await AppController.setup();
+    await AppController.setup();
 
     if (!$isOnline) {
       const wantsToContinue = await AppController.promptOffline();
@@ -94,23 +110,30 @@
     }
 
     AppController.init();
-	});
+  });
 
-	onDestroy(async () => {
+  onDestroy(async () => {
     window.removeEventListener("error", onError);
-		await AppController.destroy();
+    await AppController.destroy();
 
-    if (updateUnsub) updateUnsub()
-		if (activeUserIdUnsub) activeUserIdUnsub();
-		if (usersUnsub) usersUnsub();
-	});
+    if (updateUnsub) updateUnsub();
+    if (activeUserIdUnsub) activeUserIdUnsub();
+    if (usersUnsub) usersUnsub();
+  });
 </script>
 
 <main>
-	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
+  <Titlebar title="Steam Art Manager">
+    <DropDown
+      label="User"
+      options="{users}"
+      value="{selectedUserId}"
+      onChange="{AppController.changeSteamUser}"
+      width="100px"
+      tooltipPosition="bottom"
+      entryTooltipPosition="right" />
   </Titlebar>
-	<div class="content">
+  <div class="content">
     {#if $showDialogModal}
       <DialogModal />
     {/if}
@@ -121,25 +144,25 @@
       <GameSearchModal />
     {/if}
     {#if $showGridModal}
-		  <GridPreviewModal />
+      <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal />
+      <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal />
+      <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal />
+      <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal />
+      <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal />
+      <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal />
+      <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />
@@ -147,34 +170,34 @@
     {#if $showUpdateModal}
       <UpdateModal />
     {/if}
-		<Splitpanes>
-			<Options />
+    <Splitpanes>
+      <Options />
 
-			<Games />
-			
-			<Grids />
-		</Splitpanes>
-	</div>
-	<Footer />
+      <Games />
+
+      <Grids />
+    </Splitpanes>
+  </div>
+  <Footer />
 </main>
 <div class="core-toast">
   <SvelteToast />
 </div>
 
 <style>
-	main {
-		width: 100%;
-		height: 100%;
+  main {
+    width: 100%;
+    height: 100%;
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 
-		color: var(--font-color);
+    color: var(--font-color);
 
-		transition: opacity 0.1s ease-in-out;
-	}
+    transition: opacity 0.1s ease-in-out;
+  }
 
   .core-toast {
     font-size: 14px;
@@ -184,13 +207,13 @@
     --toastMinHeight: 3rem;
   }
 
-	.content {
-		width: 100%;
-		height: calc(100% - 60px);
+  .content {
+    width: 100%;
+    height: calc(100% - 60px);
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-	}
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 </style>

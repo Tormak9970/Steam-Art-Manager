@@ -13,7 +13,18 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
+<button
+  class="button"
+  class:warn
+  class:highlight
+  class:disabled
+  style="width: {width}; height: {height};"
+  on:click="{onClick}"
+  use:AppController.tippy="{{
+    content: label,
+    placement: tooltipPosition,
+    onShow: AppController.onTippyShow,
+  }}">
   <slot />
 </button>
 
@@ -22,7 +33,7 @@
     padding: 2px;
     min-width: 22px;
     min-height: 22px;
-        
+
     background-color: var(--foreground);
     border: 1px solid transparent;
     border-radius: 4px;
@@ -37,7 +48,9 @@
     color: var(--font-color);
     fill: var(--font-color);
 
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
 
   .button:hover {
@@ -53,9 +66,17 @@
     opacity: 0.7;
   }
 
-  .highlight { background-color: var(--save); }
-  .highlight:hover { background-color: var(--save-hover); }
+  .highlight {
+    background-color: var(--save);
+  }
+  .highlight:hover {
+    background-color: var(--save-hover);
+  }
 
-  .warn { background-color: var(--warning); }
-  .warn:hover { background-color: var(--warning-hover); }
+  .warn {
+    background-color: var(--warning);
+  }
+  .warn:hover {
+    background-color: var(--warning-hover);
+  }
 </style>

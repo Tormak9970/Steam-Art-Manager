@@ -3,7 +3,14 @@
   import { open } from "@tauri-apps/api/shell";
 
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
+  import {
+    GridTypes,
+    gridType,
+    manualSteamGames,
+    nonSteamGames,
+    selectedGameAppId,
+    steamGames,
+  } from "../../stores/AppState";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
@@ -15,14 +22,14 @@
    */
   function onClose(): void {
     $showGridModal = false;
-		$gridModalInfo = null;
+    $gridModalInfo = null;
   }
 
   const mdIt = new MarkDownIt({
     html: true,
-    linkify: true
+    linkify: true,
   });
-  
+
   $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
 
   const widths = {
@@ -54,7 +61,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -63,12 +70,33 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid == $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
-  <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
-      <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
-        <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-          <img src="{$gridType == GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+<ModalBody
+  title="{`${
+    games.find((game) => game.appid == $selectedGameAppId)?.name
+  } - ${$gridType} #${$gridModalInfo?.id}`}"
+  {onClose}>
+  <div class="content {$gridType.split(' ').join('-').toLowerCase()}">
+    <div
+      class="img-cont"
+      style="max-width: {widths[$gridType]}px; max-height: {heights[
+        $gridType
+      ]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
+      <div
+        class="img"
+        class:logo-background="{$gridType == GridTypes.LOGO}"
+        class:icon-background="{$gridType == GridTypes.ICON}"
+        style="max-height: {heights[$gridType]}px;">
+        <Lazy
+          height="{heights[$gridType]}px"
+          fadeOption="{{ delay: 500, duration: 1000 }}">
+          <img
+            src="{$gridType == GridTypes.ICON
+              ? $gridModalInfo?.thumb?.toString()
+              : $gridModalInfo?.url?.toString()}"
+            alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
+            style="max-width: {widths[$gridType]}px; max-height: {heights[
+              $gridType
+            ]}px; width: auto; height: auto;" />
         </Lazy>
       </div>
     </div>
@@ -76,27 +104,33 @@
       <div class="info-cont">
         <div class="author">
           <div class="pfp">
-            <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author?.name}'s profile picture" />
+            <img
+              src="{$gridModalInfo?.author?.avatar?.toString()}"
+              alt="{$gridModalInfo?.author?.name}'s profile picture" />
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
         <Spacer orientation="VERTICAL" />
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
-        <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
+        <div class="label-small">
+          Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}
+        </div>
         <Spacer orientation="VERTICAL" />
         {#if $gridModalInfo?.notes}
           <Spacer orientation="VERTICAL" />
           <div class="label">Notes:</div>
-          <div class="border" />
+          <div class="border"></div>
           <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
+          <div class="notes" on:click="{clickListener}">
+            {@html mdIt.render($gridModalInfo?.notes)}
+          </div>
         {:else}
-          <div class="border" />
+          <div class="border"></div>
         {/if}
       </div>
       <div class="buttons">
-        <Button label="Apply" onClick={applyGrid} width="100%" />
+        <Button label="Apply" onClick="{applyGrid}" width="100%" />
       </div>
     </div>
   </div>
@@ -132,7 +166,9 @@
     flex-direction: column;
   }
 
-  .wide-capsule .info, .hero .info, .logo .info {
+  .wide-capsule .info,
+  .hero .info,
+  .logo .info {
     margin-bottom: 10px;
     margin-left: 14px;
     margin-right: 10px;
@@ -169,7 +205,13 @@
     flex-direction: column;
   }
 
-  .img-cont { padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .img-cont {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
   .img-cont > .img {
     border-radius: 2px;
@@ -183,14 +225,24 @@
   .logo-background {
     border-radius: 8px;
     background-color: #a3a3a3;
-    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    background-image: linear-gradient(
+      140deg,
+      #adadad 0%,
+      #727272 50%,
+      #535353 75%
+    );
     padding: 5px;
   }
 
   .icon-background {
     border-radius: 8px;
     background-color: #a3a3a3;
-    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    background-image: linear-gradient(
+      140deg,
+      #adadad 0%,
+      #727272 50%,
+      #535353 75%
+    );
     padding: 5px;
     height: 256px;
     width: 256px;
@@ -216,9 +268,13 @@
   .label {
     font-size: 16px;
   }
-  .label-small { font-size: 14px; }
+  .label-small {
+    font-size: 14px;
+  }
 
-  .notes { font-size: 14px; }
+  .notes {
+    font-size: 14px;
+  }
 
   .buttons {
     margin-top: 14px;

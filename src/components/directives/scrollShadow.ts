@@ -1,15 +1,18 @@
-import type { Action } from "svelte/action"
+import type { Action } from "svelte/action";
 
 type ScrollShadowParams = {
-  target: HTMLElement,
-  container?: HTMLElement,
-  heightBump: number
-}
+  target: HTMLElement;
+  container?: HTMLElement;
+  heightBump: number;
+};
 
 /**
  * A Svelte directive for applying scroll shadow to elements.
  */
-export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTMLElement, { target, container, heightBump }) => {
+export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (
+  node: HTMLElement,
+  { target, container, heightBump }
+) => {
   let hasObserved = false;
 
   let scrollTarget = target;
@@ -17,16 +20,14 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
 
   const options = {
     root: node,
-    threshold: 1
+    threshold: 1,
   };
-  
+
   const observer = new IntersectionObserver(([entry]) => {
     if (entry.intersectionRatio !== 1) {
-      scrollContainer.classList
-        .add("is-overflowing", "is-scrolled-top");
+      scrollContainer.classList.add("is-overflowing", "is-scrolled-top");
     } else {
-      scrollContainer.classList
-        .remove("is-overflowing");
+      scrollContainer.classList.remove("is-overflowing");
     }
   }, options);
 
@@ -34,7 +35,7 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     observer.observe(scrollTarget);
     hasObserved = true;
   }
-  
+
   const scrollListener = (e: UIEvent) => {
     const eventTarget = e.currentTarget as HTMLElement;
     if (eventTarget.scrollTop === 0) {
@@ -42,13 +43,16 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     } else {
       scrollContainer.classList.remove("is-scrolled-top");
     }
-  
-    if (eventTarget.scrollTop + eventTarget.offsetHeight === scrollTarget?.offsetHeight + heightBump) {
+
+    if (
+      eventTarget.scrollTop + eventTarget.offsetHeight ===
+      scrollTarget?.offsetHeight + heightBump
+    ) {
       scrollContainer.classList.add("is-scrolled-bottom");
     } else {
       scrollContainer.classList.remove("is-scrolled-bottom");
     }
-  }
+  };
 
   node.addEventListener("scroll", scrollListener);
 
@@ -64,6 +68,6 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     destroy() {
       node.removeEventListener("scroll", scrollListener);
       observer.disconnect();
-    }
-  }
-}
+    },
+  };
+};

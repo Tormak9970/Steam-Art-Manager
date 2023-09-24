@@ -8,7 +8,7 @@
   export let required: boolean = false;
   export let value: string;
   export let notes: string = "";
-  export let onChange: (e:Event) => void = () => {};
+  export let onChange: (e: Event) => void = () => {};
 
   /**
    * Handles click events to redirect to the browser.
@@ -16,7 +16,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -27,20 +27,25 @@
 
 <div class="setting">
   <h1 class="label">{label}</h1>
-  <TextInput placeholder={"Your API key"} onInput={onChange} width="{220}" bind:value={value} />
+  <TextInput
+    placeholder="{'Your API key'}"
+    onInput="{onChange}"
+    width="{220}"
+    bind:value />
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="description" on:click={clickListener}>
-    <b>Usage:</b><br/>
-    {@html description}<br/>
+  <div class="description" on:click="{clickListener}">
+    <b>Usage:</b><br />
+    {@html description}<br />
 
     {#if notes != ""}
       <Spacer orientation="VERTICAL" />
-      <b>Notes:</b><br/>
+      <b>Notes:</b><br />
       {@html notes}
     {/if}
-    
+
     <Spacer orientation="VERTICAL" />
-    <b>Required:</b> {required ? "Yes" : "No"}<br/>
+    <b>Required:</b>
+    {required ? "Yes" : "No"}<br />
   </div>
 </div>
 

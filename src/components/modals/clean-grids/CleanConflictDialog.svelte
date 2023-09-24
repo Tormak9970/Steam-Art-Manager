@@ -1,13 +1,16 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { GridTypes } from "../../../stores/AppState";
-  import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
+  import {
+    cleanConflicts,
+    showCleanConflictDialog,
+  } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { LogController } from "../../../lib/controllers/LogController";
   import { fs, tauri } from "@tauri-apps/api";
   import Button from "../../interactables/Button.svelte";
-    
+
   import Lazy from "svelte-lazy";
 
   let conflictNumber: number = 1;
@@ -25,19 +28,19 @@
   }
 
   const widths = {
-    "capsule": 200,
-    "widecapsule": 280,
-    "hero": 586,
-    "logo": 300,
-    "icon": 256,
+    capsule: 200,
+    widecapsule: 280,
+    hero: 586,
+    logo: 300,
+    icon: 256,
   };
 
   const heights = {
-    "capsule": 300,
-    "widecapsule": 135,
-    "hero": 210,
-    "logo": 201,
-    "icon": 256,
+    capsule: 300,
+    widecapsule: 135,
+    hero: 210,
+    logo: 201,
+    icon: 256,
   };
 
   /**
@@ -47,8 +50,12 @@
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
     await fs.removeFile(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
 
-    LogController.log(`Appid: ${conflict.appid}. Keeping ${keepChoiceA ? conflict.fileAName : conflict.fileBName} and deleting ${keepChoiceA ? conflict.fileBName : conflict.fileAName}.`);
-    
+    LogController.log(
+      `Appid: ${conflict.appid}. Keeping ${
+        keepChoiceA ? conflict.fileAName : conflict.fileBName
+      } and deleting ${keepChoiceA ? conflict.fileBName : conflict.fileAName}.`
+    );
+
     conflict = getNextConflict();
 
     if (!conflict) {
@@ -63,7 +70,9 @@
    * Function to call when the user wants to keep both grids.
    */
   function keepBoth(): void {
-    LogController.log(`Appid: ${conflict.appid}. Keeping both ${conflict.fileAName} and ${conflict.fileBName}.`);
+    LogController.log(
+      `Appid: ${conflict.appid}. Keeping both ${conflict.fileAName} and ${conflict.fileBName}.`
+    );
 
     conflict = getNextConflict();
 
@@ -84,17 +93,30 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<ModalBody title={`Clean Conflict Dialog #${conflictNumber}`} canClose={false}>
+<ModalBody
+  title="{`Clean Conflict Dialog #${conflictNumber}`}"
+  canClose="{false}">
   <div class="content">
-    <div class="description">
-      Choose which grid you would like to keep.
-    </div>
+    <div class="description">Choose which grid you would like to keep.</div>
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{fileAPath}" alt="Option 1" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div
+            class="img"
+            class:logo-background="{conflictGridType == GridTypes.LOGO}"
+            class:icon-background="{conflictGridType == GridTypes.ICON}"
+            style="max-height: {heights[conflictGridType]}px;">
+            <Lazy
+              height="{heights[conflictGridType]}px"
+              fadeOption="{{ delay: 500, duration: 1000 }}">
+              <img
+                src="{fileAPath}"
+                alt="Option 1"
+                style="max-width: {widths[
+                  conflictGridType
+                ]}px; max-height: {heights[
+                  conflictGridType
+                ]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -102,9 +124,22 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{fileBPath}" alt="Option 2" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div
+            class="img"
+            class:logo-background="{conflictGridType == GridTypes.LOGO}"
+            class:icon-background="{conflictGridType == GridTypes.ICON}"
+            style="max-height: {heights[conflictGridType]}px;">
+            <Lazy
+              height="{heights[conflictGridType]}px"
+              fadeOption="{{ delay: 500, duration: 1000 }}">
+              <img
+                src="{fileBPath}"
+                alt="Option 2"
+                style="max-width: {widths[
+                  conflictGridType
+                ]}px; max-height: {heights[
+                  conflictGridType
+                ]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -112,9 +147,19 @@
       </div>
     </div>
     <div class="buttons">
-      <Button label={`Keep ${conflictGridType == "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
-      <Button label={`Keep ${conflictGridType == "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
-      <Button label="Keep Both" onClick={keepBoth} width="30%" />
+      <Button
+        label="{`Keep ${conflictGridType == 'hero' ? 'Top' : 'Left'}`}"
+        onClick="{() => {
+          deleteGrid(true);
+        }}"
+        width="30%" />
+      <Button
+        label="{`Keep ${conflictGridType == 'hero' ? 'Bottom' : 'Right'}`}"
+        onClick="{() => {
+          deleteGrid(false);
+        }}"
+        width="30%" />
+      <Button label="Keep Both" onClick="{keepBoth}" width="30%" />
     </div>
   </div>
 </ModalBody>
@@ -123,13 +168,13 @@
   /* done */
   .content {
     width: 600px;
-		height: calc(100% - 60px);
+    height: calc(100% - 60px);
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-	}
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
   /* done */
   .description {
@@ -179,7 +224,9 @@
   }
 
   /* done */
-  .img-cont { padding: 10px; }
+  .img-cont {
+    padding: 10px;
+  }
 
   .img-cont > .img {
     border-radius: 2px;

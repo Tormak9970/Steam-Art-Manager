@@ -16,14 +16,17 @@
    * @param filter The filter to update.
    * @returns A function to update the filter.
    */
-  function updateFilters(section: string, filter: string): (value:boolean) => void {
+  function updateFilters(
+    section: string,
+    filter: string
+  ): (value: boolean) => void {
     return (value: boolean) => {
       const filters = $dbFilters;
 
       filters[$gridType][section][filter] = value;
 
-      $dbFilters = {...filters};
-    }
+      $dbFilters = { ...filters };
+    };
   }
 
   /**
@@ -33,9 +36,12 @@
    */
   function toUpperCaseSplit(word: string): string {
     if (word.includes("_")) {
-      return word.split("_").map((w) => w.substring(0,1).toUpperCase().concat(w.substring(1))).join(" ");
+      return word
+        .split("_")
+        .map((w) => w.substring(0, 1).toUpperCase().concat(w.substring(1)))
+        .join(" ");
     } else {
-      return word.substring(0,1).toUpperCase().concat(word.substring(1));
+      return word.substring(0, 1).toUpperCase().concat(word.substring(1));
     }
   }
 
@@ -51,37 +57,46 @@
   }
 </script>
 
-<Pane minSize={15} size={16}>
+<Pane minSize="{15}" size="{16}">
   <div class="inner">
     <SectionTitle title="Options" />
-  
+
     <div class="content" style="height: 35px;">
-      <div style="padding-left: 6px; margin-top: 10px; display: flex; justify-content: space-between;">
-        <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
+      <div
+        style="padding-left: 6px; margin-top: 10px; display: flex; justify-content: space-between;">
+        <Toggle
+          label="Dark Mode"
+          value="{$theme == 0}"
+          onChange="{onDarkModeChange}" />
       </div>
-      
+
       <Divider />
       <Spacer orientation="VERTICAL" />
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <PaddedScrollContainer height={"100%"} width={"100%"} background={"transparent"} marginTop="0px" padding="0px">
+      <PaddedScrollContainer
+        height="{'100%'}"
+        width="{'100%'}"
+        background="{'transparent'}"
+        marginTop="0px"
+        padding="0px">
         {#each Object.keys($dbFilters[$gridType]) as section, i}
           <Accordion
-            label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
-            open={true}
-          >
+            label="{section == 'oneoftag' ? 'Tags' : toUpperCaseSplit(section)}"
+            open="{true}">
             <Spacer orientation="VERTICAL" />
             {#each Object.keys($dbFilters[$gridType][section]) as filter}
               <Toggle
-                label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-                value={$dbFilters[$gridType][section][filter]}
-                onChange={updateFilters(section, filter)}
-              />
+                label="{filter == 'material'
+                  ? 'Minimal'
+                  : toUpperCaseSplit(filter)}"
+                value="{$dbFilters[$gridType][section][filter]}"
+                onChange="{updateFilters(section, filter)}" />
               <Spacer orientation="VERTICAL" />
             {/each}
           </Accordion>
-          {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
+          {#if i + 1 !== Object.keys($dbFilters[$gridType]).length}
             <Spacer orientation="VERTICAL" />
           {/if}
         {/each}
@@ -98,6 +113,6 @@
   }
   .content {
     padding: 0px 6px;
-    max-height: calc(100% - 65px)
+    max-height: calc(100% - 65px);
   }
 </style>

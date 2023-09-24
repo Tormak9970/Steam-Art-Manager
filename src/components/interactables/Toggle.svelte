@@ -1,7 +1,7 @@
 <script lang="ts">
   export let label: string = "";
   export let value = true;
-  export let onChange = (checked:boolean) => {};
+  export let onChange = (checked: boolean) => {};
 
   /**
    * Handles when the slider is clicked.
@@ -15,17 +15,15 @@
     value = state === "true" ? false : true;
     onChange(value);
   }
-
 </script>
 
 <div class="toggle">
-  <button
-    role="switch"
-    aria-checked={value}
-    on:click={handleClick}
-  />
+  <button role="switch" aria-checked="{value}" on:click="{handleClick}"
+  ></button>
   {#if label != ""}
-    <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
+    <span
+      style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;"
+      >{label}</span>
   {/if}
 </div>
 
@@ -64,12 +62,18 @@
 
     transition: background-color 0.15s ease-in-out;
   }
-  .toggle button[aria-checked="true"]:hover { background-color: var(--highlight-hover); }
+  .toggle button[aria-checked="true"]:hover {
+    background-color: var(--highlight-hover);
+  }
   .toggle button[aria-checked="true"]::before {
     transform: translateX(0.9em);
     transition: transform 0.3s;
   }
 
-  .toggle button { border-radius: 1.5em; }
-  .toggle button::before { border-radius: 100%; }
+  .toggle button {
+    border-radius: 1.5em;
+  }
+  .toggle button::before {
+    border-radius: 100%;
+  }
 </style>

@@ -7,7 +7,8 @@
   export let max = 100;
   export let initialValue = 0;
   export let id = null;
-  export let value = typeof initialValue === "string" ? parseInt(initialValue) : initialValue;
+  export let value =
+    typeof initialValue === "string" ? parseInt(initialValue) : initialValue;
 
   // Node Bindings
   let container = null;
@@ -30,26 +31,31 @@
   // ie. hover events on other elements while dragging. Especially for Safari
   const mouseEventShield = document.createElement("div");
   mouseEventShield.setAttribute("class", "mouse-over-shield");
-  mouseEventShield.addEventListener("mouseover", (e) => { e.preventDefault(); e.stopPropagation(); });
+  mouseEventShield.addEventListener("mouseover", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
-  function resizeWindow() { elementX = element.getBoundingClientRect().left; }
+  function resizeWindow() {
+    elementX = element.getBoundingClientRect().left;
+  }
 
-  function setValue(val:number) {
+  function setValue(val: number) {
     value = val;
     dispatch("change", { value });
   }
 
-  function onTrackEvent(e:any) {
+  function onTrackEvent(e: any) {
     // Update value immediately before beginning drag
     updateValueOnEvent(e);
     onDragStart(e);
   }
 
-  function onHover(e:MouseEvent) {
+  function onHover(e: MouseEvent) {
     thumbHover = thumbHover ? false : true;
   }
 
-  function onDragStart(e:any) {
+  function onDragStart(e: any) {
     // If mouse event add a pointer events shield
     if (e.type === "mousedown") {
       document.body.append(mouseEventShield);
@@ -57,7 +63,7 @@
     currentThumb = thumb;
   }
 
-  function onDragEnd(e:any) {
+  function onDragEnd(e: any) {
     // If using mouse - remove pointer event shield
     if (e.type === "mouseup") {
       if (document.body.contains(mouseEventShield)) {
@@ -70,7 +76,7 @@
   }
 
   // Check if mouse event cords overlay with an element's area
-  function isMouseInElement(event:MouseEvent, element:HTMLElement) {
+  function isMouseInElement(event: MouseEvent, element: HTMLElement) {
     let rect = element.getBoundingClientRect();
     let { clientX: x, clientY: y } = event;
     if (x < rect.left || x >= rect.right) return false;
@@ -79,7 +85,7 @@
   }
 
   // Accessible keypress handling
-  function onKeyPress(e:KeyboardEvent) {
+  function onKeyPress(e: KeyboardEvent) {
     // Max out at +/- 10 to value per event (50 events / 5)
     // 100 below is to increase the amount of events required to reach max velocity
     if (keydownAcceleration < 50) keydownAcceleration++;
@@ -110,12 +116,12 @@
    * @param clientX The x coordinate of the events mouse.
    * ? Verified this is working properly.
    */
-  function calculateNewValue(clientX:number) {
+  function calculateNewValue(clientX: number) {
     // Find distance between cursor and element's left cord (17px / 2 ~= 8px) - Center of thumb
     let delta = clientX - (elementX + 8);
 
     // Use width of the container minus (8px * 2 sides) offset for percent calc
-    let percent = (delta * 100) / (container.clientWidth); //(container.clientWidth - 16)
+    let percent = (delta * 100) / container.clientWidth; //(container.clientWidth - 16)
 
     // Limit percent 0 -> 100
     percent = percent < 0 ? 0 : percent > 100 ? 100 : percent;
@@ -125,7 +131,7 @@
   }
 
   // Handles both dragging of touch/mouse as well as simple one-off click/touches
-  function updateValueOnEvent(e:any) {
+  function updateValueOnEvent(e: any) {
     // touchstart && mousedown are one-off updates, otherwise expect a currentPointer node
     if (!currentThumb && e.type !== "touchstart" && e.type !== "mousedown") {
       return false;
@@ -135,7 +141,10 @@
     if (e.preventDefault) e.preventDefault();
 
     // Get client's x cord either touch or mouse
-    const clientX = (e.type === "touchmove" || e.type === "touchstart") ? e.touches[0].clientX : e.clientX;
+    const clientX =
+      e.type === "touchmove" || e.type === "touchstart"
+        ? e.touches[0].clientX
+        : e.clientX;
 
     calculateNewValue(clientX);
   }
@@ -162,45 +171,41 @@
 </script>
 
 <svelte:window
-  on:touchmove|nonpassive={updateValueOnEvent}
-  on:touchcancel={onDragEnd}
-  on:touchend={onDragEnd}
-  on:mousemove={updateValueOnEvent}
-  on:mouseup={onDragEnd}
-  on:resize={resizeWindow}
-/>
+  on:touchmove|nonpassive="{updateValueOnEvent}"
+  on:touchcancel="{onDragEnd}"
+  on:touchend="{onDragEnd}"
+  on:mousemove="{updateValueOnEvent}"
+  on:mouseup="{onDragEnd}"
+  on:resize="{resizeWindow}" />
 <div class="range">
   <div
     class="range__wrapper"
     tabindex="0"
-    on:keydown={onKeyPress}
-    bind:this={element}
+    on:keydown="{onKeyPress}"
+    bind:this="{element}"
     role="slider"
-    aria-valuemin={min}
-    aria-valuemax={max}
-    aria-valuenow={value}
+    aria-valuemin="{min}"
+    aria-valuemax="{max}"
+    aria-valuenow="{value}"
     {id}
-    on:mousedown={onTrackEvent}
-    on:touchstart={onTrackEvent}
-  >
-    <div class="range__track" bind:this={container}>
-      <div class="range__track--highlighted" bind:this={progressBar} />
+    on:mousedown="{onTrackEvent}"
+    on:touchstart="{onTrackEvent}">
+    <div class="range__track" bind:this="{container}">
+      <div class="range__track--highlighted" bind:this="{progressBar}"></div>
       <!-- svelte-ignore a11y-mouse-events-have-key-events -->
       <div
         class="range__thumb"
-        class:range__thumb--holding={holding}
-        bind:this={thumb}
-        on:touchstart={onDragStart}
-        on:mousedown={onDragStart}
-        on:mouseover={() => (thumbHover = true)}
-        on:mouseout={() => (thumbHover = false)}
-      >
+        class:range__thumb--holding="{holding}"
+        bind:this="{thumb}"
+        on:touchstart="{onDragStart}"
+        on:mousedown="{onDragStart}"
+        on:mouseover="{() => (thumbHover = true)}"
+        on:mouseout="{() => (thumbHover = false)}">
         {#if holding || thumbHover}
           <div
             class="range__tooltip"
-            in:fly={{ y: 7, duration: 200 }}
-            out:fade={{ duration: 100 }}
-          >
+            in:fly="{{ y: 7, duration: 200 }}"
+            out:fade="{{ duration: 100 }}">
             {value}
           </div>
         {/if}
@@ -239,7 +244,9 @@
   }
 
   .range__wrapper:focus-visible > .range__track {
-    box-shadow: 0 0 0 2px white, 0 0 0 3px var(--track-focus, #6185ff);
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 3px var(--track-focus, #6185ff);
   }
 
   .range__track {
@@ -281,7 +288,8 @@
   }
 
   .range__thumb--holding {
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    box-shadow:
+      0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 1px 2px 1px rgba(0, 0, 0, 0.2),
       0 0 0 6px var(--thumb-holding-outline, rgba(113, 119, 250, 0.3));
   }

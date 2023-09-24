@@ -5,7 +5,10 @@
   import { ToastController } from "../../../lib/controllers/ToastController";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
-  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
+  import {
+    showBatchApplyModal,
+    showBatchApplyProgress,
+  } from "../../../stores/Modals";
 
   /**
    * The function to run when the modal closes.
@@ -34,15 +37,19 @@
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType != GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
+<ModalBody
+  title="{`Batch Apply ${
+    $gridType != GridTypes.HERO ? $gridType : `${$gridType}e`
+  }s`}"
+  {onClose}>
   <div class="content">
     <div class="info">
       Choose the games you would like to batch apply grids to.
     </div>
-    <GameFilter bind:selectedGameIds={selectedGameIds} />
+    <GameFilter bind:selectedGameIds />
     <div class="buttons">
-      <Button label="Apply" onClick={batchApply} width="47.5%" />
-      <Button label="Cancel" onClick={cancel} width="47.5%" />
+      <Button label="Apply" onClick="{batchApply}" width="47.5%" />
+      <Button label="Cancel" onClick="{cancel}" width="47.5%" />
     </div>
   </div>
 </ModalBody>

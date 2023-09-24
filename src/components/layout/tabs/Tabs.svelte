@@ -5,7 +5,7 @@
   export let selected: string;
   export let tabsId: string;
   export let height = "100%";
-  
+
   let labels: string[] = [];
 
   /**
@@ -25,9 +25,9 @@
 
 <ul>
   {#each labels as label}
-    <li class:active={selected === label}>
+    <li class:active="{selected === label}">
       <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <span on:click={() => onClick(label)}>{label}</span>
+      <span on:click="{() => onClick(label)}">{label}</span>
     </li>
   {/each}
 </ul>
@@ -37,13 +37,13 @@
 </div>
 
 <style>
-	.tabs {
-		padding: 10px;
+  .tabs {
+    padding: 10px;
     padding-bottom: 5px;
     border-top: 2px solid var(--foreground-light-hover);
-    
+
     background-color: var(--background);
-	}
+  }
 
   ul {
     display: flex;
@@ -54,7 +54,7 @@
 
     display: flex;
   }
-	li {
+  li {
     margin-bottom: -1px;
     flex-grow: 1;
 
@@ -62,7 +62,9 @@
 
     border-right: 2px solid var(--foreground-hover);
   }
-  li:last-child { border-right: none; }
+  li:last-child {
+    border-right: none;
+  }
 
   span {
     border: 1px solid transparent;
@@ -75,8 +77,14 @@
     transition: background-color 0.15s ease-in-out;
   }
 
-  li.active > span { background-color: var(--foreground-light); }
+  li.active > span {
+    background-color: var(--foreground-light);
+  }
 
-  li.active > span:hover { background-color: var(--foreground-light-hover) !important; }
-  span:hover { background-color: var(--foreground-hover) !important; }
+  li.active > span:hover {
+    background-color: var(--foreground-light-hover) !important;
+  }
+  span:hover {
+    background-color: var(--foreground-hover) !important;
+  }
 </style>

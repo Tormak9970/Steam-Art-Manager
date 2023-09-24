@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "plugins": ["prettier-plugin-svelte"],
+
+  "trailingComma": "es5",
+  "semi": true,
+  "singleQuote": false,
+  "quoteProps": "consistent",
+  "bracketSpacing": true,
+  "bracketSameLine": true,
+  "arrowParens": "always",
+
+  "svelteSortOrder": "scripts-options-markup-styles",
+  "svelteStrictMode": true
+}

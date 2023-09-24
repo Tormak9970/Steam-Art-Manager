@@ -16,61 +16,61 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 :root {
-	--highlight: #04e200;
-	--highlight-hover: #05FF00;
+  --highlight: #04e200;
+  --highlight-hover: #05ff00;
 
-	--highlight-dim: #039900;
-	--highlight-dim-hover: #04aa02;
+  --highlight-dim: #039900;
+  --highlight-dim-hover: #04aa02;
 
-	--highlight-transparent: #04e2009d;
+  --highlight-transparent: #04e2009d;
 
-	--selection-color: #3891ff7a;
+  --selection-color: #3891ff7a;
 
-	--link-color: #00bbff;
-	--link-color-visited: #005eff;
+  --link-color: #00bbff;
+  --link-color-visited: #005eff;
 
-	--warning: #e24a4a;
-	--warning-hover: #e13525;
+  --warning: #e24a4a;
+  --warning-hover: #e13525;
 
-	--success: #36ff04;
+  --success: #36ff04;
 
-	--toastContainerTop: 2.5rem;
+  --toastContainerTop: 2.5rem;
 }
 
 [data-theme="dark"] {
-	--font-color: rgb(231, 231, 231);
-	--shadow: #0e0e0e;
+  --font-color: rgb(231, 231, 231);
+  --shadow: #0e0e0e;
 
-	--background-dark: #101010;
-	--background-dark-hover: #1a1a1a;
+  --background-dark: #101010;
+  --background-dark-hover: #1a1a1a;
 
-	--background: #1d1d1d;
-	--background-hover: #222222;
+  --background: #1d1d1d;
+  --background-hover: #222222;
 
-	--foreground: #2b2b2b;
-	--foreground-hover: #363636;
+  --foreground: #2b2b2b;
+  --foreground-hover: #363636;
 
-	--foreground-light: #444444;
+  --foreground-light: #444444;
   --foreground-light_rgb: 68, 68, 68;
-	--foreground-light-hover: #505050;
-	
-	--save: #18bb03;
-	--save-hover: #28c900;
+  --foreground-light-hover: #505050;
 
-	--sgdb-animated-color: #e2a256;
-  
+  --save: #18bb03;
+  --save-hover: #28c900;
+
+  --sgdb-animated-color: #e2a256;
+
   --tooltip-background: var(--background-dark);
   --tooltip-border: rgba(68, 68, 68, 0.4);
   --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
-  --tooltip-shadow: rgba(0, 8, 16, .08);
+  --tooltip-shadow: rgba(0, 8, 16, 0.08);
 }
 
 [data-theme="light"] {
-	--font-color: rgb(14, 14, 14);
-	--shadow: #868383;
-	
-	--background-dark: #f3f3f3;
-	--background-dark-hover: #e4e4e4;
+  --font-color: rgb(14, 14, 14);
+  --shadow: #868383;
+
+  --background-dark: #f3f3f3;
+  --background-dark-hover: #e4e4e4;
 
   --background: #dfdfdf;
   --background-hover: #d9d9d9;
@@ -81,15 +81,14 @@
   --foreground-light: #a1a1a1;
   --foreground-light_rgb: 171, 171, 171;
   --foreground-light-hover: #b1b1b1;
-	
-	
-	--save: #4ee73a;
-	--save-hover: #24fc08;
 
-	--sgdb-animated-color: #f38c0d;
-  
+  --save: #4ee73a;
+  --save-hover: #24fc08;
+
+  --sgdb-animated-color: #f38c0d;
+
   --tooltip-background: var(--background-dark);
-  --tooltip-border: rgba(0, 8, 16, .2);
-  --tooltip-border-arrow: rgba(0, 8, 16, .3);
-  --tooltip-shadow: rgba(0, 8, 16, .08);
+  --tooltip-border: rgba(0, 8, 16, 0.2);
+  --tooltip-border-arrow: rgba(0, 8, 16, 0.3);
+  --tooltip-shadow: rgba(0, 8, 16, 0.08);
 }

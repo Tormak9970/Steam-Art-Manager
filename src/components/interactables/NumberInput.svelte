@@ -18,7 +18,9 @@
    * @param value The value to check.
    * @returns Whether the value is a number or not.
    */
-  function isNumber(value: any): boolean { return !isNaN(value); }
+  function isNumber(value: any): boolean {
+    return !isNaN(value);
+  }
 
   /**
    * Handles the field's input events.
@@ -39,15 +41,15 @@
 <div class="input">
   <!-- svelte-ignore a11y-label-has-associated-control -->
   {#if label != ""}
-    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+    <label style="margin-right: 13px; font-size: 14px; user-select: none;"
+      >{label}:</label>
   {/if}
   <input
     type="text"
-    placeholder={value.toString()}
-    bind:value={value}
-    on:change={wrapper}
-    on:input={handleInput}
-  />
+    placeholder="{value.toString()}"
+    bind:value
+    on:change="{wrapper}"
+    on:input="{handleInput}" />
 </div>
 
 <style>
@@ -70,8 +72,10 @@
     outline: none;
     padding: 3px;
     max-width: 140px;
-    
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
   .input > input:hover {
     background-color: var(--foreground-hover);

@@ -9,7 +9,13 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick}>
+<button
+  class="button"
+  class:warn
+  class:highlight
+  class:disabled
+  style="width: {width}; height: {height};"
+  on:click="{onClick}">
   <div style="user-select: none;">{label}</div>
 </button>
 
@@ -17,7 +23,7 @@
   .button {
     padding: 3px 6px;
     min-width: 40px;
-        
+
     background-color: var(--foreground);
     border: 1px solid transparent;
     border-radius: 4px;
@@ -31,7 +37,9 @@
 
     color: var(--font-color);
 
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
 
   .button:hover {
@@ -47,9 +55,17 @@
     opacity: 0.7;
   }
 
-  .highlight { background-color: var(--save); }
-  .highlight:hover { background-color: var(--save-hover); }
+  .highlight {
+    background-color: var(--save);
+  }
+  .highlight:hover {
+    background-color: var(--save-hover);
+  }
 
-  .warn { background-color: var(--warning); }
-  .warn:hover { background-color: var(--warning-hover); }
+  .warn {
+    background-color: var(--warning);
+  }
+  .warn:hover {
+    background-color: var(--warning-hover);
+  }
 </style>
