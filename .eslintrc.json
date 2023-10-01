@@ -1,0 +1,43 @@
+{
+  "env": {
+    "browser": false,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:svelte/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "rules": {
+    "indent": "off",
+    "linebreak-style": "off",
+    "curly": "error",
+    "eqeqeq": [ "warning", "always" ],
+    "no-var": "error",
+
+    "arrow-parens": [ "error", "always" ],
+    "array-bracket-newline": [ "error", { "minItems": 7 } ],
+    "array-element-newline": [ "error", { "minItems": 7 } ],
+    "array-bracket-spacing": [ "error", "always" ],
+    "function-paren-newline": [ "error", { "minItems": 7 } ],
+    "function-call-argument-newline": [ "error", "consistent" ],
+
+    "@typescript-eslint/consistent-type-definitions": [ "error", "type" ],
+    "@typescript-eslint/consistent-type-assertions": [ "error", "as" ],
+    "@typescript-eslint/consistent-indexed-object-style": [ "error", "index-signature" ],
+
+    "quotes": "off",
+    "@typescript-eslint/quotes": [ "error", "double" ],
+
+    "semi": "off",
+    "@typescript-eslint/semi": [ "error", "always" ]
+  }
+}
