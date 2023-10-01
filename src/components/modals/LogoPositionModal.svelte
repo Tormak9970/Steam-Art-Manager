@@ -15,17 +15,8 @@
  You should have received a copy of the GNU General Public License
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
-<script lang="ts">
-  import {
-    appLibraryCache,
-    manualSteamGames,
-    nonSteamGames,
-    originalLogoPositions,
-    selectedGameAppId,
-    steamGames,
-    steamLogoPositions,
-    unfilteredLibraryCache,
-  } from "../../stores/AppState";
+ <script lang="ts">
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../stores/AppState";
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
@@ -45,72 +36,49 @@
   }
 
   type LogoCssStyles = {
-    top: number;
-    bottom: number;
-    right: number;
-    left: number;
-  };
+    top: number,
+    bottom: number,
+    right: number,
+    left: number
+  }
 
-  const anchorPos: LogoPinPositions[] = [
-    "BottomLeft",
-    "UpperLeft",
-    "UpperCenter",
-    "CenterCenter",
-    "BottomCenter",
-  ];
+  const anchorPos: LogoPinPositions[] = ['BottomLeft', 'UpperLeft', 'UpperCenter', 'CenterCenter', 'BottomCenter'];
   const dropdownOptions = anchorPos.map((anchorPos: LogoPinPositions) => {
     return {
       label: anchorPos.split(/(?=[A-Z])/).join(" "),
-      data: anchorPos,
-    };
+      data: anchorPos
+    }
   });
-
+  
   $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
   $: game = games.find((game) => game.appid == $selectedGameAppId);
   let heroPath = "";
   let logoPath = "";
 
   let canSave = false;
-
+  
   const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
 
   let originalWidth = gameLogoPos?.logoPosition?.nWidthPct ?? 50;
   let originalHeight = gameLogoPos?.logoPosition?.nHeightPct ?? 50;
-  let originalPosition: LogoPinPositions =
-    gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter";
+  let originalPosition: LogoPinPositions = gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter";
 
-  let logoWidth =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE"
-      ? gameLogoPos?.logoPosition?.nWidthPct
-      : 50;
-  let logoHeight =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE"
-      ? gameLogoPos?.logoPosition?.nHeightPct
-      : 50;
-  let logoPosition: LogoPinPositions =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE"
-      ? gameLogoPos?.logoPosition?.pinnedPosition
-      : "CenterCenter";
+  let logoWidth = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nWidthPct : 50;
+  let logoHeight = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nHeightPct : 50;
+  let logoPosition: LogoPinPositions = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.pinnedPosition : "CenterCenter";
 
-  let currentCssStyles: LogoCssStyles = getLogoPosition(
-    logoPosition,
-    logoHeight,
-    logoWidth
-  );
-
-  $: canClear =
-    !!$originalLogoPositions[game.appid] &&
-    $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition !=
-      "REMOVE";
+  let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
+  
+  $: canClear = !!$originalLogoPositions[game.appid] && $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition != "REMOVE";
 
   const widths = {
-    Hero: 956,
-    Logo: 600,
+    "Hero": 956,
+    "Logo": 600
   };
 
   const heights = {
-    Hero: 342,
-    Logo: 402,
+    "Hero": 342,
+    "Logo": 402
   };
 
   /**
@@ -119,11 +87,7 @@
    * @param heightPct The height offset of the logo.
    * @param widthPct The width offset of the logo.
    */
-  function getLogoPosition(
-    pos: LogoPinPositions,
-    heightPct: number,
-    widthPct: number
-  ): LogoCssStyles {
+  function getLogoPosition(pos: LogoPinPositions, heightPct: number, widthPct: number): LogoCssStyles {
     const positions = {
       BottomLeft: {
         bottom: 0,
@@ -163,12 +127,7 @@
    * Apply the logo position changes.
    */
   function applyChanges(): void {
-    AppController.setLogoPosition(
-      $selectedGameAppId,
-      logoPosition,
-      logoHeight,
-      logoWidth
-    );
+    AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
   }
 
@@ -182,27 +141,17 @@
 
   afterUpdate(() => {
     currentCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
-    const originalLogoConfig =
-      $originalLogoPositions[$selectedGameAppId]?.logoPosition;
-    canSave =
-      originalHeight != logoHeight ||
-      originalWidth != logoWidth ||
-      originalPosition != logoPosition ||
-      originalLogoConfig?.nHeightPct != logoHeight ||
-      originalLogoConfig?.nWidthPct != logoWidth ||
-      originalLogoConfig?.pinnedPosition != logoPosition;
+    const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
+    canSave = ((originalHeight != logoHeight) || (originalWidth != logoWidth) || (originalPosition != logoPosition))
+      || ((originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition));
   });
 
   onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
       if ($appLibraryCache[$selectedGameAppId].Hero == "REMOVE") {
-        heroPath = tauri.convertFileSrc(
-          $unfilteredLibraryCache[$selectedGameAppId].Hero
-        );
+        heroPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
       } else {
-        heroPath = tauri.convertFileSrc(
-          $appLibraryCache[$selectedGameAppId].Hero
-        );
+        heroPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
       }
     } else {
       heroPath = "";
@@ -210,87 +159,48 @@
 
     if ($appLibraryCache[$selectedGameAppId]?.Logo) {
       if ($appLibraryCache[$selectedGameAppId].Logo == "REMOVE") {
-        logoPath = tauri.convertFileSrc(
-          $unfilteredLibraryCache[$selectedGameAppId].Logo
-        );
+        logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
       } else {
-        logoPath = tauri.convertFileSrc(
-          $appLibraryCache[$selectedGameAppId].Logo
-        );
+        logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
     }
-
-    const originalLogoConfig =
-      $originalLogoPositions[$selectedGameAppId]?.logoPosition;
-    canSave =
-      originalLogoConfig?.nHeightPct != logoHeight ||
-      originalLogoConfig?.nWidthPct != logoWidth ||
-      originalLogoConfig?.pinnedPosition != logoPosition;
+    
+    const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
+    canSave = (originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition);
   });
 </script>
 
-<ModalBody title="{`Set Logo Position for ${game?.name}`}" {onClose}>
+<ModalBody title={`Set Logo Position for ${game?.name}`} onClose={onClose}>
   <div class="content">
     <div class="view">
       <div class="hero-cont">
-        <div
-          class="img"
-          class:missing-background="{heroPath == ''}"
-          style="max-height: {heights.Hero}px;">
+        <div class="img" class:missing-background={heroPath == ""} style="max-height: {heights.Hero}px;">
           {#if heroPath != ""}
-            <img
-              src="{heroPath}"
-              alt="Hero image for {game?.name}"
-              style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
+            <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
           {/if}
         </div>
       </div>
-      <div
-        class="logo-cont"
-        style="justify-content: {logoPosition.includes('Bottom')
-          ? 'flex-end'
-          : logoPosition.includes('Upper')
-          ? 'flex-start'
-          : 'center'}; align-items: {logoPosition.includes('Left')
-          ? 'flex-start'
-          : 'center'}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
-        <img
-          in:fade="{{ delay: 500, duration: 1000 }}"
-          src="{logoPath}"
-          alt="Logo image for {game?.name}"
-          style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
+      <div class="logo-cont" style="justify-content: {logoPosition.includes("Bottom") ? "flex-end" : (logoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {logoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
+        <img in:fade={{delay: 500, duration: 1000}} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
       </div>
     </div>
     <div class="interactables">
       <div class="logo-size">
-        <Slider label="Width" bind:value="{logoWidth}" width="200px" />
+        <Slider label="Width" bind:value={logoWidth} width="200px" />
       </div>
       <div class="logo-size">
-        <Slider label="Height" bind:value="{logoHeight}" width="200px" />
+        <Slider label="Height" bind:value={logoHeight} width="200px" />
       </div>
       <div class="logo-position">
-        <DropDown
-          label="Position"
-          options="{dropdownOptions}"
-          bind:value="{logoPosition}"
-          width="140px"
-          direction="UP" />
+        <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
       </div>
       {#if canClear}
-        <Button
-          label="Save"
-          onClick="{applyChanges}"
-          width="182px"
-          disabled="{!canSave}" />
+        <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
         <Spacer orientation="HORIZONTAL" />
         <Spacer orientation="HORIZONTAL" />
-        <Button label="Reset" onClick="{clearLogoPosition}" width="102px" />
+        <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
-        <Button
-          label="Save"
-          onClick="{applyChanges}"
-          width="300px"
-          disabled="{!canSave}" />
+        <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
       {/if}
     </div>
   </div>
@@ -337,12 +247,7 @@
     height: 342px;
     border-radius: 2px;
     background-color: #a3a3a3;
-    background-image: linear-gradient(
-      140deg,
-      #adadad 0%,
-      #727272 50%,
-      #535353 75%
-    );
+    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
   }
 
   .interactables {
@@ -352,10 +257,6 @@
     display: flex;
   }
 
-  .logo-size {
-    width: 220px;
-  }
-  .logo-position {
-    width: 220px;
-  }
+  .logo-size { width: 220px; }
+  .logo-position { width: 220px; }
 </style>

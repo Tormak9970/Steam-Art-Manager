@@ -11,13 +11,7 @@
     <slot name="header" />
   </div>
   <div class="border" style="margin-top: 3px;"></div>
-  <PaddedScrollContainer
-    height="{'calc(100% - 25px)'}"
-    width="{'100%'}"
-    background="{'transparent'}"
-    padding="{'5px 0px 0px 0px'}"
-    marginTop="0px"
-    {loading}>
+  <PaddedScrollContainer height={"calc(100% - 25px)"} width={"100%"} background={"transparent"} padding={"5px 0px 0px 0px"} marginTop="0px" loading={loading}>
     <slot name="data" />
   </PaddedScrollContainer>
 </div>
@@ -27,7 +21,7 @@
     margin-top: 7px;
 
     width: calc(100% - 28px);
-
+    
     padding: 7px;
 
     border-radius: 4px;
@@ -43,8 +37,7 @@
     border-bottom: 1px solid var(--foreground);
   }
 
-  .header,
-  .header :global(> :first-child) {
+  .header, .header :global(> :first-child) {
     width: 100%;
 
     display: flex;

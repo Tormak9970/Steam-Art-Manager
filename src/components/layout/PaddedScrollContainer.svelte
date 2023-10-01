@@ -12,7 +12,7 @@
   let isOverflowing = !loading;
   let contentHeight: number;
   $: contentHeight && debouncedCheck();
-
+  
   let overflowContainer: HTMLDivElement;
   let scrollContainer: HTMLDivElement;
   let scrollTarget: HTMLDivElement;
@@ -25,47 +25,25 @@
   function checkOverflow(element: HTMLElement): boolean {
     const curOverflow = element.style.overflow;
 
-    if (!curOverflow || curOverflow === "visible")
-      element.style.overflow = "hidden";
+    if (!curOverflow || curOverflow === "visible") element.style.overflow = "hidden";
 
-    const isOverflowing =
-      element.clientWidth < element.scrollWidth ||
-      element.clientHeight < element.scrollHeight;
+    const isOverflowing = (element.clientWidth < element.scrollWidth) || (element.clientHeight < element.scrollHeight);
 
     element.style.overflow = curOverflow;
 
     return isOverflowing;
   }
 
-  const setIsOverflowing = () => {
-    if (scrollContainer) isOverflowing = checkOverflow(scrollContainer);
-  };
+  const setIsOverflowing = () => { if (scrollContainer) isOverflowing = checkOverflow(scrollContainer); };
   const debouncedCheck: () => void = debounce(setIsOverflowing, 100);
 </script>
 
-<svelte:window on:resize="{() => debouncedCheck()}" />
+<svelte:window on:resize={() => debouncedCheck()} />
 
-<div
-  class="padded-scroll-container"
-  style="width: {width}; height: {height}; background-color: {background}; margin-top: {marginTop}; padding: {padding};">
-  <div
-    class="overflow-shadow-container"
-    style="width: calc(100% - 4px); height: calc(100% - 4px);"
-    bind:this="{overflowContainer}">
-    <div
-      class="padded-scroll-inner"
-      style="overflow: {loading ? 'hidden' : 'auto'};"
-      bind:this="{scrollContainer}"
-      use:scrollShadow="{{
-        target: scrollTarget,
-        container: overflowContainer,
-        heightBump: 0,
-      }}">
-      <div
-        class="padded-scroll-padding"
-        style="padding-right: {loading || !isOverflowing ? '0px' : '7px'};"
-        bind:this="{scrollTarget}"
-        bind:clientHeight="{contentHeight}">
+<div class="padded-scroll-container" style="width: {width}; height: {height}; background-color: {background}; margin-top: {marginTop}; padding: {padding};">
+  <div class="overflow-shadow-container" style="width: calc(100% - 4px); height: calc(100% - 4px);" bind:this={overflowContainer}>
+    <div class="padded-scroll-inner" style="overflow: {loading ? "hidden" : "auto"};" bind:this={scrollContainer} use:scrollShadow={{ target: scrollTarget, container: overflowContainer, heightBump: 0 }}>
+      <div class="padded-scroll-padding" style="padding-right: {loading || !isOverflowing ? "0px" : "7px"};" bind:this={scrollTarget} bind:clientHeight={contentHeight}>
         <slot />
       </div>
     </div>

@@ -7,8 +7,8 @@
   import SearchBar from "../../../interactables/SearchBar.svelte";
   import Table from "../../../layout/Table.svelte";
   import SearchEntry from "./SearchEntry.svelte";
-
-  export let onGameSave: (game: GameStruct) => void;
+  
+  export let onGameSave: (game:GameStruct) => void;
 
   let notSGDBV3 = true;
   let client: SGDB;
@@ -34,9 +34,7 @@
   async function searchGame(query: string): Promise<void> {
     // TODO: switch to using the appController method?
     const searchRes = await client.searchGame(query);
-    const steamGames = searchRes.filter((game: SGDBGame) =>
-      game.types.includes("steam")
-    );
+    const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
     console.log(searchRes);
 
     const resultsWithInfo: GameStruct[] = [];
@@ -46,8 +44,8 @@
       // TODO: look up the steam app id here
       resultsWithInfo.push({
         appid: appid,
-        name: sgdbGame.name,
-      });
+        name: sgdbGame.name
+      })
     }
 
     results = resultsWithInfo;
@@ -82,25 +80,16 @@
 <div class="search-add">
   {#if notSGDBV3}
     <div class="description">
-      <b
-        >Unfortunately, his feature is unavailable until a new version of the
-        SGDB API is released.</b>
+      <b>Unfortunately, his feature is unavailable until a new version of the SGDB API is released.</b>
     </div>
   {:else if $needsSGDBAPIKey}
     <div class="description">
-      <b
-        >Please provide a SteamGridDB API key in settings if you would like to
-        use the game search!</b>
+      <b>Please provide a SteamGridDB API key in settings if you would like to use the game search!</b>
     </div>
   {:else}
-    <SearchBar
-      label="Game Search"
-      bind:value="{searchQuery}"
-      onChange="{searchGame}"
-      reversed />
+    <SearchBar label="Game Search" bind:value={searchQuery} onChange={searchGame} reversed />
     <div class="description">
-      Search SteamGridDB for a game with the provided name. (You need to hit
-      enter to apply the search)
+      Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
       <Table height="292px" marginLeft="0px">
@@ -110,18 +99,15 @@
         </span>
         <span slot="data">
           {#each results as game (`${game.appid}|${game.name}`)}
-            <SearchEntry
-              {game}
-              isSelected="{selectedGame?.appid == game.appid}"
-              onSelect="{onGameSelect}" />
+            <SearchEntry game={game} isSelected={selectedGame?.appid == game.appid} onSelect={onGameSelect} />
           {/each}
         </span>
       </Table>
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" onClick="{saveWrapper}" width="47.5%" />
-      <Button label="Clear" onClick="{clear}" width="47.5%" />
+      <Button label="Add Selected" onClick={saveWrapper} width="47.5%" />
+      <Button label="Clear" onClick={clear} width="47.5%" />
     </div>
   {/if}
 </div>

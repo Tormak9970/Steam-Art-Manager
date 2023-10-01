@@ -38,7 +38,7 @@ export const gameSearchModalCancel = writable(() => {});
 export const showDialogModal = sharedStore(false, "showDialogModal");
 export const dialogModalTitle = sharedStore("", "dialogModalTitle");
 export const dialogModalMessage = sharedStore("", "dialogModalMessage");
-export const dialogModalType: Writable<DialogModalType> = writable("INFO");
+export const dialogModalType: Writable<DialogModalType> = writable('INFO');
 export const dialogModalConfirmText = sharedStore("", "dialogModalConfirmText");
 export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = sharedStore("", "dialogModalCancelText");

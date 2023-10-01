@@ -5,12 +5,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div
-  class="search-entry"
-  class:selected="{isSelected}"
-  on:click="{() => {
-    onSelect(game);
-  }}">
+<div class="search-entry" class:selected={isSelected} on:click={() => { onSelect(game); }}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="appid">{game.appid}</div>
   <div class="name">{game.name}</div>
@@ -19,7 +14,7 @@
 <style>
   .search-entry {
     width: calc(100% - 20px);
-
+    
     padding: 3px 7px;
     margin-bottom: 7px;
 
@@ -34,8 +29,7 @@
     cursor: pointer;
   }
 
-  .selected,
-  .selected:hover {
+  .selected, .selected:hover {
     background-color: var(--foreground-light);
   }
 
@@ -47,7 +41,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
+    
     margin-left: 10px;
   }
 
@@ -59,7 +53,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
+    
     margin-left: 10px;
   }
 </style>

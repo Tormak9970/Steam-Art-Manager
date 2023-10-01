@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2023 Travis Lane (Tormak)
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,42 +22,42 @@ import { writable, type Updater, type Subscriber } from "svelte/store";
  * @param name The name of the store.
  * @returns A store that broadcasts changes to other windows.
  */
-export function sharedStore<T>(initialValue: T, name: string) {
+export function sharedStore<T>(initialValue:T, name:string) {
   const { subscribe, update, set } = writable<T>(initialValue);
 
   const bc = new BroadcastChannel("store_channel");
 
-  const setWrapper = (value: T) => {
+  const setWrapper = (value:T) => {
     set(value);
     bc.postMessage({
-      name: name,
-      data: JSON.stringify(value),
+      "name": name,
+      "data": JSON.stringify(value)
     });
-  };
-
-  const updateWrapper = (updater: Updater<T>) => {
-    update((value: T) => {
+  }
+  
+  const updateWrapper = (updater:Updater<T>) => {
+    update((value:T) => {
       const updatedValue = updater(value);
 
       bc.postMessage({
-        name: name,
-        data: JSON.stringify(updatedValue),
+        "name": name,
+        "data": JSON.stringify(updatedValue)
       });
 
       return updatedValue;
     });
-  };
+  }
 
-  bc.onmessage = (event: MessageEvent<any>) => {
+  bc.onmessage = (event:MessageEvent<any>) => {
     const data = event.data;
     if (data.name === name) {
       set(JSON.parse(data.data));
     }
-  };
+  }
 
   return {
     subscribe,
-    set: setWrapper,
-    update: updateWrapper,
-  };
+    "set": setWrapper,
+    "update": updateWrapper
+  }
 }

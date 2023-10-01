@@ -8,12 +8,9 @@
   <div class="header-label">Page:</div>
   <ul style="user-select: none;">
     {#each Array(numPages) as _, page}
-      <li class:active="{selected === page}">
+      <li class:active={selected === page}>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <span
-          on:click="{() => {
-            selected = page;
-          }}">{page + 1}</span>
+        <span on:click={() => { selected = page; }}>{page+1}</span>
       </li>
     {/each}
   </ul>
@@ -24,15 +21,15 @@
 </div>
 
 <style>
-  .page {
-    padding: 10px;
+	.page {
+		padding: 10px;
     padding-bottom: 5px;
     border-top: 2px solid transparent;
-
+    
     background-color: var(--background);
 
     border-radius: 4px;
-  }
+	}
 
   .pages-header {
     font-size: 14px;
@@ -57,7 +54,7 @@
 
     display: flex;
   }
-  li {
+	li {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -75,23 +72,15 @@
 
     border-radius: 4px;
   }
-  li:last-child {
-    margin-right: 0px;
-  }
+  li:last-child { margin-right: 0px; }
 
   span {
     border: 1px solid transparent;
     display: block;
   }
 
-  li.active {
-    background-color: var(--foreground);
-  }
+  li.active { background-color: var(--foreground); }
 
-  li.active:hover {
-    background-color: var(--foreground-hover) !important;
-  }
-  li:hover {
-    background-color: var(--background) !important;
-  }
+  li.active:hover { background-color: var(--foreground-hover) !important; }
+  li:hover { background-color: var(--background) !important; }
 </style>

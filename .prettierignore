@@ -1,6 +1,0 @@
-.github
-.husky
-.vscode
-build-resources
-dist
-src-tauri

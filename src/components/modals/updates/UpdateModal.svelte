@@ -1,9 +1,9 @@
 <script lang="ts">
   import MarkdownIt from "markdown-it";
   import { open } from "@tauri-apps/api/shell";
-  import { installUpdate } from "@tauri-apps/api/updater";
-  import { relaunch } from "@tauri-apps/api/process";
-
+  import { installUpdate } from '@tauri-apps/api/updater'
+  import { relaunch } from '@tauri-apps/api/process'
+  
   import { showUpdateModal, updateManifest } from "../../../stores/Modals";
 
   import UpdateField from "./UpdateField.svelte";
@@ -14,27 +14,14 @@
 
   const mdIt = new MarkdownIt({
     html: true,
-    linkify: true,
+    linkify: true
   });
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   const dateParts = $updateManifest.date.split(" ");
   const dateSegs = dateParts[0].split("-").map((seg) => parseInt(seg));
-  const cleanDate = `${months[dateSegs[1] - 1]} ${dateSegs[2]}, ${dateSegs[0]}`;
+  const cleanDate = `${months[dateSegs[1]-1]} ${dateSegs[2]}, ${dateSegs[0]}`
 
   /**
    * Handles click events to redirect to the browser.
@@ -42,7 +29,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest(`a`);
-
+  
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -54,9 +41,7 @@
    * Applies the update
    */
   async function update(): Promise<void> {
-    LogController.log(
-      `Installing update v${$updateManifest.version}, released on ${$updateManifest.date}.`
-    );
+    LogController.log(`Installing update v${$updateManifest.version}, released on ${$updateManifest.date}.`);
     ToastController.showGenericToast("Installing update...");
 
     // Install the update. This will also restart the app on Windows!
@@ -76,26 +61,24 @@
   }
 </script>
 
-<ModalBody
-  title="{`Update v${$updateManifest.version} is Available!`}"
-  canClose="{false}">
+<ModalBody title={`Update v${$updateManifest.version} is Available!`} canClose={false}>
   <div class="content">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
-      <UpdateField label="Your Version" value="{APP_VERSION}" />
-      <UpdateField label="Newest Version" value="{$updateManifest.version}" />
-      <UpdateField label="Release Date" value="{cleanDate}" />
+      <UpdateField label="Your Version" value={APP_VERSION} />
+      <UpdateField label="Newest Version" value={$updateManifest.version} />
+      <UpdateField label="Release Date" value={cleanDate} />
     </div>
     <div class="changelog">
       <div class="header"><b>Changelog</b>:</div>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="body" on:click="{clickListener}">
+      <div class="body" on:click={clickListener}>
         {@html mdIt.render($updateManifest.body)}
-      </div>
+        </div>
     </div>
     <div class="buttons">
-      <Button label="Update" onClick="{update}" width="47.5%" />
-      <Button label="Ignore" onClick="{ignoreUpdate}" width="47.5%" />
+      <Button label="Update" onClick={update} width="47.5%" />
+      <Button label="Ignore" onClick={ignoreUpdate} width="47.5%" />
     </div>
   </div>
 </ModalBody>

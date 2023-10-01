@@ -10,26 +10,16 @@
 
 <div class="selected-game-entry">
   <div class="checkbox">
-    <Checkbox
-      bind:value="{isChecked}"
-      onChange="{(checked) => {
-        onChange(game.appid, checked);
-      }}" />
+    <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
   </div>
   <div class="name">{game.name}</div>
-  <div
-    class="platform"
-    style="margin-left: auto; margin-right: {platform == Platforms.STEAM
-      ? '45px'
-      : '18px'};">
-    {platform}
-  </div>
+  <div class="platform" style="margin-left: auto; margin-right: {platform == Platforms.STEAM ? "45px" : "18px"};">{platform}</div>
 </div>
 
 <style>
   .selected-game-entry {
     width: calc(100% - 14px);
-
+    
     padding: 3px 7px;
     margin-bottom: 7px;
 
@@ -52,7 +42,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
+    
     margin-left: 10px;
   }
 

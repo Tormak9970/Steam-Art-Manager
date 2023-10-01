@@ -14,9 +14,9 @@
 
 <ul style="user-select: none;">
   {#each tabs as tab}
-    <li class:active="{selected === tab}">
+    <li class:active={selected === tab}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <span on:click="{() => onClick(tab)}">{tab}</span>
+      <span on:click={() => onClick(tab)}>{tab}</span>
     </li>
   {/each}
 </ul>
@@ -26,15 +26,15 @@
 </div>
 
 <style>
-  .tabs {
-    padding: 10px;
+	.tabs {
+		padding: 10px;
     padding-bottom: 5px;
     border-top: 2px solid var(--foreground);
-
+    
     background-color: var(--background);
 
     border-radius: 0px 0px 4px 4px;
-  }
+	}
 
   ul {
     display: flex;
@@ -45,7 +45,7 @@
 
     display: flex;
   }
-  li {
+	li {
     margin-bottom: -1px;
     flex-grow: 1;
 
@@ -57,10 +57,7 @@
   li:first-child {
     border-top-left-radius: 4px;
   }
-  li:last-child {
-    border-right: none;
-    border-top-right-radius: 4px;
-  }
+  li:last-child { border-right: none; border-top-right-radius: 4px; }
 
   span {
     display: block;
@@ -72,14 +69,8 @@
     transition: background-color 0.15s ease-in-out;
   }
 
-  li.active > span {
-    background-color: var(--foreground);
-  }
+  li.active > span { background-color: var(--foreground); }
 
-  li.active > span:hover {
-    background-color: var(--foreground-hover) !important;
-  }
-  span:hover {
-    background-color: var(--background-hover) !important;
-  }
+  li.active > span:hover { background-color: var(--foreground-hover) !important; }
+  span:hover { background-color: var(--background-hover) !important; }
 </style>

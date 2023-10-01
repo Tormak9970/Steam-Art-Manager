@@ -1,7 +1,7 @@
 /**
  * Steam Art Manager is a tool for setting the artwork of your Steam library.
  * Copyright (C) 2023 Travis Lane (Tormak)
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -47,11 +47,9 @@ export class SettingsManager {
    */
   static async getSettings(): Promise<AppSettings> {
     let settings: AppSettings;
-    const currentSettings: any = JSON.parse(
-      await fs.readTextFile(SettingsManager.settingsPath)
-    );
+    const currentSettings:any = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
 
-    settings = { ...currentSettings };
+    settings = {...currentSettings};
     if (currentSettings.version !== APP_VERSION) {
       // const defaultSettings = JSON.parse(await fs.readTextFile(await path.resolveResource("./settings.json"))); //! this breaks when built as flatpak
       const defaultSettings = JSON.parse(DEFAULT_SETTINGS);
@@ -79,10 +77,10 @@ export class SettingsManager {
         path: SettingsManager.settingsPath,
         contents: JSON.stringify(settings),
       });
-
+  
       LogController.log(`Updated settings for new app version.`);
     }
-
+    
     return settings;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2023 Travis Lane (Tormak)
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -47,8 +47,8 @@ export interface SGDBImage {
   humor: boolean;
   epilepsy: boolean;
   nsfw: boolean;
-  notes: string | null;
-
+  notes: string|null;
+  
   isAnimated: boolean;
 
   downvotes: number;
@@ -79,20 +79,20 @@ export interface SGDBImageOptions {
 }
 
 export type TauriRequest = {
-  data: string;
-  headers: Record<string, string>;
-  ok: boolean;
-  rawHeaders: Record<string, string[]>;
-  status: number;
-  url: string;
-};
+  data: string,
+  headers: Record<string, string>,
+  ok: boolean,
+  rawHeaders: Record<string, string[]>,
+  status: number,
+  url: string
+}
 
 export class RequestError extends Error {
   response: TauriRequest;
 
   constructor(message: string, response: TauriRequest) {
     super(message);
-    this.name = "Request Error";
+    this.name = "Request Error"
     this.response = response;
   }
 }
@@ -125,7 +125,7 @@ export class SGDB {
 
     if (this.key) {
       this.headers.Authorization = `Bearer ${this.key}`;
-      this.headers.Accept = "application/json";
+      this.headers.Accept = 'application/json';
     } else {
       process.emitWarning("API Key not provided, some methods won't work.");
     }
@@ -136,7 +136,7 @@ export class SGDB {
    * @param options The query's options.
    * @returns The built query.
    */
-  private buildQuery(options: any): { [key: string]: string } {
+  private buildQuery(options: any): { [key: string]: string; } {
     const multiParams = ["styles", "dimensions", "mimes", "types"];
     const singleParams = ["nsfw", "humor", "epilepsy", "oneoftag", "page"];
     const params: any = {};
@@ -152,7 +152,7 @@ export class SGDB {
         params[queryParam] = options[queryParam];
       }
     });
-
+    
     return params;
   }
 
@@ -164,12 +164,7 @@ export class SGDB {
    * @param formData Optional form data.
    * @returns A promise resolving to the request's result.
    */
-  async handleRequest(
-    method: http.HttpVerb,
-    url: string,
-    params: { [key: string]: string } = {},
-    formData = null
-  ): Promise<any> {
+  async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null): Promise<any> {
     const requestTimeout = get(requestTimeoutLength);
     let strParams: string;
 
@@ -186,32 +181,23 @@ export class SGDB {
     let options = {
       headers: this.headers,
       method,
-      timeout: requestTimeout,
+      timeout: requestTimeout
     };
 
     if (formData) {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await http.fetch<any>(
-      `${this.baseURL}${url}${strParams ? `?${strParams}` : ""}`,
-      options
-    );
+    let response = await http.fetch<any>(`${this.baseURL}${url}${strParams ? `?${strParams}` : ""}`, options);
 
     if (response.ok) {
       if (response?.data.success) {
         return response.data.data ?? response.data.success;
       } else {
-        throw new RequestError(
-          response.data?.errors?.join(", ") ?? "Unknown SteamGridDB error.",
-          response
-        );
+        throw new RequestError(response.data?.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
       }
     } else {
-      throw new RequestError(
-        response.data?.errors?.join(", ") ?? "SteamGridDB error.",
-        response
-      );
+      throw new RequestError(response.data?.errors?.join(", ") ?? "SteamGridDB error.", response);
     }
   }
 
@@ -221,10 +207,7 @@ export class SGDB {
    * @returns A promise resolving to a list of possible matches.
    */
   async searchGame(query: string): Promise<SGDBGame[]> {
-    return await this.handleRequest(
-      "GET",
-      `/search/autocomplete/${encodeURIComponent(query)}`
-    );
+    return await this.handleRequest("GET", `/search/autocomplete/${encodeURIComponent(query)}`);
   }
 
   /**
@@ -233,10 +216,7 @@ export class SGDB {
    * @returns A promise resolving to the game's information.
    */
   async getGame(options: any): Promise<SGDBGame> {
-    return await this.handleRequest(
-      "GET",
-      `/games/${options.type}/${options.id}`
-    );
+    return await this.handleRequest("GET", `/games/${options.type}/${options.id}`);
   }
 
   /**
@@ -245,7 +225,7 @@ export class SGDB {
    * @returns A promise resolving to the game's information.
    */
   async getGameById(id: number): Promise<SGDBGame> {
-    return this.getGame({ id: id, type: "id" });
+    return this.getGame({id: id, type: "id"});
   }
 
   /**
@@ -254,7 +234,7 @@ export class SGDB {
    * @returns A promise resolving to the game's information.
    */
   async getGameBySteamAppId(id: number): Promise<SGDBGame> {
-    return this.getGame({ id: id, type: "steam" });
+    return this.getGame({id: id, type: "steam"});
   }
 
   /**
@@ -263,14 +243,8 @@ export class SGDB {
    * @returns A promise resolving to the game's grids.
    */
   async getGrids(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (
-      await this.handleRequest(
-        "GET",
-        `/grids/${options.type}/${options.id}`,
-        this.buildQuery(options)
-      )
-    ).map((img: any) => {
-      img.isAnimated = img.thumb.includes(".webm");
+    return (await this.handleRequest("GET", `/grids/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
   }
@@ -309,7 +283,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -347,7 +321,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -357,14 +331,8 @@ export class SGDB {
    * @returns A promise resolving to the game's heros.
    */
   async getHeroes(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (
-      await this.handleRequest(
-        "GET",
-        `/heroes/${options.type}/${options.id}`,
-        this.buildQuery(options)
-      )
-    ).map((img: any) => {
-      img.isAnimated = img.thumb.includes(".webm");
+    return (await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
   }
@@ -403,7 +371,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -441,7 +409,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -451,14 +419,8 @@ export class SGDB {
    * @returns A promise resolving to the game's icons.
    */
   async getIcons(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (
-      await this.handleRequest(
-        "GET",
-        `/icons/${options.type}/${options.id}`,
-        this.buildQuery(options)
-      )
-    ).map((img: any) => {
-      img.isAnimated = img.thumb.includes(".webm");
+    return (await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
   }
@@ -497,7 +459,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -535,7 +497,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -545,14 +507,8 @@ export class SGDB {
    * @returns A promise resolving to the game's logos.
    */
   async getLogos(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (
-      await this.handleRequest(
-        "GET",
-        `/logos/${options.type}/${options.id}`,
-        this.buildQuery(options)
-      )
-    ).map((img: any) => {
-      img.isAnimated = img.thumb.includes(".webm");
+    return (await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+      img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
   }
@@ -591,7 +547,7 @@ export class SGDB {
       nsfw: nsfw,
       humor: humor,
       epilepsy: epilepsy,
-      page: page,
+      page: page
     });
   }
 
@@ -638,12 +594,9 @@ export class SGDB {
    * @param ids Id or list of ids of grids to delete.
    * @returns A promise resolving to true if the operation succeeded.
    */
-  async deleteGrids(ids: number | number[]): Promise<boolean> {
+  async deleteGrids(ids:number|number[]):Promise<boolean> {
     const gridIds = Array.isArray(ids) ? ids.join(",") : ids.toString();
 
-    return await this.handleRequest(
-      "DELETE",
-      `/grids/${Array.isArray(gridIds) ? gridIds.join(",") : gridIds}`
-    );
+    return await this.handleRequest("DELETE", `/grids/${Array.isArray(gridIds) ? gridIds.join(",") : gridIds}`);
   }
 }

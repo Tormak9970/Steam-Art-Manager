@@ -34,7 +34,7 @@ function excludeDirectories(config?: ExcludeOptions) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
   plugins: [
     svelte({
       preprocess: [
@@ -80,4 +80,4 @@ export default defineConfig({
     'APP_VERSION': JSON.stringify(process.env.npm_package_version),
     'IS_DEBUG': !!process.env.TAURI_DEBUG
   }
-});
+}));

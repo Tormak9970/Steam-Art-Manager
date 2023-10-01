@@ -1,12 +1,5 @@
 <script lang="ts">
-  import {
-    steamKey,
-    steamGridDBKey,
-    needsSteamKey,
-    needsSGDBAPIKey,
-    activeUserId,
-    steamInstallPath,
-  } from "../../../stores/AppState";
+  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
@@ -33,29 +26,24 @@
   /**
    * Saves the changed settings.
    */
-  async function saveSettings(): Promise<void> {
+	async function saveSettings(): Promise<void> {
     LogController.log("Saving settings...");
-
+    
     $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
     if ($steamGridDBKey !== "" && $needsSGDBAPIKey) $needsSGDBAPIKey = false;
 
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
-
+    
     $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
     if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
 
-    const steamUserKeyMap = (await SettingsManager.getSettings())
-      .steamApiKeyMap;
+    const steamUserKeyMap = (await SettingsManager.getSettings()).steamApiKeyMap;
     steamUserKeyMap[$activeUserId] = steamAPIKey;
     await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
 
-    $steamInstallPath =
-      steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
-    if (steamInstallLocation !== "")
-      await SettingsManager.updateSetting(
-        "steamInstallPath",
-        steamInstallLocation
-      );
+    
+    $steamInstallPath = steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
+    if (steamInstallLocation !== "") await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
 
     LogController.log("Saved settings.");
 
@@ -74,9 +62,9 @@
 
     steamGridKey = $steamGridDBKey;
     steamAPIKey = $steamKey;
-
+    
     LogController.log("Reverted settings.");
-
+    
     canSave = false;
 
     onClose();
@@ -86,7 +74,7 @@
    * Function to run on grid key input change.
    * @param e The associated event.
    */
-  function onGridKeyChange(e: Event): void {
+  function onGridKeyChange(e:Event): void {
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
 
@@ -100,7 +88,7 @@
    * Function to run on steam key input change.
    * @param e The associated event.
    */
-  function onSteamKeyChange(e: Event): void {
+  function onSteamKeyChange(e:Event): void {
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
 
@@ -114,60 +102,59 @@
    * Function to run on steam install location change.
    * @param path The updated installation path.
    */
-  function onInstallLocationChange(path: string): void {
+   function onInstallLocationChange(path: string): void {
     steamInstallLocation = path;
     canSave = true;
   }
 </script>
 
-<ModalBody title="{'Settings'}" {onClose}>
+<ModalBody title={"Settings"} onClose={onClose}>
   <div class="content">
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description="{`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}"
-      value="{steamInstallLocation}"
-      onChange="{onInstallLocationChange}"
-      required />
+      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}
+      value={steamInstallLocation}
+      onChange={onInstallLocationChange}
+      required
+    />
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="SteamGrid Api Key"
-      description="{`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}"
-      value="{steamGridKey}"
-      onChange="{onGridKeyChange}"
-      required />
+      description={`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}
+      value={steamGridKey}
+      onChange={onGridKeyChange}
+      required
+    />
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="Steam Api key"
-      description="{`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}"
-      notes="{'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}"
-      value="{steamAPIKey}"
-      onChange="{onSteamKeyChange}" />
+      description={`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}
+      notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
+      value={steamAPIKey}
+      onChange={onSteamKeyChange}
+    />
 
     <div class="buttons">
-      <Button
-        label="Save Changes"
-        onClick="{saveSettings}"
-        width="47.5%"
-        disabled="{!canSave}" />
-      <Button label="Cancel" onClick="{cancel}" width="47.5%" />
+      <Button label="Save Changes" onClick={saveSettings} width="47.5%" disabled={!canSave} />
+      <Button label="Cancel" onClick={cancel} width="47.5%" />
     </div>
   </div>
 </ModalBody>
 
 <style>
   .content {
-    width: 600px;
-    height: calc(100% - 60px);
+		width: 600px;
+		height: calc(100% - 60px);
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-  }
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+	}
 
   .buttons {
     margin-top: 14px;

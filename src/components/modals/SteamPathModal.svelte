@@ -16,14 +16,11 @@
   /**
    * Saves the selected install location.
    */
-  async function saveInstallLocation(): Promise<void> {
+	async function saveInstallLocation(): Promise<void> {
     LogController.log("Setting Steam Install Location...");
-
+    
     $steamInstallPath = steamInstallLocation;
-    await SettingsManager.updateSetting(
-      "steamInstallPath",
-      steamInstallLocation
-    );
+    await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
 
     LogController.log("Steam Install Location set.");
 
@@ -44,37 +41,34 @@
   }
 </script>
 
-<ModalBody title="{'Choose Your Steam Install Path'}" canClose="{false}">
+<ModalBody title={"Choose Your Steam Install Path"} canClose={false}>
   <div class="content">
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description="{`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux.`}"
-      value="{steamInstallLocation}"
-      onChange="{onInstallLocationChange}"
-      required />
+      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux.`}
+      value={steamInstallLocation}
+      onChange={onInstallLocationChange}
+      required
+    />
 
     <div class="buttons">
-      <Button
-        label="Save Changes"
-        onClick="{saveInstallLocation}"
-        width="100%"
-        disabled="{!canSave}" />
+      <Button label="Save Changes" onClick={saveInstallLocation} width="100%" disabled={!canSave} />
     </div>
   </div>
 </ModalBody>
 
 <style>
   .content {
-    width: 600px;
-    height: calc(100% - 60px);
+		width: 600px;
+		height: calc(100% - 60px);
 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-  }
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+	}
 
   .buttons {
     margin-top: 14px;

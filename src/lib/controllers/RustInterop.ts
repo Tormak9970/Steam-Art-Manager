@@ -1,7 +1,7 @@
 /**
  * Steam Art Manager is a tool for setting the artwork of your Steam library.
  * Copyright (C) 2023 Travis Lane (Tormak)
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,7 +25,7 @@ import { steamInstallPath } from "../../stores/AppState";
 export enum LogLevel {
   INFO,
   WARN,
-  ERROR,
+  ERROR
 }
 
 /**
@@ -33,6 +33,7 @@ export enum LogLevel {
  * ! Should do no logging here.
  */
 export class RustInterop {
+
   private static get steamPath() {
     return get(steamInstallPath);
   }
@@ -64,7 +65,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_core_file", { message: message, level: level });
+    await invoke("log_to_core_file", {message: message, level: level});
   }
 
   /**
@@ -72,11 +73,8 @@ export class RustInterop {
    * @param message The message to log.
    * @param level The log level.
    */
-  static async logToBatchApplyFile(
-    message: string,
-    level: LogLevel
-  ): Promise<void> {
-    await invoke("log_to_batch_apply_file", { message: message, level: level });
+  static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
+    await invoke("log_to_batch_apply_file", {message: message, level: level});
   }
 
   /**
@@ -85,10 +83,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's grids directory.
    */
   static async getGridsDirectory(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_grids_directory", {
-      steamPath: RustInterop.steamPath,
-      steamActiveUserId: activeUserId,
-    });
+    return await invoke<string>("get_grids_directory", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -96,9 +91,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's appinfo.vdf path.
    */
   static async getAppinfoPath(): Promise<string> {
-    return await invoke<string>("get_appinfo_path", {
-      steamPath: RustInterop.steamPath,
-    });
+    return await invoke<string>("get_appinfo_path", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -107,10 +100,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's shortcuts.vdf path.
    */
   static async getShortcutsPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_shortcuts_path", {
-      steamPath: RustInterop.steamPath,
-      steamActiveUserId: activeUserId,
-    });
+    return await invoke<string>("get_shortcuts_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -119,10 +109,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's localconfig.vdf path.
    */
   static async getLocalconfigPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_localconfig_path", {
-      steamPath: RustInterop.steamPath,
-      steamActiveUserId: activeUserId,
-    });
+    return await invoke<string>("get_localconfig_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -130,9 +117,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
-    return await invoke<string>("get_library_cache_directory", {
-      steamPath: RustInterop.steamPath,
-    });
+    return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -140,11 +125,7 @@ export class RustInterop {
    * @returns A promise resolving to the list of steam users on this computer.
    */
   static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
-    return JSON.parse(
-      await invoke<string>("get_steam_users", {
-        steamPath: RustInterop.steamPath,
-      })
-    );
+    return JSON.parse(await invoke<string>("get_steam_users", { steamPath: RustInterop.steamPath }));
   }
 
   /**
@@ -154,17 +135,8 @@ export class RustInterop {
    * @param idNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(
-    activeUserId: string,
-    platformIdMap: { [id: string]: string },
-    idNameMap: { [id: string]: string }
-  ): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", {
-      steamPath: RustInterop.steamPath,
-      steamActiveUserId: activeUserId,
-      platformIdMap: platformIdMap,
-      idNameMap: idNameMap,
-    });
+  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
   }
 
   /**
@@ -173,18 +145,8 @@ export class RustInterop {
    * @param nameIdMap A map of shortcut names to their id.
    * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
-  static async importGridsFromZip(
-    activeUserId: string,
-    nameIdMap: { [id: string]: string }
-  ): Promise<[boolean, { [appid: string]: string }]> {
-    const res = await invoke<[boolean, { [appid: string]: string }]>(
-      "import_grids_from_zip",
-      {
-        steamPath: RustInterop.steamPath,
-        steamActiveUserId: activeUserId,
-        nameIdMap: nameIdMap,
-      }
-    );
+  static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
+    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
     return res;
   }
 
@@ -193,11 +155,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the appinfo.vdf file.
    */
   static async readAppinfoVdf(): Promise<any> {
-    return JSON.parse(
-      await invoke<string>("read_appinfo_vdf", {
-        steamPath: RustInterop.steamPath,
-      })
-    );
+    return JSON.parse(await invoke<string>("read_appinfo_vdf", { steamPath: RustInterop.steamPath }));
   }
 
   /**
@@ -206,12 +164,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the shortcuts.vdf file.
    */
   static async readShortcutsVdf(activeUserId: string): Promise<any> {
-    return JSON.parse(
-      await invoke<string>("read_shortcuts_vdf", {
-        steamPath: RustInterop.steamPath,
-        steamActiveUserId: activeUserId,
-      })
-    );
+    return JSON.parse(await invoke<string>("read_shortcuts_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId }));
   }
 
   /**
@@ -220,12 +173,7 @@ export class RustInterop {
    * @returns A promise resolving to the contents of the localconfig.vdf file.
    */
   static async readLocalconfigVdf(activeUserId: string): Promise<any> {
-    return JSON.parse(
-      await invoke<string>("read_localconfig_vdf", {
-        steamPath: RustInterop.steamPath,
-        steamActiveUserId: activeUserId,
-      })
-    );
+    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId }));
   }
 
   /**
@@ -249,18 +197,9 @@ export class RustInterop {
     changedLogoPositions: { [appid: string]: string }
   ): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
-      shortcuts: { ...shortcuts },
-    };
-    const res = await invoke<string>("save_changes", {
-      steamPath: RustInterop.steamPath,
-      currentArt: JSON.stringify(currentArt),
-      originalArt: JSON.stringify(originalArt),
-      shortcutsStr: JSON.stringify(shortcutsObj),
-      steamActiveUserId: activeUserId,
-      shortcutIcons: shortcutIcons,
-      originalShortcutIcons: originalShortcutIcons,
-      changedLogoPositions: changedLogoPositions,
-    });
+      "shortcuts": {...shortcuts}
+    }
+    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
   }
 
@@ -270,18 +209,11 @@ export class RustInterop {
    * @param shortcuts The list of shortcuts.
    * @returns A promise resolving to true if the write was successful.
    */
-  static async writeShortcuts(
-    activeUserId: string,
-    shortcuts: SteamShortcut[]
-  ): Promise<boolean> {
+  static async writeShortcuts(activeUserId: string, shortcuts: SteamShortcut[]): Promise<boolean> {
     const shortcutsObj = {
-      shortcuts: { ...shortcuts },
-    };
-    const res = await invoke<string>("write_shortcuts", {
-      steamPath: RustInterop.steamPath,
-      shortcutsStr: JSON.stringify(shortcutsObj),
-      steamActiveUserId: activeUserId,
-    });
+      "shortcuts": {...shortcuts}
+    }
+    const res = await invoke<string>("write_shortcuts", { steamPath: RustInterop.steamPath, shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
     return JSON.parse(res);
   }
 
@@ -292,20 +224,12 @@ export class RustInterop {
    * @param timeout The time before the request times out.
    * @returns A promise resolving to true if the file was successfully downloaded.
    */
-  static async downloadGrid(
-    gridUrl: string,
-    destPath: string,
-    timeout: number
-  ): Promise<string> {
+  static async downloadGrid(gridUrl: string, destPath: string, timeout: number): Promise<string> {
     let timedOut = false;
 
-    setTimeout(() => (timedOut = true), timeout - 1);
+    setTimeout(() => timedOut = true, timeout - 1);
 
-    const status = await invoke<string>("download_grid", {
-      gridUrl: gridUrl,
-      destPath: destPath,
-      timeout: timeout,
-    });
+    const status = await invoke<string>("download_grid", { gridUrl: gridUrl, destPath: destPath, timeout: timeout });
 
     return timedOut ? "timedOut" : status;
   }
@@ -318,20 +242,7 @@ export class RustInterop {
    * @param selectedGameIds The list of game ids to clean.
    * @returns A promise resolving to an array of CleanConflicts.
    */
-  static async cleanGrids(
-    steamActiveUserId: string,
-    preset: string,
-    allAppids: string[],
-    selectedGameIds: string[]
-  ): Promise<CleanConflict[]> {
-    return JSON.parse(
-      await invoke<string>("clean_grids", {
-        steamPath: RustInterop.steamPath,
-        steamActiveUserId: steamActiveUserId,
-        preset: preset,
-        allAppids: JSON.stringify(allAppids),
-        selectedGameIds: JSON.stringify(selectedGameIds),
-      })
-    );
+  static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
+    return JSON.parse(await invoke<string>("clean_grids", { steamPath: RustInterop.steamPath, steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
   }
 }

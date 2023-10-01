@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { tabsDict } from "./tabStore";
 
-  export let label: string;
+  export let label: string
   export let tabsId: string;
 
   onMount(() => {
@@ -12,16 +12,16 @@
     tabStore.labels.push(label);
     $tabsDict[tabsId] = tabStore;
 
-    $tabsDict = { ...$tabsDict };
+    $tabsDict = {...$tabsDict};
   });
 </script>
 
-<div class="tab" class:render="{label == $tabsDict[tabsId]?.selected}">
+<div class="tab" class:render={label == $tabsDict[tabsId]?.selected}>
   <slot />
 </div>
 
 <style>
-  .tab {
+	.tab {
     width: 100%;
     height: 100%;
 
