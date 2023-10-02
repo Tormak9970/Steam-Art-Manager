@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-for file in $(git diff --cached --name-only | grep -E '\.(js|jsx)$')
+for file in $(git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx|svelte)$')
 do
   git show ":$file" | node_modules/.bin/eslint --stdin --stdin-filename "$file" # we only want to lint the staged changes, not any un-staged changes
   if [ $? -ne 0 ]; then
