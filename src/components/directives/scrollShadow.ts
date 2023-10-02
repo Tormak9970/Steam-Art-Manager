@@ -20,7 +20,7 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     threshold: 1
   };
   
-  const observer = new IntersectionObserver(([entry]) => {
+  const observer = new IntersectionObserver(([ entry ]) => {
     if (entry.intersectionRatio !== 1) {
       scrollContainer.classList
         .add("is-overflowing", "is-scrolled-top");

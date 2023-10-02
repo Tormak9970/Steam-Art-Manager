@@ -18,7 +18,7 @@
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
 
-const DEFAULT_SETTINGS = `{ "version": "", "steamInstallPath": "", "shownShortcutPrompt": false, "theme": 0, "steamGridDbApiKey": "", "steamApiKeyMap": {}, "hiddenGameIds": [], "manualSteamGames": [], "customGameNames": {} }`;
+const DEFAULT_SETTINGS = "{ \"version\": \"\", \"steamInstallPath\": \"\", \"shownShortcutPrompt\": false, \"theme\": 0, \"steamGridDbApiKey\": \"\", \"steamApiKeyMap\": {}, \"hiddenGameIds\": [], \"manualSteamGames\": [], \"customGameName\": {} }";
 
 /**
  * A class for managing application settings
@@ -35,7 +35,6 @@ export class SettingsManager {
 
     const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
-      // await fs.copyFile(await path.resolveResource("./settings.json"), setsPath); //! this breaks when built as flatpak
       await fs.writeTextFile(setsPath, DEFAULT_SETTINGS);
     }
 
@@ -46,26 +45,23 @@ export class SettingsManager {
    * Gets the settings data and updates it if the app version is older.
    */
   static async getSettings(): Promise<AppSettings> {
-    let settings: AppSettings;
-    const currentSettings:any = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
+    const currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
 
-    settings = {...currentSettings};
+    const settings: AppSettings = { ...currentSettings };
     if (currentSettings.version !== APP_VERSION) {
-      // const defaultSettings = JSON.parse(await fs.readTextFile(await path.resolveResource("./settings.json"))); //! this breaks when built as flatpak
       const defaultSettings = JSON.parse(DEFAULT_SETTINGS);
 
-      const curEntries = Object.entries(currentSettings);
       const curKeys = Object.keys(currentSettings);
       const defEntries = Object.entries(defaultSettings);
       const defKeys = Object.keys(defaultSettings);
 
-      for (const [key, val] of defEntries) {
+      for (const [ key, val ] of defEntries) {
         if (!curKeys.includes(key)) {
           settings[key] = val;
         }
       }
 
-      for (const [key, _] of curEntries) {
+      for (const key in currentSettings) {
         if (!defKeys.includes(key)) {
           delete settings[key];
         }
@@ -78,7 +74,7 @@ export class SettingsManager {
         contents: JSON.stringify(settings),
       });
   
-      LogController.log(`Updated settings for new app version.`);
+      LogController.log("Updated settings for new app version.");
     }
     
     return settings;

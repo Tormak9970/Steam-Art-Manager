@@ -83,7 +83,6 @@
   });
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={`Clean Conflict Dialog #${conflictNumber}`} canClose={false}>
   <div class="content">
     <div class="description">
@@ -92,8 +91,8 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
+            <Lazy height="{heights[conflictGridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
               <img src="{fileAPath}" alt="Option 1" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
@@ -102,8 +101,8 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
+            <Lazy height="{heights[conflictGridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
               <img src="{fileBPath}" alt="Option 2" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
@@ -112,8 +111,8 @@
       </div>
     </div>
     <div class="buttons">
-      <Button label={`Keep ${conflictGridType == "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
-      <Button label={`Keep ${conflictGridType == "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
+      <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
+      <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
       <Button label="Keep Both" onClick={keepBoth} width="30%" />
     </div>
   </div>

@@ -12,7 +12,6 @@
   export let warn = false;
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
   <slot />
 </button>

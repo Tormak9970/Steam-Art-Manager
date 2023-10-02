@@ -1,6 +1,5 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
-import { sharedStore } from "../lib/utils/SharedStore";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -30,7 +29,7 @@ export enum Theme {
   LIGHT
 }
 
-export const theme = sharedStore(Theme.DARK, "theme");
+export const theme = writable(Theme.DARK);
 
 export const requestTimeoutLength = writable(5000);
 

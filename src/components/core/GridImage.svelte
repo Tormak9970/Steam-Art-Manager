@@ -28,7 +28,7 @@
 
 <div class="grid-img" style="height: {heights[$gridType]}px;">
   {#if showImage}
-    <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+    <Lazy height="{heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
       {#if isVideo}
         <video src="{imagePath}" muted loop autoplay={false} style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
       {:else}

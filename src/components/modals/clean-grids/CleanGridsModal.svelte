@@ -39,7 +39,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={"Clean Grids"} onClose={onClose}>
   <div class="content">
     <Spacer orientation="VERTICAL" />
@@ -58,7 +57,7 @@
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <div class="view">
-      {#if selectedPreset == "custom"}
+      {#if selectedPreset === "custom"}
         <GameFilter bind:selectedGameIds={selectedGameIds} showFilters={false}/>
       {/if}
     </div>

@@ -16,7 +16,7 @@
  */
 import { Float16Array } from "@petamoriken/float16";
 
-let GLOBAL_ENDIANNESS = true;
+const GLOBAL_ENDIANNESS = true;
 
 const encoder = new TextEncoder();
 
@@ -73,20 +73,12 @@ export class Writer {
     this.length = new Uint8Array(this.data).length;
   }
 
-  #writeI(
-    method: keyof DataView,
-    length: number
-  ): (data: any, endianness?: boolean) => number {
+  #writeI(method: keyof DataView, length: number): (data: any, endianness?: boolean) => number {
     if (this.remaining() <= length) {
       this.expandCapacity();
     }
-    return (data: any, endianness?: boolean) => {
-      // @ts-ignore
-      this.view[method](
-        this.offset,
-        data,
-        endianness ? endianness : GLOBAL_ENDIANNESS
-      );
+    return (data, endianness?: boolean) => {
+      (this.view[method] as CallableFunction)(this.offset, data, endianness ? endianness : GLOBAL_ENDIANNESS);
       this.offset += length;
       return length;
     };
@@ -98,16 +90,14 @@ export class Writer {
    * @param  {number} position the position to update from. 0 = start, 1 = current offset, 2 = end.
    */
   seek(offset: number, position: number = 0): void {
-    if (position == 0) {
+    if (position === 0) {
       this.offset = Number(offset);
-    } else if (position == 1) {
+    } else if (position === 1) {
       this.offset = this.offset + Number(offset);
-    } else if (position == 2) {
+    } else if (position === 2) {
       this.offset = Number(this.data.byteLength) - Number(offset);
     } else {
-      throw Error(
-        `Unexpected position value. Expected 0, 1, or 2, but got ${position}.`
-      );
+      throw Error(`Unexpected position value. Expected 0, 1, or 2, but got ${position}.`);
     }
   }
 
@@ -145,10 +135,7 @@ export class Writer {
       this.expandCapacity();
     }
     const nDat = new Int8Array(this.data);
-    nDat.set(
-      (endianness ? endianness : GLOBAL_ENDIANNESS) ? data : data.reverse(),
-      this.offset
-    );
+    nDat.set((endianness ? endianness : GLOBAL_ENDIANNESS) ? data : data.reverse(), this.offset);
     this.data = nDat.buffer;
     this.view = new DataView(this.data);
     this.offset += data.length;
@@ -165,10 +152,7 @@ export class Writer {
       this.expandCapacity();
     }
     const nDat = new Uint8Array(this.data);
-    nDat.set(
-      (endianness ? endianness : GLOBAL_ENDIANNESS) ? data : data.reverse(),
-      this.offset
-    );
+    nDat.set((endianness ? endianness : GLOBAL_ENDIANNESS) ? data : data.reverse(), this.offset);
     this.data = nDat.buffer;
     this.view = new DataView(this.data);
     this.offset += data.length;
@@ -249,13 +233,10 @@ export class Writer {
     if (this.remaining() <= 2) {
       this.expandCapacity();
     }
-    const res = new Float16Array([data]);
+    const res = new Float16Array([ data ]);
 
     const nDat = new Float16Array(this.data);
-    nDat.set(
-      (endianness ? endianness : GLOBAL_ENDIANNESS) ? res : res.reverse(),
-      this.offset
-    );
+    nDat.set((endianness ? endianness : GLOBAL_ENDIANNESS) ? res : res.reverse(), this.offset);
     this.data = nDat.buffer;
     this.view = new DataView(this.data);
 

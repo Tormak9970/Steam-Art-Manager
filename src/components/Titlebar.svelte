@@ -5,7 +5,6 @@
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
-  import { WindowController } from "../lib/controllers/WindowController";
 
   let windowCloseUnsub: () => void;
 
@@ -86,7 +85,6 @@
       {/if}
     </div>
     <div bind:this={close} class="titlebar-button" id="titlebar-close">
-      <!-- svelte-ignore a11y-missing-attribute -->
       <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
         <path fill="none" stroke="var(--font-color)" stroke-width="2" d="M3,3 L21,21 M3,21 L21,3" />
       </svg>

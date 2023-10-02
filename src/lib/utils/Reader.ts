@@ -16,7 +16,7 @@
  */
 import { Float16Array } from "@petamoriken/float16";
 
-let GLOBAL_ENDIANNESS = true;
+const GLOBAL_ENDIANNESS = true;
 
 /**
  * A custom Reader class for ease of use.
@@ -38,16 +38,9 @@ export class Reader {
     return (data as Uint8Array).buffer !== undefined;
   }
 
-  #readI(
-    method: keyof DataView,
-    bytes: number
-  ): (endianness?: boolean) => number {
+  #readI(method: keyof DataView, bytes: number): (endianness?: boolean) => number {
     return (endianness?: boolean) => {
-      // @ts-ignore
-      const res = this.view[method](
-        this.offset,
-        endianness ? endianness : GLOBAL_ENDIANNESS
-      );
+      const res = (this.view[method] as CallableFunction)(this.offset, endianness ? endianness : GLOBAL_ENDIANNESS);
       this.offset += bytes;
       return res;
     };
@@ -59,16 +52,14 @@ export class Reader {
    * @param  {number} position the position to update from. 0 = start, 1 = current offset, 2 = end.
    */
   seek(offset: number, position: number = 0): void {
-    if (position == 0) {
+    if (position === 0) {
       this.offset = Number(offset);
-    } else if (position == 1) {
+    } else if (position === 1) {
       this.offset = this.offset + Number(offset);
-    } else if (position == 2) {
+    } else if (position === 2) {
       this.offset = Number(this.data.byteLength) - Number(offset);
     } else {
-      throw Error(
-        `Unexpected position value. Expected 0, 1, or 2, but got ${position}.`
-      );
+      throw Error(`Unexpected position value. Expected 0, 1, or 2, but got ${position}.`);
     }
   }
 

@@ -23,7 +23,7 @@
     linkify: true
   });
   
-  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
+  $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
 
   const widths = {
     "Capsule": 400,
@@ -53,7 +53,7 @@
    * @param e The click event.
    */
   function clickListener(e: Event): void {
-    const origin = (e.target as Element).closest(`a`);
+    const origin = (e.target as Element).closest("a");
   
     if (origin) {
       e.preventDefault();
@@ -63,12 +63,12 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid == $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
+<ModalBody title={`${games.find((game) => game.appid === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
     <div class="img-cont" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
-      <div class="img" class:logo-background={$gridType == GridTypes.LOGO} class:icon-background={$gridType == GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
-        <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-          <img src="{$gridType == GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
+        <Lazy height="{heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
+          <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
         </Lazy>
       </div>
     </div>
@@ -90,6 +90,7 @@
           <div class="border" />
           <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
         {:else}
           <div class="border" />

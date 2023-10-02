@@ -66,7 +66,7 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast(`Cleared selection.`);
+    ToastController.showGenericToast("Cleared selection.");
     selectedGame = null;
     results = [];
     searchQuery = "";
@@ -99,7 +99,7 @@
         </span>
         <span slot="data">
           {#each results as game (`${game.appid}|${game.name}`)}
-            <SearchEntry game={game} isSelected={selectedGame?.appid == game.appid} onSelect={onGameSelect} />
+            <SearchEntry game={game} isSelected={selectedGame?.appid === game.appid} onSelect={onGameSelect} />
           {/each}
         </span>
       </Table>

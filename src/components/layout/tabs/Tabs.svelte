@@ -19,7 +19,7 @@
 
   onMount(() => {
     $tabsDict[tabsId].selected = selected;
-    labels = [...$tabsDict[tabsId].labels];
+    labels = [ ...$tabsDict[tabsId].labels ];
   });
 </script>
 

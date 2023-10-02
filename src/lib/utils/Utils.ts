@@ -16,18 +16,18 @@ import { SettingsManager } from "./SettingsManager";
  */
 export function throttle(func: any, wait: number) {
   let waiting = false;
-  return function () {
+  return function (...args: any[]) {
     if (waiting) {
       return;
     } else {
-      func.apply(this, arguments);
+      func.apply(this, args);
     }
 
     waiting = true;
     setTimeout(() => {
       waiting = false;
     }, wait);
-  };
+  }
 }
 
 /**
@@ -37,10 +37,11 @@ export function throttle(func: any, wait: number) {
  * @param immediate Whether to run the function immediately, then debounce, or debounce from the start.
  * @returns The debounced function.
  */
-export function debounce(func:Function, wait:number, immediate?:boolean) {
+export function debounce(func: any, wait:number, immediate?:boolean) {
   let timeout:NodeJS.Timeout|null;
-  return function (this:any) {
-      const context = this, args = arguments;
+  return function (...args: any[]) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const context = this;
       const later = function () {
           timeout = null;
           if (!immediate) func.apply(context, args);
@@ -49,8 +50,8 @@ export function debounce(func:Function, wait:number, immediate?:boolean) {
       clearTimeout(timeout as NodeJS.Timeout);
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
-  };
-};
+  }
+}
 
 /**
  * Prevents a keyboard event from running unless the key is the provided key
@@ -60,7 +61,9 @@ export function debounce(func:Function, wait:number, immediate?:boolean) {
  */
 export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (e: KeyboardEvent) => void {
   return (e: KeyboardEvent) => {
-    if (e.key == key) listener(e);
+    if (e.key === key) {
+      listener(e);
+    }
   }
 }
 
@@ -76,7 +79,7 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
 export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-  const dimensions = (type != GridTypes.LOGO && type != GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
+  const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
   const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
   const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
   const humorAllowed = targetFilters.oneoftag.humor;
@@ -85,7 +88,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
 
   const resGrids = allGrids.filter((grid: SGDBImage) => {
     return gridStyles.includes(grid.style)
-      && (dimensions.includes(`${grid.width}x${grid.height}`) || type == GridTypes.LOGO || type == GridTypes.ICON)
+      && (dimensions.includes(`${grid.width}x${grid.height}`) || type === GridTypes.LOGO || type === GridTypes.ICON)
       && imageFormats.includes(grid.mime)
       && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
       && (grid.humor ? humorAllowed : true)
@@ -93,7 +96,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
       && (grid.nsfw ? nsfwAllowed : true);
   });
 
-  let query = `"${type == GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
+  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
   if (resGrids.length > 0) {
     if (useCoreFile) {
       LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
@@ -123,17 +126,17 @@ export function getIdFromGridName(gridName: string): [string, string] {
 
   if (underscoreIndex > 0) {
     const id = name.substring(0, underscoreIndex);
-    const type = name.substring(underscoreIndex+1);
+    const type = name.substring(underscoreIndex + 1);
 
-    return [id, type];
+    return [ id, type ];
   } else if (name.endsWith("p")) {
     const id = name.substring(0, name.length - 1);
-    return [id, "capsule"];
+    return [ id, "capsule" ];
   } else {
-    if (gridName.substring(dotIndex+1) == "json") {
-      return [name, "logoposition"];
+    if (gridName.substring(dotIndex+1) === "json") {
+      return [ name, "logoposition" ];
     } else {
-      return [name, "wide_capsule"];
+      return [ name, "wide_capsule" ];
     }
   }
 }
@@ -142,6 +145,8 @@ export function getIdFromGridName(gridName: string): [string, string] {
  * Handles showing the Steam install path selection dialog.
  */
 export async function steamDialogSequence(): Promise<void> {
+  // * We need to use the async here because we resolve the promise in a modal callback.
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve) => {
     const hasSteamInstalled = await DialogController.ask("Steam Not Found", "WARNING", "SARM could not locate Steam. Do you have it installed?", "Yes", "No");
 

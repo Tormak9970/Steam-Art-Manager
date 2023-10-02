@@ -47,7 +47,7 @@
     <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux.`}
+      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
       required

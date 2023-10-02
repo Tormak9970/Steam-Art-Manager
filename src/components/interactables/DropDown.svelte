@@ -24,7 +24,9 @@
    * @param e The click event.
    */
   function closeDropdowns(e: Event): void {
-    const target = <HTMLDivElement>e.target;
+    const target = e.currentTarget as HTMLElement;
+    // * Need this bc we want to only compare the properties of the objects.
+    // eslint-disable-next-line eqeqeq
     if (target != customSelectElem && target != customSelectElemWrapper) active = false;
   }
 
@@ -40,7 +42,7 @@
    * @param e The associated event.
    */
   function selectOption(e: Event): void {
-    const targetElement = <HTMLElement>e.currentTarget;
+    const targetElement = e.currentTarget as HTMLElement;
     
     onChange(targetElement.id);
     value = targetElement.id;
@@ -49,19 +51,19 @@
   }
 
   afterUpdate(() => {
-    internalValue = options.find((opt) => opt.data == value)?.label;
+    internalValue = options.find((opt) => opt.data === value)?.label;
   });
 </script>
 
 <svelte:window on:click={closeDropdowns} />
 
 <div class="wrapper">
-  {#if label != ""}
+  {#if label !== ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
-    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow}} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow }} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -72,10 +74,10 @@
       {#key value}
         <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
       {/key}
-      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+      <div class="select-items" class:open-up={direction === "UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
         {#each options as opt}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: entryTooltipPosition, onShow: AppController.onTippyShow}}>{opt.label}</div>
+          <div id={opt.data} class:same-as-selected={opt.data === value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: entryTooltipPosition, onShow: AppController.onTippyShow }}>{opt.label}</div>
         {/each}
       </div>
     </div>
@@ -91,10 +93,10 @@
       {#key value}
         <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
       {/key}
-      <div class="select-items" class:open-up={direction=="UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+      <div class="select-items" class:open-up={direction === "UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
         {#each options as opt}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div id={opt.data} class:same-as-selected={opt.data == value} on:click|stopPropagation={selectOption}>{opt.label}</div>
+          <div id={opt.data} class:same-as-selected={opt.data === value} on:click|stopPropagation={selectOption}>{opt.label}</div>
         {/each}
       </div>
     </div>

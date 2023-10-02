@@ -35,7 +35,7 @@
    * @param e The keyboard event.
    */
   function overwriteCtrlF(e: Event): void {
-    if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key == "f") {
+    if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key === "f") {
       e.preventDefault();
       setSearchFocus();
     }
@@ -52,7 +52,7 @@
   function getGamesForPlatform(platform: Platforms, sGames: GameStruct[], manualSGames: GameStruct[], nonSGames: GameStruct[]): GameStruct[] {
     switch (platform) {
       case Platforms.STEAM:
-        return [...sGames, ...manualSGames];
+        return [ ...sGames, ...manualSGames ];
       case Platforms.NON_STEAM:
         return nonSGames;
     }
@@ -93,17 +93,17 @@
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, newGames, $manualSteamGames, $nonSteamGames);
+      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, newGames, $manualSteamGames, $nonSteamGames);
       isLoading = false;
     });
     manualSteamGamesUnsub = manualSteamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, newGames, $nonSteamGames);
+      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, newGames, $nonSteamGames);
       isLoading = false;
     });
     nonSteamGamesUnsub = nonSteamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform == Platforms.NON_STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, newGames);
+      if ($currentPlatform === Platforms.NON_STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, newGames);
       isLoading = false;
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {

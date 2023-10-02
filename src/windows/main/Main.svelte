@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { checkUpdate } from '@tauri-apps/api/updater';
+  import { checkUpdate } from "@tauri-apps/api/updater";
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes } from 'svelte-splitpanes';
+	import { Splitpanes } from "svelte-splitpanes";
 	import Footer from "../../components/Footer.svelte";
 	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
@@ -121,25 +121,25 @@
       <GameSearchModal />
     {/if}
     {#if $showGridModal}
-		  <GridPreviewModal />
+      <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal />
+      <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal />
+      <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal />
+      <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal />
+      <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal />
+      <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal />
+      <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />

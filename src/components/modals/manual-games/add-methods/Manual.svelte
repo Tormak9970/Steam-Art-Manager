@@ -24,7 +24,7 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast(`Cleared info.`);
+    ToastController.showGenericToast("Cleared info.");
     gameName = "";
     appId = 0;
   }
@@ -42,7 +42,7 @@
   </div>
 
   <div class="buttons">
-    <Button label="Add Game" onClick={saveWrapper} width="47.5%" disabled={gameName == "" || appId == 0} />
+    <Button label="Add Game" onClick={saveWrapper} width="47.5%" disabled={gameName === "" || appId === 0} />
     <Button label="Clear" onClick={clear} width="47.5%" />
   </div>
 </div>

@@ -24,7 +24,7 @@
     aria-checked={value}
     on:click={handleClick}
   />
-  {#if label != ""}
+  {#if label !== ""}
     <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
   {/if}
 </div>

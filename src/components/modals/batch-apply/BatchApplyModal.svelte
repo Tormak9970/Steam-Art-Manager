@@ -34,7 +34,7 @@
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType != GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
+<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
   <div class="content">
     <div class="info">
       Choose the games you would like to batch apply grids to.

@@ -37,13 +37,13 @@
    * @param game The new game to add.
    */
   function addNewGame(game: GameStruct): void {
-    if ($steamGames.find((sGame) => sGame.appid == game.appid) || tempManualGames.find((tGame) => tGame.appid == game.appid)) {
-      ToastController.showWarningToast(`Game with that appid already exists! Can't have duplicates.`);
+    if ($steamGames.find((sGame) => sGame.appid === game.appid) || tempManualGames.find((tGame) => tGame.appid === game.appid)) {
+      ToastController.showWarningToast("Game with that appid already exists! Can't have duplicates.");
     } else {
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
-      tempManualGames = [...tempManualGames];
-      canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+      tempManualGames = [ ...tempManualGames ];
+      canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
     }
   }
 
@@ -53,10 +53,10 @@
    */
   function removeHandler(game: GameStruct): void {
     LogController.log(`Removed manually added game ${game.name}.`);
-    const index = tempManualGames.findIndex((g) => g.appid == game.appid);
+    const index = tempManualGames.findIndex((g) => g.appid === game.appid);
     tempManualGames.splice(index, 1);
-    tempManualGames = [...tempManualGames];
-    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+    tempManualGames = [ ...tempManualGames ];
+    canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
   }
 
   /**
@@ -146,9 +146,9 @@
       <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
       <Spacer orientation="VERTICAL" />
-      {#if selectedAddMethod == "search"}
+      {#if selectedAddMethod === "search"}
         <Search onGameSave={addNewGame} />
-      {:else if selectedAddMethod == "manual"}
+      {:else if selectedAddMethod === "manual"}
         <Manual onGameSave={addNewGame} />
       {/if}
     </div>

@@ -1,8 +1,8 @@
 <script lang="ts">
   import MarkdownIt from "markdown-it";
   import { open } from "@tauri-apps/api/shell";
-  import { installUpdate } from '@tauri-apps/api/updater'
-  import { relaunch } from '@tauri-apps/api/process'
+  import { installUpdate } from "@tauri-apps/api/updater"
+  import { relaunch } from "@tauri-apps/api/process"
   
   import { showUpdateModal, updateManifest } from "../../../stores/Modals";
 
@@ -17,7 +17,7 @@
     linkify: true
   });
 
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
   const dateParts = $updateManifest.date.split(" ");
   const dateSegs = dateParts[0].split("-").map((seg) => parseInt(seg));
@@ -28,7 +28,7 @@
    * @param e The click event.
    */
   function clickListener(e: Event): void {
-    const origin = (e.target as Element).closest(`a`);
+    const origin = (e.target as Element).closest("a");
   
     if (origin) {
       e.preventDefault();
@@ -73,6 +73,7 @@
       <div class="header"><b>Changelog</b>:</div>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div class="body" on:click={clickListener}>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html mdIt.render($updateManifest.body)}
         </div>
     </div>

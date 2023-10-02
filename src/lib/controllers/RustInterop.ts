@@ -65,7 +65,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_core_file", {message: message, level: level});
+    await invoke("log_to_core_file", { message: message, level: level });
   }
 
   /**
@@ -74,7 +74,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_batch_apply_file", {message: message, level: level});
+    await invoke("log_to_batch_apply_file", { message: message, level: level });
   }
 
   /**
@@ -187,17 +187,9 @@ export class RustInterop {
    * @param changedLogoPositions The changed logo positions.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(
-    activeUserId: string,
-    currentArt: { [appid: string]: LibraryCacheEntry },
-    originalArt: { [appid: string]: LibraryCacheEntry },
-    shortcuts: SteamShortcut[],
-    shortcutIcons: { [id: string]: string },
-    originalShortcutIcons: { [id: string]: string },
-    changedLogoPositions: { [appid: string]: string }
-  ): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>, changedLogoPositions: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
-      "shortcuts": {...shortcuts}
+      "shortcuts": { ...shortcuts }
     }
     const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
@@ -211,7 +203,7 @@ export class RustInterop {
    */
   static async writeShortcuts(activeUserId: string, shortcuts: SteamShortcut[]): Promise<boolean> {
     const shortcutsObj = {
-      "shortcuts": {...shortcuts}
+      "shortcuts": { ...shortcuts }
     }
     const res = await invoke<string>("write_shortcuts", { steamPath: RustInterop.steamPath, shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
     return JSON.parse(res);
