@@ -94,6 +94,7 @@
     border-radius: 4px;
     border: 1px solid var(--shadow);
     position: relative;
+    max-height: 90%;
   }
 
   .header {

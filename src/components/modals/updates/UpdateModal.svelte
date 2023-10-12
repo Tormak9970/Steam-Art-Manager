@@ -11,6 +11,7 @@
   import Button from "../../interactables/Button.svelte";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
+    import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
   const mdIt = new MarkdownIt({
     html: true,
@@ -71,11 +72,15 @@
     </div>
     <div class="changelog">
       <div class="header"><b>Changelog</b>:</div>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="body" on:click={clickListener}>
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html mdIt.render($updateManifest.body)}
-        </div>
+      <div class="release-notes-container">
+        <PaddedScrollContainer height={"calc(100% - 10px)"} width={"calc(100% - 10px)"}  background={"transparent"} marginTop="0px" padding="5px">
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <div class="release-notes" on:click={clickListener}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html mdIt.render($updateManifest.body)}
+          </div>
+        </PaddedScrollContainer>
+      </div>
     </div>
     <div class="buttons">
       <Button label="Update" onClick={update} width="47.5%" />
@@ -105,24 +110,26 @@
     margin-bottom: 5px;
   }
 
-  .changelog > .body {
+  .changelog > .release-notes-container {
     border-radius: 4px;
-    padding: 3px;
     background-color: var(--background-dark);
+    overflow: hidden;
+
+    height: 60vh;
   }
 
-  :global(.changelog > .body p) {
+  :global(.changelog .release-notes p) {
     margin: 3px;
     margin-left: 6px;
     font-size: 14px;
   }
 
-  :global(.changelog > .body ul) {
+  :global(.changelog .release-notes ul) {
     margin-top: 4px;
     font-size: 14px;
   }
 
-  :global(.changelog > .body li) {
+  :global(.changelog .release-notes li) {
     margin-bottom: 3px;
   }
 
