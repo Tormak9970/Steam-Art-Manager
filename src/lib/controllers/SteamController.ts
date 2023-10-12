@@ -127,11 +127,12 @@ export class SteamController {
         if (!unfilteredKeys.includes(appId)) {
           unfilteredKeys.push(appId);
           // @ts-ignore
-          unfilteredKeys[appId] = {};
+          unfiltered[appId] = {};
         }
         
         if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
-        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path
+        
+        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path;
       }
     }
 
