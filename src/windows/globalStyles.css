@@ -77,7 +77,7 @@ body {
 a { color: var(--link-color); }
 a:visited { color: var(--link-color-visited); }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 6px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--foreground-light); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--foreground-light-hover); }

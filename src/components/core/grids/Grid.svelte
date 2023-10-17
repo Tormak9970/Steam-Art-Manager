@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { open } from "@tauri-apps/api/shell";
   import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";
@@ -19,6 +20,13 @@
   function selectGame(): void {
     onSelect();
   }
+
+  /**
+   * Opens the SteamGridDB page for this grid.
+   */
+  function viewOnSteamGridDB() {
+    open(`https://www.steamgriddb.com/grid/${grid.id}`);
+  }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -30,6 +38,12 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
       <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
       <path d="M344 0H488c13.3 0 24 10.7 24 24V168c0 9.7-5.8 18.5-14.8 22.2s-19.3 1.7-26.2-5.2l-39-39-87 87c-9.4 9.4-24.6 9.4-33.9 0l-32-32c-9.4-9.4-9.4-24.6 0-33.9l87-87L327 41c-6.9-6.9-8.9-17.2-5.2-26.2S334.3 0 344 0zM168 512H24c-13.3 0-24-10.7-24-24V344c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2l39 39 87-87c9.4-9.4 24.6-9.4 33.9 0l32 32c9.4 9.4 9.4 24.6 0 33.9l-87 87 39 39c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8z"/>
+    </svg>
+  </div>
+  <div class="image-control show-view-sgdb" on:click|stopPropagation={viewOnSteamGridDB} use:AppController.tippy={{ content: "View on SGDB", placement: "right", onShow: AppController.onTippyShow }}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+      <path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/>
     </svg>
   </div>
   {#if grid?.isAnimated}
@@ -140,7 +154,10 @@
   }
 
   .show-view { top: 2px; }
-  .show-notes { cursor: default; top: 30px; }
+  
+  .show-view-sgdb { top: 30px; }
+
+  .show-notes { cursor: default; top: 58px; }
   .show-notes:hover { cursor: default; opacity: 0.8; }
 
   .show-animated {

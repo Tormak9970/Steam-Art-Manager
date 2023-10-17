@@ -40,16 +40,16 @@ export function throttle(func: any, wait: number) {
 export function debounce(func: any, wait:number, immediate?:boolean) {
   let timeout:NodeJS.Timeout|null;
   return function (...args: any[]) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const context = this;
-      const later = function () {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-      };
-      const callNow = immediate && !timeout;
-      clearTimeout(timeout as NodeJS.Timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const context = this;
+    const later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout as NodeJS.Timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
   }
 }
 
@@ -68,14 +68,14 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
 }
 
 /**
-   * Filters the grids based on the user's chosen filters.
-   * @param allGrids The list of all grids.
-   * @param type The selected GridType.
-   * @param filters The filters object.
-   * @param gameName The name of the game being filtered.
-   * @param useCoreFile Whether or not to log to the core file.
-   * @returns The list of filtered grids.
-   */
+ * Filters the grids based on the user's chosen filters.
+ * @param allGrids The list of all grids.
+ * @param type The selected GridType.
+ * @param filters The filters object.
+ * @param gameName The name of the game being filtered.
+ * @param useCoreFile Whether or not to log to the core file.
+ * @returns The list of filtered grids.
+ */
 export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
