@@ -13,6 +13,7 @@
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+    import GameList from "./GameList.svelte";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -27,6 +28,8 @@
 
   let searchQuery = "";
   let games: GameStruct[] = [];
+
+  let isListView = false;
 
   let setSearchFocus: () => void;
 
@@ -150,27 +153,31 @@
 
   <div class="content" style="height: calc(100% - 85px);">
     <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
-      <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading || $loadingGames} marginTop="0px">
-        {#if isLoading || $loadingGames}
-          <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-            {#each new Array(100) as _}
-              <GridLoadingSkeleton />
-            {/each}
-          </div>
-        {:else}
-          {#if games.length > 0}
+      {#if isListView}
+        <GameList isLoading={isLoading || $loadingGames} games={games} />
+      {:else}
+        <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading || $loadingGames} marginTop="0px">
+          {#if isLoading || $loadingGames}
             <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-              {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-                <Game game={game} />
+              {#each new Array(100) as _}
+                <GridLoadingSkeleton />
               {/each}
             </div>
           {:else}
-            <div class="message">
-              No {$currentPlatform} games found.
-            </div>
+            {#if games.length > 0}
+              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
+                  <Game game={game} />
+                {/each}
+              </div>
+            {:else}
+              <div class="message">
+                No {$currentPlatform} games found.
+              </div>
+            {/if}
           {/if}
-        {/if}
-      </PaddedScrollContainer>
+        </PaddedScrollContainer>
+      {/if}
     </ListTabs>
   </div>
 </Pane>
