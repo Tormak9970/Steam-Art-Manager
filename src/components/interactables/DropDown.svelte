@@ -57,7 +57,8 @@
 
 <svelte:window on:click={closeDropdowns} />
 
-<div class="wrapper">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="wrapper" on:click|stopPropagation>
   {#if label !== ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
   {/if}
@@ -74,7 +75,7 @@
       {#key value}
         <div class="select-selected" class:select-arrow-active={active} bind:this={customSelectElem}>{internalValue}</div>
       {/key}
-      <div class="select-items" class:open-up={direction === "UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!active}>
+      <div class="select-items" class:select-hide={!active} class:open-up={direction === "UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;">
         {#each options as opt}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <div id={opt.data} class:same-as-selected={opt.data === value} on:click|stopPropagation={selectOption} use:AppController.tippy={{ content: opt.label, placement: entryTooltipPosition, onShow: AppController.onTippyShow }}>{opt.label}</div>
@@ -151,9 +152,9 @@
     border-color: var(--font-color) transparent transparent transparent;
   }
   
-  :global(.select-arrow-active::after) {
-    border-color: transparent transparent var(--font-color) transparent !important;
-    top: 7px !important;
+  .select-arrow-active::after {
+    border-color: transparent transparent var(--font-color) transparent;
+    top: 7px;
   }
 
   .select-items > div,
