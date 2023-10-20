@@ -3,10 +3,10 @@
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
 
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { GridTypes, Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import GridImage from "../GridImage.svelte";
+  import { SettingsManager } from "../../../../lib/utils/SettingsManager";
+  import { GridTypes, Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../../stores/AppState";
+  import { AppController } from "../../../../lib/controllers/AppController";
+  import GridImage from "../../GridImage.svelte";
 
   export let game: GameStruct;
 

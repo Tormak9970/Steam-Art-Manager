@@ -2,19 +2,18 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, showHidden, steamGames } from "../../../stores/AppState";
+  import { Platforms, currentPlatform, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "../../../stores/AppState";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
   import SectionTitle from "../SectionTitle.svelte";
-  import Game from "./Game.svelte";
   import ListTabs from "../../layout/tabs/ListTabs.svelte";
-  import { heights, widths } from "../imageDimensions";
+  import GamesList from "./list-view/GamesList.svelte";
+  import GamesGrid from "./grid-view/GamesGrid.svelte";
   import Divider from "../Divider.svelte";
-  import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
+  import IconToggle from "../../interactables/IconToggle.svelte";
   import Spacer from "../../layout/Spacer.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-    import GameList from "./GameList.svelte";
-    import IconToggle from "../../interactables/IconToggle.svelte";
+    import { SettingsManager } from "../../../lib/utils/SettingsManager";
+    import { LogController } from "../../../lib/controllers/LogController";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -25,13 +24,8 @@
 
   let isLoading = true;
 
-  const padding = 20;
-
   let searchQuery = "";
   let games: GameStruct[] = [];
-
-  // TODO: make it a store and load/save to settings json
-  let isListView = false;
 
   let setSearchFocus: () => void;
 
@@ -95,6 +89,15 @@
     games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames);
   }
 
+  /**
+   * Function to run on game view change.
+   * @param checked Whether or not games should be rendered in a list.
+   */
+  function onViewTypeChange(checked: boolean): void {
+    SettingsManager.updateSetting("gameViewType", checked ? 1 : 0);
+    LogController.log(`Set gameViewType to "${checked ? "list" : "grid"}".`);
+  }
+
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
@@ -146,7 +149,7 @@
   <div class="content">
     <div style="display: flex; justify-content: space-between;">
       <div style="display: flex; align-items: center;">
-        <IconToggle bind:value={isListView} leftTooltip="Grid View" rightTooltip="List View">
+        <IconToggle onChange={onViewTypeChange} leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
           <span slot="left">
             <!-- <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 448">
               <path d="M128 40 c0-22.1-17.9-40-40-40 H40 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M288 40 c0-22.1-17.9-40-40-40 H200 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M448 40 c0-22.1-17.9-40-40-40 H360 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z" />
@@ -177,30 +180,10 @@
 
   <div class="content" style="height: calc(100% - 85px);">
     <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
-      {#if isListView}
-        <GameList isLoading={isLoading || $loadingGames} games={games} />
+      {#if $renderGamesInList}
+        <GamesList isLoading={isLoading || $loadingGames} games={games} />
       {:else}
-        <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading || $loadingGames} marginTop="0px">
-          {#if isLoading || $loadingGames}
-            <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-              {#each new Array(100) as _}
-                <GridLoadingSkeleton />
-              {/each}
-            </div>
-          {:else}
-            {#if games.length > 0}
-              <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-                {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-                  <Game game={game} />
-                {/each}
-              </div>
-            {:else}
-              <div class="message">
-                No {$currentPlatform} games found.
-              </div>
-            {/if}
-          {/if}
-        </PaddedScrollContainer>
+        <GamesGrid isLoading={isLoading || $loadingGames} games={games} />
       {/if}
     </ListTabs>
   </div>
@@ -214,25 +197,5 @@
   .content {
     padding: 0px 6px;
     max-height: calc(100% - 65px)
-  }
-
-  .game-grid {
-    width: 100%;
-    display: grid;
-    
-    grid-template-columns: repeat(auto-fit, var(--img-width));
-    row-gap: 15px;
-    column-gap: 15px;
-    grid-auto-flow: row;
-    grid-auto-rows: var(--img-height);
-
-    justify-content: center;
-  }
-
-  .message {
-    width: 100%;
-    text-align: center;
-    opacity: 0.5;
-    padding-top: 40px;
   }
 </style>

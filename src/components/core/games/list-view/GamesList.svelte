@@ -1,6 +1,6 @@
 <script lang="ts">
   import VirtualList from "@sveltejs/svelte-virtual-list";
-    import { currentPlatform } from "../../../stores/AppState";
+  import { currentPlatform } from "../../../../stores/AppState";
 
   export let isLoading: boolean;
   export let games: GameStruct[];

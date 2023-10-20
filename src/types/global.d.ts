@@ -8,6 +8,7 @@ type AppSettings = {
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
   theme: number,
+  gameViewType: number,
   steamGridDbApiKey: string,
   steamApiKeyMap: { [userId32: string]: string },
   hiddenGameIds: [],

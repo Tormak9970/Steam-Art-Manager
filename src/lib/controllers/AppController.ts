@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -65,6 +65,11 @@ export class AppController {
 
     await SettingsManager.setSettingsPath();
     const settings: AppSettings = await SettingsManager.getSettings();
+
+    theme.set(settings.theme);
+    document.body.setAttribute("data-theme", settings.theme === 0 ? "dark" : "light");
+
+    renderGamesInList.set(settings.gameViewType === 1);
 
     await findSteamPath(settings.steamInstallPath);
 
@@ -130,9 +135,6 @@ export class AppController {
 
     customGameNames.set(settings.customGameNames);
     LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
-
-    theme.set(settings.theme);
-    document.body.setAttribute("data-theme", settings.theme === 0 ? "dark" : "light");
 
     hiddenGameIds.set(settings.hiddenGameIds);
 

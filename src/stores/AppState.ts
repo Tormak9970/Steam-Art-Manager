@@ -30,6 +30,7 @@ export enum Theme {
 }
 
 export const theme = writable(Theme.DARK);
+export const renderGamesInList = writable(false);
 
 export const requestTimeoutLength = writable(5000);
 
