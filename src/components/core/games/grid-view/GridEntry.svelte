@@ -1,100 +1,24 @@
 <script lang="ts">
-  import { tauri } from "@tauri-apps/api"
-  import { onDestroy, onMount } from "svelte";
-  import type { Unsubscriber } from "svelte/store";
-
-  import { SettingsManager } from "../../../../lib/utils/SettingsManager";
-  import { GridTypes, Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../../stores/AppState";
+  import { gridType, selectedGameAppId } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
   import GridImage from "../../GridImage.svelte";
 
   export let game: GameStruct;
+  export let imagePath: string;
+  export let showImage: boolean;
 
-  let gridTypeUnsub: Unsubscriber;
-  let libraryCacheUnsub: Unsubscriber;
+  export let isHidden: boolean;
+  export let hasCustomName: boolean;
+  export let hasCustomArt: boolean;
+  export let canDiscard: boolean;
 
-  let showImage = true;
-  let imagePath = "";
-  $: isHidden = $hiddenGameIds.includes(game.appid);
-  $: originalLogoPos = $originalLogoPositions[game.appid]?.logoPosition;
-  $: steamLogoPos = $steamLogoPositions[game.appid]?.logoPosition;
-  $: canDiscard = (($currentPlatform === Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] !== $originalAppLibraryCache[game.appid][$gridType] : false)
-                  || (steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false);
-  $: hasCustomArt = ($currentPlatform === Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] !== $unfilteredLibraryCache[game.appid][$gridType] : false;
-  $: hasCustomName = !!$customGameNames[game.appid];
-
-
-  /**
-   * Selects this game.
-   */
-  function selectGame(): void {
-    $selectedGameName = $customGameNames[game.appid] ?? game.name;
-    $selectedGameAppId = game.appid;
-  }
-
-  /**
-   * Hides this game.
-   */
-  function hide(): void {
-    const tmp = $hiddenGameIds;
-    tmp.push(game.appid);
-    $hiddenGameIds = [ ...tmp ];
-    SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
-
-    if ($selectedGameAppId === game.appid) {
-      $selectedGameAppId = null;
-      $selectedGameName = null;
-    }
-  }
-
-  /**
-   * Unhides this game.
-   */
-  function unHide(): void {
-    const tmp = $hiddenGameIds;
-    tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
-    $hiddenGameIds = [ ...tmp ];
-    SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
-  }
-
-  /**
-   * Handles updating this game's image path when state changes.
-   * @param libraryCache The library cache object.
-   * @param type The selected grid type.
-   */
-  function updateOnStateChange(libraryCache: { [appid: string]: LibraryCacheEntry}, type: GridTypes): void {
-    if (libraryCache[game.appid]) {
-      if (libraryCache[game.appid][type]) {
-        showImage = true;
-        if (libraryCache[game.appid][type] === "REMOVE") {
-          imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
-        } else {
-          imagePath = tauri.convertFileSrc(libraryCache[game.appid][type]);
-        }
-      }  else {
-        showImage = false;
-      }
-    }
-  }
-
-  onMount(() => {
-    gridTypeUnsub = gridType.subscribe((type) => {
-      updateOnStateChange($appLibraryCache, type);
-    });
-    libraryCacheUnsub = appLibraryCache.subscribe((cache) => {
-      updateOnStateChange(cache, $gridType);
-    });
-  });
-
-  onDestroy(() => {
-    if (gridTypeUnsub) gridTypeUnsub();
-    if (libraryCacheUnsub) libraryCacheUnsub();
-  });
+  export let selectGame: () => void;
+  export let toggleHidden: (isHidden: boolean) => void;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="game" class:selected={$selectedGameAppId === game.appid} on:click={selectGame}>
-  <div class="image-control icon-2" on:click|stopPropagation={isHidden ? unHide : hide} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
+  <div class="image-control icon-2" on:click|stopPropagation={() => toggleHidden(isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
     {#if isHidden}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
         <!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->

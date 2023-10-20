@@ -1,7 +1,7 @@
 <script lang="ts">
   import PaddedScrollContainer from "../../../layout/PaddedScrollContainer.svelte";
   import GridLoadingSkeleton from "../../../layout/GridLoadingSkeleton.svelte";
-  import GridEntry from "./GridEntry.svelte";
+  import GameEntry from "../GameEntry.svelte";
   
   import { currentPlatform, gridType } from "../../../../stores/AppState";
   import { heights, widths } from "../../imageDimensions";
@@ -23,7 +23,7 @@
     {#if games.length > 0}
       <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
         {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-          <GridEntry game={game} />
+          <GameEntry game={game} />
         {/each}
       </div>
     {:else}
