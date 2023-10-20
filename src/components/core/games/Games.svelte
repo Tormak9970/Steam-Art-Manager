@@ -30,6 +30,7 @@
   let searchQuery = "";
   let games: GameStruct[] = [];
 
+  // TODO: make it a store and load/save to settings json
   let isListView = false;
 
   let setSearchFocus: () => void;
@@ -147,10 +148,14 @@
       <div style="display: flex; align-items: center;">
         <IconToggle bind:value={isListView} leftTooltip="Grid View" rightTooltip="List View">
           <span slot="left">
-            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 448">
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 448">
               <path d="M128 40 c0-22.1-17.9-40-40-40 H40 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M288 40 c0-22.1-17.9-40-40-40 H200 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M448 40 c0-22.1-17.9-40-40-40 H360 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z" />
               <path d="M128 200 c0-22.1-17.9-40-40-40 H40 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M288 200 c0-22.1-17.9-40-40-40 H200 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M448 200 c0-22.1-17.9-40-40-40 H360 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z" />
               <path d="M128 360 c0-22.1-17.9-40-40-40 H40 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M288 360 c0-22.1-17.9-40-40-40 H200 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z M448 360 c0-22.1-17.9-40-40-40 H360 c-22.1 0-40 17.9-40 40 v48 c0 22.1 17.9 40 40 40 h48 c22.1 0 40-17.9 40-40 z" />
+            </svg> -->
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+              <rect x="0" y="10" width="220" height="492" rx="50" ry="50" />
+              <rect x="290" y="10" width="220" height="492" rx="50" ry="50" />
             </svg>
           </span>
           <span slot="right">
