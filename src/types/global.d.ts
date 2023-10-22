@@ -7,13 +7,15 @@ type AppSettings = {
   version: string,
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
-  theme: number,
-  gameViewType: number,
   steamGridDbApiKey: string,
   steamApiKeyMap: { [userId32: string]: string },
   hiddenGameIds: [],
   manualSteamGames: GameStruct[],
-  customGameNames: { [appId: string]: string }
+  customGameNames: { [appId: string]: string },
+  
+  theme: number,
+  gameViewType: number,
+  showHiddenGames: boolean,
 };
 
 type LibraryCacheEntry = {

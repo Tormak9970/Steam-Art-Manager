@@ -1,31 +1,28 @@
 <script lang="ts">
   import VirtualList from "./VirtualList.svelte";
   import GameEntry from "../GameEntry.svelte";
+  import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
   
   import { currentPlatform } from "../../../../stores/AppState";
 
   export let isLoading: boolean;
   export let games: GameStruct[];
 
-  const itemHeight = 48;
-  let start: number;
-	let end: number;
+  const itemHeight = 47;
 </script>
 
 <div class="games-list">
   {#if isLoading}
-    <!-- <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+    <div class="loading-container">
       {#each new Array(100) as _}
-        <GridLoadingSkeleton />
+        <EntryLoadingSkeleton />
       {/each}
-    </div> -->
-    <!-- TODO: show loading skeletons for list entries here -->
+    </div>
   {:else}
     {#if games.length > 0}
-      <VirtualList itemHeight={itemHeight} items={games} bind:start bind:end let:item>
+      <VirtualList itemHeight={itemHeight} items={games} let:item>
         <GameEntry game={item} />
       </VirtualList>
-      <!-- <p>showing items {start}-{end}</p> -->
     {:else}
       <div class="message">
         No {$currentPlatform} games found.
@@ -37,6 +34,14 @@
 <style>
   .games-list {
     height: 100%;
+    overflow: hidden;
+  }
+
+  .loading-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: hidden;
   }
   
   .message {

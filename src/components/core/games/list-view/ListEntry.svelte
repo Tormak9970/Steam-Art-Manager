@@ -1,12 +1,12 @@
 <script lang="ts">
   import { selectedGameAppId } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
+  import { heights, widths } from "../../imageDimensions";
+  import Lazy from "svelte-lazy";
 
   export let game: GameStruct;
   export let iconPath: string;
   export let showIcon: boolean;
-
-  console.log(iconPath, showIcon)
 
   export let isHidden: boolean;
   export let hasCustomName: boolean;
@@ -18,10 +18,16 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="game" class:selected={$selectedGameAppId === game.appid} on:click={selectGame}>
-  <div class="game-info">
+<div class="list-entry" class:selected={$selectedGameAppId === game.appid} on:click={selectGame}>
+  <div class="entry-info">
     <div class="icon-container">
-      <!-- <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="No {$gridType} image for game" /> -->
+      {#if showIcon}
+        <Lazy height="{heights.Icon}px" fadeOption={{ delay: 500, duration: 1000 }}>
+          <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {widths.Icon}px; max-height: {heights.Icon}px; width: auto; height: auto;" draggable="false" />
+        </Lazy>
+      {:else}
+        <div style="text-align: center;">No icon image for game</div>
+      {/if}
     </div>
     <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
   </div>
@@ -65,10 +71,9 @@
 </div>
 
 <style>
-  .game {
+  .list-entry {
     background-color: var(--foreground);
-    padding: 10px;
-    padding-bottom: 5px;
+    padding: 6px 10px;
     border-radius: 4px;
 
     font-size: 14px;
@@ -89,10 +94,25 @@
     margin-bottom: 7px;
     margin-right: 7px;
   }
-  .game:hover { background-color: var(--foreground-hover); }
+  .list-entry:hover { background-color: var(--foreground-hover); }
 
   .selected { background-color: var(--foreground-light); }
   .selected:hover { background-color: var(--foreground-light-hover); }
+
+  .entry-info {
+    display: flex;
+    align-items: center;
+  }
+
+  .icon-container {
+    margin-right: 7px;
+    border-radius: 4px;
+
+    height: 32px;
+    width: 32px;
+
+    overflow: hidden;
+  }
 
   .name {
     height: 23px;
@@ -138,5 +158,5 @@
     opacity: 1;
   }
 
-  .game:hover .image-control { display: flex; }
+  .list-entry:hover .image-control { display: flex; }
 </style>

@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -70,6 +70,7 @@ export class AppController {
     document.body.setAttribute("data-theme", settings.theme === 0 ? "dark" : "light");
 
     renderGamesInList.set(settings.gameViewType === 1);
+    showHidden.set(settings.showHiddenGames);
 
     await findSteamPath(settings.steamInstallPath);
 
@@ -86,7 +87,7 @@ export class AppController {
       await exit(0);
     }
 
-    //? need to clean the data here bc props can vary in terms of case
+    // ? need to clean the data here bc props can vary in terms of case
     for (const [ id, user ] of Object.entries(users)) {
       const userKeys = Object.keys(user);
       const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [ key.toLowerCase(), user[key] ]));

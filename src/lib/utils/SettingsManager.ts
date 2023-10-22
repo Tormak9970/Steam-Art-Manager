@@ -18,7 +18,20 @@
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
 
-const DEFAULT_SETTINGS = "{ \"version\": \"\", \"steamInstallPath\": \"\", \"shownShortcutPrompt\": false, \"theme\": 0, \"gameViewType\": 0, \"steamGridDbApiKey\": \"\", \"steamApiKeyMap\": {}, \"hiddenGameIds\": [], \"manualSteamGames\": [], \"customGameName\": {} }";
+const DEFAULT_SETTINGS = `{
+  "version": "",
+  "steamInstallPath": "",
+  "shownShortcutPrompt": false,
+  "steamGridDbApiKey": "",
+  "steamApiKeyMap": {},
+  "hiddenGameIds": [],
+  "manualSteamGames": [],
+  "customGameName": {},
+  
+  "theme": 0,
+  "gameViewType": 0,
+  "showHiddenGames": false
+}`;
 
 /**
  * A class for managing application settings
