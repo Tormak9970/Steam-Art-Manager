@@ -5,6 +5,8 @@
 	export let items: any[];
 	export let height = "100%";
 	export let itemHeight = undefined;
+  
+  export let keyFunction = (entry: any) => entry.index;
 
 	// read-only, but visible to consumers via bind:start
 	export let start = 0;
@@ -137,7 +139,7 @@
 
 <svelte-virtual-list-viewport style="height: {height};" on:scroll={handleScroll} bind:this={viewport} bind:offsetHeight={viewportHeight}>
 	<svelte-virtual-list-contents style="padding-top: {top}px; padding-bottom: {bottom}px;" bind:this={contents}>
-		{#each visible as row (row.index)}
+		{#each visible as row (keyFunction(row))}
 			<svelte-virtual-list-row>
 				<slot entry={row.data}>Missing template</slot>
 			</svelte-virtual-list-row>

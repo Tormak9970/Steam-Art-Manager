@@ -22,11 +22,6 @@
     </div>
   {:else}
     {#if games.length > 0}
-      <!-- <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
-        {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
-          <GameEntry game={game} />
-        {/each}
-      </div> -->
       <VirtualizedGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualizedGrid>

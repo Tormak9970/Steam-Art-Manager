@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-    import { currentPlatform } from "../../../../stores/AppState";
 
 	// props
 	export let items: any[];

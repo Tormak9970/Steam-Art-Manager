@@ -20,7 +20,7 @@
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualList itemHeight={itemHeight} items={games} let:entry>
+      <VirtualList itemHeight={itemHeight} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualList>
     {:else}
