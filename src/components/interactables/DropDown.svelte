@@ -12,6 +12,7 @@
   export let tooltipPosition: Placement = "left";
   export let entryTooltipPosition: Placement = tooltipPosition;
   export let direction: "UP" | "DOWN" = "DOWN";
+  export let disabled = false;
 
   let customSelectElem: HTMLDivElement;
   let customSelectElemWrapper: HTMLDivElement;
@@ -64,7 +65,7 @@
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
-    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow }} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow }} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -83,7 +84,7 @@
       </div>
     </div>
   {:else}
-    <div class="custom-select" style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -132,6 +133,10 @@
   .custom-select:hover {
     background-color: var(--foreground-hover);
     cursor: pointer;
+  }
+  .disabled {
+    pointer-events: none;
+    opacity: 0.6;
   }
   .custom-select > select { display: none; }
 

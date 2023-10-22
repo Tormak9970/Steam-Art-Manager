@@ -119,7 +119,16 @@
 
 <main>
 	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
+		<DropDown
+      label="User"
+      options={users}
+      value={selectedUserId}
+      onChange={AppController.changeSteamUser}
+      width="100px"
+      tooltipPosition="bottom"
+      entryTooltipPosition="right"
+      disabled={$showDialogModal || $showSteamPathModal || $showGameSearchModal || $showGridModal || $showBatchApplyProgress || $showBatchApplyModal || $showLogoPositionModal || $showManualGamesModal || $showCleanGridsModal || $showCleanConflictDialog || $showUpdateModal}
+    />
   </Titlebar>
 	<div class="content">
     {#if $showDialogModal}
