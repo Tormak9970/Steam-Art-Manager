@@ -45,22 +45,16 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
-    width: 22px;
-    height: 22px;
+    width: 1em;
+    height: 1em;
+    padding: 3px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   :global(.side > span) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 22px;
-    height: 22px;
-  }
-  :global(.side:first-child) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 22px;
-    height: 22px;
+    height: 1em;
   }
   :global(.side svg) {
     fill: var(--background-dark);

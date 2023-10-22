@@ -12,8 +12,8 @@
   import Divider from "../Divider.svelte";
   import IconToggle from "../../interactables/IconToggle.svelte";
   import Spacer from "../../layout/Spacer.svelte";
-    import { SettingsManager } from "../../../lib/utils/SettingsManager";
-    import { LogController } from "../../../lib/controllers/LogController";
+  import { SettingsManager } from "../../../lib/utils/SettingsManager";
+  import { LogController } from "../../../lib/controllers/LogController";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
