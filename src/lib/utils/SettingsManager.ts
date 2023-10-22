@@ -17,6 +17,7 @@
  */
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
+import { DEFAULT_FILTERS } from "./Defaults";
 
 const DEFAULT_SETTINGS = `{
   "version": "",
@@ -30,7 +31,8 @@ const DEFAULT_SETTINGS = `{
   
   "theme": 0,
   "gameViewType": 0,
-  "showHiddenGames": false
+  "showHiddenGames": false,
+  "filters": ${JSON.stringify(DEFAULT_FILTERS, null, "\t")}
 }`;
 
 /**

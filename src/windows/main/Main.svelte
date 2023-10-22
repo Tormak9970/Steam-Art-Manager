@@ -10,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, isOnline, showHidden, steamUsers } from "../../stores/AppState";
+  import { activeUserId, dbFilters, isOnline, showHidden, steamUsers } from "../../stores/AppState";
   import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -27,12 +27,13 @@
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
-    import { SettingsManager } from "../../lib/utils/SettingsManager";
+  import { SettingsManager } from "../../lib/utils/SettingsManager";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
   let showHiddenUnsub: Unsubscriber;
+  let dbFiltersUnsub: Unsubscriber;
 
 	let users = Object.values($steamUsers).map((user) => {
 		return {
@@ -73,6 +74,9 @@
     showHiddenUnsub = showHidden.subscribe((show) => {
       SettingsManager.updateSetting("showHiddenGames", show);
     });
+    dbFiltersUnsub = dbFilters.subscribe((filters) => {
+      SettingsManager.updateSetting("filters", filters);
+    });
 
 		let i = 0;
 
@@ -109,6 +113,7 @@
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
     if (showHiddenUnsub) showHiddenUnsub();
+    if (dbFiltersUnsub) dbFiltersUnsub();
 	});
 </script>
 
