@@ -47,8 +47,8 @@
 				row = rows[i - start];
 			}
 
-			const row_height = heightMap[i] = itemHeight || row.offsetHeight;
-			contentHeight += row_height;
+			const rowHeight = heightMap[i] = itemHeight || row.offsetHeight;
+			contentHeight += rowHeight;
 			i += 1;
 		}
 
@@ -59,13 +59,12 @@
 
 		bottom = remaining * averageHeight;
 		heightMap.length = items.length;
-
 	}
 
 	async function handleScroll() {
 		const { scrollTop } = viewport;
 
-		const old_start = start;
+		const oldStart = start;
 
 		for (let v = 0; v < rows.length; v += 1) {
 			heightMap[start + v] = itemHeight || rows[v].offsetHeight;
@@ -103,17 +102,17 @@
 		while (i < items.length) {
       heightMap[i++] = averageHeight;
     }
-    
+
 		bottom = remaining * averageHeight;
 
 		// prevent jumping if we scrolled up into unknown territory
-		if (start < old_start) {
+		if (start < oldStart) {
 			await tick();
 
 			let expectedHeight = 0;
 			let actualHeight = 0;
 
-			for (let i = start; i < old_start; i +=1) {
+			for (let i = start; i < oldStart; i +=1) {
 				if (rows[i - start]) {
 					expectedHeight += heightMap[i];
 					actualHeight += itemHeight || rows[i - start].offsetHeight;
@@ -140,7 +139,7 @@
 	<svelte-virtual-list-contents style="padding-top: {top}px; padding-bottom: {bottom}px;" bind:this={contents}>
 		{#each visible as row (row.index)}
 			<svelte-virtual-list-row>
-				<slot item={row.data}>Missing template</slot>
+				<slot entry={row.data}>Missing template</slot>
 			</svelte-virtual-list-row>
 		{/each}
 	</svelte-virtual-list-contents>

@@ -5,6 +5,7 @@
   
   import { currentPlatform, gridType } from "../../../../stores/AppState";
   import { heights, widths } from "../../imageDimensions";
+  import VirtualizedGrid from "./VirtualizedGrid.svelte";
 
   export let isLoading: boolean;
   export let games: GameStruct[];
@@ -21,11 +22,14 @@
     </div>
   {:else}
     {#if games.length > 0}
-      <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+      <!-- <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
         {#each games as game (`${$currentPlatform}|${game.appid}|${game.name}`)}
           <GameEntry game={game} />
         {/each}
-      </div>
+      </div> -->
+      <VirtualizedGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
+        <GameEntry game={entry} />
+      </VirtualizedGrid>
     {:else}
       <div class="message">
         No {$currentPlatform} games found.

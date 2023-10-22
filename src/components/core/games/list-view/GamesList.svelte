@@ -20,8 +20,8 @@
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualList itemHeight={itemHeight} items={games} let:item>
-        <GameEntry game={item} />
+      <VirtualList itemHeight={itemHeight} items={games} let:entry>
+        <GameEntry game={entry} />
       </VirtualList>
     {:else}
       <div class="message">
