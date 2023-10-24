@@ -10,8 +10,6 @@
   export let games: GameStruct[];
 
   const padding = 20;
-  let start: number;
-  let end: number;
 </script>
 
 <div class="games-grid">
@@ -23,7 +21,7 @@
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} bind:start={start} bind:end={end} let:entry>
+      <VirtualGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualGrid>
     {:else}
