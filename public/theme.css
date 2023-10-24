@@ -38,7 +38,7 @@
 }
 
 [data-theme="dark"] {
-	--font-color: rgb(231, 231, 231);
+	--font-color: #e7e7e7;
 	--shadow: #0e0e0e;
 
 	--background-dark: #101010;
@@ -65,8 +65,41 @@
   --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
+[data-theme="ss-light"] {
+  --font-color: #141414;
+  
+  --background: #fcebe8;
+  --background-hover: #f0e1de;
+
+  --foreground: #e0d1c9;
+  --foreground-hover: #d1c4bd;
+
+  --highlight: #ff3d03;
+  --highlight-hover: #ff1403;
+
+  --highlight-accent: #c92a11;
+  --highlight-accent-hover: #b1230d;
+  --highlight-accent-clue-hover: #c95411;
+}
+
 [data-theme="light"] {
-	--font-color: rgb(14, 14, 14);
+	--font-color: #0e0e0e;
+  /* ! backup of the one that looks decent */
+	/* --shadow: #868383;
+	
+	--background-dark: #f3f3f3;
+	--background-dark-hover: #e4e4e4;
+
+  --background: #dfdfdf;
+  --background-hover: #d9d9d9;
+
+  --foreground: #cfcfcf;
+  --foreground-hover: #c1c1c1;
+
+  --foreground-light: #a1a1a1;
+  --foreground-light_rgb: 171, 171, 171;
+  --foreground-light-hover: #b1b1b1; */
+
 	--shadow: #868383;
 	
 	--background-dark: #f3f3f3;
