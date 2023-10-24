@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VirtualList from "./VirtualList.svelte";
+  import VirtualList from "../../../layout/VirtualList.svelte";
   import GameEntry from "../GameEntry.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
   
@@ -33,7 +33,7 @@
 
 <style>
   .games-list {
-    height: 100%;
+    height: calc(100% - 7px);
     overflow: hidden;
   }
 

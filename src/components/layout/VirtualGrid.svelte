@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
+  import { debounce } from "../../lib/utils/Utils";
 
-	// props
+	// * Component Props.
 	export let items: any[];
 	export let height = "100%";
 	export let itemHeight: number;
@@ -11,18 +12,21 @@
 
   export let keyFunction = (entry: any) => entry.index;
 
-	// read-only, but visible to consumers via bind:start
+	// * Read-Only, but visible to consumers via bind:start & bind:end.
 	export let start = 0;
 	export let end = 0;
 
-  // local state
-  let heightMap = [];
-  let entries: HTMLCollectionOf<HTMLElement>;
-  let viewport: HTMLElement;
-  let contents: HTMLElement;
-  let viewportHeight = 0;
-  let visible: any[];
+  // * Local State
   let mounted: boolean;
+  let entries: HTMLCollectionOf<HTMLElement>;
+  let visible: any[];
+  let heightMap = [];
+
+  let viewport: HTMLElement;
+  let viewportHeight = 0;
+  let viewportWidth = 0;
+
+  let contents: HTMLElement;
 
   let top = 0;
   let bottom = 0;
@@ -32,14 +36,15 @@
     return { index: i + start, data };
   });
 
-  // whenever `items` changes, invalidate the current heightmap
+  // * Whenever `items` changes, invalidate the current heightmap.
   $: if (mounted) refresh(items, viewportHeight, itemHeight);
 
   async function refresh(items: any[], viewportHeight: number, itemHeight: number) {
     const { scrollTop } = viewport;
     const numEntriesPerRow = Math.floor((viewport.clientWidth + columnGap) / (itemWidth + columnGap));
 
-		await tick(); // wait until the DOM is up to date
+    // * Wait until the DOM is up to date.
+		await tick();
 
 		let contentHeight = top - scrollTop;
 		let i = start;
@@ -49,16 +54,20 @@
 
 			if (!entry) {
 				end = i + 1;
-				await tick(); // render the newly visible entry
+        // * Render the newly visible entry.
+				await tick();
 				entry = entries[i - start];
 			}
 
-			const entryHeight = heightMap[i] = itemHeight;
-			i++;
+      // TODO: maybe try only adding rowGap if we're not on the last row.
+			const entryHeight = heightMap[i] = (itemHeight + rowGap);
+      // * Only increase the contentHeight if this is the last element in the row, or the last element.
+      if (i % numEntriesPerRow === numEntriesPerRow - 1 || i === items.length - 1) contentHeight += entryHeight;
 
-      if (i % numEntriesPerRow === 0) contentHeight += (entryHeight + rowGap);
+			i++;
 		}
 
+    // TODO: see if this is needed.
     contentHeight -= rowGap;
 
 		end = i;
@@ -77,7 +86,7 @@
 		const oldStart = start;
 
 		for (let v = 0; v < entries.length; v++) {
-			heightMap[start + v] = itemHeight;
+			heightMap[start + v] = (itemHeight + rowGap);
 		}
 
 		let i = 0;
@@ -93,15 +102,18 @@
 				break;
 			}
 
-			y += entryHeight;
+      // * Only increase the height if this is the last element in the row, or the last element
+			if (i % numEntriesPerRow === numEntriesPerRow - 1 || i === items.length - 1) y += entryHeight;
 			i++;
 		}
 
 		while (i < items.length) {
-			y += heightMap[i] || averageHeight;
+      // * Only increase the height if this is the last element in the row, or the last element
+			if (i % numEntriesPerRow === numEntriesPerRow - 1 || i === items.length - 1) y += heightMap[i] || averageHeight;
 			i++;
 
-			if (y > scrollTop + viewportHeight) break;
+      // ? subtract row-gap here to always exclude the last line's row-gap
+			if ((y - rowGap) > scrollTop + viewportHeight) break;
 		}
 
 		end = i;
@@ -125,7 +137,7 @@
 			for (let i = start; i < oldStart; i++) {
 				if (entries[i - start] && i % numEntriesPerRow === 0) {
 					expectedHeight += heightMap[i];
-					actualHeight += itemHeight;
+					actualHeight += (itemHeight + rowGap);
 				}
 			}
 
@@ -138,15 +150,30 @@
 		// more. maybe we can just call handle_scroll again?
   }
 
-  // trigger initial refresh
+  const debouncedRefresh = debounce(() => refresh(items, viewportHeight, itemHeight), 100);
+
+  $: if (mounted && viewportHeight && viewportWidth) debouncedRefresh();
+
+  // * Trigger initial refresh.
   onMount(() => {
     entries = contents.getElementsByTagName("svelte-virtual-grid-entry") as HTMLCollectionOf<HTMLElement>;
     mounted = true;
   });
 </script>
 
-<svelte-virtual-grid-viewport style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;" on:scroll={handleScroll} bind:this={viewport} bind:offsetHeight={viewportHeight}>
-	<svelte-virtual-grid-contents style="padding-top: {top}px; padding-bottom: {bottom}px;" bind:this={contents}>
+
+
+<svelte-virtual-grid-viewport
+  style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
+  on:scroll={handleScroll}
+  bind:offsetHeight={viewportHeight}
+  bind:offsetWidth={viewportWidth}
+  bind:this={viewport}
+>
+	<svelte-virtual-grid-contents
+    style="padding-top: {top}px; padding-bottom: {bottom}px;"
+    bind:this={contents}
+  >
 		{#each visible as entry (keyFunction(entry))}
 			<svelte-virtual-grid-entry>
 				<slot entry={entry.data}>Missing template</slot>

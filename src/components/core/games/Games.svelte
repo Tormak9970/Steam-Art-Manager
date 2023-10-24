@@ -192,6 +192,7 @@
     --img-width: 100px;
     --img-height: 150px;
   }
+  
   .content {
     padding: 0px 6px;
     max-height: calc(100% - 65px)

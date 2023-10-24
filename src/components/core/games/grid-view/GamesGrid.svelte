@@ -1,40 +1,46 @@
 <script lang="ts">
-  import PaddedScrollContainer from "../../../layout/PaddedScrollContainer.svelte";
   import GridLoadingSkeleton from "../../../layout/GridLoadingSkeleton.svelte";
   import GameEntry from "../GameEntry.svelte";
   
   import { currentPlatform, gridType } from "../../../../stores/AppState";
   import { heights, widths } from "../../imageDimensions";
-  import VirtualizedGrid from "./VirtualizedGrid.svelte";
+  import VirtualGrid from "../../../layout/VirtualGrid.svelte";
 
   export let isLoading: boolean;
   export let games: GameStruct[];
 
   const padding = 20;
+  let start: number;
+  let end: number;
 </script>
 
-<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
+<div class="games-grid">
   {#if isLoading}
-    <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+    <div class="loading-container" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
       {#each new Array(100) as _}
         <GridLoadingSkeleton />
       {/each}
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualizedGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
+      <VirtualGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} bind:start={start} bind:end={end} let:entry>
         <GameEntry game={entry} />
-      </VirtualizedGrid>
+      </VirtualGrid>
     {:else}
       <div class="message">
         No {$currentPlatform} games found.
       </div>
     {/if}
   {/if}
-</PaddedScrollContainer>
+</div>
 
 <style>
-  .game-grid {
+  .games-grid {
+    height: calc(100% - 7px);
+    overflow: hidden;
+  }
+
+  .loading-container {
     width: 100%;
     display: grid;
     
