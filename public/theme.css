@@ -65,23 +65,6 @@
   --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 
-[data-theme="ss-light"] {
-  --font-color: #141414;
-  
-  --background: #fcebe8;
-  --background-hover: #f0e1de;
-
-  --foreground: #e0d1c9;
-  --foreground-hover: #d1c4bd;
-
-  --highlight: #ff3d03;
-  --highlight-hover: #ff1403;
-
-  --highlight-accent: #c92a11;
-  --highlight-accent-hover: #b1230d;
-  --highlight-accent-clue-hover: #c95411;
-}
-
 [data-theme="light"] {
 	--font-color: #0e0e0e;
 	--shadow: #868383;
