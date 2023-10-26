@@ -84,22 +84,6 @@
 
 [data-theme="light"] {
 	--font-color: #0e0e0e;
-  /* ! backup of the one that looks decent */
-	/* --shadow: #868383;
-	
-	--background-dark: #f3f3f3;
-	--background-dark-hover: #e4e4e4;
-
-  --background: #dfdfdf;
-  --background-hover: #d9d9d9;
-
-  --foreground: #cfcfcf;
-  --foreground-hover: #c1c1c1;
-
-  --foreground-light: #a1a1a1;
-  --foreground-light_rgb: 171, 171, 171;
-  --foreground-light-hover: #b1b1b1; */
-
 	--shadow: #868383;
 	
 	--background-dark: #f3f3f3;
@@ -108,7 +92,7 @@
   --background: #dfdfdf;
   --background-hover: #d9d9d9;
 
-  --foreground: #cfcfcf;
+  --foreground: #cdcdcd;
   --foreground-hover: #c1c1c1;
 
   --foreground-light: #a1a1a1;
