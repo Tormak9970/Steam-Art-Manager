@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
   import { debounce } from "../../lib/utils/Utils";
+  import { scrollShadow } from "../directives/scrollShadow";
 
 	// * Component Props.
 	export let items: any[];
 	export let height = "100%";
+  export let width = "100%";
 	export let itemHeight: number;
   export let itemWidth: number;
   export let columnGap: number;
@@ -27,6 +29,7 @@
   let viewportWidth = 0;
 
   let contents: HTMLElement;
+  let overflowContainer: HTMLElement;
 
   let top = 0;
   let bottom = 0;
@@ -161,26 +164,27 @@
   });
 </script>
 
-
-
-<svelte-virtual-grid-viewport
-  style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
-  on:scroll={handleScroll}
-  bind:offsetHeight={viewportHeight}
-  bind:offsetWidth={viewportWidth}
-  bind:this={viewport}
->
-	<svelte-virtual-grid-contents
-    style="padding-top: {top}px; padding-bottom: {bottom}px;"
-    bind:this={contents}
+<div class="overflow-shadow-container" style="width: {width}; height: {height};" bind:this={overflowContainer}>
+  <svelte-virtual-grid-viewport
+    style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
+    on:scroll={handleScroll}
+    bind:offsetHeight={viewportHeight}
+    bind:offsetWidth={viewportWidth}
+    bind:this={viewport}
+    use:scrollShadow={{ target: contents, container: overflowContainer, heightBump: 0 }}
   >
-		{#each visible as entry (keyFunction(entry))}
-			<svelte-virtual-grid-entry>
-				<slot entry={entry.data}>Missing template</slot>
-			</svelte-virtual-grid-entry>
-		{/each}
-	</svelte-virtual-grid-contents>
-</svelte-virtual-grid-viewport>
+    <svelte-virtual-grid-contents
+      style="padding-top: {top}px; padding-bottom: {bottom}px;"
+      bind:this={contents}
+    >
+      {#each visible as entry (keyFunction(entry))}
+        <svelte-virtual-grid-entry>
+          <slot entry={entry.data}>Missing template</slot>
+        </svelte-virtual-grid-entry>
+      {/each}
+    </svelte-virtual-grid-contents>
+  </svelte-virtual-grid-viewport>
+</div>
 
 <style>
 	svelte-virtual-grid-viewport {

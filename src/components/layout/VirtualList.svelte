@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
+  import { scrollShadow } from "../directives/scrollShadow";
 
 	// * Component Props.
 	export let items: any[];
 	export let height = "100%";
+  export let width = "100%";
 	export let itemHeight = undefined;
   
   export let keyFunction = (entry: any) => entry.index;
@@ -22,6 +24,7 @@
 	let viewportHeight = 0;
 
 	let contents: HTMLElement;
+  let overflowContainer: HTMLElement;
 
 	let top = 0;
 	let bottom = 0;
@@ -141,23 +144,26 @@
 	});
 </script>
 
-<svelte-virtual-list-viewport
-  style="height: {height};"
-  on:scroll={handleScroll}
-  bind:offsetHeight={viewportHeight}
-  bind:this={viewport}
->
-	<svelte-virtual-list-contents
-    style="padding-top: {top}px; padding-bottom: {bottom}px;"
-    bind:this={contents}
+<div class="overflow-shadow-container" style="width: {width}; height: {height};" bind:this={overflowContainer}>
+  <svelte-virtual-list-viewport
+    style="height: {height};"
+    on:scroll={handleScroll}
+    bind:offsetHeight={viewportHeight}
+    bind:this={viewport}
+    use:scrollShadow={{ target: contents, container: overflowContainer, heightBump: 0 }}
   >
-		{#each visible as row (keyFunction(row))}
-			<svelte-virtual-list-row>
-				<slot entry={row.data}>Missing template</slot>
-			</svelte-virtual-list-row>
-		{/each}
-	</svelte-virtual-list-contents>
-</svelte-virtual-list-viewport>
+    <svelte-virtual-list-contents
+      style="padding-top: {top}px; padding-bottom: {bottom}px;"
+      bind:this={contents}
+    >
+      {#each visible as row (keyFunction(row))}
+        <svelte-virtual-list-row>
+          <slot entry={row.data}>Missing template</slot>
+        </svelte-virtual-list-row>
+      {/each}
+    </svelte-virtual-list-contents>
+  </svelte-virtual-list-viewport>
+</div>
 
 <style>
 	svelte-virtual-list-viewport {
