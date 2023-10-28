@@ -60,8 +60,8 @@
 	--sgdb-animated-color: #e2a256;
   
   --tooltip-background: var(--background-dark);
-  --tooltip-border: rgba(68, 68, 68, 0.4);
-  --tooltip-border-arrow: rgba(75, 75, 75, 0.5);
+  --tooltip-border: rgba(68, 68, 68, 0.8);
+  --tooltip-border-arrow: rgba(75, 75, 75, 0.9);
   --tooltip-shadow: rgba(0, 8, 16, .08);
 }
 

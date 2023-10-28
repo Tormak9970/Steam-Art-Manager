@@ -45,5 +45,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    border-radius: 4px;
+    overflow: hidden;
   }
 </style>
