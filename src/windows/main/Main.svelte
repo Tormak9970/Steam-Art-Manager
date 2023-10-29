@@ -56,8 +56,11 @@
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
   }
 
+  /**
+   * Handles panel resize events.
+   * @param event The resize event.
+   */
   async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
-    console.log("Resize event:", event);
     if (event.detail) {
       await SettingsManager.updateSetting("panels", {
         "options": event.detail[0].size,
