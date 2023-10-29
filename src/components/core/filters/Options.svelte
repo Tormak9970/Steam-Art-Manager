@@ -6,7 +6,7 @@
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
-  import { dbFilters, gridType, theme } from "../../../stores/AppState";
+  import { dbFilters, gridType, optionsSize, theme } from "../../../stores/AppState";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
@@ -51,7 +51,7 @@
   }
 </script>
 
-<Pane minSize={15} size={16}>
+<Pane minSize={15} size={$optionsSize}>
   <div class="inner">
     <SectionTitle title="Options" />
   

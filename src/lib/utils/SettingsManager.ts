@@ -32,7 +32,12 @@ const DEFAULT_SETTINGS = `{
   "theme": 0,
   "gameViewType": 0,
   "showHiddenGames": false,
-  "filters": ${JSON.stringify(DEFAULT_FILTERS, null, "\t")}
+  "filters": ${JSON.stringify(DEFAULT_FILTERS, null, "\t")},
+  "panels": {
+    "options": 16,
+    "games": 42,
+    "grids": 42
+  }
 }`;
 
 /**

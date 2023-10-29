@@ -32,6 +32,9 @@ export enum Theme {
 
 export const theme = writable(Theme.DARK);
 export const renderGamesInList = writable(false);
+export const optionsSize = writable(16);
+export const gamesSize = writable(42);
+export const gridsSize = writable(42);
 
 export const requestTimeoutLength = writable(5000);
 

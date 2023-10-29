@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "../../../stores/AppState";
+  import { Platforms, currentPlatform, gamesSize, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "../../../stores/AppState";
   import SearchBar from "../../interactables/SearchBar.svelte";
   import Toggle from "../../interactables/Toggle.svelte";
   import SectionTitle from "../SectionTitle.svelte";
@@ -143,7 +143,7 @@
 
 <svelte:window on:keydown={overwriteCtrlF} />
 
-<Pane minSize={20}>
+<Pane minSize={20} size={$gamesSize}>
   <SectionTitle title="Games" />
 
   <div class="content">

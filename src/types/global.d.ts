@@ -16,7 +16,12 @@ type AppSettings = {
   theme: number,
   gameViewType: number,
   showHiddenGames: boolean,
-  filters: any
+  filters: any,
+  panels: {
+    options: number,
+    games: number,
+    grids: number
+  }
 };
 
 type LibraryCacheEntry = {

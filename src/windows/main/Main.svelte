@@ -3,7 +3,7 @@
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes } from "svelte-splitpanes";
+	import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 	import Footer from "../../components/Footer.svelte";
 	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
@@ -54,6 +54,17 @@
     const lineNumber = e.lineno;
 
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
+  async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
+    console.log("Resize event:", event);
+    if (event.detail) {
+      await SettingsManager.updateSetting("panels", {
+        "options": event.detail[0].size,
+        "games": event.detail[1].size,
+        "grids": event.detail[2].size
+      })
+    }
   }
 
 	onMount(async () => {
@@ -167,7 +178,7 @@
     {#if $showUpdateModal}
       <UpdateModal />
     {/if}
-		<Splitpanes>
+		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
 
 			<Games />

@@ -5,7 +5,7 @@
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames } from "../../../stores/AppState";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames, gridsSize } from "../../../stores/AppState";
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
@@ -258,7 +258,7 @@
 
 <svelte:window on:resize={debouncedWidthUpdate} />
 
-<Pane minSize={20}>
+<Pane minSize={20} size={$gridsSize}>
   <div class="inner">
     <SectionTitle title="Grids" />
 

@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -72,6 +72,10 @@ export class AppController {
     renderGamesInList.set(settings.gameViewType === 1);
     showHidden.set(settings.showHiddenGames);
     dbFilters.set(settings.filters);
+
+    optionsSize.set(settings.panels.options);
+    gamesSize.set(settings.panels.games);
+    gridsSize.set(settings.panels.grids);
 
     await findSteamPath(settings.steamInstallPath);
 
