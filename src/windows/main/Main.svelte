@@ -11,7 +11,7 @@
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
   import { activeUserId, dbFilters, isOnline, showHidden, steamUsers } from "../../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
+  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showMultiGridPreviewModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
@@ -27,7 +27,9 @@
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
+  import PrivacyModal from "../../components/modals/PrivacyModal.svelte";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
+    import MultiGridPreview from "../../components/modals/multi-grid-preview/MultiGridPreview.svelte";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -141,7 +143,7 @@
       width="100px"
       tooltipPosition="bottom"
       entryTooltipPosition="right"
-      disabled={$showDialogModal || $showSteamPathModal || $showGameSearchModal || $showGridModal || $showBatchApplyProgress || $showBatchApplyModal || $showLogoPositionModal || $showManualGamesModal || $showCleanGridsModal || $showCleanConflictDialog || $showUpdateModal}
+      disabled={$showDialogModal || $showSteamPathModal || $showGameSearchModal || $showGridModal || $showBatchApplyProgress || $showBatchApplyModal || $showLogoPositionModal || $showManualGamesModal || $showCleanGridsModal || $showCleanConflictDialog || $showUpdateModal || $showInfoModal || $showMultiGridPreviewModal}
     />
   </Titlebar>
 	<div class="content">
@@ -180,6 +182,12 @@
     {/if}
     {#if $showUpdateModal}
       <UpdateModal />
+    {/if}
+    {#if $showUpdateModal}
+      <PrivacyModal />
+    {/if}
+    {#if $showMultiGridPreviewModal}
+      <MultiGridPreview />
     {/if}
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />

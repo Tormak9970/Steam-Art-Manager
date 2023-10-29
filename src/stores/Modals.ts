@@ -42,3 +42,8 @@ export const dialogModalConfirmText = writable("");
 export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = writable("");
 export const dialogModalCancel = writable(async () => {});
+
+export const showInfoModal = writable(false);
+
+export const showMultiGridPreviewModal = writable(false);
+export const multiGridAppId = writable(null);
