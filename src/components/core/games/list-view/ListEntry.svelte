@@ -32,7 +32,7 @@
     <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
   </div>
   <div class="status">
-    <div class="image-control" on:click|stopPropagation={() => toggleHidden(isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
+    <div class="image-control" on:click|stopPropagation={() => toggleHidden(!isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
       {#if isHidden}
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
           <!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->

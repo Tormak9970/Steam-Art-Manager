@@ -38,10 +38,10 @@
   /**
    * Hides/unhides this game.
    */
-  function toggleHidden(isHidden: boolean): void {
+  function toggleHidden(shouldHide: boolean): void {
     const tmp = $hiddenGameIds;
     
-    if (isHidden) {
+    if (shouldHide) {
       tmp.push(game.appid);
 
       if ($selectedGameAppId === game.appid) {
@@ -49,7 +49,6 @@
         $selectedGameName = null;
       }
     } else {
-      const tmp = $hiddenGameIds;
       tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
     }
     

@@ -18,7 +18,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="game" class:selected={$selectedGameAppId === game.appid} on:click={selectGame}>
-  <div class="image-control icon-2" on:click|stopPropagation={() => toggleHidden(isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
+  <div class="image-control icon-2" on:click|stopPropagation={() => toggleHidden(!isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
     {#if isHidden}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
         <!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
