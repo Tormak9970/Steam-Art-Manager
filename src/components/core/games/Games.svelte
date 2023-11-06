@@ -14,6 +14,8 @@
   import Spacer from "../../layout/Spacer.svelte";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
+  import ListViewIcon from "../../icons/ListViewIcon.svelte";
+  import GridViewIcon from "../../icons/GridViewIcon.svelte";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -151,19 +153,10 @@
       <div style="display: flex; align-items: center;">
         <IconToggle onChange={onViewTypeChange} leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
           <span slot="left">
-            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-              <rect x="6" y="6" width="220" height="220" rx="25" ry="25" />
-              <rect x="286" y="6" width="220" height="220" rx="25" ry="25" />
-              <rect x="6" y="286" width="220" height="220" rx="25" ry="25" />
-              <rect x="286" y="286" width="220" height="220" rx="25" ry="25" />
-            </svg>
+            <GridViewIcon />
           </span>
           <span slot="right">
-            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-              <rect x="6" y="16" width="500" height="100" rx="25" ry="25" />
-              <rect x="6" y="196" width="500" height="100" rx="25" ry="25" />
-              <rect x="6" y="376" width="500" height="100" rx="25" ry="25" />
-            </svg>
+            <ListViewIcon />
           </span>
         </IconToggle>
         <Spacer orientation="HORIZONTAL" />

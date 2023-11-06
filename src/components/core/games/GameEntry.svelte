@@ -8,6 +8,7 @@
   import { renderGamesInList } from "../../../stores/AppState";
   import ListEntry from "./list-view/ListEntry.svelte";
   import GridEntry from "./grid-view/GridEntry.svelte";
+    import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
 
   export let game: GameStruct;
 
@@ -54,6 +55,15 @@
     
     $hiddenGameIds = [ ...tmp ];
     SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
+  }
+
+  /**
+   * Shows the all grids modal for the current game.
+   * @param appid The appid of the chosen game.
+   */
+  function showAllGrids(appid: number): void {
+    $currentGridsAppid = appid;
+    $showCurrentGridsModal = true;
   }
 
   /**
@@ -108,6 +118,7 @@
 
     selectGame={selectGame}
     toggleHidden={toggleHidden}
+    showAllGrids={showAllGrids}
   />
 {:else}
   <GridEntry
@@ -122,5 +133,6 @@
 
     selectGame={selectGame}
     toggleHidden={toggleHidden}
+    showAllGrids={showAllGrids}
   />
 {/if}

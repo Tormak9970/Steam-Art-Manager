@@ -3,6 +3,7 @@
   import { AppController } from "../../../../lib/controllers/AppController";
   import { heights, widths } from "../../imageDimensions";
   import Lazy from "svelte-lazy";
+  import AllGridsIcon from "../../../icons/AllGridsIcon.svelte";
 
   export let game: GameStruct;
   export let iconPath: string;
@@ -15,6 +16,7 @@
 
   export let selectGame: () => void;
   export let toggleHidden: (isHidden: boolean) => void;
+  export let showAllGrids: (appId: number) => void;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -32,6 +34,9 @@
     <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
   </div>
   <div class="status">
+    <div class="image-control" on:click|stopPropagation={() => showAllGrids(game.appid)} use:AppController.tippy={{ content: "View Grids", placement: "right", onShow: AppController.onTippyShow }}>
+      <AllGridsIcon />
+    </div>
     <div class="image-control" on:click|stopPropagation={() => toggleHidden(!isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
       {#if isHidden}
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
