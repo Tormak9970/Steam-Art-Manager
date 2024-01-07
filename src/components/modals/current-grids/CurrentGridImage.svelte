@@ -5,29 +5,27 @@
   export let gameTitle: string;
   export let gridType: GridTypes;
   export let src: string;
-  export let imageWidth: string;
-  export let imageHeight: string;
 
   const widths = {
     "Capsule": 200,
-    "Wide Capsule": 600,
-    "Hero": 956,
-    "Logo": 600,
-    "Icon": 64,
+    "Wide Capsule": 460,
+    "Hero": 680,
+    "Logo": 460,
+    "Icon": 32,
   };
 
   const heights = {
     "Capsule": 300,
-    "Wide Capsule": 291,
-    "Hero": 342,
-    "Logo": 201,
-    "Icon": 64,
+    "Wide Capsule": 215,
+    "Hero": 220,
+    "Logo": 122,
+    "Icon": 32,
   };
 </script>
 
 <div class="grid-image">
   <div class="label">{gridType}</div>
-  <div class="img-cont" style="max-width: {widths[gridType]}px; max-height: {heights[gridType]}px; width: {imageWidth}px; height: {imageHeight}px;">
+  <div class="img-cont" style="width: {widths[gridType]}px; height: {heights[gridType]}px;">
     <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {heights[gridType]}px;">
       <Lazy height="{heights[gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
         <img src="{src}" alt="{gridType} image for {gameTitle}." style="max-width: {widths[gridType]}px; max-height: {heights[gridType]}px; width: auto; height: auto;" />
@@ -37,17 +35,13 @@
 </div>
 
 <style>
-  .grid-image {
-
-  }
-
   .label {
     padding-left: 10px;
     font-size: 18px;
   }
 
   .img-cont {
-    padding: 3px 10px;
+    margin: 3px 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
