@@ -9,12 +9,11 @@
   let windowCloseUnsub: () => void;
 
   export let title: string;
+  export let isMaxed = false;
 
   let minimize: HTMLDivElement;
   let maximize: HTMLDivElement;
   let close: HTMLDivElement;
-
-  let isMaxed = false;
 
   /**
    * Function to run when the user attempts to close the main window.

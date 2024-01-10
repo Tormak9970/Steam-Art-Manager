@@ -1,6 +1,6 @@
 <script lang="ts">
   import { debounce } from "../../lib/utils/Utils";
-  import { scrollShadow } from "../directives/scrollShadow";
+  import { scrollShadow } from "../../lib/directives/scrollShadow";
 
   export let width = "100%";
   export let height = "auto";

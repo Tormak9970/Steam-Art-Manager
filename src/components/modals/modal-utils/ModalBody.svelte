@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { windowIsMaximized } from "../../../stores/AppState";
+
   export let title: string;
   export let onClose: () => void = () => {};
   export let canClose = true;
@@ -22,7 +24,7 @@
   }
 </script>
 
-<div class="blur" />
+<div class="blur" class:rounded={!$windowIsMaximized} />
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="background" on:mousedown={checkCanQuit} on:mouseup={closeWrapper} on:contextmenu|preventDefault|stopPropagation>
   <div class="modal-body" on:contextmenu|stopPropagation>
@@ -58,6 +60,12 @@
 
     background: rgba(6, 6, 6, 0.85);
     backdrop-filter: blur(1px);
+  }
+
+  .rounded {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
   }
 
   .border {

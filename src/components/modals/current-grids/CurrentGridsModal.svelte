@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GridTypes, appLibraryCache, gridType, manualSteamGames, nonSteamGames, steamGames, unfilteredLibraryCache } from "../../../stores/AppState";
+  import { GridTypes, appLibraryCache, manualSteamGames, nonSteamGames, steamGames, unfilteredLibraryCache } from "../../../stores/AppState";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
   import CurrentGridImage from "./CurrentGridImage.svelte";

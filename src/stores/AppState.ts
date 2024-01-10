@@ -30,6 +30,7 @@ export enum Theme {
   LIGHT
 }
 
+export const windowIsMaximized = writable(false);
 export const theme = writable(Theme.DARK);
 export const renderGamesInList = writable(false);
 export const optionsSize = writable(16);

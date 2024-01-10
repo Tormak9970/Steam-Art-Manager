@@ -10,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, dbFilters, isOnline, showHidden, steamUsers } from "../../stores/AppState";
+  import { activeUserId, dbFilters, isOnline, showHidden, steamUsers, windowIsMaximized } from "../../stores/AppState";
   import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -27,7 +27,7 @@
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
-  import PrivacyModal from "../../components/modals/PrivacyModal.svelte";
+  import PrivacyModal from "../../components/modals/InfoModal.svelte";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
 	
@@ -133,8 +133,8 @@
 	});
 </script>
 
-<main>
-	<Titlebar title="Steam Art Manager">
+<main class:rounded={!$windowIsMaximized}>
+	<Titlebar title="Steam Art Manager" bind:isMaxed={$windowIsMaximized}>
 		<DropDown
       label="User"
       options={users}
@@ -217,6 +217,12 @@
 
 		transition: opacity 0.1s ease-in-out;
 	}
+
+  .rounded {
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: transparent;
+  }
 
   .core-toast {
     font-size: 14px;
