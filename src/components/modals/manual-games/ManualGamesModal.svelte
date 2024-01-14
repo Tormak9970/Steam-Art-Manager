@@ -9,6 +9,7 @@
   import Table from "../../layout/Table.svelte";
   import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
   import { showManualGamesModal } from "../../../stores/Modals";
+  import { selectedManualGamesAddMethod } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -30,7 +31,6 @@
     { label: "Manual", data: "manual" },
     { label: "Search", data: "search" }
   ];
-  let selectedAddMethod =  "manual";
 
   /**
    * Adds a game to the new manual games list.
@@ -81,6 +81,14 @@
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
 
     onClose();
+  }
+  
+  /**
+   * Handles when the selected add method changes.
+   * @param method The selected add method.
+   */
+   function handleAddMethodChange(method: string) {
+    SettingsManager.updateSetting("windowSettings.manageManualGames.method", method);
   }
 
   /**
@@ -139,16 +147,16 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={() => {}} showTooltip={false} />
+          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" onChange={handleAddMethodChange} showTooltip={false} />
         </div>
         <Spacer orientation="VERTICAL" />
       </div>
       <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
       <Spacer orientation="VERTICAL" />
-      {#if selectedAddMethod === "search"}
+      {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
-      {:else if selectedAddMethod === "manual"}
+      {:else if $selectedManualGamesAddMethod === "manual"}
         <Manual onGameSave={addNewGame} />
       {/if}
     </div>

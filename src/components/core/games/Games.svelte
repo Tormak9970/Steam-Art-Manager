@@ -96,7 +96,7 @@
    * @param checked Whether or not games should be rendered in a list.
    */
   function onViewTypeChange(checked: boolean): void {
-    SettingsManager.updateSetting("gameViewType", checked ? 1 : 0);
+    SettingsManager.updateSetting("windowSettings.main.gameViewType", checked ? 1 : 0);
     LogController.log(`Set gameViewType to "${checked ? "list" : "grid"}".`);
   }
 

@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedGameAppId, selectedGameName, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedCleanGridsPreset, selectedGameAppId, selectedGameName, selectedManualGamesAddMethod, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -69,13 +69,18 @@ export class AppController {
     theme.set(settings.theme);
     document.body.setAttribute("data-theme", settings.theme === 0 ? "dark" : "light");
 
-    renderGamesInList.set(settings.gameViewType === 1);
+    renderGamesInList.set(settings.windowSettings.main.gameViewType === 1);
     showHidden.set(settings.showHiddenGames);
-    dbFilters.set(settings.filters);
+    dbFilters.set(settings.windowSettings.main.filters);
 
-    optionsSize.set(settings.panels.options);
-    gamesSize.set(settings.panels.games);
-    gridsSize.set(settings.panels.grids);
+    optionsSize.set(settings.windowSettings.main.panels.options);
+    gamesSize.set(settings.windowSettings.main.panels.games);
+    gridsSize.set(settings.windowSettings.main.panels.grids);
+
+    gridType.set(settings.windowSettings.main.type as GridTypes);
+
+    selectedCleanGridsPreset.set(settings.windowSettings.cleanGrids.preset);
+    selectedManualGamesAddMethod.set(settings.windowSettings.manageManualGames.method);
 
     await findSteamPath(settings.steamInstallPath);
 

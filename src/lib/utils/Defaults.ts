@@ -131,3 +131,36 @@ export const DEFAULT_FILTERS = {
     }
   }
 };
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  "version": "",
+  "steamInstallPath": "",
+  "shownShortcutPrompt": false,
+  "steamGridDbApiKey": "",
+  "steamApiKeyMap": {},
+  "hiddenGameIds": [],
+  "manualSteamGames": [],
+  "customGameNames": {},
+  
+  "theme": 0,
+  "showHiddenGames": false,
+
+  "windowSettings": {
+    "main": {
+      "filters": DEFAULT_FILTERS,
+      "panels": {
+        "options": 16,
+        "games": 42,
+        "grids": 42
+      },
+      "gameViewType": 0,
+      "type": "Capsule",
+    },
+    "cleanGrids": {
+      "preset": "clean"
+    },
+    "manageManualGames": {
+      "method": "manual"
+    }
+  }
+};

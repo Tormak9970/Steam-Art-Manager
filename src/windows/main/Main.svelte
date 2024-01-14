@@ -64,7 +64,7 @@
    */
   async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
     if (event.detail) {
-      await SettingsManager.updateSetting("panels", {
+      await SettingsManager.updateSetting("windowSettings.main.panels", {
         "options": event.detail[0].size,
         "games": event.detail[1].size,
         "grids": event.detail[2].size
@@ -91,7 +91,7 @@
       SettingsManager.updateSetting("showHiddenGames", show);
     });
     dbFiltersUnsub = dbFilters.subscribe((filters) => {
-      SettingsManager.updateSetting("filters", filters);
+      SettingsManager.updateSetting("windowSettings.main.filters", filters);
     });
 
 		let i = 0;

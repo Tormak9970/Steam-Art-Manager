@@ -165,6 +165,14 @@
     }
   }
 
+  /**
+   * Function to run on grid type change.
+   * @param gridType The selected gridType.
+   */
+   function onGridTypeChange(gridType: GridTypes): void {
+    SettingsManager.updateSetting("windowSettings.main.type", gridType);
+  }
+
   const debouncedWidthUpdate = debounce(() => windowWidth = window.innerWidth, 50);
 
   onMount(() => {
@@ -280,9 +288,9 @@
         </div>
 
         {#if !windowWidth || windowWidth >= 1265}
-          <DropDown label="Type" options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown label="Type" options={steamGridTypes} onChange={onGridTypeChange} width={"130px"} showTooltip={false} bind:value={$gridType} />
         {:else}
-          <DropDown options={steamGridTypes} onChange={() => {}} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown options={steamGridTypes} onChange={onGridTypeChange} width={"130px"} showTooltip={false} bind:value={$gridType} />
         {/if}
         <Spacer orientation="HORIZONTAL" />
 

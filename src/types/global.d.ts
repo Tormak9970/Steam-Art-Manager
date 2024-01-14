@@ -14,13 +14,42 @@ type AppSettings = {
   customGameNames: { [appId: string]: string },
   
   theme: number,
-  gameViewType: number,
   showHiddenGames: boolean,
-  filters: any,
-  panels: {
+
+  /**
+   * @deprecated no longer used
+   */
+  gameViewType?: number,
+  /**
+   * @deprecated no longer used
+   */
+  filters?: any,
+  /**
+   * @deprecated no longer used
+   */
+  panels?: {
     options: number,
     games: number,
     grids: number
+  },
+  
+  windowSettings: {
+    main: {
+      filters: any,
+      panels: {
+        options: number,
+        games: number,
+        grids: number
+      },
+      gameViewType: number,
+      type: string
+    },
+    cleanGrids: {
+      preset: "clean" | "custom"
+    },
+    manageManualGames: {
+      method: "manual" | "search"
+    }
   }
 };
 

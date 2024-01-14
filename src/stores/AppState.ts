@@ -90,3 +90,7 @@ export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> =
 
 
 export const dbFilters:Writable<DBFilters> = writable(DEFAULT_FILTERS);
+
+
+export const selectedCleanGridsPreset: Writable<"clean" | "custom"> = writable("clean");
+export const selectedManualGamesAddMethod: Writable<"manual" | "search"> = writable("manual");

@@ -17,28 +17,7 @@
  */
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
-import { DEFAULT_FILTERS } from "./Defaults";
-
-const DEFAULT_SETTINGS = `{
-  "version": "",
-  "steamInstallPath": "",
-  "shownShortcutPrompt": false,
-  "steamGridDbApiKey": "",
-  "steamApiKeyMap": {},
-  "hiddenGameIds": [],
-  "manualSteamGames": [],
-  "customGameName": {},
-  
-  "theme": 0,
-  "gameViewType": 0,
-  "showHiddenGames": false,
-  "filters": ${JSON.stringify(DEFAULT_FILTERS, null, "\t")},
-  "panels": {
-    "options": 16,
-    "games": 42,
-    "grids": 42
-  }
-}`;
+import { DEFAULT_SETTINGS } from "./Defaults";
 
 /**
  * A class for managing application settings
@@ -55,10 +34,32 @@ export class SettingsManager {
 
     const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
-      await fs.writeTextFile(setsPath, DEFAULT_SETTINGS);
+      await fs.writeTextFile(setsPath, JSON.stringify(DEFAULT_SETTINGS, null, "\t"));
     }
 
     SettingsManager.settingsPath = setsPath;
+  }
+
+  /**
+   * Migrate the settings structure to account for changes in the structure.
+   */
+  private static migrateSettingsStructure(oldSettings: AppSettings): AppSettings {
+    if (oldSettings.filters) {
+      oldSettings.windowSettings.main.filters = oldSettings.filters;
+      delete oldSettings.filters;
+    }
+
+    if (oldSettings.panels) {
+      oldSettings.windowSettings.main.panels = oldSettings.panels;
+      delete oldSettings.panels;
+    }
+
+    if (oldSettings.gameViewType) {
+      oldSettings.windowSettings.main.gameViewType = oldSettings.gameViewType;
+      delete oldSettings.gameViewType;
+    }
+
+    return oldSettings;
   }
 
   /**
@@ -67,9 +68,9 @@ export class SettingsManager {
   static async getSettings(): Promise<AppSettings> {
     const currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
 
-    const settings: AppSettings = { ...currentSettings };
-    if (currentSettings.version !== APP_VERSION) {
-      const defaultSettings = JSON.parse(DEFAULT_SETTINGS);
+    let settings: AppSettings = { ...currentSettings };
+    if (currentSettings.version !== APP_VERSION || settings.filters || settings.panels || settings.gameViewType) {
+      const defaultSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 
       const curKeys = Object.keys(currentSettings);
       const defEntries = Object.entries(defaultSettings);
@@ -86,6 +87,8 @@ export class SettingsManager {
           delete settings[key];
         }
       }
+      
+      settings = SettingsManager.migrateSettingsStructure(settings);
 
       settings.version = APP_VERSION;
 
@@ -94,9 +97,9 @@ export class SettingsManager {
         contents: JSON.stringify(settings),
       });
   
-      LogController.log("Updated settings for new app version.");
+      LogController.log("Updated settings for new app version and/or migration.");
     }
-    
+
     return settings;
   }
 
@@ -109,7 +112,15 @@ export class SettingsManager {
     const settingsData = await fs.readTextFile(SettingsManager.settingsPath);
 
     const settings = JSON.parse(settingsData);
-    settings[prop] = val;
+
+    const propsPath = prop.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < propsPath. length - 1; i++) {
+      parentObject = parentObject[propsPath[i]];
+    }
+
+    parentObject[propsPath[propsPath.length - 1]] = val;
 
     await fs.writeFile({
       path: SettingsManager.settingsPath,
