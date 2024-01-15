@@ -30,11 +30,11 @@ export class Writer {
   view: DataView;
 
   /**
-   * Creates a new Writer instance.
+   * Creates a new Writer.
    * @param data The buffer to write to.
    */
   constructor(data: Uint8Array | Int8Array | ArrayBuffer) {
-    this.data = this.#isUint8Array(data) ? data.buffer : data;
+    this.data = this.isUint8Array(data) ? data.buffer : data;
     this.view = new DataView(this.data);
     this.length = new Uint8Array(this.data).length;
     this.offset = 0;
@@ -45,7 +45,7 @@ export class Writer {
    * @param data The buffer to check.
    * @returns True if the buffer is a Uint8Array.
    */
-  #isUint8Array(data: Uint8Array | ArrayBuffer): data is Uint8Array {
+  private isUint8Array(data: Uint8Array | ArrayBuffer): data is Uint8Array {
     return (data as Uint8Array).buffer !== undefined;
   }
 

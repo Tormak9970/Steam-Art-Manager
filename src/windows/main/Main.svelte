@@ -27,7 +27,7 @@
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
-  import PrivacyModal from "../../components/modals/InfoModal.svelte";
+  import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
 	
@@ -183,8 +183,8 @@
     {#if $showUpdateModal}
       <UpdateModal />
     {/if}
-    {#if $showUpdateModal}
-      <PrivacyModal />
+    {#if $showInfoModal}
+      <InfoModal />
     {/if}
     {#if $showCurrentGridsModal}
       <CurrentGridsModal />

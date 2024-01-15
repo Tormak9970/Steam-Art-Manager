@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedCleanGridsPreset, selectedGameAppId, selectedGameName, selectedManualGamesAddMethod, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedCleanGridsPreset, selectedGameAppId, selectedGameName, selectedManualGamesAddMethod, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -57,12 +57,9 @@ export class AppController {
   }
 
   /**
-   * Sets up the AppController.
-   * ? Logging complete.
+   * Loads the app's settings.
    */
-  static async setup(): Promise<void> {
-    AppController.cacheController = new CacheController();
-
+  private static async loadSettings(): Promise<void> {
     await SettingsManager.setSettingsPath();
     const settings: AppSettings = await SettingsManager.getSettings();
 
@@ -152,6 +149,18 @@ export class AppController {
     if (activeUser.id32 === "0") {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
     }
+
+    loadingSettings.set(false);
+  }
+
+  /**
+   * Sets up the AppController.
+   * ? Logging complete.
+   */
+  static async setup(): Promise<void> {
+    AppController.cacheController = new CacheController();
+
+    await AppController.loadSettings();
 
     LogController.log("App setup complete.");
   }

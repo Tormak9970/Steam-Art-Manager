@@ -17,7 +17,7 @@
  */
 import { fs, path } from "@tauri-apps/api";
 import { LogController } from "../controllers/LogController";
-import { DEFAULT_SETTINGS } from "./Defaults";
+import { DEFAULT_SETTINGS } from "../models/Defaults";
 
 /**
  * A class for managing application settings
@@ -127,6 +127,6 @@ export class SettingsManager {
       contents: JSON.stringify(settings),
     });
 
-    LogController.log(`Updated setting ${prop} to ${val}.`);
+    LogController.log(`Updated setting ${prop} to ${JSON.stringify(val)}.`);
   }
 }

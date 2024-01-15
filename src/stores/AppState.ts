@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
-import { DEFAULT_FILTERS } from "../lib/utils/Defaults";
+import { DEFAULT_FILTERS } from "../lib/models/Defaults";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -29,6 +29,8 @@ export enum Theme {
   DARK,
   LIGHT
 }
+
+export const loadingSettings = writable(true);
 
 export const windowIsMaximized = writable(false);
 export const theme = writable(Theme.DARK);

@@ -1,6 +1,6 @@
 import { fs, http } from "@tauri-apps/api";
 import { get } from "svelte/store";
-import { xml2json } from "../utils/xml2json";
+import { xml2json } from "../external/xml2json";
 
 import { GridTypes, activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
 
@@ -311,7 +311,7 @@ export class SteamController {
 
     if (online && !needsSteamAPIKey) {
       const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Steam API Games:", apiGames);
+      // console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
       LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
@@ -319,7 +319,7 @@ export class SteamController {
     } else if (online) {
       try {
         const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
-        console.log("Public Games:", publicGames);
+        // console.log("Public Games:", publicGames);
         steamGames.set(publicGames);
         
         LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
@@ -329,7 +329,7 @@ export class SteamController {
         ToastController.showWarningToast("You profile is private");
         // TODO: consider prompting user here
         const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-        console.log("Appinfo Games:", appinfoGames);
+        // console.log("Appinfo Games:", appinfoGames);
         steamGames.set(appinfoGames);
         
         LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
@@ -337,7 +337,7 @@ export class SteamController {
       }
     } else {
       const localconfigGames = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Localconfig Games:", localconfigGames);
+      // console.log("Localconfig Games:", localconfigGames);
       steamGames.set(localconfigGames);
       
       LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
