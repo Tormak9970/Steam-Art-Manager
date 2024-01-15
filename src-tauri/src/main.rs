@@ -644,10 +644,10 @@ fn main() {
         }
       }));
 
-      #[cfg(debug_assertions)] {
-        let window = app.get_window("main").expect("Should have been able to get the main window.");
-        window.open_devtools();
-      }
+      // #[cfg(debug_assertions)] {
+      //   let window = app.get_window("main").expect("Should have been able to get the main window.");
+      //   window.open_devtools();
+      // }
 
       Ok(())
     })
