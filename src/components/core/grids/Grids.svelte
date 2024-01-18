@@ -316,7 +316,7 @@
       <Spacer orientation="VERTICAL" />
     </div>
 
-    <div class="content" style="height: calc(100% - 85px);position: relative; z-index: 1;">
+    <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
       {#if $isOnline}
         {#if !$needsSGDBAPIKey}
           {#if !!$selectedGameAppId}

@@ -10,7 +10,7 @@
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, dbFilters, isOnline, showHidden, steamUsers, windowIsMaximized } from "../../stores/AppState";
+  import { activeUserId, dbFilters, isOnline, loadingSettings, showHidden, steamUsers, windowIsMaximized } from "../../stores/AppState";
   import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
@@ -192,9 +192,9 @@
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
 
-			<Games />
-			
-			<Grids />
+      <Games />
+      
+      <Grids />
 		</Splitpanes>
 	</div>
 	<Footer />
