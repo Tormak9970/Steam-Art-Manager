@@ -44,18 +44,18 @@ export class SettingsManager {
    * Migrate the settings structure to account for changes in the structure.
    */
   private static migrateSettingsStructure(oldSettings: AppSettings): AppSettings {
-    if (oldSettings.filters) {
-      oldSettings.windowSettings.main.filters = oldSettings.filters;
+    if (oldSettings?.filters) {
+      oldSettings.windowSettings.main.filters = oldSettings.filters ?? DEFAULT_SETTINGS.windowSettings.main.filters;
       delete oldSettings.filters;
     }
 
-    if (oldSettings.panels) {
-      oldSettings.windowSettings.main.panels = oldSettings.panels;
+    if (oldSettings?.panels) {
+      oldSettings.windowSettings.main.panels = oldSettings.panels ?? DEFAULT_SETTINGS.windowSettings.main.panels;
       delete oldSettings.panels;
     }
 
-    if (oldSettings.gameViewType) {
-      oldSettings.windowSettings.main.gameViewType = oldSettings.gameViewType;
+    if (oldSettings?.gameViewType) {
+      oldSettings.windowSettings.main.gameViewType = oldSettings.gameViewType ?? DEFAULT_SETTINGS.windowSettings.main.gameViewType;
       delete oldSettings.gameViewType;
     }
 

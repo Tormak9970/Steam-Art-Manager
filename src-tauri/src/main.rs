@@ -9,6 +9,7 @@ mod zip_controller;
 mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
+mod start_menu_tiles;
 
 use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit};
 
@@ -584,6 +585,8 @@ fn main() {
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
       steam::get_localconfig_path,
+      start_menu_tiles::get_apps_with_tiles,
+      start_menu_tiles::write_app_tiles,
       add_path_to_scope,
       add_steam_to_scope,
       export_grids_to_zip,

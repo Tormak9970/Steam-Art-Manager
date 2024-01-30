@@ -643,10 +643,20 @@ export class AppController {
   }
 
   /**
-   * Sets the app tiles to the current icons for each game.
+   * Gets the steam apps with start menu tiles.
+   * @returns A record of appid -> iconPath.
    */
-  static async setGameTiles() {
-    
+  static async getAppTiles(): Promise<Record<string, string>> {
+    return await RustInterop.getAppsWithTiles();
+  }
+
+  /**
+   * Sets the current app icons to their app tiles.
+   * @param appIconsPaths The record of appid -> iconPath.
+   * @returns An array containing the ids of any tiles that failed to be updated
+   */
+  static async setAppTiles(appIconsPaths: Record<string, string>): Promise<string[]> {
+    return await RustInterop.writeAppTiles(appIconsPaths);
   }
 
   /**

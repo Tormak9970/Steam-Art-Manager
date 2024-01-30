@@ -237,4 +237,22 @@ export class RustInterop {
   static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
     return JSON.parse(await invoke<string>("clean_grids", { steamPath: RustInterop.steamPath, steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
   }
+
+  /**
+   * Gets the steam apps with start menu tiles.
+   * @returns A record of appid -> iconPath.
+   */
+  static async getAppsWithTiles(): Promise<Record<string, string>> {
+    const res = await invoke<string>("get_apps_with_tiles");
+    return JSON.parse(res);
+  }
+
+  /**
+   * Writes the current app icons to their app tiles.
+   * @param appIconsPaths The record of appid -> iconPath.
+   * @returns An array containing the ids of any tiles that failed to be updated
+   */
+  static async writeAppTiles(appIconsPaths: Record<string, string>): Promise<string[]> {
+    
+  }
 }
