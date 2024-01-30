@@ -2,7 +2,7 @@
   import { open } from "@tauri-apps/api/shell";
   import { AppController } from "../lib/controllers/AppController";
   import { canSave, isOnline } from "../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal, showInfoModal } from "../stores/Modals";
+  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal, showInfoModal, showTilesModal } from "../stores/Modals";
   import Button from "./interactables/Button.svelte";
   import IconButton from "./interactables/IconButton.svelte";
   import { DialogController } from "../lib/controllers/DialogController";
@@ -59,6 +59,13 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
         <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
         <path d="M386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H464c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0s-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3s163.8-62.5 226.3 0L386.3 160z"/>
+      </svg>
+    </IconButton>
+    <Spacer orientation="HORIZONTAL" />
+    <IconButton label="Edit Game Tiles" onClick={() => { $showTilesModal = true; }} width="auto" tooltipPosition="auto">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
+        <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+        <path d="M288 448H64V224h64V160H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H288c35.3 0 64-28.7 64-64V384H288v64zm-64-96H448c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H224c-35.3 0-64 28.7-64 64V288c0 35.3 28.7 64 64 64z"/>
       </svg>
     </IconButton>
     <Spacer orientation="HORIZONTAL" />

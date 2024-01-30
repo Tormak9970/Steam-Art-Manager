@@ -643,6 +643,13 @@ export class AppController {
   }
 
   /**
+   * Sets the app tiles to the current icons for each game.
+   */
+  static async setGameTiles() {
+    
+  }
+
+  /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
