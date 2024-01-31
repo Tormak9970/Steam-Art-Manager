@@ -11,7 +11,7 @@
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
   import { activeUserId, dbFilters, isOnline, loadingSettings, showHidden, steamUsers, windowIsMaximized } from "../../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal } from "../../stores/Modals";
+  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal, showTilesModal, showTilesInfoModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
@@ -30,6 +30,8 @@
   import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
+    import TilesInfoModal from "../../components/modals/tiles/TilesInfoModal.svelte";
+    import TilesModal from "../../components/modals/tiles/TilesModal.svelte";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
@@ -188,6 +190,12 @@
     {/if}
     {#if $showCurrentGridsModal}
       <CurrentGridsModal />
+    {/if}
+    {#if $showTilesModal}
+      <TilesModal />
+    {/if}
+    {#if $showTilesInfoModal}
+      <TilesInfoModal />
     {/if}
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
