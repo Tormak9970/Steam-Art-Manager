@@ -250,9 +250,10 @@ export class RustInterop {
   /**
    * Writes the current app icons to their app tiles.
    * @param appIconsPaths The record of appid -> iconPath.
+   * @param appTilePaths The record of appid -> tilePath.
    * @returns An array containing the ids of any tiles that failed to be updated
    */
-  static async writeAppTiles(appIconsPaths: Record<string, string>): Promise<string[]> {
-    
+  static async writeAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
+    return JSON.parse(await invoke<string>("write_app_tiles", { newTilesStr: JSON.stringify(appIconsPaths), tilePathsStr: JSON.stringify(appTilePaths) }));
   }
 }
