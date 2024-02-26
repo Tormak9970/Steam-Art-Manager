@@ -34,22 +34,20 @@
 
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
     
+
     $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
     if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
 
-    const steamUserKeyMap = (await SettingsManager.getSettings()).steamApiKeyMap;
-    steamUserKeyMap[$activeUserId] = steamAPIKey;
-    await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
+    const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+    steamApiKeyMapSetting[$activeUserId] = steamAPIKey;
+    await SettingsManager.updateSetting("steamApiKeyMap", steamApiKeyMapSetting);
 
     
-    $steamInstallPath = steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
-    if (steamInstallLocation !== "") await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
+    if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
 
     LogController.log("Saved settings.");
-
-    canSave = false;
-
     ToastController.showSuccessToast("Settings saved!");
+    canSave = false;
 
     onClose();
   }

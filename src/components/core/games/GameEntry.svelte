@@ -3,7 +3,6 @@
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
 
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { GridTypes, Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
   import { renderGamesInList } from "../../../stores/AppState";
   import ListEntry from "./list-view/ListEntry.svelte";
@@ -54,7 +53,6 @@
     }
     
     $hiddenGameIds = [ ...tmp ];
-    SettingsManager.updateSetting("hiddenGameIds", $hiddenGameIds);
   }
 
   /**

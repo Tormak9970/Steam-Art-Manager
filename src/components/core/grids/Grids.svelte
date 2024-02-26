@@ -16,7 +16,6 @@
   import Divider from "../Divider.svelte";
   import { showLogoPositionModal } from "../../../stores/Modals";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
@@ -72,7 +71,6 @@
       }
 
       $customGameNames = { ...$customGameNames };
-      await SettingsManager.updateSetting("customGameNames", $customGameNames);
     }
   }
 
@@ -163,14 +161,6 @@
       const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage, selectedSGDBId, isCustomName);
       grids = filterGridsWrapper(unfilteredGrids, selectedGridType, filters);
     }
-  }
-
-  /**
-   * Function to run on grid type change.
-   * @param gridType The selected gridType.
-   */
-   function onGridTypeChange(gridType: GridTypes): void {
-    SettingsManager.updateSetting("windowSettings.main.type", gridType);
   }
 
   const debouncedWidthUpdate = debounce(() => windowWidth = window.innerWidth, 50);
@@ -288,9 +278,9 @@
         </div>
 
         {#if !windowWidth || windowWidth >= 1265}
-          <DropDown label="Type" options={steamGridTypes} onChange={onGridTypeChange} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown label="Type" options={steamGridTypes} width={"130px"} showTooltip={false} bind:value={$gridType} />
         {:else}
-          <DropDown options={steamGridTypes} onChange={onGridTypeChange} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown options={steamGridTypes} width={"130px"} showTooltip={false} bind:value={$gridType} />
         {/if}
         <Spacer orientation="HORIZONTAL" />
 

@@ -10,7 +10,7 @@ type MainWindowPanels = {
 }
 
 type CleanGridsPreset = "clean" | "custom";
-type ManualGamesMethod = "manual" | "search";
+type ManageManualGamesMethod = "manual" | "search";
 
 type AppSettings = {
   version: string,
@@ -53,7 +53,7 @@ type AppSettings = {
       preset: CleanGridsPreset
     },
     manageManualGames: {
-      method: ManualGamesMethod
+      method: ManageManualGamesMethod
     }
   }
 };

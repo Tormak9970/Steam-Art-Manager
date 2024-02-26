@@ -8,7 +8,6 @@ import { LogController } from "./LogController";
 import { ToastController } from "./ToastController";
 import { RustInterop } from "./RustInterop";
 
-import { SettingsManager } from "../utils/SettingsManager";
 import { getIdFromGridName } from "../utils/Utils";
 import { DialogController } from "./DialogController";
 import { exit } from "@tauri-apps/api/process";
@@ -356,7 +355,6 @@ export class SteamController {
     });
 
     if (manualGames.length !== originalManualGames.length) {
-      SettingsManager.updateSetting("manualSteamGames", manualGames);
       manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }

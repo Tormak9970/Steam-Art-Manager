@@ -65,6 +65,7 @@ export class AppController {
 
     await SettingsManager.init();
     await AppController.settingsController.loadSettings();
+    await AppController.settingsController.subscribeToSettingChanges();
 
     LogController.log("App setup complete.");
   }
@@ -570,6 +571,7 @@ export class AppController {
    */
   static async destroy(): Promise<void> {
     await AppController.cacheController.destroy();
+    AppController.settingsController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -635,7 +637,7 @@ export class AppController {
 
         activeUserId.set(parseInt(userId));
 
-        const steamApiKeyMapSetting = SettingsManager.getSetting<string>("steamApiKeyMap");
+        const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
         if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
           steamKey.set(steamApiKeyMapSetting[userId]);
         } else {

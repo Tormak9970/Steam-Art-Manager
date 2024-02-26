@@ -7,7 +7,6 @@
   import Spacer from "../../layout/Spacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
 
   /**
    * The function to run when the modal closes.
@@ -22,14 +21,6 @@
   ];
 
   let selectedGameIds: string[] = [];
-
-  /**
-   * Handles when the selected preset changes.
-   * @param preset The selected preset.
-   */
-  function handlePresetChange(preset: string) {
-    SettingsManager.updateSetting("windowSettings.cleanGrids.preset", preset);
-  }
 
   /**
    * Cleans out the undesired grids.
@@ -60,7 +51,7 @@
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <div class="options">
-      <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} onChange={handlePresetChange} width="100px" showTooltip={false} />
+      <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="100px" showTooltip={false} />
     </div>
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />

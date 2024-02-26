@@ -30,14 +30,12 @@
   import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
   import { SettingsManager } from "../../lib/utils/SettingsManager";
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
-    import TilesInfoModal from "../../components/modals/tiles/TilesInfoModal.svelte";
-    import TilesModal from "../../components/modals/tiles/TilesModal.svelte";
+  import TilesInfoModal from "../../components/modals/tiles/TilesInfoModal.svelte";
+  import TilesModal from "../../components/modals/tiles/TilesModal.svelte";
 	
   let updateUnsub: any;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
-  let showHiddenUnsub: Unsubscriber;
-  let dbFiltersUnsub: Unsubscriber;
 
 	let users = Object.values($steamUsers).map((user) => {
 		return {
@@ -89,12 +87,6 @@
 			});
 			if (!selectedUserId) selectedUserId = $activeUserId.toString();
 		});
-    showHiddenUnsub = showHidden.subscribe((show) => {
-      SettingsManager.updateSetting("showHiddenGames", show);
-    });
-    dbFiltersUnsub = dbFilters.subscribe((filters) => {
-      SettingsManager.updateSetting("windowSettings.main.filters", filters);
-    });
 
 		let i = 0;
 
@@ -130,8 +122,6 @@
     if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
-    if (showHiddenUnsub) showHiddenUnsub();
-    if (dbFiltersUnsub) dbFiltersUnsub();
 	});
 </script>
 

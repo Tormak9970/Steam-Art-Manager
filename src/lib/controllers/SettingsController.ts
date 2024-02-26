@@ -19,31 +19,163 @@ import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
-import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
+import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { RustInterop } from "./RustInterop";
 
 import "tippy.js/dist/tippy.css"
 import { exit } from "@tauri-apps/api/process";
 import { DialogController } from "./DialogController";
 import { findSteamPath } from "../utils/Utils";
+import type { Unsubscriber } from "svelte/store";
 
 /**
  * The main controller for the application.
  */
 export class SettingsController {
-  
+  private oldSteamInstallPath = "";
+  private steamInstallPathSub: Unsubscriber;
+
+  private oldHiddenGameIds: number[] = [];
+  private hiddenGameIdsSub: Unsubscriber;
+
+  private oldManualSteamGames: GameStruct[] = [];
+  private manualSteamGamesSub: Unsubscriber;
+
+  private oldCustomGameNames: Record<string, string>;
+  private customGameNamesSub: Unsubscriber;
+
+
+  private oldTheme = 0;
+  private themeSub: Unsubscriber;
+
+  private oldShowHiddenGames = false;
+  private showHiddenGamesSub: Unsubscriber;
+
+  private oldDbFilters: DBFilters;
+  private dbFiltersSub: Unsubscriber;
+
+  private oldGameViewType = false;
+  private gameViewTypeSub: Unsubscriber;
+
+  private oldGridType = GridTypes.CAPSULE;
+  private gridTypeSub: Unsubscriber;
+
+  private oldManualGamesAddMethod: ManageManualGamesMethod = "manual";
+  private manualGamesAddMethodSub: Unsubscriber;
+
+
+  private oldCleanGridsPreset: CleanGridsPreset = "clean";
+  private cleanGridsPresetSub: Unsubscriber;
+
   /**
    * Register subscriptions for setting changes.
    */
   async subscribeToSettingChanges() {
+    this.steamInstallPathSub = steamInstallPath.subscribe((newPath) => {
+      if (newPath !== this.oldSteamInstallPath) {
+        SettingsManager.updateSetting("steamInstallPath", newPath);
+        this.oldSteamInstallPath = newPath;
+      }
+    });
 
+    // * See src/components/modals/settings/SettingsModal.svelte for `sgdbApiKey` and `steamApiKeyMap` handling.
+
+    this.hiddenGameIdsSub = hiddenGameIds.subscribe((newIds) => {
+      if (JSON.stringify(newIds) !== JSON.stringify(this.oldHiddenGameIds)) {
+        SettingsManager.updateSetting("hiddenGameIds", newIds);
+        this.oldHiddenGameIds = newIds;
+      }
+    });
+
+    this.manualSteamGamesSub = manualSteamGames.subscribe((newGames) => {
+      if (JSON.stringify(newGames) !== JSON.stringify(this.oldManualSteamGames)) {
+        SettingsManager.updateSetting("manualSteamGames", newGames);
+        this.oldManualSteamGames = newGames;
+      }
+    });
+    
+    this.customGameNamesSub = customGameNames.subscribe((newGameNames) => {
+      if (JSON.stringify(newGameNames) !== JSON.stringify(this.oldCustomGameNames)) {
+        SettingsManager.updateSetting("customGameNames", newGameNames);
+        this.oldCustomGameNames = newGameNames;
+      }
+    });
+
+
+    this.themeSub = theme.subscribe((newTheme) => {
+      if (newTheme !== this.oldTheme) {
+        SettingsManager.updateSetting("theme", newTheme);
+        this.oldTheme = newTheme;
+      }
+    });
+
+    this.showHiddenGamesSub = showHidden.subscribe((show) => {
+      if (show !== this.oldShowHiddenGames) {
+        SettingsManager.updateSetting("showHiddenGames", show);
+        this.oldShowHiddenGames = show;
+      }
+    });
+
+
+    this.dbFiltersSub = dbFilters.subscribe((newFilters) => {
+      if (JSON.stringify(newFilters) !== JSON.stringify(this.oldDbFilters)) {
+        SettingsManager.updateSetting("windowSettings.main.filters", newFilters);
+        this.oldDbFilters = newFilters;
+      }
+    });
+
+    // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
+
+    this.gameViewTypeSub = renderGamesInList.subscribe((newGameViewType) => {
+      if (newGameViewType !== this.oldGameViewType) {
+        SettingsManager.updateSetting("windowSettings.main.gameViewType", newGameViewType ? 1 : 0);
+        this.oldGameViewType = newGameViewType;
+      }
+    });
+
+    this.gridTypeSub = gridType.subscribe((newType) => {
+      if (newType !== this.oldGridType) {
+        SettingsManager.updateSetting("windowSettings.main.type", newType);
+        this.oldGridType = newType;
+      }
+    });
+
+
+    this.manualGamesAddMethodSub = selectedManualGamesAddMethod.subscribe((newAddMethod) => {
+      if (newAddMethod !== this.oldManualGamesAddMethod) {
+        SettingsManager.updateSetting("windowSettings.manageManualGames.method", newAddMethod);
+        this.oldManualGamesAddMethod = newAddMethod;
+      }
+    });
+
+
+    this.cleanGridsPresetSub = selectedCleanGridsPreset.subscribe((newPreset) => {
+      if (newPreset !== this.oldCleanGridsPreset) {
+        SettingsManager.updateSetting("windowSettings.cleanGrids.preset", newPreset);
+        this.oldCleanGridsPreset = newPreset;
+      }
+    });
   }
 
   /**
    * Destroy all settings subscriptions.
    */
-  destroySubscriptions() {
+  destroy() {
+    if(this.steamInstallPathSub) this.steamInstallPathSub();
+    if(this.hiddenGameIdsSub) this.hiddenGameIdsSub();
+    if(this.manualSteamGamesSub) this.manualSteamGamesSub();
+    if(this.customGameNamesSub) this.customGameNamesSub();
 
+    if(this.themeSub) this.themeSub();
+    if(this.showHiddenGamesSub) this.showHiddenGamesSub();
+
+    if(this.dbFiltersSub) this.dbFiltersSub();
+    if(this.gameViewTypeSub) this.gameViewTypeSub();
+    if(this.gridTypeSub) this.gridTypeSub();
+    
+    if(this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
+
+    if(this.cleanGridsPresetSub) this.cleanGridsPresetSub();
   }
 
 
@@ -123,16 +255,19 @@ export class SettingsController {
    */
   private loadNicheSettings(): void {
     const manualSteamGamesSetting = SettingsManager.getSetting<GameStruct[]>("manualSteamGames");
+    this.oldManualSteamGames = manualSteamGamesSetting;
     if (manualSteamGamesSetting.length > 0) {
       manualSteamGames.set(manualSteamGamesSetting);
       LogController.log(`Loaded ${manualSteamGamesSetting.length} manually added games.`);
     }
 
     const customGameNamesSetting = SettingsManager.getSetting<Record<string, string>>("customGameNames");
+    this.oldCustomGameNames = customGameNamesSetting;
     customGameNames.set(customGameNamesSetting);
     LogController.log(`Loaded ${Object.keys(customGameNamesSetting).length} custom game names.`);
 
     const hiddenGameIdsSetting = SettingsManager.getSetting<number[]>("hiddenGameIds");
+    this.oldHiddenGameIds = hiddenGameIdsSetting;
     hiddenGameIds.set(hiddenGameIdsSetting);
   }
 
@@ -141,15 +276,19 @@ export class SettingsController {
    */
   private loadUISettings(): void {
     const gameViewTypeSetting = SettingsManager.getSetting<number>("windowSettings.main.gameViewType");
+    this.oldGameViewType = gameViewTypeSetting === 1;
     renderGamesInList.set(gameViewTypeSetting === 1);
 
     const showHiddenGamesSetting = SettingsManager.getSetting<boolean>("showHiddenGames");
+    this.oldShowHiddenGames = showHiddenGamesSetting;
     showHidden.set(showHiddenGamesSetting);
     
     const dbFiltersSetting = SettingsManager.getSetting<DBFilters>("windowSettings.main.filters");
+    this.oldDbFilters = dbFiltersSetting;
     dbFilters.set(dbFiltersSetting);
     
     const gridTypeSetting = SettingsManager.getSetting<string>("windowSettings.main.type") as GridTypes;
+    this.oldGridType = gridTypeSetting;
     gridType.set(gridTypeSetting);
 
     
@@ -160,10 +299,12 @@ export class SettingsController {
 
 
     const cleanGridsPresetSetting = SettingsManager.getSetting<CleanGridsPreset>("windowSettings.cleanGrids.preset");
+    this.oldCleanGridsPreset = cleanGridsPresetSetting;
     selectedCleanGridsPreset.set(cleanGridsPresetSetting);
 
-    const manualGamesMethodSetting = SettingsManager.getSetting<ManualGamesMethod>("windowSettings.manageManualGames.method");
-    selectedManualGamesAddMethod.set(manualGamesMethodSetting);
+    const manageManualGamesMethodSetting = SettingsManager.getSetting<ManageManualGamesMethod>("windowSettings.manageManualGames.method");
+    this.oldManualGamesAddMethod = manageManualGamesMethodSetting;
+    selectedManualGamesAddMethod.set(manageManualGamesMethodSetting);
   }
 
   /**
@@ -171,6 +312,7 @@ export class SettingsController {
    */
   async loadSettings(): Promise<void> {
     const themeSetting = SettingsManager.getSetting<number>("theme");
+    this.oldTheme = themeSetting;
     theme.set(themeSetting);
     document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : "light");
 

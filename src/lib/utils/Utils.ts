@@ -6,7 +6,6 @@ import type { SGDBImage } from "../models/SGDB";
 import { exit } from "@tauri-apps/api/process";
 import { RustInterop } from "../controllers/RustInterop";
 import { fs } from "@tauri-apps/api";
-import { SettingsManager } from "./SettingsManager";
 
 /**
  * Throttles a function to only run every provided interval.
@@ -183,7 +182,6 @@ export async function findSteamPath(savedInstallPath: string): Promise<void> {
       await steamDialogSequence();
     } else {
       steamInstallPath.set(returnedInstallPath);
-      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
     }
   }
 }

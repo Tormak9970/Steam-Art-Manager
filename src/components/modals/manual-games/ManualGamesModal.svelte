@@ -11,7 +11,6 @@
   import { showManualGamesModal } from "../../../stores/Modals";
   import { selectedManualGamesAddMethod } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import Spacer from "../../layout/Spacer.svelte";
 
@@ -63,7 +62,7 @@
    * Adds all of the provided games.
    */
   async function saveChanges() {
-    manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
+    $manualSteamGames = structuredClone(tempManualGames);
 
     const originalAppLibCache = $originalAppLibraryCache;
     const appLibCache = $appLibraryCache;
@@ -76,19 +75,10 @@
     originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
     appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
 
-    SettingsManager.updateSetting("manualSteamGames", tempManualGames);
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
 
     onClose();
-  }
-  
-  /**
-   * Handles when the selected add method changes.
-   * @param method The selected add method.
-   */
-   function handleAddMethodChange(method: string) {
-    SettingsManager.updateSetting("windowSettings.manageManualGames.method", method);
   }
 
   /**
@@ -147,7 +137,7 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" onChange={handleAddMethodChange} showTooltip={false} />
+          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
         </div>
         <Spacer orientation="VERTICAL" />
       </div>

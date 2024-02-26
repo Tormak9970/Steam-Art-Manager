@@ -3,7 +3,6 @@
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
   import SectionTitle from "../SectionTitle.svelte";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
   import { dbFilters, gridType, optionsSize, theme } from "../../../stores/AppState";
@@ -45,7 +44,6 @@
    */
   function onDarkModeChange(checked: boolean): void {
     document.body.setAttribute("data-theme", checked ? "dark" : "light");
-    SettingsManager.updateSetting("theme", checked ? 0 : 1);
     $theme = checked ? 0 : 1;
     LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
   }

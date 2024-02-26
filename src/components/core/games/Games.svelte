@@ -12,8 +12,6 @@
   import Divider from "../Divider.svelte";
   import IconToggle from "../../interactables/IconToggle.svelte";
   import Spacer from "../../layout/Spacer.svelte";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import { LogController } from "../../../lib/controllers/LogController";
   import ListViewIcon from "../../icons/ListViewIcon.svelte";
   import GridViewIcon from "../../icons/GridViewIcon.svelte";
 
@@ -91,15 +89,6 @@
     games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames);
   }
 
-  /**
-   * Function to run on game view change.
-   * @param checked Whether or not games should be rendered in a list.
-   */
-  function onViewTypeChange(checked: boolean): void {
-    SettingsManager.updateSetting("windowSettings.main.gameViewType", checked ? 1 : 0);
-    LogController.log(`Set gameViewType to "${checked ? "list" : "grid"}".`);
-  }
-
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
@@ -151,7 +140,7 @@
   <div class="content">
     <div style="display: flex; justify-content: space-between;">
       <div style="display: flex; align-items: center;">
-        <IconToggle onChange={onViewTypeChange} leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
+        <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
           <span slot="left">
             <GridViewIcon />
           </span>
