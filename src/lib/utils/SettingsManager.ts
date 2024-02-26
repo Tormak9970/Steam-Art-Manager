@@ -23,12 +23,21 @@ import { DEFAULT_SETTINGS } from "../models/Defaults";
  * A class for managing application settings
  */
 export class SettingsManager {
+  private static settings: AppSettings;
   static settingsPath = "";
 
   /**
-   * Sets `settingsPath` and copies default settings if necessary
+   * Initializes the SettingsManager.
    */
-  static async setSettingsPath(): Promise<void> {
+  static async init() {
+    await SettingsManager.setSettingsPath();
+    SettingsManager.settings = await SettingsManager.loadSettingsFromSystem();
+  }
+
+  /**
+   * Sets `settingsPath` and copies default settings if necessary.
+   */
+  private static async setSettingsPath(): Promise<void> {
     const appDir = await path.appConfigDir();
     if (!(await fs.exists(appDir))) await fs.createDir(appDir);
 
@@ -63,70 +72,116 @@ export class SettingsManager {
   }
 
   /**
-   * Gets the settings data and updates it if the app version is older.
+   * Gets the settings data and updates it if needed.
    */
-  static async getSettings(): Promise<AppSettings> {
+  private static async loadSettingsFromSystem(): Promise<AppSettings> {
     const currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
 
     let settings: AppSettings = { ...currentSettings };
-    if (currentSettings.version !== APP_VERSION || settings.filters || settings.panels || settings.gameViewType) {
-      const defaultSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    
+    const defaultSettings = structuredClone(DEFAULT_SETTINGS);
 
-      const curKeys = Object.keys(currentSettings);
-      const defEntries = Object.entries(defaultSettings);
-      const defKeys = Object.keys(defaultSettings);
+    const curKeys = Object.keys(currentSettings);
+    const defEntries = Object.entries(defaultSettings);
+    const defKeys = Object.keys(defaultSettings);
 
-      for (const [ key, val ] of defEntries) {
-        if (!curKeys.includes(key)) {
-          settings[key] = val;
-        }
+    for (const [ key, val ] of defEntries) {
+      if (!curKeys.includes(key)) {
+        settings[key] = val;
       }
-
-      for (const key in currentSettings) {
-        if (!defKeys.includes(key)) {
-          delete settings[key];
-        }
-      }
-      
-      settings = SettingsManager.migrateSettingsStructure(settings);
-
-      settings.version = APP_VERSION;
-
-      await fs.writeFile({
-        path: SettingsManager.settingsPath,
-        contents: JSON.stringify(settings),
-      });
-  
-      LogController.log("Updated settings for new app version and/or migration.");
     }
 
-    return settings;
-  }
-
-  /**
-   * Updates a field settings JSON with the provided data.
-   * @param prop The setting to update.
-   * @param val The new value.
-   */
-  static async updateSetting<T>(prop: string, val: T): Promise<void> {
-    const settingsData = await fs.readTextFile(SettingsManager.settingsPath);
-
-    const settings = JSON.parse(settingsData);
-
-    const propsPath = prop.split(".");
-    let parentObject = settings;
-
-    for (let i = 0; i < propsPath. length - 1; i++) {
-      parentObject = parentObject[propsPath[i]];
+    for (const key in currentSettings) {
+      if (!defKeys.includes(key)) {
+        delete settings[key];
+      }
     }
+    
+    settings = SettingsManager.migrateSettingsStructure(settings);
 
-    parentObject[propsPath[propsPath.length - 1]] = val;
+    settings.version = APP_VERSION;
 
     await fs.writeFile({
       path: SettingsManager.settingsPath,
       contents: JSON.stringify(settings),
     });
 
-    LogController.log(`Updated setting ${prop} to ${JSON.stringify(val)}.`);
+    LogController.log("Finished checking settings for new app version and/or migration.");
+
+    return settings;
+  }
+
+  /**
+   * Gets the default value for the given settings field.
+   * @param field The settings property to get.
+   * @returns The default value for the field.
+   */
+  static getDefault<T>(field: string): T {
+    const settings = structuredClone(DEFAULT_SETTINGS);
+    const fieldPath = field.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < fieldPath. length - 1; i++) {
+      parentObject = parentObject[fieldPath[i]];
+    }
+
+    return parentObject[fieldPath[fieldPath.length - 1]];
+  }
+
+  /**
+   * Gets the given settings field.
+   * @param field The settings property to get.
+   * @returns The given setting, or its default value if it does not exist.
+   */
+  static getSetting<T>(field: string): T {
+    const settings = structuredClone(SettingsManager.settings);
+    const fieldPath = field.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < fieldPath. length - 1; i++) {
+      const key = fieldPath[i];
+      
+      if (Object.keys(parentObject).includes(key)) {
+        parentObject = parentObject[key];
+      } else {
+        const defaultValue = SettingsManager.getDefault<T>(field);
+        LogController.log(`Field ${field} didn't exist. Returning default value ${defaultValue}.`);
+        return defaultValue;
+      }
+    }
+
+    const finalKey = fieldPath[fieldPath.length - 1];
+    if (Object.keys(parentObject).includes(finalKey)) {
+      return parentObject[finalKey];
+    } else {
+      const defaultValue = SettingsManager.getDefault<T>(field);
+      LogController.log(`Field ${field} didn't exist. Returning default value ${defaultValue}.`);
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Updates the given settings field with the provided data.
+   * @param field The setting to update.
+   * @param val The new value.
+   */
+  static async updateSetting<T>(field: string, val: T): Promise<void> {
+    const settings = structuredClone(SettingsManager.settings);
+    const fieldPath = field.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < fieldPath. length - 1; i++) {
+      parentObject = parentObject[fieldPath[i]];
+    }
+
+    parentObject[fieldPath[fieldPath.length - 1]] = val;
+
+    SettingsManager.settings = settings;
+    await fs.writeFile({
+      path: SettingsManager.settingsPath,
+      contents: JSON.stringify(settings),
+    });
+
+    LogController.log(`Updated setting ${field} to ${JSON.stringify(val)}.`);
   }
 }

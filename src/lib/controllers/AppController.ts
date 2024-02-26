@@ -20,7 +20,7 @@ import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, isOnline, loadingGames, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, optionsSize, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, renderGamesInList, selectedCleanGridsPreset, selectedGameAppId, selectedGameName, selectedManualGamesAddMethod, showHidden, steamGames, steamGridDBKey, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme } from "../../stores/AppState";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
@@ -29,15 +29,15 @@ import type { SGDBGame, SGDBImage } from "../models/SGDB";
 import { createTippy } from "svelte-tippy";
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
-import { exit } from "@tauri-apps/api/process";
 import { DialogController } from "./DialogController";
 import { SteamController } from "./SteamController";
-import { findSteamPath } from "../utils/Utils";
+import { SettingsController } from "./SettingsController";
 
 /**
  * The main controller for the application.
  */
 export class AppController {
+  private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController = null;
   private static tippyInstance = null;
 
@@ -57,110 +57,14 @@ export class AppController {
   }
 
   /**
-   * Loads the app's settings.
-   */
-  private static async loadSettings(): Promise<void> {
-    await SettingsManager.setSettingsPath();
-    const settings: AppSettings = await SettingsManager.getSettings();
-
-    theme.set(settings.theme);
-    document.body.setAttribute("data-theme", settings.theme === 0 ? "dark" : "light");
-
-    renderGamesInList.set(settings.windowSettings.main.gameViewType === 1);
-    showHidden.set(settings.showHiddenGames);
-    dbFilters.set(settings.windowSettings.main.filters);
-
-    optionsSize.set(settings.windowSettings.main.panels.options);
-    gamesSize.set(settings.windowSettings.main.panels.games);
-    gridsSize.set(settings.windowSettings.main.panels.grids);
-
-    gridType.set(settings.windowSettings.main.type as GridTypes);
-
-    selectedCleanGridsPreset.set(settings.windowSettings.cleanGrids.preset);
-    selectedManualGamesAddMethod.set(settings.windowSettings.manageManualGames.method);
-
-    await findSteamPath(settings.steamInstallPath);
-
-    const users = await RustInterop.getSteamUsers();
-    const cleanedUsers: { [id: string]: SteamUser } = {};
-
-    if (Object.keys(users).length === 0) {
-      await DialogController.message(
-        "No Steam Users Found",
-        "ERROR",
-        "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
-        "Ok",
-      );
-      await exit(0);
-    }
-
-    // ? need to clean the data here bc props can vary in terms of case
-    for (const [ id, user ] of Object.entries(users)) {
-      const userKeys = Object.keys(user);
-      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [ key.toLowerCase(), user[key] ]));
-
-      cleanedUsers[id] = {
-        id64: lowerCaseUser.id64,
-        id32: lowerCaseUser.id32,
-        AccountName: lowerCaseUser.accountname,
-        PersonaName: lowerCaseUser.personaname,
-        RememberPassword: lowerCaseUser.rememberpassword,
-        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
-        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
-        AllowAutoLogin: lowerCaseUser.allowautologin,
-        MostRecent: lowerCaseUser.mostrecent,
-        Timestamp: lowerCaseUser.timestamp
-      }
-    }
-
-    steamUsers.set(cleanedUsers);
-
-    const usersList = Object.values(cleanedUsers);
-
-    if (usersList.length === 0) {
-      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
-      LogController.error("Expected to find at least 1 Steam user but found 0.");
-      await process.exit(0);
-    }
-
-    const activeUser = usersList.find((user) => user.MostRecent === "1") ?? usersList[0];
-    activeUserId.set(parseInt(activeUser.id32));
-
-    if (settings.steamGridDbApiKey !== "") {
-      steamGridDBKey.set(settings.steamGridDbApiKey);
-      needsSGDBAPIKey.set(false);
-    }
-    
-    if (settings.steamApiKeyMap[activeUser.id32] && settings.steamApiKeyMap[activeUser.id32] !== "") {
-      steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
-      needsSteamKey.set(false);
-    }
-
-    if (settings.manualSteamGames.length > 0) {
-      manualSteamGames.set(settings.manualSteamGames);
-      LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
-    }
-
-    customGameNames.set(settings.customGameNames);
-    LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
-
-    hiddenGameIds.set(settings.hiddenGameIds);
-
-    if (activeUser.id32 === "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
-    }
-
-    loadingSettings.set(false);
-  }
-
-  /**
    * Sets up the AppController.
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
 
-    await AppController.loadSettings();
+    await SettingsManager.init();
+    await AppController.settingsController.loadSettings();
 
     LogController.log("App setup complete.");
   }
@@ -731,9 +635,9 @@ export class AppController {
 
         activeUserId.set(parseInt(userId));
 
-        const settings = await SettingsManager.getSettings();
-        if (settings.steamApiKeyMap[userId] && settings.steamApiKeyMap[userId] !== "") {
-          steamKey.set(settings.steamApiKeyMap[userId]);
+        const steamApiKeyMapSetting = SettingsManager.getSetting<string>("steamApiKeyMap");
+        if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
+          steamKey.set(steamApiKeyMapSetting[userId]);
         } else {
           steamKey.set("");
           needsSteamKey.set(true);

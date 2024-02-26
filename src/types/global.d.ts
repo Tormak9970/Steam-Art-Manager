@@ -3,15 +3,24 @@ type GameStruct = {
   name: string,
 }
 
+type MainWindowPanels = {
+  options: number,
+  games: number,
+  grids: number
+}
+
+type CleanGridsPreset = "clean" | "custom";
+type ManualGamesMethod = "manual" | "search";
+
 type AppSettings = {
   version: string,
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
   steamGridDbApiKey: string,
-  steamApiKeyMap: { [userId32: string]: string },
-  hiddenGameIds: [],
+  steamApiKeyMap: Record<string, string>,
+  hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
-  customGameNames: { [appId: string]: string },
+  customGameNames: Record<string, string>,
   
   theme: number,
   showHiddenGames: boolean,
@@ -36,19 +45,15 @@ type AppSettings = {
   windowSettings: {
     main: {
       filters: any,
-      panels: {
-        options: number,
-        games: number,
-        grids: number
-      },
+      panels: MainWindowPanels,
       gameViewType: number,
       type: string
     },
     cleanGrids: {
-      preset: "clean" | "custom"
+      preset: CleanGridsPreset
     },
     manageManualGames: {
-      method: "manual" | "search"
+      method: ManualGamesMethod
     }
   }
 };
