@@ -7,7 +7,7 @@
   import { renderGamesInList } from "../../../stores/AppState";
   import ListEntry from "./list-view/ListEntry.svelte";
   import GridEntry from "./grid-view/GridEntry.svelte";
-    import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
+  import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
 
   export let game: GameStruct;
 

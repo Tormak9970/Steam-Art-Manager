@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Platforms, appLibraryCache, gridType, hiddenGameIds, manualSteamGames, nonSteamGames, steamGames } from "../../../../stores/AppState";
+  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
   import DropDown from "../../../interactables/DropDown.svelte";
   import SelectedGameEntry from "./SelectedGameEntry.svelte";
@@ -10,9 +10,14 @@
   
   export let selectedGameIds: string[];
   export let showFilters = true;
+  export let showPlatforms = true;
+  export let steamGames: GameStruct[];
+  export let nonSteamGames: GameStruct[] = [];
+  export let selectedPlatform = "All";
+  export let selectedGamesFilter =  "All";
+  export let noGamesMessage = "No games matched the selected filters.";
   
-  $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
-  $: allGames = [ ...allSteamGames, ...$nonSteamGames ];
+  $: allGames = [ ...steamGames, ...nonSteamGames ];
 
   let platforms: { label: string, data: string}[] = Object.values(Platforms).map((platform) => {
     return {
@@ -24,15 +29,12 @@
     label: "All",
     data: "All"
   });
-  let selectedPlatform = "All";
 
   let gameFilters = [
     { label: "All", data: "All" },
     { label: "Missing", data: "Missing" }
   ];
-  let selectedGamesFilter =  "All";
 
-  // let gamesToFilter = (selectedPlatform === "All" ? allGames : (selectedPlatform === Platforms.STEAM ? allSteamGames : $nonSteamGames)).filter((game) => !includeHidden ? !$hiddenGameIds.includes(game.appid) : true);
   let gamesToFilter = [];
   let selectedGames = {};
   let includeHidden = false;
@@ -44,7 +46,7 @@
    * @param showHidden Whether to include hidden games or not.
    */
   function onStateChange(platform: string, gameFilter: string, showHidden: boolean): void {
-    gamesToFilter = (platform === "All" ? allGames : (platform === Platforms.STEAM ? allSteamGames : $nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
+    gamesToFilter = (platform === "All" ? allGames : (platform === Platforms.STEAM ? steamGames : nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
     const selectedGameEntries = gamesToFilter.map((game) => {
       return [ game.appid, gameFilter === "All" ? true : (!$appLibraryCache[game.appid][$gridType]) ];
     });
@@ -72,7 +74,9 @@
 <div class="game-filter">
   <div class="options">
     <div class="dropdowns">
-      <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} showTooltip={false} />
+      {#if showPlatforms}
+        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} showTooltip={false} />
+      {/if}
       {#if showFilters}
         <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
@@ -93,7 +97,9 @@
     </span>
     <span slot="data">
       {#each gamesToFilter as game, i (`${game.appid}|${i}`)}
-        <SelectedGameEntry game={game} platform={selectedPlatform !== "All" ? selectedPlatform : (allSteamGames.some((steamGame) => steamGame.appid === game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
+        <SelectedGameEntry game={game} platform={selectedPlatform !== "All" ? selectedPlatform : (steamGames.some((steamGame) => steamGame.appid === game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
+      {:else}
+          <div>{noGamesMessage}</div>
       {/each}
     </span>
   </Table>

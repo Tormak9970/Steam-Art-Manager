@@ -556,12 +556,12 @@ export class AppController {
   }
 
   /**
-   * Sets the current app icons to their app tiles.
+   * Updates the current app tiles to their app icons.
    * @param appIconsPaths The record of appid -> iconPath.
    * @param appTilePaths The record of appid -> tilePath.
-   * @returns An array containing the ids of any tiles that failed to be updated
+   * @returns An array containing the ids of any tiles that failed to be updated.
    */
-  static async setAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
+  static async updateAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
     return await RustInterop.writeAppTiles(appIconsPaths, appTilePaths);
   }
 
