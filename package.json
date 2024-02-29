@@ -29,7 +29,7 @@
   "dependencies": {
     "@petamoriken/float16": "^3.7.1",
     "@sveltejs/svelte-virtual-list": "^3.0.1",
-    "@tauri-apps/api": "^1.4.0",
+    "@tauri-apps/api": "^1.5.3",
     "@zerodevx/svelte-toast": "^0.8.0",
     "markdown-it": "^13.0.1",
     "svelte-lazy": "^1.2.1",
@@ -41,7 +41,7 @@
     "@commitlint/cli": "^17.5.1",
     "@commitlint/config-conventional": "^17.4.4",
     "@sveltejs/vite-plugin-svelte": "^2.0.0",
-    "@tauri-apps/cli": "^1.2.2",
+    "@tauri-apps/cli": "^1.5.10",
     "@tsconfig/svelte": "^3.0.0",
     "@types/markdown-it": "^12.2.3",
     "@types/node": "^18.7.10",
