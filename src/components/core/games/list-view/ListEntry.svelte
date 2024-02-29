@@ -1,9 +1,9 @@
 <script lang="ts">
   import { selectedGameAppId } from "../../../../stores/AppState";
   import { AppController } from "../../../../lib/controllers/AppController";
-  import { heights, widths } from "../../imageDimensions";
   import Lazy from "svelte-lazy";
   import AllGridsIcon from "../../../icons/AllGridsIcon.svelte";
+  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "../../../../lib/utils/ImageConstants";
 
   export let game: GameStruct;
   export let iconPath: string;
@@ -24,8 +24,8 @@
   <div class="entry-info">
     <div class="icon-container">
       {#if showIcon}
-        <Lazy height="{heights.Icon}px" fadeOption={{ delay: 500, duration: 1000 }}>
-          <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {widths.Icon}px; max-height: {heights.Icon}px; width: auto; height: auto;" draggable="false" />
+        <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}px" fadeOption={IMAGE_FADE_OPTIONS}>
+          <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}px; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}px; width: auto; height: auto;" draggable="false" />
         </Lazy>
       {:else}
         <div style="text-align: center;">No icon image for game</div>

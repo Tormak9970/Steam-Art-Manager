@@ -3,8 +3,8 @@
   import GameEntry from "../GameEntry.svelte";
   
   import { currentPlatform, gridType } from "../../../../stores/AppState";
-  import { heights, widths } from "../../imageDimensions";
   import VirtualGrid from "../../../layout/VirtualGrid.svelte";
+  import { SMALL_GRID_DIMENSIONS } from "../../../../lib/utils/ImageConstants";
 
   export let isLoading: boolean;
   export let games: GameStruct[];
@@ -14,14 +14,14 @@
 
 <div class="games-grid">
   {#if isLoading}
-    <div class="loading-container" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+    <div class="loading-container" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
       {#each new Array(100) as _}
         <GridLoadingSkeleton />
       {/each}
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualGrid itemHeight={heights[$gridType] + padding + 18} itemWidth={widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
+      <VirtualGrid itemHeight={SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18} itemWidth={SMALL_GRID_DIMENSIONS.widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualGrid>
     {:else}

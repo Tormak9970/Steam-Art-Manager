@@ -27,6 +27,7 @@
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { showLogoPositionModal } from "../../stores/Modals";
   import Spacer from "../layout/Spacer.svelte";
+    import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
 
   /**
    * The function to run when the modal closes.
@@ -42,7 +43,7 @@
     left: number
   }
 
-  const anchorPos: LogoPinPositions[] = [ "BottomLeft", "UpperLeft", "UpperCenter", "CenterCenter", "BottomCenter" ];
+  const anchorPos: LogoPinPositions[] = [ "BottomLeft", "UpperCenter", "CenterCenter", "BottomCenter" ];
   const dropdownOptions = anchorPos.map((anchorPos: LogoPinPositions) => {
     return {
       label: anchorPos.split(/(?=[A-Z])/).join(" "),
@@ -92,12 +93,6 @@
       BottomLeft: {
         bottom: 0,
         top: 100 - heightPct,
-        left: 0,
-        right: 100 - widthPct,
-      },
-      UpperLeft: {
-        bottom: 100 - heightPct,
-        top: 0,
         left: 0,
         right: 100 - widthPct,
       },
@@ -181,7 +176,7 @@
         </div>
       </div>
       <div class="logo-cont" style="justify-content: {logoPosition.includes("Bottom") ? "flex-end" : (logoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {logoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
-        <img in:fade={{ delay: 500, duration: 1000 }} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
+        <img in:fade={IMAGE_FADE_OPTIONS} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
       </div>
     </div>
     <div class="interactables">

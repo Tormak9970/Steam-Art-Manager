@@ -9,6 +9,7 @@
   import Button from "../../interactables/Button.svelte";
     
   import Lazy from "svelte-lazy";
+  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
 
   let conflictNumber: number = 1;
   let conflict: CleanConflict;
@@ -23,22 +24,6 @@
     conflictNumber++;
     return $cleanConflicts.length > 0 ? $cleanConflicts.shift() : null;
   }
-
-  const widths = {
-    "capsule": 200,
-    "widecapsule": 280,
-    "hero": 586,
-    "logo": 300,
-    "icon": 256,
-  };
-
-  const heights = {
-    "capsule": 300,
-    "widecapsule": 135,
-    "hero": 210,
-    "logo": 201,
-    "icon": 256,
-  };
 
   /**
    * Removes one of the two conflicting files.
@@ -91,9 +76,9 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
-              <img src="{fileAPath}" alt="Option 1" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -101,9 +86,9 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
-              <img src="{fileBPath}" alt="Option 2" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>

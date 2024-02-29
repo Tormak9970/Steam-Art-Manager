@@ -76,7 +76,7 @@ type ChangedPath = {
 
 type DialogModalType = "INFO" | "WARNING" | "ERROR";
 
-type LogoPinPositions = "BottomLeft" | "UpperLeft" | "CenterCenter" | "UpperCenter" | "BottomCenter" | "REMOVE";
+type LogoPinPositions = "BottomLeft" | "CenterCenter" | "UpperCenter" | "BottomCenter" | "REMOVE";
 
 type LogoPosition = {
   pinnedPosition: LogoPinPositions,

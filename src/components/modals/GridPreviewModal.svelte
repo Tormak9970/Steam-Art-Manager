@@ -9,6 +9,7 @@
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { gridModalInfo, showGridModal } from "../../stores/Modals";
   import Spacer from "../layout/Spacer.svelte";
+  import { PREVIEW_GRID_DIMENSIONS } from "../../lib/utils/ImageConstants";
 
   /**
    * The function to run when the modal closes.
@@ -24,22 +25,6 @@
   });
   
   $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
-
-  const widths = {
-    "Capsule": 400,
-    "Wide Capsule": 600,
-    "Hero": 956,
-    "Logo": 600,
-    "Icon": 256,
-  };
-
-  const heights = {
-    "Capsule": 600,
-    "Wide Capsule": 291,
-    "Hero": 342,
-    "Logo": 402,
-    "Icon": 256,
-  };
 
   /**
    * Apply the grid being previewed.
@@ -65,10 +50,10 @@
 
 <ModalBody title={`${games.find((game) => game.appid === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
-      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {heights[$gridType]}px;">
-        <Lazy height="{heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
-          <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" />
+    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
+      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">
+        <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
+          <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" />
         </Lazy>
       </div>
     </div>

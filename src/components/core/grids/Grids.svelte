@@ -9,7 +9,6 @@
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
-  import { heights, widths } from "../imageDimensions";
   import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
   import { debounce, filterGrids } from "../../../lib/utils/Utils";
@@ -18,6 +17,7 @@
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+  import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
 
   let windowWidth: number;
   let skipUpdate = false;
@@ -313,14 +313,14 @@
             <Pages numPages={numPages} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
               <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
                 {#if isLoading}
-                  <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                  <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
                     {#each new Array(100) as _}
                       <GridLoadingSkeleton />
                     {/each}
                   </div>
                 {:else}
                   {#if grids.length > 0}
-                    <div class="game-grid" style="--img-width: {widths[$gridType] + padding}px; --img-height: {heights[$gridType] + padding + 18}px;">
+                    <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
                       {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                         <Grid grid={grid} />
                       {/each}
