@@ -2,7 +2,7 @@
   import { open } from "@tauri-apps/api/shell";
   import { AppController } from "../lib/controllers/AppController";
   import { canSave, isOnline } from "../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal, showInfoModal, showTilesModal } from "../stores/Modals";
+  import { showManualGamesModal, showBatchApplyModal, showCleanGridsModal, showSettingsModal, showInfoModal, showUpdateTilesModal } from "../stores/Modals";
   import Button from "./interactables/Button.svelte";
   import IconButton from "./interactables/IconButton.svelte";
   import { DialogController } from "../lib/controllers/DialogController";
@@ -62,7 +62,7 @@
       </svg>
     </IconButton>
     <Spacer orientation="HORIZONTAL" />
-    <IconButton label="Edit Game Tiles" onClick={() => { $showTilesModal = true; }} width="auto" tooltipPosition="auto">
+    <IconButton label="Update Game Tiles" onClick={() => { $showUpdateTilesModal = true; }} width="auto" tooltipPosition="auto">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
         <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
         <path d="M288 448H64V224h64V160H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H288c35.3 0 64-28.7 64-64V384H288v64zm-64-96H448c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H224c-35.3 0-64 28.7-64 64V288c0 35.3 28.7 64 64 64z"/>
