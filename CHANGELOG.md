@@ -8,7 +8,7 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 ## v3.0.0
 
-New Features
+New Features:
 * added custom search system for game names ([605997b](https://github.com/Tormak9970/Steam-Art-Manager/commit/605997b))
 * added custom steam path support ([3bec562](https://github.com/Tormak9970/Steam-Art-Manager/commit/3bec562))
 * added git social preview ([01fc444](https://github.com/Tormak9970/Steam-Art-Manager/commit/01fc444))
@@ -18,7 +18,7 @@ New Features
 * switched to all custom dialogs ([a783ee4](https://github.com/Tormak9970/Steam-Art-Manager/commit/a783ee4))
 * updated app icon and image in readme ([ec9d216](https://github.com/Tormak9970/Steam-Art-Manager/commit/ec9d216))
 
-Bug Fixes
+Bug Fixes:
 * added frontend logging to log controller ([1c8f61c](https://github.com/Tormak9970/Steam-Art-Manager/commit/1c8f61c))
 * app now properly exits when click close from taskbar ([8430fd6](https://github.com/Tormak9970/Steam-Art-Manager/commit/8430fd6))
 * bumped tauri to 1.4.1 and tauri-build to 1,4,0 ([aa6b70c](https://github.com/Tormak9970/Steam-Art-Manager/commit/aa6b70c))
@@ -36,7 +36,7 @@ Bug Fixes
 * undefined no longer occasionally shows in selected game field ([8381cbb](https://github.com/Tormak9970/Steam-Art-Manager/commit/8381cbb))
 * when installed with the linux installer, app now works in wayland ([ff624d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/ff624d8))
 
-Build Pipeline Improvements
+Build Pipeline Improvements:
 * build process now generates a changelog.md file ([c43ea6f](https://github.com/Tormak9970/Steam-Art-Manager/commit/c43ea6f))
 * switched to reliable-changelog ([6688292](https://github.com/Tormak9970/Steam-Art-Manager/commit/6688292))
 
