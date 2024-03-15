@@ -1,6 +1,6 @@
 import { fs, http } from "@tauri-apps/api";
 import { get } from "svelte/store";
-import { xml2json } from "../utils/xml2json";
+import { xml2json } from "../external/xml2json";
 
 import { GridTypes, activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
 
@@ -8,7 +8,6 @@ import { LogController } from "./LogController";
 import { ToastController } from "./ToastController";
 import { RustInterop } from "./RustInterop";
 
-import { SettingsManager } from "../utils/SettingsManager";
 import { getIdFromGridName } from "../utils/Utils";
 import { DialogController } from "./DialogController";
 import { exit } from "@tauri-apps/api/process";
@@ -64,7 +63,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static filterGridsDir(gridsDirContents: fs.FileEntry[], shortcutsIds: string[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
-    let resKeys = [];
+    const resKeys = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
@@ -74,19 +73,20 @@ export class SteamController {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
       } else {
-        const [appid, type] = getIdFromGridName(fileEntry.name);
+        const [ appid, type ] = getIdFromGridName(fileEntry.name);
         
         const idTypeString = `${appid}_${type}`;
 
         if (foundApps.includes(idTypeString)) {
-          ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
+          ToastController.showWarningToast("Duplicate grid found. Try cleaning");
           LogController.warn(`Duplicate grid found for ${appid}.`);
         } else {
           //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
           if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
             if (!resKeys.includes(appid)) {
               resKeys.push(appid);
-              res[appid] = {} as LibraryCacheEntry;
+              // @ts-ignore
+              res[appid] = {};
             }
             res[appid][gridTypeLUT[type]] = fileEntry.path;
           }
@@ -94,7 +94,7 @@ export class SteamController {
       }
     }
 
-    return [res, logoConfigs];
+    return [ res, logoConfigs ];
   }
 
   /**
@@ -106,10 +106,10 @@ export class SteamController {
    * ? Logging complete.
    */
   private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): { [appid: string]: LibraryCacheEntry } {
-    let resKeys = Object.keys(gridsInfos);
+    const resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
-    let unfilteredKeys = [];
+    const unfilteredKeys = [];
     const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of libraryCacheContents) {
@@ -120,22 +120,24 @@ export class SteamController {
       if (libraryCacheLUT[type]) {
         if (!resKeys.includes(appId)) {
           resKeys.push(appId);
-          res[appId] = {} as LibraryCacheEntry;
+          // @ts-ignore
+          res[appId] = {};
         }
         if (!unfilteredKeys.includes(appId)) {
           unfilteredKeys.push(appId);
-          unfiltered[appId] = {} as LibraryCacheEntry;
+          // @ts-ignore
+          unfiltered[appId] = {};
         }
         
         if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
-        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path
+        
+        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path;
       }
     }
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
-    // const filtered = entries;
+    const filtered = entries.filter(([ appId, entry ]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
     return Object.fromEntries(filtered);
   }
 
@@ -149,7 +151,7 @@ export class SteamController {
     const gridDirContents = (await fs.readDir(gridsDir));
 
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [filteredGrids, logoConfigs] = SteamController.filterGridsDir(gridDirContents, shortcutIds);
+    const [ filteredGrids, logoConfigs ] = SteamController.filterGridsDir(gridDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
@@ -174,9 +176,9 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<GameStruct[]> {
+  private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<GameStruct[]> {
     const requestTimeout = get(requestTimeoutLength);
-    LogController.log(`Loading games from Steam Community page...`);
+    LogController.log("Loading games from Steam Community page...");
 
     const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
@@ -212,9 +214,9 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<GameStruct[]> {
+  private static async getGamesFromSteamAPI(bUserId: bigint): Promise<GameStruct[]> {
     const requestTimeout = get(requestTimeoutLength);
-    LogController.log(`Loading games from Steam API...`);
+    LogController.log("Loading games from Steam API...");
 
     const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
       method: "GET",
@@ -245,15 +247,16 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
-    LogController.log(`Loading games from appinfo.vdf...`);
+    LogController.log("Loading games from appinfo.vdf...");
 
     const vdf = await RustInterop.readAppinfoVdf();
 
     return vdf.entries.map((game: any) => {
       return {
         "appid": game.id,
-        "name": typeof game.common.name == "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
-      } as GameStruct;
+        // eslint-disable-next-line no-control-regex
+        "name": typeof game.common.name === "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
+      };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
 
@@ -263,7 +266,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
-    LogController.log(`Loading games from localconfig.vdf...`);
+    LogController.log("Loading games from localconfig.vdf...");
 
     const userId = get(activeUserId);
     const appInfoGames = await SteamController.getGamesFromAppinfo();
@@ -307,7 +310,7 @@ export class SteamController {
 
     if (online && !needsSteamAPIKey) {
       const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Steam API Games:", apiGames);
+      // console.log("Steam API Games:", apiGames);
       steamGames.set(apiGames);
       
       LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
@@ -315,17 +318,17 @@ export class SteamController {
     } else if (online) {
       try {
         const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
-        console.log("Public Games:", publicGames);
+        // console.log("Public Games:", publicGames);
         steamGames.set(publicGames);
         
         LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
         LogController.log("Steam games loaded.");
       } catch (err: any) {
-        LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
+        LogController.log("Error occured while loading games from Steam Community page, notifying user.");
         ToastController.showWarningToast("You profile is private");
         // TODO: consider prompting user here
         const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-        console.log("Appinfo Games:", appinfoGames);
+        // console.log("Appinfo Games:", appinfoGames);
         steamGames.set(appinfoGames);
         
         LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
@@ -333,7 +336,7 @@ export class SteamController {
       }
     } else {
       const localconfigGames = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Localconfig Games:", localconfigGames);
+      // console.log("Localconfig Games:", localconfigGames);
       steamGames.set(localconfigGames);
       
       LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
@@ -342,8 +345,8 @@ export class SteamController {
 
     const sGames = get(steamGames);
     const originalManualGames = get(manualSteamGames);
-    let manualGames = originalManualGames.filter((manualGame) => {
-      const matchingSteamGame = sGames.find((sGame) => sGame.appid == manualGame.appid);
+    const manualGames = originalManualGames.filter((manualGame) => {
+      const matchingSteamGame = sGames.find((sGame) => sGame.appid === manualGame.appid);
       if (matchingSteamGame) {
         LogController.warn(`Found manually added game with the same appid (${manualGame.appid}) as ${matchingSteamGame.name}. Removing it`);
       }
@@ -351,8 +354,7 @@ export class SteamController {
       return !matchingSteamGame;
     });
 
-    if (manualGames.length != originalManualGames.length) {
-      SettingsManager.updateSetting("manualSteamGames", manualGames);
+    if (manualGames.length !== originalManualGames.length) {
       manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }

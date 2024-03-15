@@ -5,7 +5,7 @@
 	Author:  Stefan Goessner/2006
 	Web:     http://goessner.net/ 
 */
-export function xml2json(xml, tab) {
+export function xml2json(xml: Document | HTMLElement, tab: string) {
   var X = {
      toObj: function(xml) {
         var o = {};
@@ -149,7 +149,7 @@ export function xml2json(xml, tab) {
      }
   };
   if (xml.nodeType == 9) // document node
-     xml = xml.documentElement;
+     xml = (xml as Document).documentElement;
   var json = X.toJson(X.toObj(X.removeWhite(xml)), xml.nodeName, "\t");
   return "{\n" + tab + (tab ? json.replace(/\t/g, tab) : json.replace(/\t|\n/g, "")) + "\n}";
 }

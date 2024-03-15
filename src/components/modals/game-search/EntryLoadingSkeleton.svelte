@@ -2,7 +2,6 @@
   
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="entry-loading-skeleton">
   <div class="shine" />
   <svg xmlns="http://www.w3.org/2000/svg" height="16px" width="16px" viewBox="0 0 100 100" style="height: 16px; width: 16px;">

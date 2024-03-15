@@ -3,7 +3,6 @@
   import { steamPathModalClose } from "../../stores/Modals";
   import { LogController } from "../../lib/controllers/LogController";
   import { ToastController } from "../../lib/controllers/ToastController";
-  import { SettingsManager } from "../../lib/utils/SettingsManager";
   import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import SettingsFilePathEntry from "./settings/SettingsFilePathEntry.svelte";
@@ -20,7 +19,6 @@
     LogController.log("Setting Steam Install Location...");
     
     $steamInstallPath = steamInstallLocation;
-    await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
 
     LogController.log("Steam Install Location set.");
 
@@ -47,7 +45,7 @@
     <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux.`}
+      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
       required

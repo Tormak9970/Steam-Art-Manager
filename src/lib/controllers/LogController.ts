@@ -21,8 +21,15 @@ import { LogLevel, RustInterop } from "./RustInterop";
  * ! Should do no logging here.
  */
 export class LogController {
+  private static APP_NAME = "SARM";
+  private static APP_THEME_COLOR = "#04e200";
+  private static APP_INFO_COLOR = "#1abc9c";
+  private static APP_WARN_COLOR = "#e3c907";
+  private static APP_ERROR_COLOR = "#c70808";
+
+
   /**
-   * Cleans the app's log file.
+   * Cleans the app"s log file.
    */
   static async cleanLogFile(): Promise<void> {
     await RustInterop.cleanOutLog();
@@ -35,13 +42,14 @@ export class LogController {
   static async log(message:string): Promise<void> {
     if (IS_DEBUG) {
       console.log(
-        `%c SARM %c INFO %c`,
-        'background: #04e200; color: black;',
-        'background: #1abc9c; color: black;',
-        'background: transparent;',
+        `%c ${LogController.APP_NAME} %c INFO %c`,
+        `background: ${LogController.APP_THEME_COLOR}; color: black;`,
+        `background: ${LogController.APP_INFO_COLOR}; color: black;`,
+        "background: transparent;",
         message
       );
     }
+
     await RustInterop.logToCoreFile(message, LogLevel.INFO);
   }
 
@@ -52,13 +60,14 @@ export class LogController {
   static async warn(message:string): Promise<void> {
     if (IS_DEBUG) {
       console.warn(
-        `%c SARM %c WARNING %c`,
-        'background: #04e200; color: black;',
-        'background: #e3c907; color: black;',
-        'background: transparent;',
+        `%c ${LogController.APP_NAME} %c WARNING %c`,
+        `background: ${LogController.APP_THEME_COLOR}; color: black;`,
+        `background: ${LogController.APP_WARN_COLOR}; color: black;`,
+        "background: transparent;",
         message
       );
     }
+
     await RustInterop.logToCoreFile(message, LogLevel.WARN);
   }
 
@@ -69,13 +78,14 @@ export class LogController {
   static async error(message:string): Promise<void> {
     if (IS_DEBUG) {
       console.error(
-        `%c SARM %c ERROR %c`,
-        'background: #04e200; color: black;',
-        'background: #c70808; color: black;',
-        'background: transparent;',
+        `%c ${LogController.APP_NAME} %c ERROR %c`,
+        `background: ${LogController.APP_THEME_COLOR}; color: black;`,
+        `background: ${LogController.APP_ERROR_COLOR}; color: black;`,
+        "background: transparent;",
         message
       );
     }
+
     await RustInterop.logToCoreFile(message, LogLevel.ERROR);
   }
 

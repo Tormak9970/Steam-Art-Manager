@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
-import { sharedStore } from "../lib/utils/SharedStore";
+import { DEFAULT_FILTERS } from "../lib/models/Defaults";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -30,7 +30,14 @@ export enum Theme {
   LIGHT
 }
 
-export const theme = sharedStore(Theme.DARK, "theme");
+export const loadingSettings = writable(true);
+
+export const windowIsMaximized = writable(false);
+export const theme = writable(Theme.DARK);
+export const renderGamesInList = writable(false);
+export const optionsSize = writable(16);
+export const gamesSize = writable(42);
+export const gridsSize = writable(42);
 
 export const requestTimeoutLength = writable(5000);
 
@@ -84,136 +91,8 @@ export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }
 export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
 
 
-export const dbFilters:Writable<DBFilters> = writable({
-  "Capsule": {
-    "styles": {
-      "alternate": true,
-      "blurred": true,
-      "white_logo": true,
-      "material": true,
-      "no_logo": true,
-    },
-    "dimensions": {
-      "600x900": true,
-      "342x482": true,
-      "660x930": true,
-      "512x512": false,
-      "1024x1024": false,
-    },
-    "mimes": {
-      "image/png": true,
-      "image/jpeg": true,
-      "image/webp": true,
-    },
-    "types": {
-      "static": true,
-      "animated": true,
-    },
-    "oneoftag": {
-      "humor": true,
-      "nsfw": false,
-      "epilepsy": false,
-      "untagged": true,
-    }
-  },
-  "Wide Capsule": {
-    "styles": {
-      "alternate": true,
-      "blurred": true,
-      "white_logo": true,
-      "material": true,
-      "no_logo": true,
-    },
-    "dimensions": {
-      "460x215": true,
-      "920x430": true,
-      "512x512": false,
-      "1024x1024": false,
-    },
-    "mimes": {
-      "image/png": true,
-      "image/jpeg": true,
-      "image/webp": true,
-    },
-    "types": {
-      "static": true,
-      "animated": true,
-    },
-    "oneoftag": {
-      "humor": true,
-      "nsfw": false,
-      "epilepsy": false,
-      "untagged": true,
-    }
-  },
-  "Hero": {
-    "styles": {
-      "alternate": true,
-      "blurred": true,
-      "material": true,
-    },
-    "dimensions": {
-      "3840x1240": true,
-      "1920x620": true,
-      "1600x650": true,
-    },
-    "mimes": {
-      "image/png": true,
-      "image/jpeg": true,
-      "image/webp": true,
-    },
-    "types": {
-      "static": true,
-      "animated": true,
-    },
-    "oneoftag": {
-      "humor": true,
-      "nsfw": false,
-      "epilepsy": false,
-      "untagged": true,
-    }
-  },
-  "Logo": {
-    "styles": {
-      "official": true,
-      "white": true,
-      "black": true,
-      "custom": true,
-    },
-    "mimes": {
-      "image/png": true,
-      "image/webp": true,
-    },
-    "types": {
-      "static": true,
-      "animated": true,
-    },
-    "oneoftag": {
-      "humor": true,
-      "nsfw": false,
-      "epilepsy": false,
-      "untagged": true,
-    }
-  },
-  "Icon": {
-    "styles": {
-      "official": true,
-      "custom": true,
-    },
-    "mimes": {
-      "image/png": true,
-      "image/webp": true,
-      "image/vnd.microsoft.icon": true
-    },
-    "types": {
-      "static": true,
-      "animated": true,
-    },
-    "oneoftag": {
-      "humor": true,
-      "nsfw": false,
-      "epilepsy": false,
-      "untagged": true,
-    }
-  }
-});
+export const dbFilters:Writable<DBFilters> = writable(DEFAULT_FILTERS);
+
+
+export const selectedCleanGridsPreset: Writable<"clean" | "custom"> = writable("clean");
+export const selectedManualGamesAddMethod: Writable<"manual" | "search"> = writable("manual");

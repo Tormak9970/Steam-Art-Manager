@@ -36,7 +36,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={"Batch Apply Progress"} onClose={onClose}>
   <div class="content">
     <div class="options">
@@ -44,7 +43,7 @@
     </div>
     <div class="info">{$batchApplyMessage}</div>
     <div class="buttons">
-      {#if $batchApplyProgress == 100}
+      {#if $batchApplyProgress === 100}
         <Button label="Close" onClick={closeAfterComplete} width="100%" />
       {:else}
         <Button label="Cancel" onClick={cancel} width="100%" />

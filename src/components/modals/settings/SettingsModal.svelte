@@ -34,22 +34,20 @@
 
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
     
+
     $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
     if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
 
-    const steamUserKeyMap = (await SettingsManager.getSettings()).steamApiKeyMap;
-    steamUserKeyMap[$activeUserId] = steamAPIKey;
-    await SettingsManager.updateSetting("steamApiKeyMap", steamUserKeyMap);
+    const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+    steamApiKeyMapSetting[$activeUserId] = steamAPIKey;
+    await SettingsManager.updateSetting("steamApiKeyMap", steamApiKeyMapSetting);
 
     
-    $steamInstallPath = steamInstallLocation !== "" ? steamInstallLocation : $steamInstallPath;
-    if (steamInstallLocation !== "") await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
+    if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
 
     LogController.log("Saved settings.");
-
-    canSave = false;
-
     ToastController.showSuccessToast("Settings saved!");
+    canSave = false;
 
     onClose();
   }
@@ -78,7 +76,7 @@
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
 
-    if (value != "") {
+    if (value !== "") {
       steamGridKey = value;
       canSave = true;
     }
@@ -92,7 +90,7 @@
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
 
-    if (value != "") {
+    if (value !== "") {
       steamAPIKey = value;
       canSave = true;
     }
@@ -114,7 +112,7 @@
     <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this.`}
+      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
       required
@@ -123,7 +121,7 @@
     <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="SteamGrid Api Key"
-      description={`Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.`}
+      description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
       value={steamGridKey}
       onChange={onGridKeyChange}
       required
@@ -132,8 +130,8 @@
     <Spacer orientation="VERTICAL" />
     <SettingsEntry
       label="Steam Api key"
-      description={`Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href="https://steamcommunity.com/dev/apikey">key registration</a> page, sign in and create an api key.`}
-      notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
+      description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
+      notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
       value={steamAPIKey}
       onChange={onSteamKeyChange}
     />
