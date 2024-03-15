@@ -6,6 +6,36 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.2.0
+
+New Features
+* added info modal ([19a4b1d](https://github.com/Tormak9970/Steam-Art-Manager/commit/19a4b1d))
+* added link to sgdb page for each grid ([6346cc7](https://github.com/Tormak9970/Steam-Art-Manager/commit/6346cc7))
+* added list view ([a8ef14e](https://github.com/Tormak9970/Steam-Art-Manager/commit/a8ef14e))
+* added modal to view current grids for games ([abab377](https://github.com/Tormak9970/Steam-Art-Manager/commit/abab377))
+* added start menu tiles updating system ([f8d80e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/f8d80e5))
+* app now saves modal settings ([495a780](https://github.com/Tormak9970/Steam-Art-Manager/commit/495a780))
+* app window is slightly rounded to match design language ([c8e7a11](https://github.com/Tormak9970/Steam-Art-Manager/commit/c8e7a11))
+* filter choices now persist after app is closed ([808e8de](https://github.com/Tormak9970/Steam-Art-Manager/commit/808e8de))
+* overhauled settings sytem and added new settings ([90ce315](https://github.com/Tormak9970/Steam-Art-Manager/commit/90ce315))
+* panel positions are now consistent ([398e5d7](https://github.com/Tormak9970/Steam-Art-Manager/commit/398e5d7))
+
+Bug Fixes
+* corrected typo breaking game loading ([80ade96](https://github.com/Tormak9970/Steam-Art-Manager/commit/80ade96))
+* hiding games now works properly again ([1ff3dbe](https://github.com/Tormak9970/Steam-Art-Manager/commit/1ff3dbe))
+* images now load faster and more reliably ([0463dbb](https://github.com/Tormak9970/Steam-Art-Manager/commit/0463dbb))
+* large libraries should now render gracefully ([be1f628](https://github.com/Tormak9970/Steam-Art-Manager/commit/be1f628))
+* settings system overhaul and fixes ([f92b5c6](https://github.com/Tormak9970/Steam-Art-Manager/commit/f92b5c6))
+* slight tweaks to lightmode ([eb68fcc](https://github.com/Tormak9970/Steam-Art-Manager/commit/eb68fcc))
+* tooltip are slightly smaller and better styled ([fafa86a](https://github.com/Tormak9970/Steam-Art-Manager/commit/fafa86a))
+* tooltip text is now shorter where possible ([030c086](https://github.com/Tormak9970/Steam-Art-Manager/commit/030c086))
+* update modal layout no longer breaks with large changelogs ([ce645a0](https://github.com/Tormak9970/Steam-Art-Manager/commit/ce645a0))
+* user is no longer changeable when modals are open ([7aed7c5](https://github.com/Tormak9970/Steam-Art-Manager/commit/7aed7c5))
+
+Build Pipeline Improvements
+* added eslint ([b63cd08](https://github.com/Tormak9970/Steam-Art-Manager/commit/b63cd08))
+* fixed changelog generating colons at the end ([1291338](https://github.com/Tormak9970/Steam-Art-Manager/commit/1291338))
+
 ## v3.0.0
 
 New Features:
