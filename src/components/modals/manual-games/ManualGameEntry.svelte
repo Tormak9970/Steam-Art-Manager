@@ -18,6 +18,8 @@
    * @returns True if it does, false if not.
    */
   function getCustomArtStatus(): boolean {
+    // * Need this bc we want to only compare the properties of the objects.
+    // eslint-disable-next-line eqeqeq
     return $unfilteredLibraryCache[game.appid] && $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
   }
 

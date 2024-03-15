@@ -9,8 +9,8 @@
   import Table from "../../layout/Table.svelte";
   import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
   import { showManualGamesModal } from "../../../stores/Modals";
+  import { selectedManualGamesAddMethod } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import Spacer from "../../layout/Spacer.svelte";
 
@@ -30,20 +30,19 @@
     { label: "Manual", data: "manual" },
     { label: "Search", data: "search" }
   ];
-  let selectedAddMethod =  "manual";
 
   /**
    * Adds a game to the new manual games list.
    * @param game The new game to add.
    */
   function addNewGame(game: GameStruct): void {
-    if ($steamGames.find((sGame) => sGame.appid == game.appid) || tempManualGames.find((tGame) => tGame.appid == game.appid)) {
-      ToastController.showWarningToast(`Game with that appid already exists! Can't have duplicates.`);
+    if ($steamGames.find((sGame) => sGame.appid === game.appid) || tempManualGames.find((tGame) => tGame.appid === game.appid)) {
+      ToastController.showWarningToast("Game with that appid already exists! Can't have duplicates.");
     } else {
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
-      tempManualGames = [...tempManualGames];
-      canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+      tempManualGames = [ ...tempManualGames ];
+      canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
     }
   }
 
@@ -53,17 +52,17 @@
    */
   function removeHandler(game: GameStruct): void {
     LogController.log(`Removed manually added game ${game.name}.`);
-    const index = tempManualGames.findIndex((g) => g.appid == game.appid);
+    const index = tempManualGames.findIndex((g) => g.appid === game.appid);
     tempManualGames.splice(index, 1);
-    tempManualGames = [...tempManualGames];
-    canSave = JSON.parse(JSON.stringify(originalManualGames)) != JSON.parse(JSON.stringify(tempManualGames));
+    tempManualGames = [ ...tempManualGames ];
+    canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
   }
 
   /**
    * Adds all of the provided games.
    */
   async function saveChanges() {
-    manualSteamGames.set(JSON.parse(JSON.stringify(tempManualGames)));
+    $manualSteamGames = structuredClone(tempManualGames);
 
     const originalAppLibCache = $originalAppLibraryCache;
     const appLibCache = $appLibraryCache;
@@ -76,7 +75,6 @@
     originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
     appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
 
-    SettingsManager.updateSetting("manualSteamGames", tempManualGames);
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
 
@@ -139,16 +137,16 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 7px;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={selectedAddMethod} width="100px" onChange={() => {}} showTooltip={false} />
+          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
         </div>
         <Spacer orientation="VERTICAL" />
       </div>
       <div class="section-label">Game Info</div>
       <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
       <Spacer orientation="VERTICAL" />
-      {#if selectedAddMethod == "search"}
+      {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
-      {:else if selectedAddMethod == "manual"}
+      {:else if $selectedManualGamesAddMethod === "manual"}
         <Manual onGameSave={addNewGame} />
       {/if}
     </div>

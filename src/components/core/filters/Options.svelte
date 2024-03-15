@@ -3,10 +3,9 @@
   import Toggle from "../../interactables/Toggle.svelte";
   import Accordion from "../../layout/Accordion.svelte";
   import SectionTitle from "../SectionTitle.svelte";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
   import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
-  import { dbFilters, gridType, theme } from "../../../stores/AppState";
+  import { dbFilters, gridType, optionsSize, theme } from "../../../stores/AppState";
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
@@ -16,13 +15,13 @@
    * @param filter The filter to update.
    * @returns A function to update the filter.
    */
-  function updateFilters(section: string, filter: string): (value:boolean) => void {
+  function updateFilters(section: string, filter: string): (value: boolean) => void {
     return (value: boolean) => {
       const filters = $dbFilters;
 
       filters[$gridType][section][filter] = value;
 
-      $dbFilters = {...filters};
+      $dbFilters = { ...filters };
     }
   }
 
@@ -33,9 +32,9 @@
    */
   function toUpperCaseSplit(word: string): string {
     if (word.includes("_")) {
-      return word.split("_").map((w) => w.substring(0,1).toUpperCase().concat(w.substring(1))).join(" ");
+      return word.split("_").map((w) => w.substring(0, 1).toUpperCase().concat(w.substring(1))).join(" ");
     } else {
-      return word.substring(0,1).toUpperCase().concat(word.substring(1));
+      return word.substring(0, 1).toUpperCase().concat(word.substring(1));
     }
   }
 
@@ -45,19 +44,18 @@
    */
   function onDarkModeChange(checked: boolean): void {
     document.body.setAttribute("data-theme", checked ? "dark" : "light");
-    SettingsManager.updateSetting("theme", checked ? 0 : 1);
     $theme = checked ? 0 : 1;
     LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
   }
 </script>
 
-<Pane minSize={15} size={16}>
+<Pane minSize={15} size={$optionsSize}>
   <div class="inner">
     <SectionTitle title="Options" />
   
     <div class="content" style="height: 35px;">
       <div style="padding-left: 6px; margin-top: 10px; display: flex; justify-content: space-between;">
-        <Toggle label="Dark Mode" value={$theme == 0} onChange={onDarkModeChange}/>
+        <Toggle label="Dark Mode" value={$theme === 0} onChange={onDarkModeChange}/>
       </div>
       
       <Divider />
@@ -68,13 +66,13 @@
       <PaddedScrollContainer height={"100%"} width={"100%"} background={"transparent"} marginTop="0px" padding="0px">
         {#each Object.keys($dbFilters[$gridType]) as section, i}
           <Accordion
-            label="{section == "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+            label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
             open={true}
           >
             <Spacer orientation="VERTICAL" />
             {#each Object.keys($dbFilters[$gridType][section]) as filter}
               <Toggle
-                label="{filter == "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                label="{filter === "material" ? "Minimal" : toUpperCaseSplit(filter)}"
                 value={$dbFilters[$gridType][section][filter]}
                 onChange={updateFilters(section, filter)}
               />

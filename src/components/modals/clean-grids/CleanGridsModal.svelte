@@ -1,11 +1,21 @@
 <script lang="ts">
   import { AppController } from "../../../lib/controllers/AppController";
   import { showCleanGridsModal } from "../../../stores/Modals";
+  import { manualSteamGames, nonSteamGames, selectedCleanGridsPreset, steamGames } from "../../../stores/AppState";
   import Button from "../../interactables/Button.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
   import Spacer from "../../layout/Spacer.svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
+
+  $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
+
+  let presets = [
+    { label: "Clean", data: "clean" },
+    { label: "Custom", data: "custom" },
+  ];
+
+  let selectedGameIds: string[] = [];
 
   /**
    * The function to run when the modal closes.
@@ -14,20 +24,11 @@
     $showCleanGridsModal = false;
   }
 
-  let presets = [
-    { label: "Clean", data: "clean" },
-    { label: "Custom", data: "custom" },
-  ];
-  
-  let selectedPreset: "clean" | "custom" = "clean";
-
-  let selectedGameIds: string[] = [];
-
   /**
    * Cleans out the undesired grids.
    */
   function cleanGrids(): void {
-    AppController.cleanDeadGrids(selectedPreset, selectedGameIds);
+    AppController.cleanDeadGrids($selectedCleanGridsPreset, selectedGameIds);
     onClose();
   }
 
@@ -39,7 +40,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={"Clean Grids"} onClose={onClose}>
   <div class="content">
     <Spacer orientation="VERTICAL" />
@@ -53,13 +53,13 @@
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <div class="options">
-      <DropDown label={"Preset"} options={presets} bind:value={selectedPreset} width="100px" showTooltip={false} />
+      <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="100px" showTooltip={false} />
     </div>
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
     <div class="view">
-      {#if selectedPreset == "custom"}
-        <GameFilter bind:selectedGameIds={selectedGameIds} showFilters={false}/>
+      {#if $selectedCleanGridsPreset === "custom"}
+        <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} showFilters={false}/>
       {/if}
     </div>
     <div class="buttons">

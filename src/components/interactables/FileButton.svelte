@@ -21,11 +21,10 @@
       directory: true,
       multiple: false
     });
-    if (path && path != "") onChange(path as string);
+    if (path && path !== "") onChange(path as string);
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <IconButton label={label} tooltipPosition={tooltipPosition} width={width} height={height} onClick={onClick} disabled={disabled} highlight={highlight} warn={warn}>
   <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
     <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->

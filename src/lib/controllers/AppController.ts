@@ -15,29 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, process } from "@tauri-apps/api";
+import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../stores/AppState";
-import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showDialogModal, showGameSearchModal, showGridModal, showSettingsModal, showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
+import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBGame, SGDBImage } from "../models/SGDB";
 
-import { createTippy } from 'svelte-tippy';
+import { createTippy } from "svelte-tippy";
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
-import { exit } from "@tauri-apps/api/process";
 import { DialogController } from "./DialogController";
 import { SteamController } from "./SteamController";
-import { findSteamPath } from "../utils/Utils";
+import { SettingsController } from "./SettingsController";
 
 /**
  * The main controller for the application.
  */
 export class AppController {
+  private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController = null;
   private static tippyInstance = null;
 
@@ -63,82 +63,9 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
 
-    await SettingsManager.setSettingsPath();
-    let settings: AppSettings = await SettingsManager.getSettings();
-
-    await findSteamPath(settings.steamInstallPath);
-
-    const users = await RustInterop.getSteamUsers();
-    const cleanedUsers: { [id: string]: SteamUser } = {};
-
-    if (Object.keys(users).length === 0) {
-      await DialogController.message(
-        "No Steam Users Found",
-        "ERROR",
-        "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
-        "Ok",
-      );
-      await exit(0);
-    }
-
-    //? need to clean the data here bc props can vary in terms of case
-    for (const [id, user] of Object.entries(users)) {
-      const userKeys = Object.keys(user);
-      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [key.toLowerCase(), user[key]]));
-
-      cleanedUsers[id] = {
-        id64: lowerCaseUser.id64,
-        id32: lowerCaseUser.id32,
-        AccountName: lowerCaseUser.accountname,
-        PersonaName: lowerCaseUser.personaname,
-        RememberPassword: lowerCaseUser.rememberpassword,
-        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
-        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
-        AllowAutoLogin: lowerCaseUser.allowautologin,
-        MostRecent: lowerCaseUser.mostrecent,
-        Timestamp: lowerCaseUser.timestamp
-      }
-    }
-
-    steamUsers.set(cleanedUsers);
-
-    const usersList = Object.values(cleanedUsers);
-
-    if (usersList.length == 0) {
-      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
-      LogController.error("Expected to find at least 1 Steam user but found 0.");
-      await process.exit(0);
-    }
-
-    const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
-    activeUserId.set(parseInt(activeUser.id32));
-
-    if (settings.steamGridDbApiKey != "") {
-      steamGridDBKey.set(settings.steamGridDbApiKey);
-      needsSGDBAPIKey.set(false);
-    }
-    
-    if (settings.steamApiKeyMap[activeUser.id32] && settings.steamApiKeyMap[activeUser.id32] != "") {
-      steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
-      needsSteamKey.set(false);
-    }
-
-    if (settings.manualSteamGames.length > 0) {
-      manualSteamGames.set(settings.manualSteamGames);
-      LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
-    }
-
-    customGameNames.set(settings.customGameNames);
-    LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
-
-    theme.set(settings.theme);
-    document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
-
-    hiddenGameIds.set(settings.hiddenGameIds);
-
-    if (activeUser.id32 == "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
-    }
+    await SettingsManager.init();
+    await AppController.settingsController.loadSettings();
+    await AppController.settingsController.subscribeToSettingChanges();
 
     LogController.log("App setup complete.");
   }
@@ -173,23 +100,23 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
 
-    const shortcutEntries = shortcuts.map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const shortcutEntries = shortcuts.map((shortcut) => [ shortcut.appid, shortcut.icon ]);
     const shortcutIcons = Object.fromEntries(shortcutEntries);
 
-    const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [ shortcut.appid, shortcut.icon ]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
     const originalLogoPos = get(originalLogoPositions);
     const steamLogoPos = get(steamLogoPositions);
     const logoPosStrings = {};
 
-    for (const [appid, steamLogo] of Object.entries(steamLogoPos)) {
+    for (const [ appid, steamLogo ] of Object.entries(steamLogoPos)) {
       const originalPos = originalLogoPos[appid]?.logoPosition;
       const logoPos = steamLogo.logoPosition;
 
       if (!logoPos) continue;
-      if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
-        logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
+      if (logoPos.nHeightPct !== originalPos?.nHeightPct || logoPos.nWidthPct !== originalPos?.nWidthPct || logoPos.pinnedPosition !== originalPos?.pinnedPosition) {
+        logoPosStrings[appid] = logoPos.pinnedPosition === "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
       }
     }
 
@@ -200,10 +127,10 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
-        if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
-          shortcut.icon = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
+        if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
+          const shortcut = shortcuts.find((s) => s.appid.toString() === changedPath.appId);
+          shortcut.icon = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
         }
       }
       originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
@@ -213,8 +140,8 @@ export class AppController {
       steamShortcuts.set(shortcuts);
 
       let logoPosEntries = Object.entries(steamLogoPos);
-      logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
-        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition != "REMOVE"
+      logoPosEntries = logoPosEntries.filter(([ appid, logoPos ]) => {
+        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE"
       });
 
       originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
@@ -260,9 +187,9 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.NON_STEAM) {
-      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
-      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid == appId);
+    if (platform === Platforms.NON_STEAM) {
+      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
+      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid === appId);
       shortcutToEdit = targetShortcut;
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -276,7 +203,7 @@ export class AppController {
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
     
-    canSave.set(!((JSON.stringify(originalCache) == JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) == JSON.stringify(logoPositionCache))));
+    canSave.set(!((JSON.stringify(originalCache) === JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) === JSON.stringify(logoPositionCache))));
   }
 
   /**
@@ -288,8 +215,8 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.NON_STEAM) {
-      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
+    if (platform === Platforms.NON_STEAM) {
+      const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
       shortcutToEdit.icon = "";
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -342,15 +269,15 @@ export class AppController {
     const sGames = get(steamGames);
     const manualSGames = get(manualSteamGames);
     const nonSGames = get(steamShortcuts);
-    const games = [...sGames, ...manualSGames, ...nonSGames];
+    const games = [ ...sGames, ...manualSGames, ...nonSGames ];
 
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
     for (const game of games) {
-      if (platform == Platforms.NON_STEAM) {
-        let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == game.appid);
+      if (platform === Platforms.NON_STEAM) {
+        const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === game.appid);
         shortcutToEdit.icon = "";
       }
   
@@ -367,7 +294,7 @@ export class AppController {
     appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
 
     ToastController.showSuccessToast("Cleared all grids!");
-    LogController.log(`Cleared all grids.`);
+    LogController.log("Cleared all grids.");
     
     canSave.set(true);
   }
@@ -400,9 +327,9 @@ export class AppController {
     
     gameImages[selectedGameId][selectedGridType] = path;
 
-    if (get(currentPlatform) == Platforms.NON_STEAM && type == GridTypes.ICON) {
+    if (get(currentPlatform) === Platforms.NON_STEAM && type === GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
-      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+      const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
       shortcut.icon = path;
       steamShortcuts.set(shortcuts);
     }
@@ -439,9 +366,9 @@ export class AppController {
 
       gameImages[selectedGameId][selectedGridType] = localPath;
       
-      if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
+      if (get(currentPlatform) === Platforms.NON_STEAM && selectedGridType === GridTypes.ICON) {
         const shortcuts = get(steamShortcuts);
-        const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+        const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
         shortcut.icon = localPath;
         steamShortcuts.set(shortcuts);
       }
@@ -501,18 +428,18 @@ export class AppController {
   static async importGrids(): Promise<void> {
     LogController.log("Prompting user to grids.");
     const shortcuts = get(steamShortcuts);
-    const idsMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcut.AppName, shortcutId]; });
+    const idsMapEntries: [string, string][] = Object.entries(shortcuts).map(([ shortcutId, shortcut ]) => { return [ shortcut.AppName, shortcutId ]; });
     const shortcutIdsMap = Object.fromEntries(idsMapEntries);
 
-    const [succeeded, iconsToSet] = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
+    const [ succeeded, iconsToSet ] = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
 
     if (succeeded) {
       const shortcuts = get(steamShortcuts);
       const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
       
-      for (const [id, path] of Object.entries(iconsToSet)) {
+      for (const [ id, path ] of Object.entries(iconsToSet)) {
         if (shortcutIds.includes(id)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() == id);
+          const shortcut = shortcuts.find((s) => s.appid.toString() === id);
           shortcut.icon = path;
         }
       }
@@ -541,11 +468,11 @@ export class AppController {
     const games = get(steamGames);
     const manualGames = get(manualSteamGames);
 
-    let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [shortcut.appid.toString(), "nonsteam"]; });
-    platformEntries = platformEntries.concat([...games, ...manualGames].map((game) => { return [game.appid.toString(), "steam"]; }));
+    let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [ shortcut.appid.toString(), "nonsteam" ]; });
+    platformEntries = platformEntries.concat([ ...games, ...manualGames ].map((game) => { return [ game.appid.toString(), "steam" ]; }));
     const platformIdMap = Object.fromEntries(platformEntries);
 
-    const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcutId, shortcut.AppName]; });
+    const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([ shortcutId, shortcut ]) => { return [ shortcutId, shortcut.AppName ]; });
     const shortcutNamesMap = Object.fromEntries(namesMapEntries);
 
     const success = await RustInterop.exportGridsToZip(get(activeUserId).toString(), platformIdMap, shortcutNamesMap);
@@ -603,7 +530,7 @@ export class AppController {
    * @param selectedGameIds The list of ids of games to delete grids for.
    */
   static async cleanDeadGrids(preset: "clean" | "custom", selectedGameIds: string[], ): Promise<void> {
-    let appids = [
+    const appids = [
       ...get(steamGames).map((game) => game.appid.toString()),
       ...get(nonSteamGames).map((game) => game.appid.toString()),
       ...get(manualSteamGames).map((game) => game.appid.toString()),
@@ -621,11 +548,30 @@ export class AppController {
   }
 
   /**
+   * Gets the steam apps with start menu tiles.
+   * @returns A record of appid -> iconPath.
+   */
+  static async getAppTiles(): Promise<Record<string, string>> {
+    return await RustInterop.getAppsWithTiles();
+  }
+
+  /**
+   * Updates the current app tiles to their app icons.
+   * @param appIconsPaths The record of appid -> iconPath.
+   * @param appTilePaths The record of appid -> tilePath.
+   * @returns An array containing the ids of any tiles that failed to be updated.
+   */
+  static async updateAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
+    return await RustInterop.writeAppTiles(appIconsPaths, appTilePaths);
+  }
+
+  /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
   static async destroy(): Promise<void> {
     await AppController.cacheController.destroy();
+    AppController.settingsController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -652,7 +598,7 @@ export class AppController {
   static async reload(): Promise<void> {
     const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
     if (shouldReload) {
-      LogController.log(`Reloading...`);
+      LogController.log("Reloading...");
       await process.relaunch();
     }
   }
@@ -677,10 +623,10 @@ export class AppController {
    */
   static async changeSteamUser(userId: string): Promise<void> {
     const users = get(steamUsers);
-    const user = Object.values(users).find((user) => user.id32 == userId);
+    const user = Object.values(users).find((user) => user.id32 === userId);
     const oldUserId = get(activeUserId).toString();
 
-    if (userId != oldUserId) {
+    if (userId !== oldUserId) {
       const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?", {
         title: "Confirm user change",
         type: "warning"
@@ -691,9 +637,9 @@ export class AppController {
 
         activeUserId.set(parseInt(userId));
 
-        const settings = await SettingsManager.getSettings();
-        if (settings.steamApiKeyMap[userId] && settings.steamApiKeyMap[userId] != "") {
-          steamKey.set(settings.steamApiKeyMap[userId]);
+        const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+        if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
+          steamKey.set(steamApiKeyMapSetting[userId]);
         } else {
           steamKey.set("");
           needsSteamKey.set(true);

@@ -12,11 +12,11 @@
     tabStore.labels.push(label);
     $tabsDict[tabsId] = tabStore;
 
-    $tabsDict = {...$tabsDict};
+    $tabsDict = { ...$tabsDict };
   });
 </script>
 
-<div class="tab" class:render={label == $tabsDict[tabsId]?.selected}>
+<div class="tab" class:render={label === $tabsDict[tabsId]?.selected}>
   <slot />
 </div>
 

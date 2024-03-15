@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GridTypes, gridType } from "../../../stores/AppState";
+  import { GridTypes, gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
   import Button from "../../interactables/Button.svelte";
   import { AppController } from "../../../lib/controllers/AppController";
   import { ToastController } from "../../../lib/controllers/ToastController";
@@ -7,14 +7,16 @@
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
   import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
+  $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
+
+  let selectedGameIds: string[] = [];
+
   /**
    * The function to run when the modal closes.
    */
   function onClose(): void {
     $showBatchApplyModal = false;
   }
-
-  let selectedGameIds: string[] = [];
 
   /**
    * Batch applies grids to all games.
@@ -34,12 +36,12 @@
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType != GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
+<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
   <div class="content">
     <div class="info">
       Choose the games you would like to batch apply grids to.
     </div>
-    <GameFilter bind:selectedGameIds={selectedGameIds} />
+    <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
     <div class="buttons">
       <Button label="Apply" onClick={batchApply} width="47.5%" />
       <Button label="Cancel" onClick={cancel} width="47.5%" />

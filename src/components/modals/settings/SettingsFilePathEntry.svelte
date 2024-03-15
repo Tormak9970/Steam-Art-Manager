@@ -24,7 +24,7 @@
    * @param e The click event.
    */
    function clickListener(e: Event) {
-    const origin = (e.target as Element).closest(`a`);
+    const origin = (e.target as Element).closest("a");
   
     if (origin) {
       e.preventDefault();
@@ -44,11 +44,13 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html description}<br/>
 
-    {#if notes != ""}
+    {#if notes !== ""}
       <Spacer orientation="VERTICAL" />
       <b>Notes:</b><br/>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html notes}
     {/if}
     

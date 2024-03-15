@@ -1,7 +1,7 @@
 <script lang="ts">
   import Lazy from "svelte-lazy";
-  import { heights, widths } from "./imageDimensions";
   import { gridType } from "../../stores/AppState";
+  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "../../lib/utils/ImageConstants";
 
   export let imagePath: string;
   export let altText: string;
@@ -26,13 +26,13 @@
   }
 </script>
 
-<div class="grid-img" style="height: {heights[$gridType]}px;">
+<div class="grid-img" style="height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px;">
   {#if showImage}
-    <Lazy height="{heights[$gridType]}px" fadeOption={{delay: 500, duration: 1000}}>
+    <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
-        <video src="{imagePath}" muted loop autoplay={false} style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
+        <video src="{imagePath}" muted loop autoplay={false} style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
       {:else}
-        <img src="{imagePath}" alt="{altText}" style="max-width: {widths[$gridType]}px; max-height: {heights[$gridType]}px; width: auto; height: auto;" draggable="false" />
+        <img src="{imagePath}" alt="{altText}" style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" draggable="false" />
       {/if}
     </Lazy>
   {:else}
@@ -45,5 +45,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    border-radius: 4px;
+    overflow: hidden;
   }
 </style>

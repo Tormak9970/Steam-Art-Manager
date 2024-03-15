@@ -20,7 +20,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={$dialogModalTitle} canClose={false}>
   <div class="content">
     <div class="info">

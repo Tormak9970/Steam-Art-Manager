@@ -6,40 +6,69 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
-## v3.0.0
+## v3.2.0
 
 New Features
-* added custom context menu ([3486a0c](https://github.com/Tormak9970/Steam-Art-Manager/commit/3486a0c)):
-* added custom search system for game names ([605997b](https://github.com/Tormak9970/Steam-Art-Manager/commit/605997b)):
-* added custom steam path support ([3bec562](https://github.com/Tormak9970/Steam-Art-Manager/commit/3bec562)):
-* added git social preview ([01fc444](https://github.com/Tormak9970/Steam-Art-Manager/commit/01fc444)):
-* added librarycache exists check ([1e891b8](https://github.com/Tormak9970/Steam-Art-Manager/commit/1e891b8)):
-* added loading skeletons to games and grids ([cf838a4](https://github.com/Tormak9970/Steam-Art-Manager/commit/cf838a4)):
-* dialog now shows when no users are found ([e938468](https://github.com/Tormak9970/Steam-Art-Manager/commit/e938468)):
-* switched to all custom dialogs ([a783ee4](https://github.com/Tormak9970/Steam-Art-Manager/commit/a783ee4)):
-* updated app icon and image in readme ([ec9d216](https://github.com/Tormak9970/Steam-Art-Manager/commit/ec9d216)):
+* added info modal ([19a4b1d](https://github.com/Tormak9970/Steam-Art-Manager/commit/19a4b1d))
+* added link to sgdb page for each grid ([6346cc7](https://github.com/Tormak9970/Steam-Art-Manager/commit/6346cc7))
+* added list view ([a8ef14e](https://github.com/Tormak9970/Steam-Art-Manager/commit/a8ef14e))
+* added modal to view current grids for games ([abab377](https://github.com/Tormak9970/Steam-Art-Manager/commit/abab377))
+* added start menu tiles updating system ([f8d80e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/f8d80e5))
+* app now saves modal settings ([495a780](https://github.com/Tormak9970/Steam-Art-Manager/commit/495a780))
+* app window is slightly rounded to match design language ([c8e7a11](https://github.com/Tormak9970/Steam-Art-Manager/commit/c8e7a11))
+* filter choices now persist after app is closed ([808e8de](https://github.com/Tormak9970/Steam-Art-Manager/commit/808e8de))
+* overhauled settings sytem and added new settings ([90ce315](https://github.com/Tormak9970/Steam-Art-Manager/commit/90ce315))
+* panel positions are now consistent ([398e5d7](https://github.com/Tormak9970/Steam-Art-Manager/commit/398e5d7))
 
 Bug Fixes
-* added frontend logging to log controller ([1c8f61c](https://github.com/Tormak9970/Steam-Art-Manager/commit/1c8f61c)):
-* app now properly exits when click close from taskbar ([8430fd6](https://github.com/Tormak9970/Steam-Art-Manager/commit/8430fd6)):
-* bumped tauri to 1.4.1 and tauri-build to 1,4,0 ([aa6b70c](https://github.com/Tormak9970/Steam-Art-Manager/commit/aa6b70c)):
-* buttons are no longer cramped on small screens ([23dac30](https://github.com/Tormak9970/Steam-Art-Manager/commit/23dac30)):
-* consecutive dialog modals now work properly ([c15fe36](https://github.com/Tormak9970/Steam-Art-Manager/commit/c15fe36)):
-* corrected small inconsistencies in headers ([9f00723](https://github.com/Tormak9970/Steam-Art-Manager/commit/9f00723)):
-* grid preview no longer opens in the incorrect size ([90a7543](https://github.com/Tormak9970/Steam-Art-Manager/commit/90a7543)):
-* linux installer and uninstaller are now more robust ([255368b](https://github.com/Tormak9970/Steam-Art-Manager/commit/255368b)):
-* linux shortcut now uses clearer icon and can be pinned to taskbar ([90a7d4c](https://github.com/Tormak9970/Steam-Art-Manager/commit/90a7d4c)):
-* linux-installer will now fetch the specific version of sarm ([c079bbf](https://github.com/Tormak9970/Steam-Art-Manager/commit/c079bbf)):
-* modals no longer close on right click ([38eb2cc](https://github.com/Tormak9970/Steam-Art-Manager/commit/38eb2cc)):
-* modals no longer close unexpectedly when drag clicking ([841f0a8](https://github.com/Tormak9970/Steam-Art-Manager/commit/841f0a8)):
-* modals now blur background instead of applying opacity ([fcf6712](https://github.com/Tormak9970/Steam-Art-Manager/commit/fcf6712)):
-* scroll padding is now consistent everywhere ([4c2291d](https://github.com/Tormak9970/Steam-Art-Manager/commit/4c2291d)):
-* undefined no longer occasionally shows in selected game field ([8381cbb](https://github.com/Tormak9970/Steam-Art-Manager/commit/8381cbb)):
-* when installed with the linux installer, app now works in wayland ([ff624d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/ff624d8)):
+* corrected typo breaking game loading ([80ade96](https://github.com/Tormak9970/Steam-Art-Manager/commit/80ade96))
+* hiding games now works properly again ([1ff3dbe](https://github.com/Tormak9970/Steam-Art-Manager/commit/1ff3dbe))
+* images now load faster and more reliably ([0463dbb](https://github.com/Tormak9970/Steam-Art-Manager/commit/0463dbb))
+* large libraries should now render gracefully ([be1f628](https://github.com/Tormak9970/Steam-Art-Manager/commit/be1f628))
+* settings system overhaul and fixes ([f92b5c6](https://github.com/Tormak9970/Steam-Art-Manager/commit/f92b5c6))
+* slight tweaks to lightmode ([eb68fcc](https://github.com/Tormak9970/Steam-Art-Manager/commit/eb68fcc))
+* tooltip are slightly smaller and better styled ([fafa86a](https://github.com/Tormak9970/Steam-Art-Manager/commit/fafa86a))
+* tooltip text is now shorter where possible ([030c086](https://github.com/Tormak9970/Steam-Art-Manager/commit/030c086))
+* update modal layout no longer breaks with large changelogs ([ce645a0](https://github.com/Tormak9970/Steam-Art-Manager/commit/ce645a0))
+* user is no longer changeable when modals are open ([7aed7c5](https://github.com/Tormak9970/Steam-Art-Manager/commit/7aed7c5))
 
 Build Pipeline Improvements
-* build process now generates a changelog.md file ([c43ea6f](https://github.com/Tormak9970/Steam-Art-Manager/commit/c43ea6f)):
-* switched to reliable-changelog ([6688292](https://github.com/Tormak9970/Steam-Art-Manager/commit/6688292)):
+* added eslint ([b63cd08](https://github.com/Tormak9970/Steam-Art-Manager/commit/b63cd08))
+* fixed changelog generating colons at the end ([1291338](https://github.com/Tormak9970/Steam-Art-Manager/commit/1291338))
+
+## v3.0.0
+
+New Features:
+* added custom search system for game names ([605997b](https://github.com/Tormak9970/Steam-Art-Manager/commit/605997b))
+* added custom steam path support ([3bec562](https://github.com/Tormak9970/Steam-Art-Manager/commit/3bec562))
+* added git social preview ([01fc444](https://github.com/Tormak9970/Steam-Art-Manager/commit/01fc444))
+* added librarycache exists check ([1e891b8](https://github.com/Tormak9970/Steam-Art-Manager/commit/1e891b8))
+* added loading skeletons to games and grids ([cf838a4](https://github.com/Tormak9970/Steam-Art-Manager/commit/cf838a4))
+* dialog now shows when no users are found ([e938468](https://github.com/Tormak9970/Steam-Art-Manager/commit/e938468))
+* switched to all custom dialogs ([a783ee4](https://github.com/Tormak9970/Steam-Art-Manager/commit/a783ee4))
+* updated app icon and image in readme ([ec9d216](https://github.com/Tormak9970/Steam-Art-Manager/commit/ec9d216))
+
+Bug Fixes:
+* added frontend logging to log controller ([1c8f61c](https://github.com/Tormak9970/Steam-Art-Manager/commit/1c8f61c))
+* app now properly exits when click close from taskbar ([8430fd6](https://github.com/Tormak9970/Steam-Art-Manager/commit/8430fd6))
+* bumped tauri to 1.4.1 and tauri-build to 1,4,0 ([aa6b70c](https://github.com/Tormak9970/Steam-Art-Manager/commit/aa6b70c))
+* buttons are no longer cramped on small screens ([23dac30](https://github.com/Tormak9970/Steam-Art-Manager/commit/23dac30))
+* consecutive dialog modals now work properly ([c15fe36](https://github.com/Tormak9970/Steam-Art-Manager/commit/c15fe36))
+* corrected small inconsistencies in headers ([9f00723](https://github.com/Tormak9970/Steam-Art-Manager/commit/9f00723))
+* grid preview no longer opens in the incorrect size ([90a7543](https://github.com/Tormak9970/Steam-Art-Manager/commit/90a7543))
+* linux installer and uninstaller are now more robust ([255368b](https://github.com/Tormak9970/Steam-Art-Manager/commit/255368b))
+* linux shortcut now uses clearer icon and can be pinned to taskbar ([90a7d4c](https://github.com/Tormak9970/Steam-Art-Manager/commit/90a7d4c))
+* linux-installer will now fetch the specific version of sarm ([c079bbf](https://github.com/Tormak9970/Steam-Art-Manager/commit/c079bbf))
+* modals no longer close on right click ([38eb2cc](https://github.com/Tormak9970/Steam-Art-Manager/commit/38eb2cc))
+* modals no longer close unexpectedly when drag clicking ([841f0a8](https://github.com/Tormak9970/Steam-Art-Manager/commit/841f0a8))
+* modals now blur background instead of applying opacity ([fcf6712](https://github.com/Tormak9970/Steam-Art-Manager/commit/fcf6712))
+* scroll padding is now consistent everywhere ([4c2291d](https://github.com/Tormak9970/Steam-Art-Manager/commit/4c2291d))
+* undefined no longer occasionally shows in selected game field ([8381cbb](https://github.com/Tormak9970/Steam-Art-Manager/commit/8381cbb))
+* when installed with the linux installer, app now works in wayland ([ff624d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/ff624d8))
+
+Build Pipeline Improvements:
+* build process now generates a changelog.md file ([c43ea6f](https://github.com/Tormak9970/Steam-Art-Manager/commit/c43ea6f))
+* switched to reliable-changelog ([6688292](https://github.com/Tormak9970/Steam-Art-Manager/commit/6688292))
 
 ## v2.9.0
 
