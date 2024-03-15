@@ -32,7 +32,7 @@
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
   import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
 	
-  let updateUnsub: any;
+  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
