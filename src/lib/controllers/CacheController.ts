@@ -93,6 +93,7 @@ export class CacheController {
     LogController.log("Initializing CacheController...");
     
     this.appCacheDirPath = await appCacheDir();
+    await RustInterop.addPathToScope(this.appCacheDirPath);
     if (!(await fs.exists(this.appCacheDirPath))) {
       await fs.createDir(this.appCacheDirPath);
       LogController.log("Created cache dir.");
