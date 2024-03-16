@@ -17,22 +17,25 @@
 			"os": { "all": true },
 			"fs": {
 				"all": true,
-				"scope": [
-					"$APP",
-					"$APP/**",
-					"$DESKTOP",
-					"$DESKTOP/**",
-					"$RESOURCE",
-					"$RESOURCE/**",
-					"$APPCONFIG",
-					"$APPCONFIG/**",
-					"$DATA",
-					"$DATA/**",
-					"$APPLOG",
-					"$APPLOG/**",
-					"$APPCACHE",
-					"$APPCACHE/**"
-				]
+				"scope": {
+          "allow": [
+            "$APP",
+            "$APP/**",
+            "$DESKTOP",
+            "$DESKTOP/**",
+            "$RESOURCE",
+            "$RESOURCE/**",
+            "$APPCONFIG",
+            "$APPCONFIG/**",
+            "$DATA",
+            "$DATA/**",
+            "$APPLOG",
+            "$APPLOG/**",
+            "$APPCACHE",
+            "$APPCACHE/**"
+          ],
+          "requireLiteralLeadingDot": false
+        }
 			},
 			"http": {
 				"all": false,
@@ -47,22 +50,25 @@
 			"protocol": {
 				"all": true,
 				"asset": true,
-				"assetScope": [
-					"$APP",
-					"$APP/**",
-					"$DESKTOP",
-					"$DESKTOP/**",
-					"$RESOURCE",
-					"$RESOURCE/**",
-					"$APPCONFIG",
-					"$APPCONFIG/**",
-					"$DATA",
-					"$DATA/**",
-					"$APPLOG",
-					"$APPLOG/**",
-					"$APPCACHE",
-					"$APPCACHE/**"
-				]
+				"assetScope": {
+          "allow": [
+            "$APP",
+            "$APP/**",
+            "$DESKTOP",
+            "$DESKTOP/**",
+            "$RESOURCE",
+            "$RESOURCE/**",
+            "$APPCONFIG",
+            "$APPCONFIG/**",
+            "$DATA",
+            "$DATA/**",
+            "$APPLOG",
+            "$APPLOG/**",
+            "$APPCACHE",
+            "$APPCACHE/**"
+          ],
+          "requireLiteralLeadingDot": false
+        }
 			},
 			"shell": {
 				"all": false,
