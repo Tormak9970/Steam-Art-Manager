@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { checkUpdate } from '@tauri-apps/api/updater';
+  import { checkUpdate } from "@tauri-apps/api/updater";
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes } from 'svelte-splitpanes';
+	import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 	import Footer from "../../components/Footer.svelte";
 	import Options from "../../components/core/filters/Options.svelte";
 	import Games from "../../components/core/games/Games.svelte";
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { exit } from "@tauri-apps/api/process";
-  import { activeUserId, isOnline, steamUsers } from "../../stores/AppState";
-  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, gridModalInfo, showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal } from "../../stores/Modals";
+  import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "../../stores/AppState";
+  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal, showUpdateTilesModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
 	import type { Unsubscriber } from "svelte/store";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
@@ -26,13 +26,15 @@
   import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
   import DialogModal from "../../components/modals/DialogModal.svelte";
   import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
-    import GameSearchModal from "../../components/modals/GameSearchModal.svelte";
+  import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
+  import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
+  import { SettingsManager } from "../../lib/utils/SettingsManager";
+  import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
+  import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
 	
-  let updateUnsub: any;
+  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
-
-	let isFocused = true;
 
 	let users = Object.values($steamUsers).map((user) => {
 		return {
@@ -53,6 +55,20 @@
     const lineNumber = e.lineno;
 
     LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+  }
+
+  /**
+   * Handles panel resize events.
+   * @param event The resize event.
+   */
+  async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
+    if (event.detail) {
+      await SettingsManager.updateSetting("windowSettings.main.panels", {
+        "options": event.detail[0].size,
+        "games": event.detail[1].size,
+        "grids": event.detail[2].size
+      })
+    }
   }
 
 	onMount(async () => {
@@ -108,12 +124,18 @@
 	});
 </script>
 
-<div class="wrap">
-	<SvelteToast target="top" options={{ initial: 0, intro: { y: -64 } }} />
-</div>
-<main class:dim={!isFocused}>
-	<Titlebar title="Steam Art Manager">
-		<DropDown label="User" options={users} value={selectedUserId} onChange={AppController.changeSteamUser} width="100px" tooltipPosition="bottom" entryTooltipPosition="right" />
+<main class:rounded={!$windowIsMaximized}>
+	<Titlebar title="Steam Art Manager" bind:isMaxed={$windowIsMaximized}>
+		<DropDown
+      label="User"
+      options={users}
+      value={selectedUserId}
+      onChange={AppController.changeSteamUser}
+      width="100px"
+      tooltipPosition="bottom"
+      entryTooltipPosition="right"
+      disabled={$showDialogModal || $showSteamPathModal || $showGameSearchModal || $showGridModal || $showBatchApplyProgress || $showBatchApplyModal || $showLogoPositionModal || $showManualGamesModal || $showCleanGridsModal || $showCleanConflictDialog || $showUpdateModal || $showInfoModal || $showCurrentGridsModal}
+    />
   </Titlebar>
 	<div class="content">
     {#if $showDialogModal}
@@ -126,25 +148,25 @@
       <GameSearchModal />
     {/if}
     {#if $showGridModal}
-		  <GridPreviewModal />
+      <GridPreviewModal />
     {/if}
     {#if $showBatchApplyProgress}
-		  <BatchApplyProgressModal />
+      <BatchApplyProgressModal />
     {/if}
     {#if $showBatchApplyModal}
-		  <BatchApplyModal />
+      <BatchApplyModal />
     {/if}
     {#if $showLogoPositionModal}
-		  <LogoPositionModal />
+      <LogoPositionModal />
     {/if}
     {#if $showManualGamesModal}
-		  <ManualGamesModal />
+      <ManualGamesModal />
     {/if}
     {#if $showCleanGridsModal}
-		  <CleanGridsModal />
+      <CleanGridsModal />
     {/if}
     {#if $showSettingsModal}
-		  <SettingsModal />
+      <SettingsModal />
     {/if}
     {#if $showCleanConflictDialog}
       <CleanConflictDialog />
@@ -152,12 +174,21 @@
     {#if $showUpdateModal}
       <UpdateModal />
     {/if}
-		<Splitpanes>
+    {#if $showInfoModal}
+      <InfoModal />
+    {/if}
+    {#if $showCurrentGridsModal}
+      <CurrentGridsModal />
+    {/if}
+    {#if $showUpdateTilesModal}
+      <UpdateTilesModal />
+    {/if}
+		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
 
-			<Games />
-			
-			<Grids />
+      <Games />
+      
+      <Grids />
 		</Splitpanes>
 	</div>
 	<Footer />
@@ -181,6 +212,12 @@
 		transition: opacity 0.1s ease-in-out;
 	}
 
+  .rounded {
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: transparent;
+  }
+
   .core-toast {
     font-size: 14px;
     --toastBorderRadius: 2px;
@@ -188,25 +225,6 @@
     --toastWidth: 13rem;
     --toastMinHeight: 3rem;
   }
-
-	.wrap {
-		--toastContainerTop: 0.5rem;
-		--toastContainerRight: 0.5rem;
-		--toastContainerBottom: auto;
-		--toastContainerLeft: calc(50vw - 13rem) !important;
-		--toastBoxShadow: transparent 0px 0px 0px 0px;
-		--toastWidth: 26rem !important;
-		--toastMinHeight: 100px;
-		--toastPadding: 0 0.5rem !important;
-		font-size: 14px;
-	}
-	@media (min-width: 40rem) {
-		.wrap {
-			--toastContainerRight: auto;
-			--toastContainerLeft: calc(50vw - 20rem);
-			--toastWidth: 40rem;
-		}
-	}
 
 	.content {
 		width: 100%;
@@ -216,9 +234,5 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-	}
-
-	.dim {
-		opacity: 0.8;
 	}
 </style>

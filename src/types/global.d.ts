@@ -3,16 +3,59 @@ type GameStruct = {
   name: string,
 }
 
+type MainWindowPanels = {
+  options: number,
+  games: number,
+  grids: number
+}
+
+type CleanGridsPreset = "clean" | "custom";
+type ManageManualGamesMethod = "manual" | "search";
+
 type AppSettings = {
   version: string,
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
-  theme: number,
   steamGridDbApiKey: string,
-  steamApiKeyMap: { [userId32: string]: string },
-  hiddenGameIds: [],
+  steamApiKeyMap: Record<string, string>,
+  hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
-  customGameNames: { [appId: string]: string }
+  customGameNames: Record<string, string>,
+  
+  theme: number,
+  showHiddenGames: boolean,
+
+  /**
+   * @deprecated no longer used
+   */
+  gameViewType?: number,
+  /**
+   * @deprecated no longer used
+   */
+  filters?: any,
+  /**
+   * @deprecated no longer used
+   */
+  panels?: {
+    options: number,
+    games: number,
+    grids: number
+  },
+  
+  windowSettings: {
+    main: {
+      filters: any,
+      panels: MainWindowPanels,
+      gameViewType: number,
+      type: string
+    },
+    cleanGrids: {
+      preset: CleanGridsPreset
+    },
+    manageManualGames: {
+      method: ManageManualGamesMethod
+    }
+  }
 };
 
 type LibraryCacheEntry = {
@@ -31,9 +74,9 @@ type ChangedPath = {
   sourcePath: string
 }
 
-type DialogModalType = 'INFO' | 'WARNING' | 'ERROR';
+type DialogModalType = "INFO" | "WARNING" | "ERROR";
 
-type LogoPinPositions = 'BottomLeft' | 'UpperLeft' | 'CenterCenter' | 'UpperCenter' | 'BottomCenter' | "REMOVE";
+type LogoPinPositions = "BottomLeft" | "CenterCenter" | "UpperCenter" | "BottomCenter" | "REMOVE";
 
 type LogoPosition = {
   pinnedPosition: LogoPinPositions,

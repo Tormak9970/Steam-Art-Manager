@@ -1,5 +1,5 @@
 import { writable, type Writable } from "svelte/store";
-import type { SGDBImage } from "../lib/models/SGDB";
+import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
 import type { UpdateManifest } from "@tauri-apps/api/updater";
 
 export const showGridModal = writable(false);
@@ -31,14 +31,21 @@ export const steamPathModalClose = writable(async () => {});
 
 export const showGameSearchModal = writable(false);
 export const gameSearchModalDefault = writable("");
-export const gameSearchModalSelect = writable(async (gameName: string, gameId: string) => {});
+export const gameSearchModalSelect = writable((game: SGDBGame) => {});
 export const gameSearchModalCancel = writable(() => {});
 
 export const showDialogModal = writable(false);
 export const dialogModalTitle = writable("");
 export const dialogModalMessage = writable("");
-export const dialogModalType: Writable<DialogModalType> = writable('INFO');
+export const dialogModalType: Writable<DialogModalType> = writable("INFO");
 export const dialogModalConfirmText = writable("");
 export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = writable("");
 export const dialogModalCancel = writable(async () => {});
+
+export const showInfoModal = writable(false);
+
+export const showCurrentGridsModal = writable(false);
+export const currentGridsAppid = writable(null);
+
+export const showUpdateTilesModal = writable(false);

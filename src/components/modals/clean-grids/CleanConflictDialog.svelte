@@ -9,35 +9,26 @@
   import Button from "../../interactables/Button.svelte";
     
   import Lazy from "svelte-lazy";
+  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
 
   let conflictNumber: number = 1;
   let conflict: CleanConflict;
   $: conflictGridType = conflict ? conflict.gridType : "";
   $: fileAPath = conflict ? tauri.convertFileSrc(conflict.fileAPath) : "";
   $: fileBPath = conflict ? tauri.convertFileSrc(conflict.fileBPath) : "";
-  $: console.log(conflictGridType);
 
+  /**
+   * Get the next grid conflict.
+   */
   function getNextConflict(): CleanConflict | null {
     conflictNumber++;
     return $cleanConflicts.length > 0 ? $cleanConflicts.shift() : null;
   }
 
-  const widths = {
-    "capsule": 200,
-    "widecapsule": 280,
-    "hero": 586,
-    "logo": 300,
-    "icon": 256,
-  };
-
-  const heights = {
-    "capsule": 300,
-    "widecapsule": 135,
-    "hero": 210,
-    "logo": 201,
-    "icon": 256,
-  };
-
+  /**
+   * Removes one of the two conflicting files.
+   * @param keepChoiceA If true, keep choice A, if false, keep choice B.
+   */
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
     await fs.removeFile(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
 
@@ -53,6 +44,9 @@
     }
   }
 
+  /**
+   * Function to call when the user wants to keep both grids.
+   */
   function keepBoth(): void {
     LogController.log(`Appid: ${conflict.appid}. Keeping both ${conflict.fileAName} and ${conflict.fileBName}.`);
 
@@ -74,7 +68,6 @@
   });
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={`Clean Conflict Dialog #${conflictNumber}`} canClose={false}>
   <div class="content">
     <div class="description">
@@ -83,9 +76,9 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{fileAPath}" alt="Option 1" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -93,9 +86,9 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType == GridTypes.LOGO} class:icon-background={conflictGridType == GridTypes.ICON} style="max-height: {heights[conflictGridType]}px;">
-            <Lazy height="{heights[conflictGridType]}px" fadeOption={{delay: 500, duration: 1000}}>
-              <img src="{fileBPath}" alt="Option 2" style="max-width: {widths[conflictGridType]}px; max-height: {heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -103,8 +96,8 @@
       </div>
     </div>
     <div class="buttons">
-      <Button label={`Keep ${conflictGridType == "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
-      <Button label={`Keep ${conflictGridType == "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
+      <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
+      <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
       <Button label="Keep Both" onClick={keepBoth} width="30%" />
     </div>
   </div>

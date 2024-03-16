@@ -15,119 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, fs, http, process } from "@tauri-apps/api";
+import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { get } from "svelte/store";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, hiddenGameIds, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, selectedGameAppId, selectedGameName, steamGames, steamGridDBKey, steamInstallPath, steamKey, steamLogoPositions, steamShortcuts, steamUsers, theme, unfilteredLibraryCache } from "../../stores/AppState";
-import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showDialogModal, showGameSearchModal, showGridModal, showSettingsModal, showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
+import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
+import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { RustInterop } from "./RustInterop";
 import type { SGDBGame, SGDBImage } from "../models/SGDB";
-import { xml2json } from "../utils/xml2json";
 
-import { createTippy } from 'svelte-tippy';
+import { createTippy } from "svelte-tippy";
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
-import { exit } from "@tauri-apps/api/process";
 import { DialogController } from "./DialogController";
-
-const gridTypeLUT = {
-  "capsule": GridTypes.CAPSULE,
-  "wide_capsule": GridTypes.WIDE_CAPSULE,
-  "hero": GridTypes.HERO,
-  "icon": GridTypes.ICON,
-  "logo": GridTypes.LOGO
-}
-
-const libraryCacheLUT = {
-  "library_600x900": GridTypes.CAPSULE,
-  "header": GridTypes.WIDE_CAPSULE,
-  "library_hero": GridTypes.HERO,
-  "icon": GridTypes.ICON,
-  "logo": GridTypes.LOGO
-}
-
-
-/**
- * Gets the id and grid type from a grids filename.
- * @param gridName The filename of the grid.
- * @returns A tuple of [appid, gridType].
- */
-function getIdFromGridName(gridName: string): [string, string] {
-  const dotIndex = gridName.indexOf(".");
-  const underscoreIndex = gridName.indexOf("_");
-  const name = gridName.substring(0, dotIndex);
-
-  if (underscoreIndex > 0) {
-    const id = name.substring(0, underscoreIndex);
-    const type = name.substring(underscoreIndex+1);
-
-    return [id, type];
-  } else if (name.endsWith("p")) {
-    const id = name.substring(0, name.length - 1);
-    return [id, "capsule"];
-  } else {
-    if (gridName.substring(dotIndex+1) == "json") {
-      return [name, "logoposition"];
-    } else {
-      return [name, "wide_capsule"];
-    }
-  }
-}
-
-/**
- * Handles showing the Steam install path selection dialog.
- */
-async function steamDialogSequence(): Promise<void> {
-  return new Promise<void>(async (resolve) => {
-    const hasSteamInstalled = await DialogController.ask("Steam Not Found", "WARNING", "SARM could not locate Steam. Do you have it installed?", "Yes", "No");
-
-    if (hasSteamInstalled) {
-      showSteamPathModal.set(true);
-      steamPathModalClose.set(async () => resolve());
-    } else {
-      await DialogController.message("SARM Could Not Initialize", "ERROR", "Please install Steam and login once, then restart SARM.", "Ok");
-      await exit(0);
-      resolve()
-    }
-  });
-}
-
-/**
- * Handles determining the Steam installation path.
- * @param savedInstallPath The current saved install path.
- */
-async function findSteamPath(savedInstallPath: string): Promise<void> {
-  if (savedInstallPath !== "") {
-    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-    if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
-      steamInstallPath.set(savedInstallPath);
-    } else {
-      await steamDialogSequence();
-    }
-  } else {
-    const returnedInstallPath = await RustInterop.addSteamToScope();
-
-    if (returnedInstallPath === "") {
-      await DialogController.message("Unrecoverable Error", "ERROR", "A Steam installation was found but could not be added to scope. Please restart, and if the problem persists, open an issue on SARM's GitHub repository.", "Ok");
-      await exit(0);
-    } else if (returnedInstallPath === "DNE") {
-      await steamDialogSequence();
-    } else {
-      steamInstallPath.set(returnedInstallPath);
-      await SettingsManager.updateSetting("steamInstallPath", returnedInstallPath);
-    }
-  }
-}
+import { SteamController } from "./SteamController";
+import { SettingsController } from "./SettingsController";
 
 /**
  * The main controller for the application.
  */
 export class AppController {
+  private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController = null;
-  private static domParser = new DOMParser();
   private static tippyInstance = null;
 
   static tippy = createTippy({
@@ -152,82 +63,9 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
 
-    await SettingsManager.setSettingsPath();
-    let settings: AppSettings = await SettingsManager.getSettings();
-
-    await findSteamPath(settings.steamInstallPath);
-
-    const users = await RustInterop.getSteamUsers();
-    const cleanedUsers: { [id: string]: SteamUser } = {};
-
-    if (Object.keys(users).length === 0) {
-      await DialogController.message(
-        "No Steam Users Found",
-        "ERROR",
-        "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
-        "Ok",
-      );
-      await exit(0);
-    }
-
-    //? need to clean the data here bc props can vary in terms of case
-    for (const [id, user] of Object.entries(users)) {
-      const userKeys = Object.keys(user);
-      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [key.toLowerCase(), user[key]]));
-
-      cleanedUsers[id] = {
-        id64: lowerCaseUser.id64,
-        id32: lowerCaseUser.id32,
-        AccountName: lowerCaseUser.accountname,
-        PersonaName: lowerCaseUser.personaname,
-        RememberPassword: lowerCaseUser.rememberpassword,
-        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
-        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
-        AllowAutoLogin: lowerCaseUser.allowautologin,
-        MostRecent: lowerCaseUser.mostrecent,
-        Timestamp: lowerCaseUser.timestamp
-      }
-    }
-
-    steamUsers.set(cleanedUsers);
-
-    const usersList = Object.values(cleanedUsers);
-
-    if (usersList.length == 0) {
-      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
-      LogController.error("Expected to find at least 1 Steam user but found 0.");
-      await process.exit(0);
-    }
-
-    const activeUser = usersList.find((user) => user.MostRecent == "1") ?? usersList[0];
-    activeUserId.set(parseInt(activeUser.id32));
-
-    if (settings.steamGridDbApiKey != "") {
-      steamGridDBKey.set(settings.steamGridDbApiKey);
-      needsSGDBAPIKey.set(false);
-    }
-    
-    if (settings.steamApiKeyMap[activeUser.id32] && settings.steamApiKeyMap[activeUser.id32] != "") {
-      steamKey.set(settings.steamApiKeyMap[activeUser.id32]);
-      needsSteamKey.set(false);
-    }
-
-    if (settings.manualSteamGames.length > 0) {
-      manualSteamGames.set(settings.manualSteamGames);
-      LogController.log(`Loaded ${settings.manualSteamGames.length} manually added games.`);
-    }
-
-    customGameNames.set(settings.customGameNames);
-    LogController.log(`Loaded ${Object.keys(settings.customGameNames).length} custom game names.`);
-
-    theme.set(settings.theme);
-    document.body.setAttribute("data-theme", settings.theme == 0 ? "dark" : "light");
-
-    hiddenGameIds.set(settings.hiddenGameIds);
-
-    if (activeUser.id32 == "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the manager");
-    }
+    await SettingsManager.init();
+    await AppController.settingsController.loadSettings();
+    await AppController.settingsController.subscribeToSettingChanges();
 
     LogController.log("App setup complete.");
   }
@@ -241,334 +79,13 @@ export class AppController {
     LogController.log(`App loaded. IsOnline: ${appIsOnline}.`);
 
     loadingGames.set(true);
-    AppController.getUserApps().then(() => {
+    SteamController.getUserApps().then(() => {
       loadingGames.set(false);
     });
 
     if (get(needsSGDBAPIKey)) {
       showSettingsModal.set(true);
     }
-  }
-
-  /**
-   * Caches the steam game logo configs.
-   * @param logoConfigs The list of logoConfig files.
-   * ? Logging complete.
-   */
-  private static async cacheLogoConfigs(logoConfigs: fs.FileEntry[]): Promise<void> {
-    const configs = {};
-
-    for (const logoConfig of logoConfigs) {
-      const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
-
-      if (!isNaN(id)) {
-        const contents = await fs.readTextFile(logoConfig.path);
-        const jsonContents = JSON.parse(contents);
-        if (jsonContents.logoPosition) configs[id] = jsonContents;
-      }
-    }
-
-    originalLogoPositions.set(JSON.parse(JSON.stringify(configs)));
-    steamLogoPositions.set(JSON.parse(JSON.stringify(configs)));
-
-    LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
-  }
-  
-  /**
-   * Filters and structures the library grids based on the app's needs.
-   * @param gridsDirContents The contents of the grids dir.
-   * @param shortcutIds The list of loaded shortcuts ids.
-   * @returns The filtered and structured grids dir.
-   * ? Logging complete.
-   */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[], shortcutsIds: string[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
-    let resKeys = [];
-    const logoConfigs = [];
-    const res: { [appid: string]: LibraryCacheEntry } = {};
-
-    const foundApps: string[] = [];
-
-    for (const fileEntry of gridsDirContents) {
-      if (fileEntry.name.endsWith(".json")) {
-        logoConfigs.push(fileEntry);
-      } else {
-        const [appid, type] = getIdFromGridName(fileEntry.name);
-        
-        const idTypeString = `${appid}_${type}`;
-
-        if (foundApps.includes(idTypeString)) {
-          ToastController.showWarningToast(`Duplicate grid found. Try cleaning`);
-          LogController.warn(`Duplicate grid found for ${appid}.`);
-        } else {
-          //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
-          if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
-            if (!resKeys.includes(appid)) {
-              resKeys.push(appid);
-              res[appid] = {} as LibraryCacheEntry;
-            }
-            res[appid][gridTypeLUT[type]] = fileEntry.path;
-          }
-        }
-      }
-    }
-
-    return [res, logoConfigs];
-  }
-
-  /**
-   * Filters and structures the library cache based on the app's needs.
-   * @param libraryCacheContents The contents of the library cache.
-   * @param gridsInfos The filtered grid infos.
-   * @param shortcutIds The list of loaded shortcuts ids.
-   * @returns The filtered and structured library cache.
-   * ? Logging complete.
-   */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): { [appid: string]: LibraryCacheEntry } {
-    let resKeys = Object.keys(gridsInfos);
-    const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
-
-    let unfilteredKeys = [];
-    const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
-
-    for (const fileEntry of libraryCacheContents) {
-      const firstUnderscore = fileEntry.name.indexOf("_");
-      const appId = fileEntry.name.substring(0, firstUnderscore);
-      const type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
-
-      if (libraryCacheLUT[type]) {
-        if (!resKeys.includes(appId)) {
-          resKeys.push(appId);
-          res[appId] = {} as LibraryCacheEntry;
-        }
-        if (!unfilteredKeys.includes(appId)) {
-          unfilteredKeys.push(appId);
-          unfiltered[appId] = {} as LibraryCacheEntry;
-        }
-        
-        if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
-        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path
-      }
-    }
-
-    const entries = Object.entries(res);
-    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
-    const filtered = entries.filter(([appId, entry]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
-    // const filtered = entries;
-    return Object.fromEntries(filtered);
-  }
-
-  /**
-   * Gets the steam game image data.
-   * @param shortcuts The list of non steam games.
-   * @returns A promise resolving to the image data.
-   */
-  private static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const gridDirContents = (await fs.readDir(await RustInterop.getGridsDirectory(get(activeUserId).toString())));
-    const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [filteredGrids, logoConfigs] = AppController.filterGridsDir(gridDirContents, shortcutIds);
-    LogController.log("Grids loaded.");
-
-    const libraryCacheContents = (await fs.readDir(await RustInterop.getLibraryCacheDirectory()));
-    const filteredCache = AppController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcutIds);
-    LogController.log("Library Cache loaded.");
-
-    await AppController.cacheLogoConfigs(logoConfigs);
-
-    return filteredCache;
-  }
-
-  /**
-   * Gets the current user's steam games from their community profile.
-   * @param bUserId The u64 id of the current user.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromSteamCommunity(bUserId: BigInt): Promise<GameStruct[]> {
-    const requestTimeout = get(requestTimeoutLength);
-    LogController.log(`Loading games from Steam Community page...`);
-
-    const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
-      method: "GET",
-      responseType: http.ResponseType.Text,
-      timeout: requestTimeout
-    });
-    
-    if (res.ok) {
-      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const games = JSON.parse(jsonStr);
-
-      return games.gamesList.games.game.map((game: any) => {
-        return {
-          "appid": parseInt(game.appID),
-          "name": game.name["#cdata"]
-        }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-    } else {
-      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const err = JSON.parse(jsonStr);
-
-      ToastController.showWarningToast("Error getting games from your profile.");
-      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
-      return [];
-    }
-  }
-
-  /**
-   * Gets the current user's steam games from the Steam Web API.
-   * @param bUserId The u64 id of the current user.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromSteamAPI(bUserId: BigInt): Promise<GameStruct[]> {
-    const requestTimeout = get(requestTimeoutLength);
-    LogController.log(`Loading games from Steam API...`);
-
-    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
-      method: "GET",
-      timeout: requestTimeout
-    });
-
-    if (res.ok) {
-      return res.data.response.games.map((game: any) => {
-        return {
-          "appid": game.appid,
-          "name": game.name
-        }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-    } else {
-      const xmlData = AppController.domParser.parseFromString(res.data, "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const err = JSON.parse(jsonStr);
-
-      ToastController.showWarningToast("Check your Steam API Key");
-      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
-      return [];
-    }
-  }
-
-  /**
-   * Gets the current user's steam games by reading the appinfo.vdf.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
-    LogController.log(`Loading games from appinfo.vdf...`);
-
-    const vdf = await RustInterop.readAppinfoVdf();
-
-    return vdf.entries.map((game: any) => {
-      return {
-        "appid": game.id,
-        "name": typeof game.common.name == "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
-      } as GameStruct;
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-  }
-
-  /**
-   * Gets the current user's steam games by reading the localconfig.vdf.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
-    LogController.log(`Loading games from localconfig.vdf...`);
-
-    const userId = get(activeUserId);
-    const appInfoGames = await AppController.getGamesFromAppinfo();
-    const localConfigContents = await RustInterop.readLocalconfigVdf(userId.toString());
-    return appInfoGames.filter((game) => localConfigContents.includes(game.appid.toString()));
-  }
-
-  /**
-   * Gets the user's apps.
-   * ? Logging complete.
-   */
-  static async getUserApps(): Promise<void> {
-    const online = get(isOnline);
-    const needsSteamAPIKey = get(needsSteamKey);
-    const id = ToastController.showLoaderToast("Loading games...");
-    
-    const userId = get(activeUserId);
-    const bUserId = BigInt(userId) + 76561197960265728n;
-
-    LogController.log("Loading non-steam games...");
-    const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
-    originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
-    steamShortcuts.set(Object.values(shortcuts));
-    
-    const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
-      return {
-        "appid": shortcut.appid,
-        "name": shortcut.AppName ?? shortcut.appname
-      };
-    });
-    nonSteamGames.set(structuredShortcuts);
-    LogController.log("Loaded non-steam games.");
-
-    LogController.log("Getting steam games...");
-
-    const filteredCache = await AppController.getCacheData(structuredShortcuts);
-
-    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
-    appLibraryCache.set(filteredCache);
-
-    const filteredKeys = Object.keys(filteredCache);
-
-    if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Steam API Games:", apiGames);
-      steamGames.set(apiGames);
-      
-      LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
-      LogController.log("Steam games loaded.");
-    } else if (online) {
-      try {
-        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
-        console.log("Public Games:", publicGames);
-        steamGames.set(publicGames);
-        
-        LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
-        LogController.log("Steam games loaded.");
-      } catch (err: any) {
-        LogController.log(`Error occured while loading games from Steam Community page, notifying user.`);
-        ToastController.showWarningToast("You profile is private");
-        // TODO: consider prompting user here
-        const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-        console.log("Appinfo Games:", appinfoGames);
-        steamGames.set(appinfoGames);
-        
-        LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
-        LogController.log("Steam games loaded.");
-      }
-    } else {
-      const localconfigGames = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-      console.log("Localconfig Games:", localconfigGames);
-      steamGames.set(localconfigGames);
-      
-      LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
-      LogController.log("Steam games loaded.");
-    }
-
-    const sGames = get(steamGames);
-    const originalManualGames = get(manualSteamGames);
-    let manualGames = originalManualGames.filter((manualGame) => {
-      const matchingSteamGame = sGames.find((sGame) => sGame.appid == manualGame.appid);
-      if (matchingSteamGame) {
-        LogController.warn(`Found manually added game with the same appid (${manualGame.appid}) as ${matchingSteamGame.name}. Removing it`);
-      }
-
-      return !matchingSteamGame;
-    });
-
-    if (manualGames.length != originalManualGames.length) {
-      SettingsManager.updateSetting("manualSteamGames", manualGames);
-      manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
-      ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
-    }
-    
-    ToastController.remLoaderToast(id);
-    ToastController.showSuccessToast("Games Loaded!");
   }
 
   /**
@@ -583,23 +100,23 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
 
-    const shortcutEntries = shortcuts.map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const shortcutEntries = shortcuts.map((shortcut) => [ shortcut.appid, shortcut.icon ]);
     const shortcutIcons = Object.fromEntries(shortcutEntries);
 
-    const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [shortcut.appid, shortcut.icon]);
+    const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [ shortcut.appid, shortcut.icon ]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
     const originalLogoPos = get(originalLogoPositions);
     const steamLogoPos = get(steamLogoPositions);
     const logoPosStrings = {};
 
-    for (const [appid, steamLogo] of Object.entries(steamLogoPos)) {
+    for (const [ appid, steamLogo ] of Object.entries(steamLogoPos)) {
       const originalPos = originalLogoPos[appid]?.logoPosition;
       const logoPos = steamLogo.logoPosition;
 
       if (!logoPos) continue;
-      if (logoPos.nHeightPct != originalPos?.nHeightPct || logoPos.nWidthPct != originalPos?.nWidthPct || logoPos.pinnedPosition != originalPos?.pinnedPosition) {
-        logoPosStrings[appid] = logoPos.pinnedPosition == "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
+      if (logoPos.nHeightPct !== originalPos?.nHeightPct || logoPos.nWidthPct !== originalPos?.nWidthPct || logoPos.pinnedPosition !== originalPos?.pinnedPosition) {
+        logoPosStrings[appid] = logoPos.pinnedPosition === "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
       }
     }
 
@@ -610,10 +127,10 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
-        if (changedPath.gridType == GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() == changedPath.appId);
-          shortcut.icon = changedPath.targetPath == "REMOVE" ? "" : changedPath.targetPath;
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
+        if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
+          const shortcut = shortcuts.find((s) => s.appid.toString() === changedPath.appId);
+          shortcut.icon = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
         }
       }
       originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
@@ -623,8 +140,8 @@ export class AppController {
       steamShortcuts.set(shortcuts);
 
       let logoPosEntries = Object.entries(steamLogoPos);
-      logoPosEntries = logoPosEntries.filter(([appid, logoPos]) => {
-        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition != "REMOVE"
+      logoPosEntries = logoPosEntries.filter(([ appid, logoPos ]) => {
+        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE"
       });
 
       originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
@@ -670,9 +187,9 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.NON_STEAM) {
-      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
-      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid == appId);
+    if (platform === Platforms.NON_STEAM) {
+      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
+      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid === appId);
       shortcutToEdit = targetShortcut;
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -686,7 +203,7 @@ export class AppController {
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
     
-    canSave.set(!((JSON.stringify(originalCache) == JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) == JSON.stringify(logoPositionCache))));
+    canSave.set(!((JSON.stringify(originalCache) === JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) === JSON.stringify(logoPositionCache))));
   }
 
   /**
@@ -698,8 +215,8 @@ export class AppController {
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
-    if (platform == Platforms.NON_STEAM) {
-      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == appId);
+    if (platform === Platforms.NON_STEAM) {
+      const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
       shortcutToEdit.icon = "";
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -717,6 +234,17 @@ export class AppController {
     LogController.log(`Cleared grids for ${appId}.`);
     
     canSave.set(true);
+  }
+
+  /**
+   * Clears the custom name for a given app.
+   * @param appId The id of the app to clear the name of.
+   */
+  static clearCustomNameForGame(appId: number): void {
+    const customNames = get(customGameNames);
+    delete customNames[appId];
+    customGameNames.set(customNames);
+    LogController.log(`Cleared custom name for ${appId}`);
   }
 
   /**
@@ -741,15 +269,15 @@ export class AppController {
     const sGames = get(steamGames);
     const manualSGames = get(manualSteamGames);
     const nonSGames = get(steamShortcuts);
-    const games = [...sGames, ...manualSGames, ...nonSGames];
+    const games = [ ...sGames, ...manualSGames, ...nonSGames ];
 
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
     for (const game of games) {
-      if (platform == Platforms.NON_STEAM) {
-        let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid == game.appid);
+      if (platform === Platforms.NON_STEAM) {
+        const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === game.appid);
         shortcutToEdit.icon = "";
       }
   
@@ -766,7 +294,7 @@ export class AppController {
     appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
 
     ToastController.showSuccessToast("Cleared all grids!");
-    LogController.log(`Cleared all grids.`);
+    LogController.log("Cleared all grids.");
     
     canSave.set(true);
   }
@@ -799,9 +327,9 @@ export class AppController {
     
     gameImages[selectedGameId][selectedGridType] = path;
 
-    if (get(currentPlatform) == Platforms.NON_STEAM && type == GridTypes.ICON) {
+    if (get(currentPlatform) === Platforms.NON_STEAM && type === GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
-      const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+      const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
       shortcut.icon = path;
       steamShortcuts.set(shortcuts);
     }
@@ -838,9 +366,9 @@ export class AppController {
 
       gameImages[selectedGameId][selectedGridType] = localPath;
       
-      if (get(currentPlatform) == Platforms.NON_STEAM && selectedGridType == GridTypes.ICON) {
+      if (get(currentPlatform) === Platforms.NON_STEAM && selectedGridType === GridTypes.ICON) {
         const shortcuts = get(steamShortcuts);
-        const shortcut = shortcuts.find((s) => s.appid == selectedGameId);
+        const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
         shortcut.icon = localPath;
         steamShortcuts.set(shortcuts);
       }
@@ -900,18 +428,18 @@ export class AppController {
   static async importGrids(): Promise<void> {
     LogController.log("Prompting user to grids.");
     const shortcuts = get(steamShortcuts);
-    const idsMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcut.AppName, shortcutId]; });
+    const idsMapEntries: [string, string][] = Object.entries(shortcuts).map(([ shortcutId, shortcut ]) => { return [ shortcut.AppName, shortcutId ]; });
     const shortcutIdsMap = Object.fromEntries(idsMapEntries);
 
-    const [succeeded, iconsToSet] = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
+    const [ succeeded, iconsToSet ] = await RustInterop.importGridsFromZip(get(activeUserId).toString(), shortcutIdsMap);
 
     if (succeeded) {
       const shortcuts = get(steamShortcuts);
       const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
       
-      for (const [id, path] of Object.entries(iconsToSet)) {
+      for (const [ id, path ] of Object.entries(iconsToSet)) {
         if (shortcutIds.includes(id)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() == id);
+          const shortcut = shortcuts.find((s) => s.appid.toString() === id);
           shortcut.icon = path;
         }
       }
@@ -921,7 +449,7 @@ export class AppController {
       
       await AppController.saveChanges();
 
-      const filteredCache = await AppController.getCacheData(get(nonSteamGames));
+      const filteredCache = await SteamController.getCacheData(get(nonSteamGames));
       originalAppLibraryCache.set(filteredCache);
       appLibraryCache.set(filteredCache);
     } else {
@@ -940,11 +468,11 @@ export class AppController {
     const games = get(steamGames);
     const manualGames = get(manualSteamGames);
 
-    let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [shortcut.appid.toString(), "nonsteam"]; });
-    platformEntries = platformEntries.concat([...games, ...manualGames].map((game) => { return [game.appid.toString(), "steam"]; }));
+    let platformEntries: [string, string][] = shortcuts.map((shortcut) => { return [ shortcut.appid.toString(), "nonsteam" ]; });
+    platformEntries = platformEntries.concat([ ...games, ...manualGames ].map((game) => { return [ game.appid.toString(), "steam" ]; }));
     const platformIdMap = Object.fromEntries(platformEntries);
 
-    const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([shortcutId, shortcut]) => { return [shortcutId, shortcut.AppName]; });
+    const namesMapEntries: [string, string][] = Object.entries(shortcuts).map(([ shortcutId, shortcut ]) => { return [ shortcutId, shortcut.AppName ]; });
     const shortcutNamesMap = Object.fromEntries(namesMapEntries);
 
     const success = await RustInterop.exportGridsToZip(get(activeUserId).toString(), platformIdMap, shortcutNamesMap);
@@ -963,19 +491,20 @@ export class AppController {
    * @param appId The id of the app to get.
    * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
+   * @param isCustomName Whether the app name is custom or not.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId?: string): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId);
+  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId: string | null, isCustomName: boolean): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId, isCustomName);
   }
 
   /**
    * Searches SGDB for the provided query.
    * @param query The search query to use.
-   * @returns A promise resolving to the results array.
+   * @returns A promise resolving to the results array, or null if it timed out.
    */
-  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
+  static async searchSGDBForGame(query: string): Promise<SGDBGame[] | null> {
     return await AppController.cacheController.searchForGame(query);
   }
 
@@ -984,12 +513,12 @@ export class AppController {
    * @param defaultName The currently selected game name.
    * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.
    */
-  static async getIdForSearchQuery(defaultName: string): Promise<[string, string] | null> {
-    return new Promise<[string, string] | null>((resolve) => {
+  static async getIdForSearchQuery(defaultName: string): Promise<SGDBGame | null> {
+    return new Promise<SGDBGame | null>((resolve) => {
       gameSearchModalDefault.set(defaultName);
-      gameSearchModalSelect.set(async (gameName: string, gameId: string) => {
-        resolve([gameName, gameId]);
-      })
+      gameSearchModalSelect.set((game: SGDBGame) => {
+        resolve(game);
+      });
       gameSearchModalCancel.set(() => resolve(null));
       showGameSearchModal.set(true);
     });
@@ -1001,7 +530,7 @@ export class AppController {
    * @param selectedGameIds The list of ids of games to delete grids for.
    */
   static async cleanDeadGrids(preset: "clean" | "custom", selectedGameIds: string[], ): Promise<void> {
-    let appids = [
+    const appids = [
       ...get(steamGames).map((game) => game.appid.toString()),
       ...get(nonSteamGames).map((game) => game.appid.toString()),
       ...get(manualSteamGames).map((game) => game.appid.toString()),
@@ -1019,11 +548,30 @@ export class AppController {
   }
 
   /**
+   * Gets the steam apps with start menu tiles.
+   * @returns A record of appid -> iconPath.
+   */
+  static async getAppTiles(): Promise<Record<string, string>> {
+    return await RustInterop.getAppsWithTiles();
+  }
+
+  /**
+   * Updates the current app tiles to their app icons.
+   * @param appIconsPaths The record of appid -> iconPath.
+   * @param appTilePaths The record of appid -> tilePath.
+   * @returns An array containing the ids of any tiles that failed to be updated.
+   */
+  static async updateAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
+    return await RustInterop.writeAppTiles(appIconsPaths, appTilePaths);
+  }
+
+  /**
    * Function run on app closing/refreshing.
    * ? Logging complete.
    */
   static async destroy(): Promise<void> {
     await AppController.cacheController.destroy();
+    AppController.settingsController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -1050,7 +598,7 @@ export class AppController {
   static async reload(): Promise<void> {
     const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
     if (shouldReload) {
-      LogController.log(`Reloading...`);
+      LogController.log("Reloading...");
       await process.relaunch();
     }
   }
@@ -1075,23 +623,23 @@ export class AppController {
    */
   static async changeSteamUser(userId: string): Promise<void> {
     const users = get(steamUsers);
-    const user = Object.values(users).find((user) => user.id32 == userId);
+    const user = Object.values(users).find((user) => user.id32 === userId);
     const oldUserId = get(activeUserId).toString();
 
-    if (userId != oldUserId) {
+    if (userId !== oldUserId) {
       const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?", {
         title: "Confirm user change",
         type: "warning"
       });
 
       if (shouldContinue) {
-        await AppController.discardChanges();
+        AppController.discardChanges();
 
         activeUserId.set(parseInt(userId));
 
-        const settings = await SettingsManager.getSettings();
-        if (settings.steamApiKeyMap[userId] && settings.steamApiKeyMap[userId] != "") {
-          steamKey.set(settings.steamApiKeyMap[userId]);
+        const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+        if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
+          steamKey.set(steamApiKeyMapSetting[userId]);
         } else {
           steamKey.set("");
           needsSteamKey.set(true);
@@ -1101,7 +649,7 @@ export class AppController {
         }
 
         loadingGames.set(true);
-        AppController.getUserApps().then(() => {
+        SteamController.getUserApps().then(() => {
           loadingGames.set(false);
           LogController.log(`Switched user to ${user.AccountName} id: ${userId}.`);
           ToastController.showSuccessToast("Switched User!");

@@ -14,8 +14,7 @@
   }
 
   .title {
-    margin: 7px 12px;
+    margin: 6px;
     border-bottom: 1px solid var(--foreground);
-    /* border-bottom: 1px solid transparent; */
   }
 </style>

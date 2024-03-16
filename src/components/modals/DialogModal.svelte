@@ -3,31 +3,23 @@
   import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
-  async function onConfirm() {
+  /**
+   * Function to run on confirmation.
+   */
+  async function onConfirm(): Promise<void> {
     await $dialogModalConfirm();
-    onComplete();
-  }
-
-  async function onCancel() {
-    await $dialogModalCancel();
-    onComplete();
-  }
-
-  function onComplete() {
     $showDialogModal = false;
-    setTimeout(() => {
-      $dialogModalTitle = "";
-      $dialogModalType = "INFO";
-      $dialogModalMessage = "";
-      $dialogModalConfirmText = "";
-      $dialogModalConfirm = async () => {};
-      $dialogModalCancelText = "";
-      $dialogModalCancel = async () => {};
-    }, 10);
+  }
+
+  /**
+   * Function to run on cancel.
+   */
+  async function onCancel(): Promise<void> {
+    await $dialogModalCancel();
+    $showDialogModal = false;
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <ModalBody title={$dialogModalTitle} canClose={false}>
   <div class="content">
     <div class="info">

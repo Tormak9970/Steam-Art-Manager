@@ -24,11 +24,15 @@
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
-  import HorizontalSpacer from "../spacers/HorizontalSpacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { showLogoPositionModal } from "../../stores/Modals";
+  import Spacer from "../layout/Spacer.svelte";
+    import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
 
-  function onClose() {
+  /**
+   * The function to run when the modal closes.
+   */
+  function onClose(): void {
     $showLogoPositionModal = false;
   }
 
@@ -39,7 +43,7 @@
     left: number
   }
 
-  const anchorPos: LogoPinPositions[] = ['BottomLeft', 'UpperLeft', 'UpperCenter', 'CenterCenter', 'BottomCenter'];
+  const anchorPos: LogoPinPositions[] = [ "BottomLeft", "UpperCenter", "CenterCenter", "BottomCenter" ];
   const dropdownOptions = anchorPos.map((anchorPos: LogoPinPositions) => {
     return {
       label: anchorPos.split(/(?=[A-Z])/).join(" "),
@@ -47,8 +51,8 @@
     }
   });
   
-  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
-  $: game = games.find((game) => game.appid == $selectedGameAppId);
+  $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
+  $: game = games.find((game) => game.appid === $selectedGameAppId);
   let heroPath = "";
   let logoPath = "";
 
@@ -60,13 +64,13 @@
   let originalHeight = gameLogoPos?.logoPosition?.nHeightPct ?? 50;
   let originalPosition: LogoPinPositions = gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter";
 
-  let logoWidth = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nWidthPct : 50;
-  let logoHeight = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.nHeightPct : 50;
-  let logoPosition: LogoPinPositions = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition != "REMOVE") ? gameLogoPos?.logoPosition?.pinnedPosition : "CenterCenter";
+  let logoWidth = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE") ? gameLogoPos?.logoPosition?.nWidthPct : 50;
+  let logoHeight = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE") ? gameLogoPos?.logoPosition?.nHeightPct : 50;
+  let logoPosition: LogoPinPositions = (gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE") ? gameLogoPos?.logoPosition?.pinnedPosition : "CenterCenter";
 
   let currentCssStyles: LogoCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
   
-  $: canClear = !!$originalLogoPositions[game.appid] && $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition != "REMOVE";
+  $: canClear = !!$originalLogoPositions[game.appid] && $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition !== "REMOVE";
 
   const widths = {
     "Hero": 956,
@@ -78,17 +82,17 @@
     "Logo": 402
   };
 
+  /**
+   * Gets the css styles for the current logo settings.
+   * @param pos The position of the logo.
+   * @param heightPct The height offset of the logo.
+   * @param widthPct The width offset of the logo.
+   */
   function getLogoPosition(pos: LogoPinPositions, heightPct: number, widthPct: number): LogoCssStyles {
     const positions = {
       BottomLeft: {
         bottom: 0,
         top: 100 - heightPct,
-        left: 0,
-        right: 100 - widthPct,
-      },
-      UpperLeft: {
-        bottom: 100 - heightPct,
-        top: 0,
         left: 0,
         right: 100 - widthPct,
       },
@@ -117,7 +121,7 @@
   /**
    * Apply the logo position changes.
    */
-  function applyChanges() {
+  function applyChanges(): void {
     AppController.setLogoPosition($selectedGameAppId, logoPosition, logoHeight, logoWidth);
     onClose();
   }
@@ -125,7 +129,7 @@
   /**
    * Clears any changes made to the logo position.
    */
-  function clearLogoPosition() {
+  function clearLogoPosition(): void {
     AppController.clearLogoPosition($selectedGameAppId);
     onClose();
   }
@@ -133,13 +137,13 @@
   afterUpdate(() => {
     currentCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
     const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
-    canSave = ((originalHeight != logoHeight) || (originalWidth != logoWidth) || (originalPosition != logoPosition))
-      || ((originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition));
+    canSave = ((originalHeight !== logoHeight) || (originalWidth !== logoWidth) || (originalPosition !== logoPosition))
+      || ((originalLogoConfig?.nHeightPct !== logoHeight) || (originalLogoConfig?.nWidthPct !== logoWidth) || (originalLogoConfig?.pinnedPosition !== logoPosition));
   });
 
   onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
-      if ($appLibraryCache[$selectedGameAppId].Hero == "REMOVE") {
+      if ($appLibraryCache[$selectedGameAppId].Hero === "REMOVE") {
         heroPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
       } else {
         heroPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
@@ -149,7 +153,7 @@
     }
 
     if ($appLibraryCache[$selectedGameAppId]?.Logo) {
-      if ($appLibraryCache[$selectedGameAppId].Logo == "REMOVE") {
+      if ($appLibraryCache[$selectedGameAppId].Logo === "REMOVE") {
         logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
       } else {
         logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
@@ -157,7 +161,7 @@
     }
     
     const originalLogoConfig = $originalLogoPositions[$selectedGameAppId]?.logoPosition;
-    canSave = (originalLogoConfig?.nHeightPct != logoHeight) || (originalLogoConfig?.nWidthPct != logoWidth) || (originalLogoConfig?.pinnedPosition != logoPosition);
+    canSave = (originalLogoConfig?.nHeightPct !== logoHeight) || (originalLogoConfig?.nWidthPct !== logoWidth) || (originalLogoConfig?.pinnedPosition !== logoPosition);
   });
 </script>
 
@@ -165,14 +169,14 @@
   <div class="content">
     <div class="view">
       <div class="hero-cont">
-        <div class="img" class:missing-background={heroPath == ""} style="max-height: {heights.Hero}px;">
-          {#if heroPath != ""}
+        <div class="img" class:missing-background={heroPath === ""} style="max-height: {heights.Hero}px;">
+          {#if heroPath !== ""}
             <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
           {/if}
         </div>
       </div>
       <div class="logo-cont" style="justify-content: {logoPosition.includes("Bottom") ? "flex-end" : (logoPosition.includes("Upper") ? "flex-start" : "center")}; align-items: {logoPosition.includes("Left") ? "flex-start" : "center"}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;">
-        <img in:fade={{delay: 500, duration: 1000}} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
+        <img in:fade={IMAGE_FADE_OPTIONS} src="{logoPath}" alt="Logo image for {game?.name}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;" />
       </div>
     </div>
     <div class="interactables">
@@ -187,8 +191,8 @@
       </div>
       {#if canClear}
         <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <HorizontalSpacer />
-        <HorizontalSpacer />
+        <Spacer orientation="HORIZONTAL" />
+        <Spacer orientation="HORIZONTAL" />
         <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
         <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />

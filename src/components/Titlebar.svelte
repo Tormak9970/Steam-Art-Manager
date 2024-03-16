@@ -1,18 +1,37 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { exit } from "@tauri-apps/api/process";
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
 
+  let windowCloseUnsub: () => void;
+
   export let title: string;
+  export let isMaxed = false;
 
   let minimize: HTMLDivElement;
   let maximize: HTMLDivElement;
   let close: HTMLDivElement;
 
-  let isMaxed = false;
+  /**
+   * Function to run when the user attempts to close the main window.
+   */
+  async function onCloseListener(): Promise<void> {
+    if (title === "Steam Art Manager") {
+      if ($canSave) {
+        const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+        if (shouldQuit) {
+          const success = await exit(0);
+          LogController.log(`Program exited: ${success}`);
+        }
+      } else {
+        const success = await exit(0);
+        LogController.log(`Program exited: ${success}`);
+      }
+    }
+  }
 
   onMount(async () => {
     minimize.addEventListener("click", () => appWindow.minimize());
@@ -20,25 +39,19 @@
       appWindow.toggleMaximize();
       isMaxed = !isMaxed;
     });
-    close.addEventListener("click", async () => {
-      console.log(title);
-      if (title == "Steam Art Manager") {
-        if ($canSave) {
-          const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
-          if (shouldQuit) {
-            const success = await exit(0);
-            LogController.log(`Program exited: ${success}`);
-          }
-        } else {
-          const success = await exit(0);
-          LogController.log(`Program exited: ${success}`);
-        }
-      }
-    });
+    close.addEventListener("click", onCloseListener);
+    appWindow.onCloseRequested(async (event) => {
+      event.preventDefault();
+      await onCloseListener();
+    }).then((listener) => windowCloseUnsub = listener);
+  });
+
+  onDestroy(() => {
+    if (windowCloseUnsub) windowCloseUnsub();
   });
 </script>
 
-<div data-tauri-drag-region class="titlebar">
+<div data-tauri-drag-region on:contextmenu|preventDefault class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />
     <slot />
@@ -71,7 +84,6 @@
       {/if}
     </div>
     <div bind:this={close} class="titlebar-button" id="titlebar-close">
-      <!-- svelte-ignore a11y-missing-attribute -->
       <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
         <path fill="none" stroke="var(--font-color)" stroke-width="2" d="M3,3 L21,21 M3,21 L21,3" />
       </svg>

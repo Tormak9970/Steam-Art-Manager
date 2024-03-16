@@ -7,7 +7,7 @@
    * Handles when the slider is clicked.
    * @param event The MouseEvent passed to the handler.
    */
-  function handleClick(event: MouseEvent) {
+  function handleClick(event: MouseEvent): void {
     const target = event.target as HTMLInputElement;
 
     const state = target.getAttribute("aria-checked");
@@ -24,7 +24,7 @@
     aria-checked={value}
     on:click={handleClick}
   />
-  {#if label != ""}
+  {#if label !== ""}
     <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
   {/if}
 </div>

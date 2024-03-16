@@ -65,7 +65,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_core_file", {message: message, level: level});
+    await invoke("log_to_core_file", { message: message, level: level });
   }
 
   /**
@@ -74,7 +74,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_batch_apply_file", {message: message, level: level});
+    await invoke("log_to_batch_apply_file", { message: message, level: level });
   }
 
   /**
@@ -187,17 +187,9 @@ export class RustInterop {
    * @param changedLogoPositions The changed logo positions.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(
-    activeUserId: string,
-    currentArt: { [appid: string]: LibraryCacheEntry },
-    originalArt: { [appid: string]: LibraryCacheEntry },
-    shortcuts: SteamShortcut[],
-    shortcutIcons: { [id: string]: string },
-    originalShortcutIcons: { [id: string]: string },
-    changedLogoPositions: { [appid: string]: string }
-  ): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>, changedLogoPositions: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
-      "shortcuts": {...shortcuts}
+      "shortcuts": { ...shortcuts }
     }
     const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
@@ -211,7 +203,7 @@ export class RustInterop {
    */
   static async writeShortcuts(activeUserId: string, shortcuts: SteamShortcut[]): Promise<boolean> {
     const shortcutsObj = {
-      "shortcuts": {...shortcuts}
+      "shortcuts": { ...shortcuts }
     }
     const res = await invoke<string>("write_shortcuts", { steamPath: RustInterop.steamPath, shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId });
     return JSON.parse(res);
@@ -244,5 +236,24 @@ export class RustInterop {
    */
   static async cleanGrids(steamActiveUserId: string, preset: string, allAppids: string[], selectedGameIds: string[]): Promise<CleanConflict[]> {
     return JSON.parse(await invoke<string>("clean_grids", { steamPath: RustInterop.steamPath, steamActiveUserId: steamActiveUserId, preset: preset, allAppids: JSON.stringify(allAppids), selectedGameIds: JSON.stringify(selectedGameIds) }));
+  }
+
+  /**
+   * Gets the steam apps with start menu tiles.
+   * @returns A record of appid -> iconPath.
+   */
+  static async getAppsWithTiles(): Promise<Record<string, string>> {
+    const res = await invoke<string>("get_apps_with_tiles");
+    return JSON.parse(res);
+  }
+
+  /**
+   * Writes the current app icons to their app tiles.
+   * @param appIconsPaths The record of appid -> iconPath.
+   * @param appTilePaths The record of appid -> tilePath.
+   * @returns An array containing the ids of any tiles that failed to be updated
+   */
+  static async writeAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
+    return JSON.parse(await invoke<string>("write_app_tiles", { newTilesStr: JSON.stringify(appIconsPaths), tilePathsStr: JSON.stringify(appTilePaths) }));
   }
 }

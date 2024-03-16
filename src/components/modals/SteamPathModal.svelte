@@ -3,21 +3,22 @@
   import { steamPathModalClose } from "../../stores/Modals";
   import { LogController } from "../../lib/controllers/LogController";
   import { ToastController } from "../../lib/controllers/ToastController";
-  import { SettingsManager } from "../../lib/utils/SettingsManager";
   import Button from "../interactables/Button.svelte";
-  import VerticalSpacer from "../spacers/VerticalSpacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import SettingsFilePathEntry from "./settings/SettingsFilePathEntry.svelte";
+  import Spacer from "../layout/Spacer.svelte";
 
   let canSave = false;
 
   let steamInstallLocation = $steamInstallPath;
 
-	async function saveInstallLocation() {
+  /**
+   * Saves the selected install location.
+   */
+	async function saveInstallLocation(): Promise<void> {
     LogController.log("Setting Steam Install Location...");
     
     $steamInstallPath = steamInstallLocation;
-    await SettingsManager.updateSetting("steamInstallPath", steamInstallLocation);
 
     LogController.log("Steam Install Location set.");
 
@@ -40,11 +41,11 @@
 
 <ModalBody title={"Choose Your Steam Install Path"} canClose={false}>
   <div class="content">
-    <VerticalSpacer />
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
+    <Spacer orientation="VERTICAL" />
     <SettingsFilePathEntry
       label="Steam Install Path"
-      description={`The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux.`}
+      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
       required

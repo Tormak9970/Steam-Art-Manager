@@ -6,6 +6,9 @@ type ScrollShadowParams = {
   heightBump: number
 }
 
+/**
+ * A Svelte directive for applying scroll shadow to elements.
+ */
 export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTMLElement, { target, container, heightBump }) => {
   let hasObserved = false;
 
@@ -17,7 +20,7 @@ export const scrollShadow: Action<HTMLElement, ScrollShadowParams> = (node: HTML
     threshold: 1
   };
   
-  const observer = new IntersectionObserver(([entry]) => {
+  const observer = new IntersectionObserver(([ entry ]) => {
     if (entry.intersectionRatio !== 1) {
       scrollContainer.classList
         .add("is-overflowing", "is-scrolled-top");

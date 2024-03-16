@@ -38,7 +38,7 @@
 
 <div class="input">
   <!-- svelte-ignore a11y-label-has-associated-control -->
-  {#if label != ""}
+  {#if label !== ""}
     <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   {/if}
   <input
@@ -50,7 +50,6 @@
   />
 </div>
 
-<!-- svelte-ignore css-unused-selector -->
 <style>
   .input {
     margin: 0px;
@@ -61,9 +60,6 @@
 
     color: var(--font-color);
     font-size: 12px;
-  }
-  .input > .field-name {
-    margin-right: 10px;
   }
 
   .input > input {
@@ -82,6 +78,6 @@
   }
   .input > input:focus {
     outline: none;
-    border: 1px solid var(--highlight);
+    background-color: var(--foreground-hover);
   }
 </style>

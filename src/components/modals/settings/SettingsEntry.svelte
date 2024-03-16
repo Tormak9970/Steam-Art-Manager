@@ -1,7 +1,7 @@
 <script lang="ts">
   import { open } from "@tauri-apps/api/shell";
   import TextInput from "../../interactables/TextInput.svelte";
-  import VerticalSpacer from "../../spacers/VerticalSpacer.svelte";
+  import Spacer from "../../layout/Spacer.svelte";
 
   export let label: string;
   export let description: string;
@@ -14,8 +14,8 @@
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-   function clickListener(e: Event) {
-    const origin = (e.target as Element).closest(`a`);
+  function clickListener(e: Event): void {
+    const origin = (e.target as Element).closest("a");
   
     if (origin) {
       e.preventDefault();
@@ -31,15 +31,17 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html description}<br/>
 
-    {#if notes != ""}
-      <VerticalSpacer />
+    {#if notes !== ""}
+      <Spacer orientation="VERTICAL" />
       <b>Notes:</b><br/>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html notes}
     {/if}
     
-    <VerticalSpacer />
+    <Spacer orientation="VERTICAL" />
     <b>Required:</b> {required ? "Yes" : "No"}<br/>
   </div>
 </div>

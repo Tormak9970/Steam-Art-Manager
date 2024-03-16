@@ -6,7 +6,6 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="search-entry" class:selected={isSelected} on:click={() => { onSelect(game); }}>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="appid">{game.appid}</div>
   <div class="name">{game.name}</div>
 </div>

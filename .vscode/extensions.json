@@ -2,6 +2,10 @@
   "recommendations": [
     "svelte.svelte-vscode",
     "tauri-apps.tauri-vscode",
-    "rust-lang.rust-analyzer"
+    "rust-lang.rust-analyzer",
+    "EditorConfig.EditorConfig",
+    "edwinhuish.better-comments-next",
+    "tamasfe.even-better-toml",
+    "yzhang.markdown-all-in-one"
   ]
 }

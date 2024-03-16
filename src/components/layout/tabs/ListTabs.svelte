@@ -3,7 +3,11 @@
   export let tabs: string[];
   export let height = "100%";
 
-  function onClick(label: string) {
+  /**
+   * Handles the onClick event.
+   * @param label The label of the tab to render.
+   */
+  function onClick(label: string): void {
     selected = label;
   }
 </script>

@@ -1,0 +1,64 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:svelte/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "extraFileExtensions": [ ".svelte" ]
+  },
+  "overrides": [
+    {
+      "files": [ "*.svelte" ],
+      "parser": "svelte-eslint-parser",
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser"
+      }
+    }
+  ],
+  "plugins": [ "@typescript-eslint" ],
+  "rules": {
+    "indent": "off",
+    "linebreak-style": "off",
+    "eqeqeq": [ "warn", "always" ],
+    "no-var": "error",
+
+    "arrow-parens": [ "error", "always" ],
+
+    "array-bracket-newline": [ "error", "consistent" ],
+    "array-element-newline": [ "error", "consistent" ],
+    "array-bracket-spacing": [ "error", "always" ],
+
+    "object-curly-spacing": [ "error", "always" ],
+
+    "function-paren-newline": [ "error", "consistent" ],
+    "function-call-argument-newline": [ "error", "consistent" ],
+
+    "@typescript-eslint/consistent-type-definitions": [ "error", "type" ],
+    "@typescript-eslint/consistent-type-assertions": [ "error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow-as-parameter" } ],
+    "@typescript-eslint/consistent-indexed-object-style": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+
+    "quotes": "off",
+    "@typescript-eslint/quotes": [ "error", "double" ],
+
+    "semi": "off",
+    "no-extra-semi": "off",
+    "@typescript-eslint/no-extra-semi": "error",
+
+    "no-undef": "off"
+  },
+  "ignorePatterns": [ "xml2json.ts", "SGDB.ts" ],
+  "globals": {
+    "APP_VERSION": "readonly",
+    "IS_DEBUG": "readonly"
+  }
+}

@@ -18,12 +18,21 @@
 
   let gameInfoCache: { [id: string]: GameStruct } = {};
 
+  /**
+   * Function to run when a game is selected.
+   * @param game The game to select.
+   */
   function onGameSelect(game: GameStruct): void {
     selectedGame = game;
     ToastController.showGenericToast(`Selected ${game.name}`);
   }
 
+  /**
+   * Searches SGDB based on the provided query.
+   * @param query The query to use.
+   */
   async function searchGame(query: string): Promise<void> {
+    // TODO: switch to using the appController method?
     const searchRes = await client.searchGame(query);
     const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
     console.log(searchRes);
@@ -42,6 +51,9 @@
     results = resultsWithInfo;
   }
 
+  /**
+   * Wrapper function for saving the users selection.
+   */
   function saveWrapper(): void {
     ToastController.showSuccessToast(`Added ${selectedGame.name}!`);
     onGameSave({ appid: selectedGame.appid, name: selectedGame.name });
@@ -50,8 +62,11 @@
     searchQuery = "";
   }
 
+  /**
+   * Clears any user input.
+   */
   function clear(): void {
-    ToastController.showGenericToast(`Cleared selection.`);
+    ToastController.showGenericToast("Cleared selection.");
     selectedGame = null;
     results = [];
     searchQuery = "";
@@ -84,7 +99,7 @@
         </span>
         <span slot="data">
           {#each results as game (`${game.appid}|${game.name}`)}
-            <SearchEntry game={game} isSelected={selectedGame?.appid == game.appid} onSelect={onGameSelect} />
+            <SearchEntry game={game} isSelected={selectedGame?.appid === game.appid} onSelect={onGameSelect} />
           {/each}
         </span>
       </Table>

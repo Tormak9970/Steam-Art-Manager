@@ -5,7 +5,7 @@
   export let width:string = "200px";
   export let onFinish: () => void = () => {};
 
-  $: isFinished = Math.abs(progress - 100) == 0;
+  $: isFinished = Math.abs(progress - 100) === 0;
 
   afterUpdate(() => {
     if (isFinished) {
