@@ -91,11 +91,16 @@ export class CacheController {
    * @param dirName The name to output in the logging statements.
    */
   private async createDirIfNotExists(path: string, dirName: string): Promise<void> {
-    if (!(await fs.exists(path))) {
-      await fs.createDir(path);
-      LogController.log(`Created ${dirName} dir.`);
-    } else {
-      LogController.log(`Found ${dirName} dir.`);
+    try {
+      if (!(await fs.exists(path))) {
+        await fs.createDir(path);
+        LogController.log(`Created ${dirName} dir.`);
+      } else {
+        LogController.log(`Found ${dirName} dir.`);
+      }
+    } catch(e) {
+      LogController.error(e.message);
+      ToastController.showWarningToast(`Unable to add ${dirName} dir to scope`);
     }
   }
 
