@@ -19,20 +19,20 @@
 				"all": true,
 				"scope": {
           "allow": [
-            "$APP",
-            "$APP/**",
             "$DESKTOP",
             "$DESKTOP/**",
-            "$RESOURCE",
-            "$RESOURCE/**",
             "$APPCONFIG",
+            "/var/home/*/.config/dev.tormak.steam-art-manager",
             "$APPCONFIG/**",
+            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
             "$DATA",
             "$DATA/**",
             "$APPLOG",
             "$APPLOG/**",
             "$APPCACHE",
-            "$APPCACHE/**"
+            "/var/home/*/.cache/dev.tormak.steam-art-manager",
+            "$APPCACHE/**",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
           ],
           "requireLiteralLeadingDot": false
         }
@@ -52,20 +52,20 @@
 				"asset": true,
 				"assetScope": {
           "allow": [
-            "$APP",
-            "$APP/**",
             "$DESKTOP",
             "$DESKTOP/**",
-            "$RESOURCE",
-            "$RESOURCE/**",
             "$APPCONFIG",
+            "/var/home/*/.config/dev.tormak.steam-art-manager",
             "$APPCONFIG/**",
+            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
             "$DATA",
             "$DATA/**",
             "$APPLOG",
             "$APPLOG/**",
             "$APPCACHE",
-            "$APPCACHE/**"
+            "/var/home/*/.cache/dev.tormak.steam-art-manager",
+            "$APPCACHE/**",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
           ],
           "requireLiteralLeadingDot": false
         }
@@ -87,7 +87,7 @@
 		"bundle": {
 			"active": true,
 			"category": "Utility",
-			"copyright": "Copyright Travis Lane 2023",
+			"copyright": "Copyright Travis Lane 2024",
 			"deb": {
 				"depends": []
 			},

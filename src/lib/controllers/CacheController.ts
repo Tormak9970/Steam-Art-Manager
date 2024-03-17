@@ -86,6 +86,20 @@ export class CacheController {
   }
 
   /**
+   * Creates a directory if it does not exist.
+   * @param path The path to check.
+   * @param dirName The name to output in the logging statements.
+   */
+  private async createDirIfNotExists(path: string, dirName: string): Promise<void> {
+    if (!(await fs.exists(path))) {
+      await fs.createDir(path);
+      LogController.log(`Created ${dirName} dir.`);
+    } else {
+      LogController.log(`Found ${dirName} dir.`);
+    }
+  }
+
+  /**
    * Initializes the CacheController.
    * ? Logging complete.
    */
@@ -93,61 +107,25 @@ export class CacheController {
     LogController.log("Initializing CacheController...");
     
     this.appCacheDirPath = await appCacheDir();
-    await RustInterop.addPathToScope(this.appCacheDirPath);
-    if (!(await fs.exists(this.appCacheDirPath))) {
-      await fs.createDir(this.appCacheDirPath);
-      LogController.log("Created cache dir.");
-    } else {
-      LogController.log("Found cache dir.");
-    }
+    await this.createDirIfNotExists(this.appCacheDirPath, "cache");
 
     this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
-    if (!(await fs.exists(this.gridCacheDirPath))) {
-      await fs.createDir(this.gridCacheDirPath);
-      LogController.log("Created grids cache dir.");
-    } else {
-      LogController.log("Found grids cache dir.");
-    }
+    await this.createDirIfNotExists(this.gridCacheDirPath, "grids cache");
     
     const capsuleCacheDir = await path.join(this.gridCacheDirPath, GridTypes.CAPSULE);
-    if (!(await fs.exists(capsuleCacheDir))) {
-      await fs.createDir(capsuleCacheDir);
-      LogController.log("Created Capsule cache dir.");
-    } else {
-      LogController.log("Found Capsule cache dir.");
-    }
+    await this.createDirIfNotExists(capsuleCacheDir, "Capsule cache");
 
     const wideCapsuleCacheDir = await path.join(this.gridCacheDirPath, GridTypes.WIDE_CAPSULE);
-    if (!(await fs.exists(wideCapsuleCacheDir))) {
-      await fs.createDir(wideCapsuleCacheDir);
-      LogController.log("Created Wide Capsule cache dir.");
-    } else {
-      LogController.log("Found Wide Capsule cache dir.");
-    }
+    await this.createDirIfNotExists(wideCapsuleCacheDir, "Wide Capsule cache");
 
     const heroCacheDir = await path.join(this.gridCacheDirPath, GridTypes.HERO);
-    if (!(await fs.exists(heroCacheDir))) {
-      await fs.createDir(heroCacheDir);
-      LogController.log("Created Hero cache dir.");
-    } else {
-      LogController.log("Found Hero cache dir.");
-    }
+    await this.createDirIfNotExists(heroCacheDir, "Hero cache");
 
     const logoCacheDir = await path.join(this.gridCacheDirPath, GridTypes.LOGO);
-    if (!(await fs.exists(logoCacheDir))) {
-      await fs.createDir(logoCacheDir);
-      LogController.log("Created Logo cache dir.");
-    } else {
-      LogController.log("Found Logo cache dir.");
-    }
+    await this.createDirIfNotExists(logoCacheDir, "Logo cache");
 
     const iconCacheDir = await path.join(this.gridCacheDirPath, GridTypes.ICON);
-    if (!(await fs.exists(iconCacheDir))) {
-      await fs.createDir(iconCacheDir);
-      LogController.log("Created Icon cache dir.");
-    } else {
-      LogController.log("Found Icon cache dir.");
-    }
+    await this.createDirIfNotExists(iconCacheDir, "Icon cache");
 
     this.apiKeyUnsub = steamGridDBKey.subscribe((key) => {
       if (key !== "") {
