@@ -151,7 +151,10 @@ export async function steamDialogSequence(): Promise<void> {
 
     if (hasSteamInstalled) {
       showSteamPathModal.set(true);
-      steamPathModalClose.set(async () => resolve());
+      steamPathModalClose.set(async () => {
+        showSteamPathModal.set(false);
+        resolve();
+      });
     } else {
       await DialogController.message("SARM Could Not Initialize", "ERROR", "Please install Steam and login once, then restart SARM.", "Ok");
       await exit(0);

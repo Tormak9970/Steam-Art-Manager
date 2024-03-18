@@ -47,8 +47,9 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
     pc_home_dir = pc_home_dir.join(".steam/steam");
   }
 
-  if pc_home_dir.exists() {
-    return Ok(pc_home_dir);
+  let final_path = fs::canonicalize(pc_home_dir).expect("Should have been able to resolve path with symlinks in it.");
+  if final_path.exists() {
+    return Ok(final_path);
   } else {
     return Err(String::from("Steam install path does not exist."));
   }
