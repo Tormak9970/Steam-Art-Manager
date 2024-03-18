@@ -1,7 +1,7 @@
 {
 	"build": {
-		"beforeDevCommand": "npm run dev",
-		"beforeBuildCommand": "npm run build",
+		"beforeDevCommand": "pnpm run dev",
+		"beforeBuildCommand": "pnpm run build",
 		"devPath": "http://localhost:1420",
 		"distDir": "../dist",
 		"withGlobalTauri": false
@@ -17,22 +17,25 @@
 			"os": { "all": true },
 			"fs": {
 				"all": true,
-				"scope": [
-					"$APP",
-					"$APP/**",
-					"$DESKTOP",
-					"$DESKTOP/**",
-					"$RESOURCE",
-					"$RESOURCE/**",
-					"$APPCONFIG",
-					"$APPCONFIG/**",
-					"$DATA",
-					"$DATA/**",
-					"$APPLOG",
-					"$APPLOG/**",
-					"$APPCACHE",
-					"$APPCACHE/**"
-				]
+				"scope": {
+          "allow": [
+            "$DESKTOP",
+            "$DESKTOP/**",
+            "$APPCONFIG",
+            "/var/home/*/.config/dev.tormak.steam-art-manager",
+            "$APPCONFIG/**",
+            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
+            "$DATA",
+            "$DATA/**",
+            "$APPLOG",
+            "$APPLOG/**",
+            "$APPCACHE",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager",
+            "$APPCACHE/**",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
+          ],
+          "requireLiteralLeadingDot": false
+        }
 			},
 			"http": {
 				"all": false,
@@ -47,22 +50,25 @@
 			"protocol": {
 				"all": true,
 				"asset": true,
-				"assetScope": [
-					"$APP",
-					"$APP/**",
-					"$DESKTOP",
-					"$DESKTOP/**",
-					"$RESOURCE",
-					"$RESOURCE/**",
-					"$APPCONFIG",
-					"$APPCONFIG/**",
-					"$DATA",
-					"$DATA/**",
-					"$APPLOG",
-					"$APPLOG/**",
-					"$APPCACHE",
-					"$APPCACHE/**"
-				]
+				"assetScope": {
+          "allow": [
+            "$DESKTOP",
+            "$DESKTOP/**",
+            "$APPCONFIG",
+            "/var/home/*/.config/dev.tormak.steam-art-manager",
+            "$APPCONFIG/**",
+            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
+            "$DATA",
+            "$DATA/**",
+            "$APPLOG",
+            "$APPLOG/**",
+            "$APPCACHE",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager",
+            "$APPCACHE/**",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
+          ],
+          "requireLiteralLeadingDot": false
+        }
 			},
 			"shell": {
 				"all": false,
@@ -81,7 +87,7 @@
 		"bundle": {
 			"active": true,
 			"category": "Utility",
-			"copyright": "Copyright Travis Lane 2023",
+			"copyright": "Copyright Travis Lane 2024",
 			"deb": {
 				"depends": []
 			},
@@ -128,7 +134,7 @@
 			}
 		},
 		"security": {
-			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; style-src 'self' 'unsafe-inline'",
+			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; media-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; style-src 'self' 'unsafe-inline'",
 			"dangerousDisableAssetCspModification": [
 				"style-src"
 			]
