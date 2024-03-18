@@ -78,6 +78,13 @@ export interface SGDBImageOptions {
   page?: number;
 }
 
+export interface SGDBGridTotals {
+  grids: number,
+  heroes: number,
+  logos: number,
+  icons: number
+}
+
 export type TauriRequest = {
   data: string,
   headers: Record<string, string>,
@@ -115,7 +122,7 @@ export class SGDB {
       options = { key: options };
     }
 
-    this.baseURL = options.baseURL ?? "https://www.steamgriddb.com/api/v2";
+    this.baseURL = options.baseURL ?? "https://www.steamgriddb.com/api/";
     this.key = options.key ?? "";
     this.headers = {};
 
@@ -162,9 +169,10 @@ export class SGDB {
    * @param url The api request url.
    * @param params Optional request parameters.
    * @param formData Optional form data.
+   * @param usePublic Whether to use the public api or v2.
    * @returns A promise resolving to the request's result.
    */
-  async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null): Promise<any> {
+  async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null, usePublic = false): Promise<any> {
     const requestTimeout = get(requestTimeoutLength);
     let strParams: string;
 
@@ -188,7 +196,7 @@ export class SGDB {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await http.fetch<any>(`${this.baseURL}${url}${strParams ? `?${strParams}` : ""}`, options);
+    let response = await http.fetch<any>(`${this.baseURL}${usePublic ? "public" : "v2"}${url}${strParams ? `?${strParams}` : ""}`, options);
 
     if (response.ok) {
       if (response?.data.success) {
@@ -200,6 +208,13 @@ export class SGDB {
       throw new RequestError(response.data?.errors?.join(", ") ?? "SteamGridDB error.", response);
     }
   }
+
+  // async getTotalGridsForGame(id: number): Promise<void> { //Promise<SGDBGridTotals>
+  //   const gameInfoFromId = await this.getGameById(id);
+  //   console.log(`from id ${id}:`, gameInfoFromId);
+  //   const publicGameInfo = await this.handleRequest("GET", `/game/${id}`, {}, null, true);
+  //   console.log(`${id}:`, publicGameInfo);
+  // }
 
   /**
    * Gets a list of possible matches for a query.
