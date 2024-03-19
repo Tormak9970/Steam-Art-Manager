@@ -359,6 +359,10 @@ export class SteamController {
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }
     
-    ToastController.showSuccessToast("Games Loaded!");
+    if ([ ...Object.values(shortcuts), ...get(steamGames) ].length > 0) {
+      ToastController.showSuccessToast("Games Loaded!");
+    } else {
+      ToastController.showWarningToast("Failed to load games!");
+    }
   }
 }
