@@ -527,7 +527,6 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
   }
 
   let path_as_buf: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
-  println!("{}", path_as_buf.as_path().display().to_string().as_str());
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
@@ -561,7 +560,6 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   if steam_path_res.is_ok() {
     let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get steam path from result.");
     let steam_path_str: String = steam_path.as_path().display().to_string();
-    println!("{}", steam_path_str.as_str());
     let was_added: bool = add_path_to_scope(app_handle, steam_path_str.to_owned()).await;
 
     if was_added {

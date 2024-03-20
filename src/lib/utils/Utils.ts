@@ -169,15 +169,11 @@ export async function steamDialogSequence(): Promise<void> {
  */
 export async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
+    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
     const isValidInstall = await isValidSteamPath(savedInstallPath);
 
-    if (!isValidInstall) {
-      const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-      if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
-        steamInstallPath.set(savedInstallPath);
-      } else {
-        await steamDialogSequence();
-      }
+    if (steamInstallPathAdded && isValidInstall && await fs.exists(savedInstallPath)) {
+      steamInstallPath.set(savedInstallPath);
     } else {
       await steamDialogSequence();
     }
@@ -214,7 +210,6 @@ export async function restartApp(): Promise<void> {
 export async function isValidSteamPath(path: string): Promise<boolean> {
   if (await fs.exists(path)) {
     const contents = (await fs.readDir(path)).map((entry) => entry.name);
-
     return contents.includes("steam.exe");
   }
 
