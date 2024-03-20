@@ -32,7 +32,6 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
       return Err(String::from("Couldn't get SteamPath from the registry."));
     }
   } else {
-    // TODO: try looking for Scoop install here?
     return Err(String::from("Couldn't get Steam Install Data from the registry."));
   }
 }

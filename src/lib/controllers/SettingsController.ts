@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { RustInterop } from "./RustInterop";
+import { restartApp } from "../utils/Utils";
 
 import "tippy.js/dist/tippy.css"
 import { exit } from "@tauri-apps/api/process";
@@ -78,6 +78,21 @@ export class SettingsController {
         
         if (success) {
           LogController.log(`Added ${newPath} to scope.`);
+
+          if (this.oldSteamInstallPath !== "") {
+            const shouldReloadGames = await DialogController.ask(
+              "Steam Install Path Changed",
+              "WARNING",
+              "A change to your Steam install path was detected, would you like to reload your games?",
+              "Yes",
+              "No"
+            );
+  
+            if (shouldReloadGames) {
+              await restartApp();
+            }
+          }
+          
           this.oldSteamInstallPath = newPath;
         } else {
           LogController.log(`Failed to add ${newPath} to scope.`);
@@ -202,6 +217,7 @@ export class SettingsController {
         "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
         "Ok",
       );
+      LogController.error("Expected to find at least 1 Steam user but found 0.");
       await exit(0);
     }
 
@@ -227,13 +243,6 @@ export class SettingsController {
     steamUsers.set(cleanedUsers);
 
     const usersList = Object.values(cleanedUsers);
-
-    if (usersList.length === 0) {
-      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
-      LogController.error("Expected to find at least 1 Steam user but found 0.");
-      await process.exit(0);
-    }
-
     const activeUser = usersList.find((user) => user.MostRecent === "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
 

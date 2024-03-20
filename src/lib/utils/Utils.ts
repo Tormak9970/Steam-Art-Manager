@@ -5,7 +5,7 @@ import { LogController } from "../controllers/LogController";
 import type { SGDBImage } from "../models/SGDB";
 import { exit } from "@tauri-apps/api/process";
 import { RustInterop } from "../controllers/RustInterop";
-import { fs } from "@tauri-apps/api";
+import { fs, process } from "@tauri-apps/api";
 
 /**
  * Throttles a function to only run every provided interval.
@@ -169,9 +169,15 @@ export async function steamDialogSequence(): Promise<void> {
  */
 export async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
-    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-    if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
-      steamInstallPath.set(savedInstallPath);
+    const isValidInstall = await isValidSteamPath(savedInstallPath);
+
+    if (!isValidInstall) {
+      const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
+      if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
+        steamInstallPath.set(savedInstallPath);
+      } else {
+        await steamDialogSequence();
+      }
     } else {
       await steamDialogSequence();
     }
@@ -187,4 +193,30 @@ export async function findSteamPath(savedInstallPath: string): Promise<void> {
       steamInstallPath.set(returnedInstallPath);
     }
   }
+}
+
+/**
+ * Reloads the app.
+ */
+export async function restartApp(): Promise<void> {
+  const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
+  if (shouldReload) {
+    LogController.log("Reloading...");
+    await process.relaunch();
+  }
+}
+
+/**
+ * Checks if the provided path is a valid Steam installation.
+ * @param path The path to check.
+ * @returns True if the path is a valid install.
+ */
+export async function isValidSteamPath(path: string): Promise<boolean> {
+  if (await fs.exists(path)) {
+    const contents = (await fs.readDir(path)).map((entry) => entry.name);
+
+    return contents.includes("steam.exe");
+  }
+
+  return false;
 }
