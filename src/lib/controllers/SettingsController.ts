@@ -74,9 +74,15 @@ export class SettingsController {
     this.steamInstallPathSub = steamInstallPath.subscribe(async (newPath) => {
       if (newPath !== this.oldSteamInstallPath) {
         SettingsManager.updateSetting("steamInstallPath", newPath);
-        await RustInterop.addPathToScope(newPath);
-        LogController.log(`Added ${newPath} to scope.`);
-        this.oldSteamInstallPath = newPath;
+        const success = await RustInterop.addPathToScope(newPath);
+        
+        if (success) {
+          LogController.log(`Added ${newPath} to scope.`);
+          this.oldSteamInstallPath = newPath;
+        } else {
+          LogController.log(`Failed to add ${newPath} to scope.`);
+          ToastController.showWarningToast(`Failed to add ${newPath} to scope.`);
+        }
       }
     });
 
