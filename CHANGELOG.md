@@ -6,6 +6,15 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.2.1
+
+Bug Fixes
+* added scopes for bazzite support ([931b0d5](https://github.com/Tormak9970/Steam-Art-Manager/commit/931b0d5))
+* added symlink support for linux steam installs ([5a1dfe2](https://github.com/Tormak9970/Steam-Art-Manager/commit/5a1dfe2))
+* changing steam path now properly adds it to scope ([0bf0635](https://github.com/Tormak9970/Steam-Art-Manager/commit/0bf0635))
+* steam path modal no longer gets stuck after saving changes ([e7070c4](https://github.com/Tormak9970/Steam-Art-Manager/commit/e7070c4))
+* updated csp to specify video sources ([c789c47](https://github.com/Tormak9970/Steam-Art-Manager/commit/c789c47))
+
 ## v3.2.0
 
 New Features
