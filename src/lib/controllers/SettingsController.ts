@@ -71,9 +71,11 @@ export class SettingsController {
    * Register subscriptions for setting changes.
    */
   async subscribeToSettingChanges() {
-    this.steamInstallPathSub = steamInstallPath.subscribe((newPath) => {
+    this.steamInstallPathSub = steamInstallPath.subscribe(async (newPath) => {
       if (newPath !== this.oldSteamInstallPath) {
         SettingsManager.updateSetting("steamInstallPath", newPath);
+        await RustInterop.addPathToScope(newPath);
+        LogController.log(`Added ${newPath} to scope.`);
         this.oldSteamInstallPath = newPath;
       }
     });

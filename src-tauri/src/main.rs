@@ -519,7 +519,7 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
 #[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
-  let path_as_buf: PathBuf = PathBuf::from(&target_path);
+  let path_as_buf: PathBuf = fs::canonicalize(PathBuf::from(&target_path)).expect("Should have been able to resolve target path.");
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
