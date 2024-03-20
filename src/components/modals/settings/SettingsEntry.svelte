@@ -2,13 +2,27 @@
   import { open } from "@tauri-apps/api/shell";
   import TextInput from "../../interactables/TextInput.svelte";
   import Spacer from "../../layout/Spacer.svelte";
+  import { onMount } from "svelte";
 
   export let label: string;
   export let description: string;
   export let required: boolean = false;
   export let value: string;
   export let notes: string = "";
-  export let onChange: (e:Event) => void = () => {};
+  export let onChange: (value: string, isValid: boolean) => void = () => {};
+  
+  export let useValidator = false;
+  export let validator: (value: string) => Promise<boolean> = async (value: string) => true;
+
+  let isValid = null;
+  
+  /**
+   * A wrapper for the onChange event.
+   */
+   async function changeWrapper(): Promise<void> {
+    isValid = value !== "" && await validator(value);
+    onChange(value, isValid);
+  }
 
   /**
    * Handles click events to redirect to the browser.
@@ -23,11 +37,26 @@
       open(href);
     }
   }
+  
+  onMount(async () => {
+    if (value !== "") isValid = await validator(value);
+  });
 </script>
 
 <div class="setting">
   <h1 class="label">{label}</h1>
-  <TextInput placeholder={"Your API key"} onInput={onChange} width="{220}" bind:value={value} />
+  <div class="inputs">
+    <TextInput placeholder={"Your API key"} onChange={changeWrapper} width="{220}" bind:value={value} />
+    <Spacer orientation="HORIZONTAL" />
+
+    {#if useValidator && isValid !== null}
+      {#if isValid}
+        <div class="valid-value">Valid api key</div>
+      {:else}
+        <div class="invalid-value">Not a valid api key!</div>
+      {/if}
+    {/if}
+  </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
@@ -67,5 +96,19 @@
     line-height: 18px;
     font-size: 14px;
     margin: 7px 0px;
+  }
+
+  
+  .inputs {
+    display: flex;
+    align-items: center;
+  }
+
+  .valid-value {
+    color: var(--success);
+  }
+
+  .invalid-value {
+    color: var(--warning);
   }
 </style>

@@ -20,7 +20,7 @@ import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
 import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { RustInterop } from "./RustInterop";
-import { restartApp } from "../utils/Utils";
+import { restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "../utils/Utils";
 
 import "tippy.js/dist/tippy.css"
 import { exit } from "@tauri-apps/api/process";
@@ -253,17 +253,30 @@ export class SettingsController {
    * Loads the api key settings.
    * @param activeUserId The id of the active Steam user.
    */
-  private loadApiKeySettings(activeUserId: string): void {
+  private async loadApiKeySettings(activeUserId: string): Promise<void> {
     const sgdbKeySetting = SettingsManager.getSetting<string>("steamGridDbApiKey");
-    if (sgdbKeySetting !== "") {
+    const isValidSgdbKey = await validateSGDBAPIKey(sgdbKeySetting);
+
+    if (!isValidSgdbKey) {
+      LogController.warn("The SteamGridDB API key found in settings is no longer valid.");
+    }
+
+    if (sgdbKeySetting !== "" && isValidSgdbKey) {
       steamGridDBKey.set(sgdbKeySetting);
       needsSGDBAPIKey.set(false);
     }
 
+
     const steamApiKeyMapSetting = SettingsManager.getSetting<string>("steamApiKeyMap");
     if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
-      steamKey.set(steamApiKeyMapSetting[activeUserId]);
-      needsSteamKey.set(false);
+      const isValidSteamKey = await validateSteamAPIKey(steamApiKeyMapSetting[activeUserId], parseInt(activeUserId));
+
+      if (isValidSteamKey) {
+        steamKey.set(steamApiKeyMapSetting[activeUserId]);
+        needsSteamKey.set(false);
+      } else {
+        LogController.warn("The Steam API key found in settings is no longer valid.");
+      }
     }
   }
 
@@ -343,7 +356,7 @@ export class SettingsController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the SARM");
       LogController.error("User id was 0, try opening steam then restart the SARM");
     } else {
-      this.loadApiKeySettings(activeUserId);
+      await this.loadApiKeySettings(activeUserId);
     
       this.loadNicheSettings();
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath } from "../../../stores/AppState";
+  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath, requestTimeoutLength } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
@@ -9,6 +9,8 @@
   import SettingsFilePathEntry from "./SettingsFilePathEntry.svelte";
   import { showSettingsModal } from "../../../stores/Modals";
   import Spacer from "../../layout/Spacer.svelte";
+  import { validateSteamPath, validateSGDBAPIKey, validateSteamAPIKey } from "../../../lib/utils/Utils";
+
 
   /**
    * The function to run when the modal closes.
@@ -70,39 +72,44 @@
 
   /**
    * Function to run on grid key input change.
-   * @param e The associated event.
+   * @param value The updated value.
+   * @param isValid Whether the new value is valid.
    */
-  function onGridKeyChange(e:Event): void {
-    const target = e.currentTarget as HTMLInputElement;
-    const value = target.value;
-
-    if (value !== "") {
+  function onGridKeyChange(value: string, isValid: boolean): void {
+    if (value !== "" && isValid) {
       steamGridKey = value;
       canSave = true;
+    } else {
+      canSave = false;
     }
   }
 
   /**
    * Function to run on steam key input change.
-   * @param e The associated event.
+   * @param value The updated value.
+   * @param isValid Whether the new value is valid.
    */
-  function onSteamKeyChange(e:Event): void {
-    const target = e.currentTarget as HTMLInputElement;
-    const value = target.value;
-
-    if (value !== "") {
+  function onSteamKeyChange(value: string, isValid: boolean): void {
+    if (value !== "" && isValid) {
       steamAPIKey = value;
       canSave = true;
+    } else {
+      canSave = false;
     }
   }
 
   /**
    * Function to run on steam install location change.
    * @param path The updated installation path.
+   * @param isValid Whether the new value is valid.
    */
-   function onInstallLocationChange(path: string): void {
-    steamInstallLocation = path;
-    canSave = true;
+  function onInstallLocationChange(path: string, isValid: boolean): void {
+    if (isValid) {
+      steamInstallLocation = path;
+      canSave = true;
+    } else {
+      canSave = false;
+    }
   }
 </script>
 
@@ -115,6 +122,9 @@
       description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
+      useValidator={true}
+      validPathMessage={"Path is a valid Steam install"}
+      validator={validateSteamPath}
       required
     />
     <Spacer orientation="VERTICAL" />
@@ -124,6 +134,8 @@
       description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
       value={steamGridKey}
       onChange={onGridKeyChange}
+      useValidator={true}
+      validator={validateSGDBAPIKey}
       required
     />
     <Spacer orientation="VERTICAL" />
@@ -134,12 +146,14 @@
       notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
       value={steamAPIKey}
       onChange={onSteamKeyChange}
+      useValidator={true}
+      validator={validateSteamAPIKey}
     />
 
     <div class="buttons">
       <Button label="Save Changes" onClick={saveSettings} width="47.5%" disabled={!canSave} />
       <Button label="Cancel" onClick={cancel} width="47.5%" />
-    </div>
+    </div>validateSteamPath
   </div>
 </ModalBody>
 

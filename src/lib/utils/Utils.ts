@@ -1,11 +1,12 @@
 import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
-import { GridTypes, type DBFilters, steamInstallPath } from "../../stores/AppState";
+import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId } from "../../stores/AppState";
 import { DialogController } from "../controllers/DialogController";
 import { LogController } from "../controllers/LogController";
-import type { SGDBImage } from "../models/SGDB";
+import { SGDB, type SGDBImage } from "../models/SGDB";
 import { exit } from "@tauri-apps/api/process";
 import { RustInterop } from "../controllers/RustInterop";
-import { fs, process } from "@tauri-apps/api";
+import { fs, process, http } from "@tauri-apps/api";
+import { get } from "svelte/store";
 
 /**
  * Throttles a function to only run every provided interval.
@@ -170,7 +171,7 @@ export async function steamDialogSequence(): Promise<void> {
 export async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
     const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-    const isValidInstall = await isValidSteamPath(savedInstallPath);
+    const isValidInstall = await validateSteamPath(savedInstallPath);
 
     if (steamInstallPathAdded && isValidInstall && await fs.exists(savedInstallPath)) {
       steamInstallPath.set(savedInstallPath);
@@ -207,11 +208,43 @@ export async function restartApp(): Promise<void> {
  * @param path The path to check.
  * @returns True if the path is a valid install.
  */
-export async function isValidSteamPath(path: string): Promise<boolean> {
-  if (await fs.exists(path)) {
+export async function validateSteamPath(path: string): Promise<boolean> {
+  const wasAdded = await RustInterop.addPathToScope(path);
+  if (wasAdded && await fs.exists(path)) {
     const contents = (await fs.readDir(path)).map((entry) => entry.name);
     return contents.includes("steam.exe");
   }
 
   return false;
+}
+
+
+/**
+ * Checks if the provided Steam api key is valid for the current user.
+ * @param key The api key to test.
+ * @param userId Optional property to specify the userId used to test.
+ * @returns A promise resolving to true if the key is valid, false if not.
+ */
+export async function validateSteamAPIKey(key: string, userId?: number): Promise<boolean> {
+  const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
+  const timeout = get(requestTimeoutLength)
+
+  const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+    method: "GET",
+    timeout: timeout
+  });
+
+  return res.ok;
+}
+
+/**
+ * Checks if the provided SteamGridDB api key is valid.
+ * @param key The api key to test.
+ * @returns A promise resolving to true if the key is valid, false if not.
+ */
+export async function validateSGDBAPIKey(key: string): Promise<boolean> {
+  const apiModel = new SGDB(key);
+
+  const res = await apiModel.getGameById(5138060);
+  return res?.name === "Baldur's Gate 3";
 }
