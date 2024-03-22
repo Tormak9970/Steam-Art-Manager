@@ -74,7 +74,7 @@
 			},
 			"shell": {
 				"all": false,
-				"open": true
+				"open": ".*"
 			},
 			"window": {
 				"all": true
