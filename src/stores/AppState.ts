@@ -34,6 +34,7 @@ export const loadingSettings = writable(true);
 
 export const windowIsMaximized = writable(false);
 export const theme = writable(Theme.DARK);
+export const debugMode = writable(false);
 export const renderGamesInList = writable(false);
 export const optionsSize = writable(16);
 export const gamesSize = writable(42);

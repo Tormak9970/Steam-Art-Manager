@@ -5,7 +5,7 @@
   import { ToastController } from "../../lib/controllers/ToastController";
   import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import SettingsFilePathEntry from "./settings/SettingsFilePathEntry.svelte";
+  import FilePathEntry from "./settings/FilePathEntry.svelte";
   import Spacer from "../layout/Spacer.svelte";
   import { validateSteamPath } from "../../lib/utils/Utils";
 
@@ -49,7 +49,7 @@
   <div class="content">
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
-    <SettingsFilePathEntry
+    <FilePathEntry
       label="Steam Install Path"
       description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
       value={steamInstallLocation}

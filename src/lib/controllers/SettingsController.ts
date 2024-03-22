@@ -18,7 +18,7 @@
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
-import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
+import { GridTypes, activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { RustInterop } from "./RustInterop";
 import { restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "../utils/Utils";
 
@@ -47,6 +47,9 @@ export class SettingsController {
 
   private oldTheme = 0;
   private themeSub: Unsubscriber;
+
+  private oldDebugMode: boolean;
+  private debugModeSub: Unsubscriber;
 
   private oldShowHiddenGames = false;
   private showHiddenGamesSub: Unsubscriber;
@@ -132,6 +135,14 @@ export class SettingsController {
       }
     });
 
+    this.debugModeSub = debugMode.subscribe((newDebugMode) => {
+      if (newDebugMode !== this.oldDebugMode) {
+        SettingsManager.updateSetting("debugMode", newDebugMode);
+        RustInterop.toggleDevTools(newDebugMode);
+        this.oldDebugMode = newDebugMode;
+      }
+    });
+
     this.showHiddenGamesSub = showHidden.subscribe((show) => {
       if (show !== this.oldShowHiddenGames) {
         SettingsManager.updateSetting("showHiddenGames", show);
@@ -184,21 +195,22 @@ export class SettingsController {
    * Destroy all settings subscriptions.
    */
   destroy() {
-    if(this.steamInstallPathSub) this.steamInstallPathSub();
-    if(this.hiddenGameIdsSub) this.hiddenGameIdsSub();
-    if(this.manualSteamGamesSub) this.manualSteamGamesSub();
-    if(this.customGameNamesSub) this.customGameNamesSub();
+    if (this.steamInstallPathSub) this.steamInstallPathSub();
+    if (this.hiddenGameIdsSub) this.hiddenGameIdsSub();
+    if (this.manualSteamGamesSub) this.manualSteamGamesSub();
+    if (this.customGameNamesSub) this.customGameNamesSub();
 
-    if(this.themeSub) this.themeSub();
-    if(this.showHiddenGamesSub) this.showHiddenGamesSub();
+    if (this.themeSub) this.themeSub();
+    if (this.debugModeSub) this.debugModeSub();
+    if (this.showHiddenGamesSub) this.showHiddenGamesSub();
 
-    if(this.dbFiltersSub) this.dbFiltersSub();
-    if(this.gameViewTypeSub) this.gameViewTypeSub();
-    if(this.gridTypeSub) this.gridTypeSub();
+    if (this.dbFiltersSub) this.dbFiltersSub();
+    if (this.gameViewTypeSub) this.gameViewTypeSub();
+    if (this.gridTypeSub) this.gridTypeSub();
     
-    if(this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
+    if (this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
 
-    if(this.cleanGridsPresetSub) this.cleanGridsPresetSub();
+    if (this.cleanGridsPresetSub) this.cleanGridsPresetSub();
   }
 
 
@@ -345,6 +357,11 @@ export class SettingsController {
     this.oldTheme = themeSetting;
     theme.set(themeSetting);
     document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : "light");
+
+    const debugModeSetting = SettingsManager.getSetting<boolean>("debugMode");
+    debugMode.set(debugModeSetting);
+
+    if (debugModeSetting) await RustInterop.toggleDevTools(true);
 
     const steamInstallPathSetting = SettingsManager.getSetting<string>("steamInstallPath");
     await findSteamPath(steamInstallPathSetting);

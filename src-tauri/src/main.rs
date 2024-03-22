@@ -579,6 +579,18 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   }
 }
 
+#[tauri::command]
+/// Toggles the dev tools for the current window.
+async fn toggle_dev_tools(app_handle: AppHandle, enable: bool) {
+  let window = app_handle.get_window("main").expect("Should have been able to get the main window.");
+  
+  if enable {
+    window.open_devtools();
+  } else {
+    window.close_devtools();
+  }
+}
+
 /// This app's main function.
 fn main() {
   tauri::Builder::default()
@@ -595,6 +607,7 @@ fn main() {
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       add_path_to_scope,
+      toggle_dev_tools,
       add_steam_to_scope,
       export_grids_to_zip,
       import_grids_from_zip,
