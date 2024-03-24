@@ -5,11 +5,10 @@
   import type { Unsubscriber } from "svelte/store";
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBGame, SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, selectedResultPage, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames, gridsSize } from "../../../stores/AppState";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, appLibraryCache, manualSteamGames, customGameNames, steamGames, nonSteamGames, gridsSize, lastPageCache } from "../../../stores/AppState";
   import SectionTitle from "../SectionTitle.svelte";
   import Grid from "./Grid.svelte";
   import DropDown from "../../interactables/DropDown.svelte";
-  import Pages from "../../layout/pagination/Pages.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
   import { debounce, filterGrids } from "../../../lib/utils/Utils";
   import Divider from "../Divider.svelte";
@@ -18,6 +17,7 @@
   import Spacer from "../../layout/Spacer.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
   import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
+  import InfiniteScroll from "../../layout/pagination/InfiniteScroll.svelte";
 
   let windowWidth: number;
   let skipUpdate = false;
@@ -28,7 +28,6 @@
   let selectedPlatformUnsub: Unsubscriber;
   let selectedAppIdUnsub: Unsubscriber;
   let dbFiltersUnsub: Unsubscriber;
-  let sgdbPageUnsub: Unsubscriber;
   let gridTypeUnsub: Unsubscriber;
   let onlineUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
@@ -48,13 +47,18 @@
   }
 
   let isLoading = false;
+  let hasMoreSearchResults = true;
   let availableSteamGridGames = [ { label: "None", data: "None" } ];
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let grids: SGDBImage[] = [];
-  let numPages = 1;
   let hasCustomName = !!$customGameNames[$selectedGameAppId];
   $: originalName = ($steamGames.find((game) => game.appid === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid === $selectedGameAppId))?.name;
 
+  function getPageNumberForGame(sgdbGameId: string) {
+    const id = parseInt(sgdbGameId);
+    if (!lastPageCache[id]) lastPageCache[id] = 0;
+    return lastPageCache[id];
+  }
 
   /**
    * Handles when the user changes the custom game name
@@ -109,11 +113,11 @@
    */
   async function onSgdbGameChange(id: string): Promise<void> {
     if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId && oldSelectedGameId !== id) {
-      grids = filterGridsWrapper(await AppController.getSteamGridArt($selectedGameAppId, $selectedResultPage, id, false), $gridType, $dbFilters);
-      numPages = $steamGridSearchCache[$selectedGameAppId]?.find((game) => game.id.toString() === id)?.numResultPages ?? 3;
+      grids = filterGridsWrapper(await AppController.getSteamGridArt($selectedGameAppId, getPageNumberForGame(id), id, false), $gridType, $dbFilters);
     }
     
     oldSelectedGameId = id;
+    hasMoreSearchResults = true;
   }
   
   /**
@@ -129,8 +133,6 @@
           "data": value.id.toString()
         }
       });
-      
-      numPages = searchCache[selectedAppId]?.find((game) => game.id.toString() === $selectedSteamGridGameId)?.numResultPages ?? 3;
     }
   }
 
@@ -142,6 +144,7 @@
     $selectedGameAppId = null;
     $selectedGameName = null;
     $selectedSteamGridGameId = "None";
+    hasMoreSearchResults = true;
     grids = [];
   }
 
@@ -160,6 +163,19 @@
     if (online && sgdbApiKey !== "" && !!$selectedGameAppId) {
       const unfilteredGrids = await AppController.getSteamGridArt(selectedAppId, resultsPage, selectedSGDBId, isCustomName);
       grids = filterGridsWrapper(unfilteredGrids, selectedGridType, filters);
+    }
+  }
+
+
+  async function handleLoadOnScroll() {
+    const lastPageLoaded = getPageNumberForGame($selectedSteamGridGameId);
+    const oldGridsLength = grids.length;
+    await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, lastPageLoaded + 1, $dbFilters, $selectedSteamGridGameId, hasCustomName);
+    
+    if (oldGridsLength !== grids.length) {
+      lastPageCache[parseInt($selectedSteamGridGameId)] = lastPageLoaded + 1;
+    } else {
+      hasMoreSearchResults = false;
     }
   }
 
@@ -186,12 +202,12 @@
           hasCustomName = true;
           $selectedGameName = customNames[$selectedGameAppId];
           delete $steamGridSearchCache[$selectedGameAppId];
-          await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, null, true);
+          await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, null, true);
         } else if (!customNames[$selectedGameAppId] && hasCustomName) {
           hasCustomName = false;
           $selectedGameName = originalName;
           delete $steamGridSearchCache[$selectedGameAppId];
-          await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, null, true);
+          await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, null, true);
         }
       } else {
         skipUpdate = false;
@@ -206,29 +222,24 @@
     selectedAppIdUnsub = selectedGameAppId.subscribe(async (id) => {
       isLoading = true;
       hasCustomName = !!$customGameNames[$selectedGameAppId];
-      await filterGridsOnStateChange($steamGridDBKey, $isOnline, id, $gridType, $selectedResultPage, $dbFilters, null, hasCustomName);
+      await filterGridsOnStateChange($steamGridDBKey, $isOnline, id, $gridType, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, null, hasCustomName);
 
       isLoading = false;
     });
     onlineUnsub = isOnline.subscribe(async (online) => {
       isLoading = true;
-      await filterGridsOnStateChange($steamGridDBKey, online, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, $selectedSteamGridGameId, hasCustomName);
-      isLoading = false;
-    });
-    sgdbPageUnsub = selectedResultPage.subscribe(async (page) => {
-      isLoading = true;
-      await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, page, $dbFilters, $selectedSteamGridGameId, hasCustomName);
+      await filterGridsOnStateChange($steamGridDBKey, online, $selectedGameAppId, $gridType, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, $selectedSteamGridGameId, hasCustomName);
       isLoading = false;
     });
     gridTypeUnsub = gridType.subscribe(async (type) => {
       isLoading = true;
-      await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, type, $selectedResultPage, $dbFilters, $selectedSteamGridGameId, hasCustomName);
+      await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, type, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, $selectedSteamGridGameId, hasCustomName);
       isLoading = false;
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
       isLoading = true;
       if (key !== "" && AppController.sgdbClientInitialized()) {
-        await filterGridsOnStateChange(key, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, $dbFilters, $selectedSteamGridGameId, hasCustomName);
+        await filterGridsOnStateChange(key, $isOnline, $selectedGameAppId, $gridType, getPageNumberForGame($selectedSteamGridGameId), $dbFilters, $selectedSteamGridGameId, hasCustomName);
       } else {
         resetGridStores();
       }
@@ -236,7 +247,7 @@
     });
     dbFiltersUnsub = dbFilters.subscribe(async (filters) => {
       isLoading = true;
-      await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, $selectedResultPage, filters, $selectedSteamGridGameId, hasCustomName);
+      await filterGridsOnStateChange($steamGridDBKey, $isOnline, $selectedGameAppId, $gridType, lastPageCache[$selectedSteamGridGameId], filters, $selectedSteamGridGameId, hasCustomName);
       isLoading = false;
     });
   });
@@ -310,29 +321,32 @@
       {#if $isOnline}
         {#if !$needsSGDBAPIKey}
           {#if !!$selectedGameAppId}
-            <Pages numPages={numPages} height="calc(100% - 47px)" bind:selected={$selectedResultPage}>
-              <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
-                {#if isLoading}
+            <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
+              {#if isLoading}
+                <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+                  {#each new Array(100) as _}
+                    <GridLoadingSkeleton />
+                  {/each}
+                </div>
+              {:else}
+                {#if grids.length > 0}
                   <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-                    {#each new Array(100) as _}
-                      <GridLoadingSkeleton />
+                    {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                      <Grid grid={grid} />
                     {/each}
                   </div>
                 {:else}
-                  {#if grids.length > 0}
-                    <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-                      {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                        <Grid grid={grid} />
-                      {/each}
-                    </div>
-                  {:else}
-                    <div class="message">
-                      No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
-                    </div>
-                  {/if}
+                  <div class="message">
+                    No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+                  </div>
                 {/if}
-              </PaddedScrollContainer>
-            </Pages>
+              {/if}
+              <InfiniteScroll
+                hasMore={hasMoreSearchResults}
+                threshold={100}
+                on:loadMore={handleLoadOnScroll}
+              />
+            </PaddedScrollContainer>
           {:else}
             <div class="message">
               Select a game to start managing your art!

@@ -20,7 +20,7 @@ import { appCacheDir } from "@tauri-apps/api/path";
 
 import { get, type Unsubscriber } from "svelte/store";
 import { RequestError, SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, selectedGameName, steamGridDBKey, gridsCache, selectedSteamGridGameId, steamGridSteamAppIdMap, selectedResultPage, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
+import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, steamGridDBKey, gridsCache, lastPageCache, selectedSteamGridGameId, steamGridSteamAppIdMap, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
 import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, batchApplyMessage  } from "../../stores/Modals";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
@@ -211,52 +211,27 @@ export class CacheController {
         const types = Object.keys(gridsCache[appId.toString()]);
   
         if (types.includes(type)) {
-          const pages = Object.keys(gridsCache[appId.toString()][type]);
-  
-          if (pages.includes(page.toString())) {
-            logToFile(`Using in memory cache for nonSteam ${appId}'s ${type}.`, useCoreFile);
-            return gridsCache[appId.toString()][type][page];
-          } else {
-            logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
-            const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-            gridsCache[appId.toString()][type][page.toString()] = grids;
-            return grids;
-          }
+          logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
+          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+          gridsCache[appId.toString()][type] = gridsCache[appId.toString()][type].concat(grids);
         } else {
           logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
           const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-          gridsCache[appId.toString()][type] = {};
-          gridsCache[appId.toString()][type][page.toString()] = grids;
-          return grids;
+          gridsCache[appId.toString()][type] = grids;
         }
       } else {
         logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
         const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
         gridsCache[appId.toString()] = {};
-        gridsCache[appId.toString()][type] = {};
-        gridsCache[appId.toString()][type][page.toString()] = grids;
-        return grids;
+        gridsCache[appId.toString()][type] = grids;
       }
+
+      return gridsCache[appId.toString()][type];
     } catch (e: any) {
       logErrorToFile(`Error fetching grids for non steam game: ${appId}. Error: ${e.message}.`, useCoreFile);
       ToastController.showWarningToast("Error fetching grids for game.");
       return [];
     }
-  }
-
-  /**
-   * ! Placeholder until SGDB API V3 is live.
-   * Gets the number of result pages for each game in the results list.
-   * @param results The SGDBGame array.
-   * @param platform The platform of the games.
-   * @param type The type of grids to get.
-   * ! Logging Needed?
-   */
-  private async getNumPages(results: SGDBGame[], platform: Platforms, type: GridTypes): Promise<void> {
-    results = results.map((game) => {
-      game.numResultPages = 1;
-      return game;
-    });
   }
 
   /**
@@ -275,7 +250,6 @@ export class CacheController {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
 
     const type = get(gridType);
-    
     const searchCache = get(steamGridSearchCache);
 
     let results = searchCache[appId];
@@ -283,8 +257,6 @@ export class CacheController {
     if (!results) {
       try {
         results = await this.client.searchGame(gameName);
-        await this.getNumPages(results, Platforms.STEAM, type);
-        // await this.cacheAllGridsForGame(results, Platforms.STEAM, type, useCoreFile);
         searchCache[appId] = results;
       } catch (e: any) {
         logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
