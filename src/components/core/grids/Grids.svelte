@@ -107,17 +107,11 @@
 
   onMount(() => {
     steamGridSearchCacheUnsub = steamGridSearchCache.subscribe((searchCache) => {
-      isLoading = true;
       setAvailableSgdbGamesOnStateChange(searchCache, $selectedGameAppId);
-      isLoading = false;
     });
 
     manualGamesUnsub = manualSteamGames.subscribe((games) => {
-      if ($selectedGameAppId && !games.find((game) => game.appid === $selectedGameAppId)) {
-        isLoading = true;
-        resetGridStores();
-        isLoading = false;
-      }
+      if ($selectedGameAppId && !games.find((game) => game.appid === $selectedGameAppId)) resetGridStores();
     });
 
     customGameNamesUnsub = customGameNames.subscribe(async (customNames) => {
@@ -137,14 +131,10 @@
     });
 
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
-      isLoading = true;
       resetGridStores();
-      isLoading = false;
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
-      isLoading = true;
       if (key === "" || !AppController.sgdbClientInitialized()) resetGridStores();
-      isLoading = false;
     });
   });
 
@@ -211,7 +201,7 @@
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
       {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters[$gridType])}|${$selectedGameName}`}
-        <GridResults isLoading={isLoading} hasCustomName={hasCustomName} />
+        <GridResults hasCustomName={hasCustomName} />
       {/key}
     </div>
   </div>

@@ -12,7 +12,7 @@
   
   const padding = 20;
 
-  export let isLoading: boolean;
+  let isLoading = true;
   export let hasCustomName: boolean;
 
   let hasMorePages = getHasMorePages($selectedSteamGridGameId, $gridType);
@@ -48,22 +48,23 @@
 
   onMount(() => {
     console.log("mounting grid results...");
-    filterGridsOnStateChange(getPageNumberForGame($selectedSteamGridGameId, $gridType), hasCustomName);
+    filterGridsOnStateChange(getPageNumberForGame($selectedSteamGridGameId, $gridType), hasCustomName).then(() => {
+      isLoading = false;
+    });
   });
 </script>
 
-<!-- TODO: prevent error messages from showing during loading -->
-{#if $isOnline}
-  {#if !$needsSGDBAPIKey}
-    {#if !!$selectedGameAppId}
-      <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
-        {#if isLoading}
-          <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-            {#each new Array(100) as _}
-              <GridLoadingSkeleton />
-            {/each}
-          </div>
-        {:else}
+<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
+  {#if isLoading}
+    <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+      {#each new Array(100) as _}
+        <GridLoadingSkeleton />
+      {/each}
+    </div>
+  {:else}
+    {#if $isOnline}
+      {#if !$needsSGDBAPIKey}
+        {#if !!$selectedGameAppId}
           {#if grids.length > 0}
             <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
               {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
@@ -75,28 +76,28 @@
               No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
             </div>
           {/if}
+        {:else}
+          <div class="message">
+            Select a game to start managing your art!
+          </div>
         {/if}
-        <InfiniteScroll
-          hasMore={hasMorePages}
-          threshold={100}
-          on:loadMore={handleLoadOnScroll}
-        />
-      </PaddedScrollContainer>
+      {:else}
+        <div class="message">
+          Please set your API key to use SteamGridDB.
+        </div>
+      {/if}
     {:else}
       <div class="message">
-        Select a game to start managing your art!
+        You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
       </div>
     {/if}
-  {:else}
-    <div class="message">
-      Please set your API key to use SteamGridDB.
-    </div>
   {/if}
-{:else}
-  <div class="message">
-    You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
-  </div>
-{/if}
+  <InfiniteScroll
+    hasMore={hasMorePages}
+    threshold={100}
+    on:loadMore={handleLoadOnScroll}
+  />
+</PaddedScrollContainer>
 
 <style>
   .game-grid {
