@@ -25,7 +25,7 @@ import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, bat
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import { ToastController } from "./ToastController";
-import { filterGrids } from "../utils/Utils";
+import { filterGrids, getPageNumberForGame } from "../utils/Utils";
 
 
 /**
@@ -196,39 +196,44 @@ export class CacheController {
 
   /**
    * Gets the grids for a non steam game.
-   * @param appId The id of the app to get.
+   * @param steamGridAppId The sgdb appId of the app to get.
    * @param type The selected grid type.
    * @param page The page of results to get.
+   * @param lastPageCached The last page that was cached.
    * @param useCoreFile Whether or not to use the core log file.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForGame(appId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<SGDBImage[]> {
+  private async fetchGridsForGame(steamGridAppId: number, type: GridTypes, page: number, lastPageCached: number, useCoreFile: boolean): Promise<SGDBImage[]> {
     const gridCacheKeys = Object.keys(gridsCache);
     
     try {
-      if (gridCacheKeys.includes(appId.toString())) {
-        const types = Object.keys(gridsCache[appId.toString()]);
+      if (gridCacheKeys.includes(steamGridAppId.toString())) {
+        const types = Object.keys(gridsCache[steamGridAppId.toString()]);
   
         if (types.includes(type)) {
-          logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
-          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-          gridsCache[appId.toString()][type] = gridsCache[appId.toString()][type].concat(grids);
+          if (lastPageCached === page) {
+            logToFile(`Already fetched page #${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
+          } else {
+            logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
+            const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+            gridsCache[steamGridAppId.toString()][type] = gridsCache[steamGridAppId.toString()][type].concat(grids);
+          }
         } else {
-          logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
-          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-          gridsCache[appId.toString()][type] = grids;
+          logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
+          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+          gridsCache[steamGridAppId.toString()][type] = grids;
         }
       } else {
-        logToFile(`Need to fetch nonSteam ${type} for ${appId}.`, useCoreFile);
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](appId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-        gridsCache[appId.toString()] = {};
-        gridsCache[appId.toString()][type] = grids;
+        logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
+        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+        gridsCache[steamGridAppId.toString()] = {};
+        gridsCache[steamGridAppId.toString()][type] = grids;
       }
 
-      return gridsCache[appId.toString()][type];
+      return gridsCache[steamGridAppId.toString()][type];
     } catch (e: any) {
-      logErrorToFile(`Error fetching grids for non steam game: ${appId}. Error: ${e.message}.`, useCoreFile);
+      logErrorToFile(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`, useCoreFile);
       ToastController.showWarningToast("Error fetching grids for game.");
       return [];
     }
@@ -293,7 +298,8 @@ export class CacheController {
     if (chosenResult?.id) {
       if (useCoreFile) selectedSteamGridGameId.set(chosenResult.id.toString());
       steamGridSearchCache.set(searchCache);
-      return await this.fetchGridsForGame(chosenResult.id, type, page, useCoreFile);
+
+      return await this.fetchGridsForGame(chosenResult.id, type, page, getPageNumberForGame(chosenResult.id.toString(), type), useCoreFile);
     } else {
       logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
       return [];

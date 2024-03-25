@@ -1,5 +1,5 @@
 import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
-import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId } from "../../stores/AppState";
+import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId, hasMorePagesCache, lastPageCache } from "../../stores/AppState";
 import { DialogController } from "../controllers/DialogController";
 import { LogController } from "../controllers/LogController";
 import { SGDB, type SGDBImage } from "../models/SGDB";
@@ -247,4 +247,42 @@ export async function validateSGDBAPIKey(key: string): Promise<boolean> {
 
   const res = await apiModel.getGameById(5138060);
   return res?.name === "Baldur's Gate 3";
+}
+
+/**
+ * Checks if there are more result pages to load for a given sgdb game.
+ * @param sgdbGameId The id of the sgdb game to check for more pages.
+ * @param type The current grid type.
+ * @returns True if there are more result pages to load, false if not.
+ */
+export function getHasMorePages(sgdbGameId: string, type: GridTypes) {
+  if (sgdbGameId === "None") {
+    return true;
+  } else {
+    const id = parseInt(sgdbGameId);
+    
+    if (!hasMorePagesCache[id]) hasMorePagesCache[id] = {};
+    if (!Object.keys(hasMorePagesCache[id]).includes(type)) hasMorePagesCache[id][type] = true;
+    
+    return hasMorePagesCache[id][type];
+  }
+}
+
+/**
+ * Gets the most recent page number cached for a given sgdb game.
+ * @param sgdbGameId The id of the sgdb game to check for more pages.
+ * @param type The current grid type.
+ * @returns The most recent page number cached.
+ */
+export function getPageNumberForGame(sgdbGameId: string, type: GridTypes) {
+  if (sgdbGameId === "None") {
+    return 0;
+  } else {
+    const id = parseInt(sgdbGameId);
+
+    if (!lastPageCache[id]) lastPageCache[id] = {};
+    if (!lastPageCache[id][type]) lastPageCache[id][type] = 0;
+
+    return lastPageCache[id][type];
+  }
 }
