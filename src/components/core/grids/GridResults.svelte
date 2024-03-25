@@ -12,9 +12,9 @@
   
   const padding = 20;
 
-  let isLoading = true;
   export let hasCustomName: boolean;
 
+  let isLoading = true;
   let hasMorePages = getHasMorePages($selectedSteamGridGameId, $gridType);
   let grids: SGDBImage[] = [];
 
@@ -47,7 +47,6 @@
   }
 
   onMount(() => {
-    console.log("mounting grid results...");
     filterGridsOnStateChange(getPageNumberForGame($selectedSteamGridGameId, $gridType), hasCustomName).then(() => {
       isLoading = false;
     });
@@ -55,15 +54,15 @@
 </script>
 
 <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
-  {#if isLoading}
-    <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-      {#each new Array(100) as _}
-        <GridLoadingSkeleton />
-      {/each}
-    </div>
-  {:else}
-    {#if $isOnline}
-      {#if !$needsSGDBAPIKey}
+  {#if $isOnline}
+    {#if !$needsSGDBAPIKey}
+      {#if isLoading}
+        <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+          {#each new Array(100) as _}
+            <GridLoadingSkeleton />
+          {/each}
+        </div>
+      {:else}
         {#if !!$selectedGameAppId}
           {#if grids.length > 0}
             <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
@@ -81,16 +80,16 @@
             Select a game to start managing your art!
           </div>
         {/if}
-      {:else}
-        <div class="message">
-          Please set your API key to use SteamGridDB.
-        </div>
       {/if}
     {:else}
       <div class="message">
-        You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
+        Please set your API key to use SteamGridDB.
       </div>
     {/if}
+  {:else}
+    <div class="message">
+      You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
+    </div>
   {/if}
   <InfiniteScroll
     hasMore={hasMorePages}
