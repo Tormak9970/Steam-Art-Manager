@@ -234,7 +234,7 @@ export async function validateSteamAPIKey(key: string, userId?: number): Promise
     timeout: timeout
   });
 
-  return res.ok;
+  return res.ok || key === "";
 }
 
 /**
@@ -243,6 +243,8 @@ export async function validateSteamAPIKey(key: string, userId?: number): Promise
  * @returns A promise resolving to true if the key is valid, false if not.
  */
 export async function validateSGDBAPIKey(key: string): Promise<boolean> {
+  if (key === "") return false;
+  
   const apiModel = new SGDB(key);
 
   const res = await apiModel.getGameById(5138060);

@@ -3,11 +3,13 @@
   import TextInput from "../../interactables/TextInput.svelte";
   import Spacer from "../../layout/Spacer.svelte";
   import { onMount } from "svelte";
-    import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController } from "../../../lib/controllers/AppController";
+  import { debounce } from "../../../lib/utils/Utils";
 
   export let label: string;
   export let description: string;
   export let required: boolean = false;
+  export let canBeEmpty = false;
   export let value: string;
   export let notes: string = "";
   export let onChange: (value: string, isValid: boolean) => void = () => {};
@@ -20,10 +22,12 @@
   /**
    * A wrapper for the onChange event.
    */
-   async function changeWrapper(): Promise<void> {
-    isValid = value !== "" && await validator(value);
+  async function changeWrapper(): Promise<void> {
+    isValid = await validator(value);
     onChange(value, isValid);
   }
+
+  const debouncedWrapper = debounce(changeWrapper, 100);
 
   /**
    * Handles click events to redirect to the browser.
@@ -40,7 +44,7 @@
   }
   
   onMount(async () => {
-    if (value !== "") isValid = await validator(value);
+    isValid = await validator(value);
   });
 </script>
 
@@ -59,12 +63,16 @@
     </div>
   </div>
   <div class="inputs">
-    <TextInput placeholder={"Your API key"} onChange={changeWrapper} width="{220}" bind:value={value} />
+    <TextInput placeholder={"Your API key"} onInput={debouncedWrapper} width="{220}" bind:value={value} />
     <Spacer orientation="HORIZONTAL" />
 
     {#if useValidator && isValid !== null}
       {#if isValid}
-        <div class="valid-value">Valid api key</div>
+        {#if value === "" && canBeEmpty}
+          <div class="warn-value">No api key provided</div>
+        {:else}
+          <div class="valid-value">Valid api key</div>
+        {/if}
       {:else}
         <div class="invalid-value">Not a valid api key!</div>
       {/if}
@@ -134,6 +142,10 @@
 
   .valid-value {
     color: var(--success);
+  }
+
+  .warn-value {
+    color: rgb(231, 198, 12);
   }
 
   .invalid-value {

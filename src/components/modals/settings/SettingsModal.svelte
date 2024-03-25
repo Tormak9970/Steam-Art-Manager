@@ -43,8 +43,8 @@
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
     
 
-    $steamKey = steamAPIKey !== "" ? steamAPIKey : $steamKey;
-    if ($steamKey !== "" && $needsSteamKey) $needsSteamKey = false;
+    $steamKey = steamAPIKey;
+    if ($needsSteamKey) $needsSteamKey = false;
 
     const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
     steamApiKeyMapSetting[$activeUserId] = steamAPIKey;
@@ -100,7 +100,7 @@
    * @param isValid Whether the new value is valid.
    */
   function onSteamKeyChange(value: string, isValid: boolean): void {
-    if (value !== "" && isValid) {
+    if (isValid) {
       steamAPIKey = value;
       canSave = true;
     } else {
@@ -150,7 +150,7 @@
         description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux. You must restart after changing this."}
         value={steamInstallLocation}
         onChange={onInstallLocationChange}
-        useValidator={true}
+        useValidator
         validPathMessage={"Path is a valid Steam install"}
         validator={validateSteamPath}
         required
@@ -162,7 +162,7 @@
         description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
         value={steamGridKey}
         onChange={onGridKeyChange}
-        useValidator={true}
+        useValidator
         validator={validateSGDBAPIKey}
         required
       />
@@ -173,8 +173,9 @@
         description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
         notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
         value={steamAPIKey}
+        canBeEmpty
         onChange={onSteamKeyChange}
-        useValidator={true}
+        useValidator
         validator={validateSteamAPIKey}
       />
       <Spacer orientation="VERTICAL" />
