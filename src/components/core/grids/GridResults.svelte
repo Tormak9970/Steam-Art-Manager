@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AppController } from "../../../lib/controllers/AppController";
   import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, type DBFilters, selectedSteamGridGameId, customGameNames, steamGames, nonSteamGames, lastPageCache, hasMorePagesCache } from "../../../stores/AppState";
+  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, selectedSteamGridGameId, lastPageCache, hasMorePagesCache, loadingSettings } from "../../../stores/AppState";
   import Grid from "./Grid.svelte";
   import { filterGrids, getHasMorePages, getPageNumberForGame } from "../../../lib/utils/Utils";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
@@ -54,41 +54,47 @@
 </script>
 
 <PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
-  {#if $isOnline}
-    {#if !$needsSGDBAPIKey}
-      {#if isLoading}
-        <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-          {#each new Array(100) as _}
-            <GridLoadingSkeleton />
-          {/each}
-        </div>
-      {:else}
+  {#if !$loadingSettings}
+    {#if $isOnline}
+      {#if !$needsSGDBAPIKey}
         {#if !!$selectedGameAppId}
-          {#if grids.length > 0}
+          {#if isLoading}
             <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-              {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                <Grid grid={grid} />
+              {#each new Array(100) as _}
+                <GridLoadingSkeleton />
               {/each}
             </div>
           {:else}
-            <div class="message">
-              No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
-            </div>
+            {#if grids.length > 0}
+              <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+                {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                  <Grid grid={grid} />
+                {/each}
+              </div>
+            {:else}
+              <div class="message">
+                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+              </div>
+            {/if}
           {/if}
         {:else}
           <div class="message">
             Select a game to start managing your art!
           </div>
         {/if}
+      {:else}
+        <div class="message">
+          Please set your API key to use SteamGridDB.
+        </div>
       {/if}
     {:else}
       <div class="message">
-        Please set your API key to use SteamGridDB.
+        You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
       </div>
     {/if}
   {:else}
     <div class="message">
-      You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
+      Initializing...
     </div>
   {/if}
   <InfiniteScroll
