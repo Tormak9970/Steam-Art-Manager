@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath, debugMode } from "../../../stores/AppState";
+  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath, debugMode, loadingGames } from "../../../stores/AppState";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { SettingsManager } from "../../../lib/utils/SettingsManager";
@@ -11,17 +11,34 @@
   import Spacer from "../../layout/Spacer.svelte";
   import { validateSteamPath, validateSGDBAPIKey, validateSteamAPIKey } from "../../../lib/utils/Utils";
   import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
-    import IconButton from "../../interactables/IconButton.svelte";
-    import { RustInterop } from "../../../lib/controllers/RustInterop";
-    import { appLogDir } from "@tauri-apps/api/path";
-    import { shell } from "@tauri-apps/api";
+  import IconButton from "../../interactables/IconButton.svelte";
+  import { appLogDir } from "@tauri-apps/api/path";
+  import { shell } from "@tauri-apps/api";
+  import { DialogController } from "../../../lib/controllers/DialogController";
+  import { AppController } from "../../../lib/controllers/AppController";
 
+  let steamApiKeyChanged = false;
 
   /**
    * The function to run when the modal closes.
    */
   function onClose() {
     $showSettingsModal = false;
+
+    if (steamApiKeyChanged) {
+      DialogController.ask(
+        "Steam API Key Changed",
+        "WARNING",
+        "Your Steam API key has been changed, would you like to reload your games?",
+        "Yes",
+        "No"
+      ).then((confirmed: boolean) => {
+        if (confirmed) {
+          $loadingGames = true;
+          AppController.reloadSteamGames();
+        }
+      })
+    }
   }
 
   let canSave = false;
@@ -42,9 +59,10 @@
 
     await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
     
+    if ($steamKey !== steamAPIKey) steamApiKeyChanged = true;
 
     $steamKey = steamAPIKey;
-    if ($needsSteamKey) $needsSteamKey = false;
+    $needsSteamKey = $steamKey === "";
 
     const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
     steamApiKeyMapSetting[$activeUserId] = steamAPIKey;

@@ -275,39 +275,20 @@ export class SteamController {
   }
 
   /**
-   * Gets the user's apps.
+   * Loads the user's Steam apps.
+   * @param shortcuts The list of found Steam shortcuts.
+   * @param filteredCache The filtered Steam grids cache.
    * ? Logging complete.
    */
-  static async getUserApps(): Promise<void> {
+  static async loadSteamApps(shortcuts: SteamShortcut[], filteredCache: { [appid: string]: LibraryCacheEntry; }): Promise<void> {
     const online = get(isOnline);
     const needsSteamAPIKey = get(needsSteamKey);
-    
+
     const userId = get(activeUserId);
     const bUserId = BigInt(userId) + 76561197960265728n;
 
-    LogController.log("Loading non-steam games...");
-    const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
-    originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
-    steamShortcuts.set(Object.values(shortcuts));
-    
-    const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
-      return {
-        "appid": shortcut.appid,
-        "name": shortcut.AppName ?? shortcut.appname
-      };
-    });
-    nonSteamGames.set(structuredShortcuts);
-    LogController.log("Loaded non-steam games.");
-
-    LogController.log("Getting steam games...");
-
-    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
-
-    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
-    appLibraryCache.set(filteredCache);
-
     const filteredKeys = Object.keys(filteredCache);
-
+    
     if (online && !needsSteamAPIKey) {
       const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
       // console.log("Steam API Games:", apiGames);
@@ -359,10 +340,41 @@ export class SteamController {
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }
     
-    if ([ ...Object.values(shortcuts), ...get(steamGames) ].length > 0) {
+    if ([ ...shortcuts, ...get(steamGames) ].length > 0) {
       ToastController.showSuccessToast("Games Loaded!");
     } else {
       ToastController.showWarningToast("Failed to load games!");
     }
+  }
+
+  /**
+   * Gets the user's apps.
+   * ? Logging complete.
+   */
+  static async getUserApps(): Promise<void> {
+    const userId = get(activeUserId);
+
+    LogController.log("Loading non-steam games...");
+    const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
+    originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
+    steamShortcuts.set(Object.values(shortcuts));
+    
+    const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
+      return {
+        "appid": shortcut.appid,
+        "name": shortcut.AppName ?? shortcut.appname
+      };
+    });
+    nonSteamGames.set(structuredShortcuts);
+    LogController.log("Loaded non-steam games.");
+
+    LogController.log("Getting steam games...");
+
+    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
+
+    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
+    appLibraryCache.set(filteredCache);
+
+    await SteamController.loadSteamApps(Object.values(shortcuts), filteredCache);
   }
 }

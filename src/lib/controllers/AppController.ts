@@ -669,6 +669,14 @@ export class AppController {
   }
 
   /**
+   * Reloads the Steam apps.
+   */
+  static async reloadSteamGames(): Promise<void> {
+    await SteamController.loadSteamApps(get(steamShortcuts), get(appLibraryCache));
+    loadingGames.set(false);
+  }
+
+  /**
    * Checks if the sgdb api client is initialized.
    * @returns True if the sgdb api client is initialized.
    */
