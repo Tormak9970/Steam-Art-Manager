@@ -202,8 +202,8 @@ export class SteamController {
       const jsonStr = xml2json(xmlData, "");
       const err = JSON.parse(jsonStr);
 
-      ToastController.showWarningToast("Error getting games from your profile.");
-      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
+      ToastController.showWarningToast("You Steam profile is private");
+      LogController.warn(`Error loading games from the user's Steam profile: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
       return [];
     }
   }
@@ -236,7 +236,7 @@ export class SteamController {
       const err = JSON.parse(jsonStr);
 
       ToastController.showWarningToast("Check your Steam API Key");
-      LogController.warn(`Fetch Error: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
+      LogController.warn(`Error loading games from the Steam API: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
       return [];
     }
   }
@@ -288,46 +288,51 @@ export class SteamController {
     const bUserId = BigInt(userId) + 76561197960265728n;
 
     const filteredKeys = Object.keys(filteredCache);
+
+    let games: GameStruct[] = [];
     
+    // * Try loading games from the Steam API
     if (online && !needsSteamAPIKey) {
-      const apiGames = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
-      // console.log("Steam API Games:", apiGames);
-      steamGames.set(apiGames);
+      games = (await this.getGamesFromSteamAPI(bUserId)).filter((entry) => filteredKeys.includes(entry.appid.toString()));
       
-      LogController.log(`Loaded ${apiGames.length} games from Steam API.`);
-      LogController.log("Steam games loaded.");
-    } else if (online) {
-      try {
-        const publicGames = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
-        // console.log("Public Games:", publicGames);
-        steamGames.set(publicGames);
-        
-        LogController.log(`Loaded ${publicGames.length} games from Steam Community page.`);
-        LogController.log("Steam games loaded.");
-      } catch (err: any) {
-        LogController.log("Error occured while loading games from Steam Community page, notifying user.");
-        ToastController.showWarningToast("You profile is private");
-        // TODO: consider prompting user here
-        const appinfoGames = (await this.getGamesFromAppinfo()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-        // console.log("Appinfo Games:", appinfoGames);
-        steamGames.set(appinfoGames);
-        
-        LogController.log(`Loaded ${appinfoGames.length} games from appinfo.vdf.`);
+      if (games.length > 0) {
+        steamGames.set(games);
+      
+        LogController.log(`Loaded ${games.length} games from Steam API.`);
         LogController.log("Steam games loaded.");
       }
-    } else {
-      const localconfigGames = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-      // console.log("Localconfig Games:", localconfigGames);
-      steamGames.set(localconfigGames);
+    }
+    
+    // * Try loading games using the user's Steam Profile.
+    if (games.length === 0 && online) {
+      try {
+        games = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()) && !entry.name.toLowerCase().includes("soundtrack"));
+        
+        if (games.length > 0) {
+          steamGames.set(games);
+        
+          LogController.log(`Loaded ${games.length} games from Steam Community page.`);
+          LogController.log("Steam games loaded.");
+        }
+      } catch (e: any) {
+        LogController.error(e.message);
+      }
+    }
+    
+    if (games.length === 0) {
+      games = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
       
-      LogController.log(`Loaded ${localconfigGames.length} games from localconfig.vdf.`);
-      LogController.log("Steam games loaded.");
+      if (games.length > 0) {
+        steamGames.set(games);
+      
+        LogController.log(`Loaded ${games.length} games from localconfig.vdf.`);
+        LogController.log("Steam games loaded.");
+      }
     }
 
-    const sGames = get(steamGames);
     const originalManualGames = get(manualSteamGames);
     const manualGames = originalManualGames.filter((manualGame) => {
-      const matchingSteamGame = sGames.find((sGame) => sGame.appid === manualGame.appid);
+      const matchingSteamGame = games.find((sGame) => sGame.appid === manualGame.appid);
       if (matchingSteamGame) {
         LogController.warn(`Found manually added game with the same appid (${manualGame.appid}) as ${matchingSteamGame.name}. Removing it`);
       }
