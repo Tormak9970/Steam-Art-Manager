@@ -6,6 +6,24 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.0
+
+New Features
+* added button to settings that open the app log directory ([a292816](https://github.com/Tormak9970/Steam-Art-Manager/commit/a292816))
+* added debug mode setting ([5b670a2](https://github.com/Tormak9970/Steam-Art-Manager/commit/5b670a2))
+* added detection for steam api key changes ([5763339](https://github.com/Tormak9970/Steam-Art-Manager/commit/5763339))
+* added install path change validation ([60a1365](https://github.com/Tormak9970/Steam-Art-Manager/commit/60a1365))
+* added loading of additional grid pages ([279e36a](https://github.com/Tormak9970/Steam-Art-Manager/commit/279e36a))
+* added validation to all settings ([497a40e](https://github.com/Tormak9970/Steam-Art-Manager/commit/497a40e))
+
+Bug Fixes
+* added additional failsafes for typos in api keys ([b1094c5](https://github.com/Tormak9970/Steam-Art-Manager/commit/b1094c5))
+* added support for scoop steam installs ([2fc3c6d](https://github.com/Tormak9970/Steam-Art-Manager/commit/2fc3c6d))
+* app no longer breaks when saved install path no longer exists ([b6a7aa7](https://github.com/Tormak9970/Steam-Art-Manager/commit/b6a7aa7))
+* error messages no longer show briefly when changing games ([9a910b7](https://github.com/Tormak9970/Steam-Art-Manager/commit/9a910b7))
+* the game loading system is now more robust ([f813f56](https://github.com/Tormak9970/Steam-Art-Manager/commit/f813f56))
+* users dropdown no longer displays undefined ([da78202](https://github.com/Tormak9970/Steam-Art-Manager/commit/da78202))
+
 ## v3.2.1
 
 Bug Fixes
