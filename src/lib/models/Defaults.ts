@@ -145,6 +145,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   "theme": 0,
   "showHiddenGames": false,
 
+  "debugMode": false,
+
   "windowSettings": {
     "main": {
       "filters": DEFAULT_FILTERS,

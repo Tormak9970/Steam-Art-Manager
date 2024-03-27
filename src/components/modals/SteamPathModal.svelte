@@ -5,8 +5,9 @@
   import { ToastController } from "../../lib/controllers/ToastController";
   import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import SettingsFilePathEntry from "./settings/SettingsFilePathEntry.svelte";
+  import FilePathEntry from "./settings/FilePathEntry.svelte";
   import Spacer from "../layout/Spacer.svelte";
+  import { validateSteamPath } from "../../lib/utils/Utils";
 
   let canSave = false;
 
@@ -32,10 +33,15 @@
   /**
    * Function to run on steam install location change.
    * @param path The updated installation path.
+   * @param isValid Whether the new value is valid.
    */
-  function onInstallLocationChange(path: string): void {
-    steamInstallLocation = path;
-    canSave = true;
+  function onInstallLocationChange(path: string, isValid: boolean): void {
+    if (isValid) {
+      steamInstallLocation = path;
+      canSave = true;
+    } else {
+      canSave = false;
+    }
   }
 </script>
 
@@ -43,11 +49,14 @@
   <div class="content">
     <Spacer orientation="VERTICAL" />
     <Spacer orientation="VERTICAL" />
-    <SettingsFilePathEntry
+    <FilePathEntry
       label="Steam Install Path"
       description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
       value={steamInstallLocation}
       onChange={onInstallLocationChange}
+      useValidator={true}
+      validPathMessage={"Path is a valid Steam install"}
+      validator={validateSteamPath}
       required
     />
 

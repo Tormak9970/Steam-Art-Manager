@@ -69,6 +69,14 @@ export class RustInterop {
   }
 
   /**
+   * Toggles the window dev tools on/off.
+   * @param enable Whether to enable or disable the window dev tools.
+   */
+  static async toggleDevTools(enable: boolean): Promise<void> {
+    await invoke("toggle_dev_tools", { enable: enable });
+  }
+
+  /**
    * Logs a message to the batch apply log file.
    * @param message The message to log.
    * @param level The log level.

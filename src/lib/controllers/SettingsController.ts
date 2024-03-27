@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
-import { GridTypes, activeUserId, customGameNames, dbFilters, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
+import { GridTypes, activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { RustInterop } from "./RustInterop";
+import { restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "../utils/Utils";
 
 import "tippy.js/dist/tippy.css"
 import { exit } from "@tauri-apps/api/process";
@@ -48,6 +48,9 @@ export class SettingsController {
   private oldTheme = 0;
   private themeSub: Unsubscriber;
 
+  private oldDebugMode: boolean;
+  private debugModeSub: Unsubscriber;
+
   private oldShowHiddenGames = false;
   private showHiddenGamesSub: Unsubscriber;
 
@@ -74,9 +77,30 @@ export class SettingsController {
     this.steamInstallPathSub = steamInstallPath.subscribe(async (newPath) => {
       if (newPath !== this.oldSteamInstallPath) {
         SettingsManager.updateSetting("steamInstallPath", newPath);
-        await RustInterop.addPathToScope(newPath);
-        LogController.log(`Added ${newPath} to scope.`);
-        this.oldSteamInstallPath = newPath;
+        const success = await RustInterop.addPathToScope(newPath);
+        
+        if (success) {
+          LogController.log(`Added ${newPath} to scope.`);
+
+          if (this.oldSteamInstallPath !== "") {
+            const shouldReloadGames = await DialogController.ask(
+              "Steam Install Path Changed",
+              "WARNING",
+              "A change to your Steam install path was detected, would you like to reload your games?",
+              "Yes",
+              "No"
+            );
+  
+            if (shouldReloadGames) {
+              await restartApp();
+            }
+          }
+          
+          this.oldSteamInstallPath = newPath;
+        } else {
+          LogController.log(`Failed to add ${newPath} to scope.`);
+          ToastController.showWarningToast(`Failed to add ${newPath} to scope.`);
+        }
       }
     });
 
@@ -108,6 +132,14 @@ export class SettingsController {
       if (newTheme !== this.oldTheme) {
         SettingsManager.updateSetting("theme", newTheme);
         this.oldTheme = newTheme;
+      }
+    });
+
+    this.debugModeSub = debugMode.subscribe((newDebugMode) => {
+      if (newDebugMode !== this.oldDebugMode) {
+        SettingsManager.updateSetting("debugMode", newDebugMode);
+        RustInterop.toggleDevTools(newDebugMode);
+        this.oldDebugMode = newDebugMode;
       }
     });
 
@@ -163,21 +195,22 @@ export class SettingsController {
    * Destroy all settings subscriptions.
    */
   destroy() {
-    if(this.steamInstallPathSub) this.steamInstallPathSub();
-    if(this.hiddenGameIdsSub) this.hiddenGameIdsSub();
-    if(this.manualSteamGamesSub) this.manualSteamGamesSub();
-    if(this.customGameNamesSub) this.customGameNamesSub();
+    if (this.steamInstallPathSub) this.steamInstallPathSub();
+    if (this.hiddenGameIdsSub) this.hiddenGameIdsSub();
+    if (this.manualSteamGamesSub) this.manualSteamGamesSub();
+    if (this.customGameNamesSub) this.customGameNamesSub();
 
-    if(this.themeSub) this.themeSub();
-    if(this.showHiddenGamesSub) this.showHiddenGamesSub();
+    if (this.themeSub) this.themeSub();
+    if (this.debugModeSub) this.debugModeSub();
+    if (this.showHiddenGamesSub) this.showHiddenGamesSub();
 
-    if(this.dbFiltersSub) this.dbFiltersSub();
-    if(this.gameViewTypeSub) this.gameViewTypeSub();
-    if(this.gridTypeSub) this.gridTypeSub();
+    if (this.dbFiltersSub) this.dbFiltersSub();
+    if (this.gameViewTypeSub) this.gameViewTypeSub();
+    if (this.gridTypeSub) this.gridTypeSub();
     
-    if(this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
+    if (this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
 
-    if(this.cleanGridsPresetSub) this.cleanGridsPresetSub();
+    if (this.cleanGridsPresetSub) this.cleanGridsPresetSub();
   }
 
 
@@ -196,6 +229,7 @@ export class SettingsController {
         "No Steam users were found while reading the loginusers file. Typically this is because you have not logged in to Steam yet. Please log in at least once, then restart SARM.",
         "Ok",
       );
+      LogController.error("Expected to find at least 1 Steam user but found 0.");
       await exit(0);
     }
 
@@ -221,13 +255,6 @@ export class SettingsController {
     steamUsers.set(cleanedUsers);
 
     const usersList = Object.values(cleanedUsers);
-
-    if (usersList.length === 0) {
-      await dialog.message("No Steam Users found. SARM won't work without at least one user. Try signing into Steam after SARM closes.", { title: "No Users Detected", type: "error" });
-      LogController.error("Expected to find at least 1 Steam user but found 0.");
-      await process.exit(0);
-    }
-
     const activeUser = usersList.find((user) => user.MostRecent === "1") ?? usersList[0];
     activeUserId.set(parseInt(activeUser.id32));
 
@@ -238,17 +265,30 @@ export class SettingsController {
    * Loads the api key settings.
    * @param activeUserId The id of the active Steam user.
    */
-  private loadApiKeySettings(activeUserId: string): void {
+  private async loadApiKeySettings(activeUserId: string): Promise<void> {
     const sgdbKeySetting = SettingsManager.getSetting<string>("steamGridDbApiKey");
-    if (sgdbKeySetting !== "") {
+    const isValidSgdbKey = await validateSGDBAPIKey(sgdbKeySetting);
+
+    if (!isValidSgdbKey) {
+      LogController.warn("The SteamGridDB API key found in settings is no longer valid.");
+    }
+
+    if (sgdbKeySetting !== "" && isValidSgdbKey) {
       steamGridDBKey.set(sgdbKeySetting);
       needsSGDBAPIKey.set(false);
     }
 
+
     const steamApiKeyMapSetting = SettingsManager.getSetting<string>("steamApiKeyMap");
     if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
-      steamKey.set(steamApiKeyMapSetting[activeUserId]);
-      needsSteamKey.set(false);
+      const isValidSteamKey = await validateSteamAPIKey(steamApiKeyMapSetting[activeUserId], parseInt(activeUserId));
+
+      if (isValidSteamKey) {
+        steamKey.set(steamApiKeyMapSetting[activeUserId]);
+        needsSteamKey.set(false);
+      } else {
+        LogController.warn("The Steam API key found in settings is no longer valid.");
+      }
     }
   }
 
@@ -318,6 +358,11 @@ export class SettingsController {
     theme.set(themeSetting);
     document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : "light");
 
+    const debugModeSetting = SettingsManager.getSetting<boolean>("debugMode");
+    debugMode.set(debugModeSetting);
+
+    if (debugModeSetting) await RustInterop.toggleDevTools(true);
+
     const steamInstallPathSetting = SettingsManager.getSetting<string>("steamInstallPath");
     await findSteamPath(steamInstallPathSetting);
 
@@ -328,7 +373,7 @@ export class SettingsController {
       ToastController.showGenericToast("User id was 0, try opening steam then restart the SARM");
       LogController.error("User id was 0, try opening steam then restart the SARM");
     } else {
-      this.loadApiKeySettings(activeUserId);
+      await this.loadApiKeySettings(activeUserId);
     
       this.loadNicheSettings();
 

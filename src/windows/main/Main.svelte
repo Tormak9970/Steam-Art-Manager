@@ -128,8 +128,8 @@
 	<Titlebar title="Steam Art Manager" bind:isMaxed={$windowIsMaximized}>
 		<DropDown
       label="User"
-      options={users}
-      value={selectedUserId}
+      options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
+      value={(users && users.length > 0) ? selectedUserId : "placeholder"}
       onChange={AppController.changeSteamUser}
       width="100px"
       tooltipPosition="bottom"
