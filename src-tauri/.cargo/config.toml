@@ -1,0 +1,2 @@
+[future-incompat-report]
+frequency = "never" #This should be commented out if there starts being issues building the app.

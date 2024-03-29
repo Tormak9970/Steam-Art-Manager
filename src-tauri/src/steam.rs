@@ -1,7 +1,7 @@
 
 use crate::logger;
 
-use std::fs;
+use std::fs::{self, create_dir_all};
 use std::path::{ PathBuf, Path };
 
 use serde_json::{Value, Map};
@@ -61,7 +61,14 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_path: String, steam_acti
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  let grids_dir: String = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let joined_path: PathBuf = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/grid");
+
+  if !joined_path.as_path().exists() {
+    let _ = create_dir_all(&joined_path);
+  }
+
+  let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize userdata/USER_ID/config/grid");
+  let grids_dir: String = canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
   if dir_create_res.is_err() {
@@ -79,7 +86,8 @@ pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) ->
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
   let library_cache_path: PathBuf = steam_root.join("appcache/librarycache");
-  let library_cache_str: String = library_cache_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let canonicalized_path: PathBuf = library_cache_path.canonicalize().expect("Should have been able to canonicalize appcache/librarycache");
+  let library_cache_str: String = canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   if library_cache_path.exists() {
     return library_cache_str;
@@ -96,7 +104,10 @@ pub fn get_appinfo_path(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  return steam_root.join("appcache/appinfo.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let joined_path: PathBuf = steam_root.join("appcache/appinfo.vdf");
+  let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize appcache/appinfo.vdf");
+
+  return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
@@ -105,7 +116,15 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_path: String, steam_activ
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let joined_path: PathBuf = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf");
+
+  if joined_path.as_path().exists() {
+    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize config/shortcuts.vdf");
+    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  } else {
+    // * It will won't get read because it doesn't exist.
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  }
 }
 
 #[tauri::command]
@@ -114,7 +133,15 @@ pub fn get_localconfig_path(app_handle: AppHandle, steam_path: String, steam_act
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  return steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf").to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let joined_path: PathBuf = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf");
+
+  if joined_path.as_path().exists() {
+    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize config/localconfig.vdf");
+    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  } else {
+    // * It will won't get read because it doesn't exist.
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  }
 }
 
 /// Reads a steam user's id.
@@ -156,7 +183,9 @@ fn read_steam_users(steam_path: String) -> Map<String, Value> {
   let mut steam_users: Map<String, Value> = Map::new();
     
   let steam_root: PathBuf = PathBuf::from(steam_path);
-  let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
+
+  // TODO: account for if this file does not exist
+  let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf").canonicalize().expect("Should have been able to canonicalize config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
 
   let id_start_matches: Vec<(usize, &str)> = contents.match_indices("\n\t\"").collect();

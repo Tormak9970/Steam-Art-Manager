@@ -25,6 +25,8 @@ type AppSettings = {
   theme: number,
   showHiddenGames: boolean,
 
+  debugMode: boolean,
+
   /**
    * @deprecated no longer used
    */

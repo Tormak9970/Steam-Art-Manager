@@ -32,7 +32,8 @@
             "$APPCACHE",
             "/var/home/*/.cache/dev.tormak.steam-art-manager",
             "$APPCACHE/**",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
+            "C:/Users/*/scoop/persist/**"
           ],
           "requireLiteralLeadingDot": false
         }
@@ -65,14 +66,15 @@
             "$APPCACHE",
             "/var/home/*/.cache/dev.tormak.steam-art-manager",
             "$APPCACHE/**",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager/**"
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
+            "C:/Users/*/scoop/persist/**"
           ],
           "requireLiteralLeadingDot": false
         }
 			},
 			"shell": {
 				"all": false,
-				"open": true
+				"open": ".*"
 			},
 			"window": {
 				"all": true

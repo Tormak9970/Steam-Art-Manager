@@ -519,7 +519,14 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
 #[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
-  let path_as_buf: PathBuf = fs::canonicalize(PathBuf::from(&target_path)).expect("Should have been able to resolve target path.");
+  let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
+
+  if !pre_canonicalized_path.as_path().exists() {
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
+    return false;
+  }
+
+  let path_as_buf: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
@@ -572,6 +579,18 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   }
 }
 
+#[tauri::command]
+/// Toggles the dev tools for the current window.
+async fn toggle_dev_tools(app_handle: AppHandle, enable: bool) {
+  let window = app_handle.get_window("main").expect("Should have been able to get the main window.");
+  
+  if enable {
+    window.open_devtools();
+  } else {
+    window.close_devtools();
+  }
+}
+
 /// This app's main function.
 fn main() {
   tauri::Builder::default()
@@ -588,6 +607,7 @@ fn main() {
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       add_path_to_scope,
+      toggle_dev_tools,
       add_steam_to_scope,
       export_grids_to_zip,
       import_grids_from_zip,
@@ -609,7 +629,6 @@ fn main() {
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
       
       logger::clean_out_log(app_handle.clone());
-      // add_steam_to_scope(&app_handle);
 
       panic::set_hook(Box::new(move | panic_info | {
         let path_str = (*log_file_path).to_owned();
@@ -646,11 +665,6 @@ fn main() {
           exit(1);
         }
       }));
-
-      // #[cfg(debug_assertions)] {
-      //   let window = app.get_window("main").expect("Should have been able to get the main window.");
-      //   window.open_devtools();
-      // }
 
       Ok(())
     })

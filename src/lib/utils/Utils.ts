@@ -1,11 +1,12 @@
 import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
-import { GridTypes, type DBFilters, steamInstallPath } from "../../stores/AppState";
+import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId, hasMorePagesCache, lastPageCache } from "../../stores/AppState";
 import { DialogController } from "../controllers/DialogController";
 import { LogController } from "../controllers/LogController";
-import type { SGDBImage } from "../models/SGDB";
+import { SGDB, type SGDBImage } from "../models/SGDB";
 import { exit } from "@tauri-apps/api/process";
 import { RustInterop } from "../controllers/RustInterop";
-import { fs } from "@tauri-apps/api";
+import { fs, process, http } from "@tauri-apps/api";
+import { get } from "svelte/store";
 
 /**
  * Throttles a function to only run every provided interval.
@@ -170,7 +171,9 @@ export async function steamDialogSequence(): Promise<void> {
 export async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
     const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
-    if (steamInstallPathAdded && await fs.exists(savedInstallPath)) {
+    const isValidInstall = await validateSteamPath(savedInstallPath);
+
+    if (steamInstallPathAdded && isValidInstall && await fs.exists(savedInstallPath)) {
       steamInstallPath.set(savedInstallPath);
     } else {
       await steamDialogSequence();
@@ -186,5 +189,102 @@ export async function findSteamPath(savedInstallPath: string): Promise<void> {
     } else {
       steamInstallPath.set(returnedInstallPath);
     }
+  }
+}
+
+/**
+ * Reloads the app.
+ */
+export async function restartApp(): Promise<void> {
+  const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
+  if (shouldReload) {
+    LogController.log("Reloading...");
+    await process.relaunch();
+  }
+}
+
+/**
+ * Checks if the provided path is a valid Steam installation.
+ * @param path The path to check.
+ * @returns True if the path is a valid install.
+ */
+export async function validateSteamPath(path: string): Promise<boolean> {
+  const wasAdded = await RustInterop.addPathToScope(path);
+  if (wasAdded && await fs.exists(path)) {
+    const contents = (await fs.readDir(path)).map((entry) => entry.name);
+    return contents.includes("steam.exe");
+  }
+
+  return false;
+}
+
+
+/**
+ * Checks if the provided Steam api key is valid for the current user.
+ * @param key The api key to test.
+ * @param userId Optional property to specify the userId used to test.
+ * @returns A promise resolving to true if the key is valid, false if not.
+ */
+export async function validateSteamAPIKey(key: string, userId?: number): Promise<boolean> {
+  const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
+  const timeout = get(requestTimeoutLength)
+
+  const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+    method: "GET",
+    timeout: timeout
+  });
+
+  return res.ok || key === "";
+}
+
+/**
+ * Checks if the provided SteamGridDB api key is valid.
+ * @param key The api key to test.
+ * @returns A promise resolving to true if the key is valid, false if not.
+ */
+export async function validateSGDBAPIKey(key: string): Promise<boolean> {
+  if (key === "") return false;
+  
+  const apiModel = new SGDB(key);
+
+  const res = await apiModel.getGameById(5138060);
+  return res?.name === "Baldur's Gate 3";
+}
+
+/**
+ * Checks if there are more result pages to load for a given sgdb game.
+ * @param sgdbGameId The id of the sgdb game to check for more pages.
+ * @param type The current grid type.
+ * @returns True if there are more result pages to load, false if not.
+ */
+export function getHasMorePages(sgdbGameId: string, type: GridTypes) {
+  if (sgdbGameId === "None") {
+    return true;
+  } else {
+    const id = parseInt(sgdbGameId);
+    
+    if (!hasMorePagesCache[id]) hasMorePagesCache[id] = {};
+    if (!Object.keys(hasMorePagesCache[id]).includes(type)) hasMorePagesCache[id][type] = true;
+    
+    return hasMorePagesCache[id][type];
+  }
+}
+
+/**
+ * Gets the most recent page number cached for a given sgdb game.
+ * @param sgdbGameId The id of the sgdb game to check for more pages.
+ * @param type The current grid type.
+ * @returns The most recent page number cached.
+ */
+export function getPageNumberForGame(sgdbGameId: string, type: GridTypes) {
+  if (sgdbGameId === "None") {
+    return 0;
+  } else {
+    const id = parseInt(sgdbGameId);
+
+    if (!lastPageCache[id]) lastPageCache[id] = {};
+    if (!lastPageCache[id][type]) lastPageCache[id][type] = 0;
+
+    return lastPageCache[id][type];
   }
 }
