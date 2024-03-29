@@ -20,8 +20,6 @@ tauri = { version = "1.6.1", features = ["dialog-all", "fs-all", "http-request",
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 chrono = "0.4.34"
 home = "0.5.9"
-vdf-serde = "0.3.0"
-keyvalues-parser = "0.1.0"
 zip = "0.6.6"
 reqwest = "0.11.24"
 panic-message = "0.3.0"
