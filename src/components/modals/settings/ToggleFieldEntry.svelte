@@ -40,13 +40,13 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 0px 14px;
+    margin: 0px 7px;
 
     background-color: var(--background-dark);
     padding: 6px;
     border-radius: 4px;
 
-    width: calc(100% - 42px);
+    width: calc(100% - 28px);
   }
 
   .description {

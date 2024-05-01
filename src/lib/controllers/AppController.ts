@@ -67,6 +67,8 @@ export class AppController {
     await AppController.settingsController.loadSettings();
     await AppController.settingsController.subscribeToSettingChanges();
 
+    // TODO: test goldsrc and sourcemod loading here
+
     LogController.log("App setup complete.");
   }
 

@@ -121,6 +121,22 @@ export class RustInterop {
   }
 
   /**
+   * Gets the sourcemods directory path.
+   * @returns A promise resolving to the sourcemods path.
+   */
+  static async getSourcemodPath(): Promise<string> {
+    return await invoke<string>("get_sourcemod_path", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Gets the goldsrc path.
+   * @returns A promise resolving to the goldsrc path.
+   */
+  static async getGoldsrcPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_goldsrc_path", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
    * Gets the active steam user's library cache directory.
    * @returns A promise resolving to the active steam user's library cache directory.
    */

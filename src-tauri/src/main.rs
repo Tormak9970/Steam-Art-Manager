@@ -28,7 +28,6 @@ use tauri::{
   api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
   FsScope, Manager
 };
-use keyvalues_parser::Vdf;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -247,17 +246,29 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_a
   if localconfig_path.as_path().exists() {
     logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
     let localconfig_contents: String = fs::read_to_string(localconfig_path).expect("localconfig.vdf should have existed.").parse().expect("File should have been a text file.");
-    let vdf = Vdf::parse(&localconfig_contents).unwrap();
-    let software = vdf.value.get_obj().unwrap().get_key_value("Software").unwrap();
-    let valve = software.1[0].get_obj().unwrap().get_key_value("Valve").unwrap();
-    let steam = valve.1[0].get_obj().unwrap().get_key_value("Steam").unwrap();
-    let apps = steam.1[0].get_obj().unwrap().get_key_value("apps").unwrap();
-
-    let app_entries = &apps.1[0];
+    
     let mut appids: Vec<String> = Vec::new();
+    
+    let mut is_reading_appids: bool = false;
 
-    for (_, appid) in app_entries.get_obj().unwrap().keys().enumerate() {
-      appids.push(appid.to_string());
+    for line in localconfig_contents.split("\n") {
+      if line == "\t\t\t\t\"apps\"" {
+        is_reading_appids = true;
+        continue;
+      }
+
+      if is_reading_appids {
+        if line.starts_with("\t\t\t\t\t\"") {
+          let length = line.chars().count();
+          let appid_res = line.get(6..(length - 1));
+          let appid = appid_res.expect("appid_res should have been ok");
+          appids.push(appid.to_string());
+        }
+
+        if line == "\t\t\t\t}" {
+          break;
+        }
+      }
     }
 
     return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
@@ -266,6 +277,13 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_a
     return "{}".to_owned();
   }
 }
+
+// #[tauri::command]
+// /// Reads the installed sourcemods.
+// async fn read_sourcemods(app_handle: AppHandle, steam_path: String) -> String {
+
+// }
+
 
 #[tauri::command]
 /// Applies the changes the user has made.
@@ -604,6 +622,8 @@ fn main() {
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
       steam::get_localconfig_path,
+      steam::get_sourcemod_path,
+      steam::get_goldsrc_path,
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       add_path_to_scope,

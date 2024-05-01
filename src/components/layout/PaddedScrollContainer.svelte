@@ -10,6 +10,8 @@
   export let loading = false;
 
   let isOverflowing = !loading;
+  export let onOverflowChange: (isOverflowing: boolean) => void = () => {};
+
   let contentHeight: number;
   $: contentHeight && debouncedCheck();
   
@@ -34,7 +36,12 @@
     return isOverflowing;
   }
 
-  const setIsOverflowing = () => { if (scrollContainer) isOverflowing = checkOverflow(scrollContainer); };
+  const setIsOverflowing = () => {
+    if (scrollContainer) {
+      isOverflowing = checkOverflow(scrollContainer);
+      onOverflowChange(isOverflowing);
+    }
+  }
   const debouncedCheck: () => void = debounce(setIsOverflowing, 100);
 </script>
 
