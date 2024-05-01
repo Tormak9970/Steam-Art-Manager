@@ -6,6 +6,15 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.1
+
+Bug Fixes
+* additional grids now load if the window is resized ([83d6708](https://github.com/Tormak9970/Steam-Art-Manager/commit/83d6708))
+* appinfo games now load properly again ([9f11b08](https://github.com/Tormak9970/Steam-Art-Manager/commit/9f11b08))
+* other modals will no longer show below the update modal ([a220e80](https://github.com/Tormak9970/Steam-Art-Manager/commit/a220e80))
+* settings window no longer overflows on small screens ([26169c1](https://github.com/Tormak9970/Steam-Art-Manager/commit/26169c1))
+* steam install path properly resolves symlinks during validation ([4051e31](https://github.com/Tormak9970/Steam-Art-Manager/commit/4051e31))
+
 ## v3.6.0
 
 New Features
