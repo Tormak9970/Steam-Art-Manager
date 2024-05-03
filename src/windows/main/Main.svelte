@@ -138,50 +138,52 @@
     />
   </Titlebar>
 	<div class="content">
-    {#if $showDialogModal}
-      <DialogModal />
-    {/if}
-    {#if $showSteamPathModal}
-      <SteamPathModal />
-    {/if}
-    {#if $showGameSearchModal}
-      <GameSearchModal />
-    {/if}
-    {#if $showGridModal}
-      <GridPreviewModal />
-    {/if}
-    {#if $showBatchApplyProgress}
-      <BatchApplyProgressModal />
-    {/if}
-    {#if $showBatchApplyModal}
-      <BatchApplyModal />
-    {/if}
-    {#if $showLogoPositionModal}
-      <LogoPositionModal />
-    {/if}
-    {#if $showManualGamesModal}
-      <ManualGamesModal />
-    {/if}
-    {#if $showCleanGridsModal}
-      <CleanGridsModal />
-    {/if}
-    {#if $showSettingsModal}
-      <SettingsModal />
-    {/if}
-    {#if $showCleanConflictDialog}
-      <CleanConflictDialog />
-    {/if}
     {#if $showUpdateModal}
       <UpdateModal />
     {/if}
-    {#if $showInfoModal}
-      <InfoModal />
-    {/if}
-    {#if $showCurrentGridsModal}
-      <CurrentGridsModal />
-    {/if}
-    {#if $showUpdateTilesModal}
-      <UpdateTilesModal />
+    {#if !$showUpdateModal}
+      {#if $showDialogModal}
+        <DialogModal />
+      {/if}
+      {#if $showSteamPathModal}
+        <SteamPathModal />
+      {/if}
+      {#if $showGameSearchModal}
+        <GameSearchModal />
+      {/if}
+      {#if $showGridModal}
+        <GridPreviewModal />
+      {/if}
+      {#if $showBatchApplyProgress}
+        <BatchApplyProgressModal />
+      {/if}
+      {#if $showBatchApplyModal}
+        <BatchApplyModal />
+      {/if}
+      {#if $showLogoPositionModal}
+        <LogoPositionModal />
+      {/if}
+      {#if $showManualGamesModal}
+        <ManualGamesModal />
+      {/if}
+      {#if $showCleanGridsModal}
+        <CleanGridsModal />
+      {/if}
+      {#if $showSettingsModal}
+        <SettingsModal />
+      {/if}
+      {#if $showCleanConflictDialog}
+        <CleanConflictDialog />
+      {/if}
+      {#if $showInfoModal}
+        <InfoModal />
+      {/if}
+      {#if $showCurrentGridsModal}
+        <CurrentGridsModal />
+      {/if}
+      {#if $showUpdateTilesModal}
+        <UpdateTilesModal />
+      {/if}
     {/if}
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />

@@ -222,13 +222,18 @@
 <style>
   .content {
 		width: 600px;
-		height: calc(100% - 60px);
 
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
 	}
+
+  .settings-container {
+		max-height: 73vh;
+    overflow-y: scroll;
+    margin: 0px 7px;
+  }
 
   .buttons {
     margin-top: 14px;

@@ -3,7 +3,7 @@
   import type { SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, selectedSteamGridGameId, lastPageCache, hasMorePagesCache, loadingSettings } from "../../../stores/AppState";
   import Grid from "./Grid.svelte";
-  import { filterGrids, getHasMorePages, getPageNumberForGame } from "../../../lib/utils/Utils";
+  import { debounce, filterGrids, getHasMorePages, getPageNumberForGame } from "../../../lib/utils/Utils";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
   import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
@@ -13,6 +13,8 @@
   const padding = 20;
 
   export let hasCustomName: boolean;
+
+  let gridsContainer: HTMLDivElement;
 
   let isLoading = true;
   let hasMorePages = getHasMorePages($selectedSteamGridGameId, $gridType);
@@ -46,6 +48,13 @@
     }
   }
 
+  async function handleResize(isOverflowing: boolean) {
+    if (gridsContainer && !isOverflowing) {
+      handleLoadOnScroll();
+    }
+  }
+  const debouncedResize = debounce(handleResize, 500);
+
   onMount(() => {
     filterGridsOnStateChange(getPageNumberForGame($selectedSteamGridGameId, $gridType), hasCustomName).then(() => {
       isLoading = false;
@@ -53,7 +62,7 @@
   });
 </script>
 
-<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px">
+<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px" onOverflowChange={debouncedResize}>
   {#if !$loadingSettings}
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
@@ -66,7 +75,7 @@
             </div>
           {:else}
             {#if grids.length > 0}
-              <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+              <div bind:this={gridsContainer} class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
                 {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                   <Grid grid={grid} />
                 {/each}

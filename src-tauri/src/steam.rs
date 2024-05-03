@@ -144,6 +144,40 @@ pub fn get_localconfig_path(app_handle: AppHandle, steam_path: String, steam_act
   }
 }
 
+#[tauri::command]
+/// Gets the steam sourcemod path.
+pub fn get_sourcemod_path(app_handle: AppHandle, steam_path: String) -> String {
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam sourcemod path...", 0);
+  
+  let steam_root: PathBuf = PathBuf::from(steam_path);
+  let joined_path: PathBuf = steam_root.join("steamapps/sourcemods");
+
+  if joined_path.as_path().exists() {
+    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize steamapps/sourcemod path");
+    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  } else {
+    // * It will won't get read because it doesn't exist.
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  }
+}
+
+#[tauri::command]
+/// Gets the steam goldsrc path.
+pub fn get_goldsrc_path(app_handle: AppHandle, steam_path: String) -> String {
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam goldsrc path...", 0);
+  
+  let steam_root: PathBuf = PathBuf::from(steam_path);
+  let joined_path: PathBuf = steam_root.join("steamapps/sourcemods/Half-Life");
+
+  if joined_path.as_path().exists() {
+    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize steamapps/sourcemod/Half-Life path");
+    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  } else {
+    // * It will won't get read because it doesn't exist.
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  }
+}
+
 /// Reads a steam user's id.
 fn read_steam_user_id(user_block: &str) -> String {
   let quote_index = user_block.find("\"").expect("Should have been able to find a quote.");

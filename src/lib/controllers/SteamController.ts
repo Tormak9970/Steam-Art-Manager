@@ -270,8 +270,8 @@ export class SteamController {
 
     const userId = get(activeUserId);
     const appInfoGames = await SteamController.getGamesFromAppinfo();
-    const localConfigContents = await RustInterop.readLocalconfigVdf(userId.toString());
-    return appInfoGames.filter((game) => localConfigContents.includes(game.appid.toString()));
+    const localConfigAppIds: string[] = await RustInterop.readLocalconfigVdf(userId.toString());
+    return appInfoGames.filter((game) => localConfigAppIds.includes(game.appid.toString()));
   }
 
   /**
@@ -319,6 +319,7 @@ export class SteamController {
       }
     }
     
+    // * Try loading games from the file system
     if (games.length === 0) {
       games = (await this.getGamesFromLocalconfig()).filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
       

@@ -5,7 +5,7 @@ import { LogController } from "../controllers/LogController";
 import { SGDB, type SGDBImage } from "../models/SGDB";
 import { exit } from "@tauri-apps/api/process";
 import { RustInterop } from "../controllers/RustInterop";
-import { fs, process, http } from "@tauri-apps/api";
+import { fs, path, process, http } from "@tauri-apps/api";
 import { get } from "svelte/store";
 
 /**
@@ -208,10 +208,11 @@ export async function restartApp(): Promise<void> {
  * @param path The path to check.
  * @returns True if the path is a valid install.
  */
-export async function validateSteamPath(path: string): Promise<boolean> {
-  const wasAdded = await RustInterop.addPathToScope(path);
-  if (wasAdded && await fs.exists(path)) {
-    const contents = (await fs.readDir(path)).map((entry) => entry.name);
+export async function validateSteamPath(steamPath: string): Promise<boolean> {
+  const normalized = await path.normalize(steamPath);
+  const wasAdded = await RustInterop.addPathToScope(normalized);
+  if (wasAdded && await fs.exists(normalized)) {
+    const contents = (await fs.readDir(normalized)).map((entry) => entry.name);
     return contents.includes("steam.exe");
   }
 
