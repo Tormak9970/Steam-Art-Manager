@@ -280,4 +280,13 @@ export class RustInterop {
   static async writeAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
     return JSON.parse(await invoke<string>("write_app_tiles", { newTilesStr: JSON.stringify(appIconsPaths), tilePathsStr: JSON.stringify(appTilePaths) }));
   }
+
+  /**
+   * Checks if the provided path is a valid steam installation.
+   * @param targetPath The path to validate.
+   * @returns True if the path is a valid steam install.
+   */
+  static async validateSteamPath(targetPath: string): Promise<boolean> {
+    return await invoke<boolean>("validate_steam_path", { targetPath: targetPath });
+  }
 }

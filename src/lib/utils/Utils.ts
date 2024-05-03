@@ -209,14 +209,7 @@ export async function restartApp(): Promise<void> {
  * @returns True if the path is a valid install.
  */
 export async function validateSteamPath(steamPath: string): Promise<boolean> {
-  const normalized = await path.normalize(steamPath);
-  const wasAdded = await RustInterop.addPathToScope(normalized);
-  if (wasAdded && await fs.exists(normalized)) {
-    const contents = (await fs.readDir(normalized)).map((entry) => entry.name);
-    return contents.includes("steam.exe") || contents.includes("steam.sh");
-  }
-
-  return false;
+  return await RustInterop.validateSteamPath(steamPath);
 }
 
 
