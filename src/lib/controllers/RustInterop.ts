@@ -287,6 +287,6 @@ export class RustInterop {
    * @returns True if the path is a valid steam install.
    */
   static async validateSteamPath(targetPath: string): Promise<boolean> {
-    return await invoke<boolean>("validate_steam_path", { targetPath: targetPath });
+    return await invoke<boolean>("validate_steam_path", { targetPath: targetPath.toLowerCase() });
   }
 }
