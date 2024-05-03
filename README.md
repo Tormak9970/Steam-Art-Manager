@@ -7,7 +7,7 @@
 # Steam Art Manager
 A tool for setting the artwork of your Steam library.
 
-![Steam Art Manager's Main UI](public/images/../progress-images/v3.0.0/final-ui_v3.0.0.png)
+![Steam Art Manager's Main UI](public/images/../progress-images/v3.3.0/final-ui_v3.3.0.png)
 
 <br/>
 

@@ -28,7 +28,6 @@ use tauri::{
   api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
   FsScope, Manager
 };
-use keyvalues_parser::Vdf;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -247,17 +246,29 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_a
   if localconfig_path.as_path().exists() {
     logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
     let localconfig_contents: String = fs::read_to_string(localconfig_path).expect("localconfig.vdf should have existed.").parse().expect("File should have been a text file.");
-    let vdf = Vdf::parse(&localconfig_contents).unwrap();
-    let software = vdf.value.get_obj().unwrap().get_key_value("Software").unwrap();
-    let valve = software.1[0].get_obj().unwrap().get_key_value("Valve").unwrap();
-    let steam = valve.1[0].get_obj().unwrap().get_key_value("Steam").unwrap();
-    let apps = steam.1[0].get_obj().unwrap().get_key_value("apps").unwrap();
-
-    let app_entries = &apps.1[0];
+    
     let mut appids: Vec<String> = Vec::new();
+    
+    let mut is_reading_appids: bool = false;
 
-    for (_, appid) in app_entries.get_obj().unwrap().keys().enumerate() {
-      appids.push(appid.to_string());
+    for line in localconfig_contents.split("\n") {
+      if line == "\t\t\t\t\"apps\"" {
+        is_reading_appids = true;
+        continue;
+      }
+
+      if is_reading_appids {
+        if line.starts_with("\t\t\t\t\t\"") {
+          let length = line.chars().count();
+          let appid_res = line.get(6..(length - 1));
+          let appid = appid_res.expect("appid_res should have been ok");
+          appids.push(appid.to_string());
+        }
+
+        if line == "\t\t\t\t}" {
+          break;
+        }
+      }
     }
 
     return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
@@ -266,6 +277,13 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_a
     return "{}".to_owned();
   }
 }
+
+// #[tauri::command]
+// /// Reads the installed sourcemods.
+// async fn read_sourcemods(app_handle: AppHandle, steam_path: String) -> String {
+
+// }
+
 
 #[tauri::command]
 /// Applies the changes the user has made.
@@ -517,9 +535,43 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
 
 
 #[tauri::command]
+// Validates the steam install path
+async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool {
+  let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
+  let steam_path: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
+  let steam_path_str: String = steam_path.to_str().expect("Should have been able to convert pathbuf to string").to_owned();
+
+  add_path_to_scope(app_handle, steam_path_str).await;
+
+  if steam_path.exists() {
+    let contents_res = fs::read_dir(steam_path);
+    let mut contents = contents_res.ok().expect("Should have been able to read the provided directory.");
+
+    return contents.any(| entry_res | {
+      if entry_res.is_ok() {
+        let entry = entry_res.ok().expect("Entry should have been ok");
+
+        return entry.file_name().eq_ignore_ascii_case("steam.exe") || entry.file_name().eq_ignore_ascii_case("steam.sh");
+      }
+
+      return false;
+    });
+  }
+
+  return false;
+}
+
+#[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
-  let path_as_buf: PathBuf = fs::canonicalize(PathBuf::from(&target_path)).expect("Should have been able to resolve target path.");
+  let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
+
+  if !pre_canonicalized_path.as_path().exists() {
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
+    return false;
+  }
+
+  let path_as_buf: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
@@ -572,6 +624,18 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
   }
 }
 
+#[tauri::command]
+/// Toggles the dev tools for the current window.
+async fn toggle_dev_tools(app_handle: AppHandle, enable: bool) {
+  let window = app_handle.get_window("main").expect("Should have been able to get the main window.");
+  
+  if enable {
+    window.open_devtools();
+  } else {
+    window.close_devtools();
+  }
+}
+
 /// This app's main function.
 fn main() {
   tauri::Builder::default()
@@ -585,9 +649,12 @@ fn main() {
       steam::get_appinfo_path,
       steam::get_shortcuts_path,
       steam::get_localconfig_path,
+      steam::get_sourcemod_path,
+      steam::get_goldsrc_path,
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       add_path_to_scope,
+      toggle_dev_tools,
       add_steam_to_scope,
       export_grids_to_zip,
       import_grids_from_zip,
@@ -597,7 +664,8 @@ fn main() {
       save_changes,
       write_shortcuts,
       download_grid,
-      clean_grids
+      clean_grids,
+      validate_steam_path
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);
@@ -609,7 +677,6 @@ fn main() {
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
       
       logger::clean_out_log(app_handle.clone());
-      // add_steam_to_scope(&app_handle);
 
       panic::set_hook(Box::new(move | panic_info | {
         let path_str = (*log_file_path).to_owned();
@@ -646,11 +713,6 @@ fn main() {
           exit(1);
         }
       }));
-
-      // #[cfg(debug_assertions)] {
-      //   let window = app.get_window("main").expect("Should have been able to get the main window.");
-      //   window.open_devtools();
-      // }
 
       Ok(())
     })

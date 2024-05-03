@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { dialog, process } from "@tauri-apps/api";
 import { ToastController } from "./ToastController";
 import { SettingsManager } from "../utils/SettingsManager";
 import { LogController } from "./LogController";
@@ -29,9 +28,10 @@ import type { SGDBGame, SGDBImage } from "../models/SGDB";
 import { createTippy } from "svelte-tippy";
 import "tippy.js/dist/tippy.css"
 import { hideAll, type Instance, type Props } from "tippy.js";
-import { DialogController } from "./DialogController";
 import { SteamController } from "./SteamController";
 import { SettingsController } from "./SettingsController";
+import { restartApp } from "../utils/Utils";
+import { DialogController } from "./DialogController";
 
 /**
  * The main controller for the application.
@@ -66,6 +66,8 @@ export class AppController {
     await SettingsManager.init();
     await AppController.settingsController.loadSettings();
     await AppController.settingsController.subscribeToSettingChanges();
+
+    // TODO: test goldsrc and sourcemod loading here
 
     LogController.log("App setup complete.");
   }
@@ -596,11 +598,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
-    if (shouldReload) {
-      LogController.log("Reloading...");
-      await process.relaunch();
-    }
+    await restartApp();
   }
 
   /**
@@ -610,10 +608,13 @@ export class AppController {
    */
   static async promptOffline(): Promise<boolean> {
     LogController.log("Notifying user that they are offline...");
-    return await dialog.ask("You are offline. Steam Art Manager won't work properly/fully. Do you want to continue?", {
-      title: "No Internet Connection",
-      type: "warning"
-    });
+    return await DialogController.ask(
+      "No Internet Connection",
+      "WARNING",
+      "You are offline. Steam Art Manager won't work properly/fully. Do you want to continue?",
+      "Yes",
+      "No"
+    );
   }
 
   /**
@@ -627,10 +628,13 @@ export class AppController {
     const oldUserId = get(activeUserId).toString();
 
     if (userId !== oldUserId) {
-      const shouldContinue = await dialog.confirm("Switching users will discard your changes, are you sure you want to continue?", {
-        title: "Confirm user change",
-        type: "warning"
-      });
+      const shouldContinue = await DialogController.ask(
+        "Confirm user change",
+        "WARNING",
+        "Switching users will discard your changes, are you sure you want to continue?",
+        "Yes",
+        "No"
+      );
 
       if (shouldContinue) {
         AppController.discardChanges();
@@ -643,9 +647,12 @@ export class AppController {
         } else {
           steamKey.set("");
           needsSteamKey.set(true);
-          await dialog.message("No Steam Key found for this user. Consider adding one in settings.", {
-            title: "Missing Steam API Key"
-          });
+          await DialogController.message(
+            "Missing Steam API Key",
+            "INFO",
+            "No Steam Key found for this user. Consider adding one in settings.",
+            "Close"
+          );
         }
 
         loadingGames.set(true);
@@ -661,6 +668,14 @@ export class AppController {
     } else {
       LogController.log(`New user id ${userId} matched old id ${oldUserId}.`);
     }
+  }
+
+  /**
+   * Reloads the Steam apps.
+   */
+  static async reloadSteamGames(): Promise<void> {
+    await SteamController.loadSteamApps(get(steamShortcuts), get(appLibraryCache));
+    loadingGames.set(false);
   }
 
   /**

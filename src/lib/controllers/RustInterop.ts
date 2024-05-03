@@ -69,6 +69,14 @@ export class RustInterop {
   }
 
   /**
+   * Toggles the window dev tools on/off.
+   * @param enable Whether to enable or disable the window dev tools.
+   */
+  static async toggleDevTools(enable: boolean): Promise<void> {
+    await invoke("toggle_dev_tools", { enable: enable });
+  }
+
+  /**
    * Logs a message to the batch apply log file.
    * @param message The message to log.
    * @param level The log level.
@@ -110,6 +118,22 @@ export class RustInterop {
    */
   static async getLocalconfigPath(activeUserId: string): Promise<string> {
     return await invoke<string>("get_localconfig_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
+  }
+
+  /**
+   * Gets the sourcemods directory path.
+   * @returns A promise resolving to the sourcemods path.
+   */
+  static async getSourcemodPath(): Promise<string> {
+    return await invoke<string>("get_sourcemod_path", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Gets the goldsrc path.
+   * @returns A promise resolving to the goldsrc path.
+   */
+  static async getGoldsrcPath(activeUserId: string): Promise<string> {
+    return await invoke<string>("get_goldsrc_path", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -255,5 +279,14 @@ export class RustInterop {
    */
   static async writeAppTiles(appIconsPaths: Record<string, string>, appTilePaths: Record<string, string>): Promise<string[]> {
     return JSON.parse(await invoke<string>("write_app_tiles", { newTilesStr: JSON.stringify(appIconsPaths), tilePathsStr: JSON.stringify(appTilePaths) }));
+  }
+
+  /**
+   * Checks if the provided path is a valid steam installation.
+   * @param targetPath The path to validate.
+   * @returns True if the path is a valid steam install.
+   */
+  static async validateSteamPath(targetPath: string): Promise<boolean> {
+    return await invoke<boolean>("validate_steam_path", { targetPath: targetPath });
   }
 }

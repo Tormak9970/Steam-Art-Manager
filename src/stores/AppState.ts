@@ -34,6 +34,7 @@ export const loadingSettings = writable(true);
 
 export const windowIsMaximized = writable(false);
 export const theme = writable(Theme.DARK);
+export const debugMode = writable(false);
 export const renderGamesInList = writable(false);
 export const optionsSize = writable(16);
 export const gamesSize = writable(42);
@@ -48,8 +49,6 @@ export const needsSteamKey = writable(true);
 export const steamKey = writable("");
 
 export const steamInstallPath = writable("");
-
-export const selectedResultPage = writable(0);
 
 export const canSave = writable(false);
 export const isOnline = writable(false);
@@ -84,7 +83,9 @@ export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> =
 export const steamGridSteamAppIdMap: { [appid: number]: string } = {};
 export const steamGridSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = writable({});
 export const steamGridNameSearchCache: { [query: string]: SGDBGame[] } = {};
-export const gridsCache:{ [steamGridId: number]: SGDBImage[] } = {};
+export const gridsCache: { [steamGridId: number]: SGDBImage[] } = {};
+export const lastPageCache: { [steamGridId: number]: Record<string, number> } = {};
+export const hasMorePagesCache: { [steamGridId: number]: Record<string, boolean> } = {};
 export const selectedSteamGridGameId = writable("None");
 
 export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
