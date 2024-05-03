@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.2
+
+Bug Fixes
+* sgdb api key now properly validates ([d4e94cb](https://github.com/Tormak9970/Steam-Art-Manager/commit/d4e94cb))
+* steam path validation now works on linux ([b827f13](https://github.com/Tormak9970/Steam-Art-Manager/commit/b827f13))
+
 ## v3.6.1
 
 Bug Fixes
