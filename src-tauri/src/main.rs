@@ -538,7 +538,21 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
 // Validates the steam install path
 async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool {
   let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
-  let steam_path: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
+
+  if !pre_canonicalized_path.exists() {
+    logger::log_to_core_file(app_handle.to_owned(), format!("{} does not exist, can't be a valid steam install.", target_path).as_str(), 1);
+    return false;
+  }
+
+  let steam_path_res = pre_canonicalized_path.canonicalize();
+
+  if steam_path_res.is_err() {
+    let path_err = steam_path_res.err().expect("Should have been able to get path res error here.");
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error canonicalizing provided path: {}.", path_err.to_string()).as_str(), 1);
+    return false;
+  }
+
+  let steam_path = steam_path_res.ok().expect("Path should have been ok here.");
   let steam_path_str: String = steam_path.to_str().expect("Should have been able to convert pathbuf to string").to_owned();
 
   add_path_to_scope(app_handle, steam_path_str).await;
