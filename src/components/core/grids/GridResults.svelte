@@ -29,6 +29,9 @@
     if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId) {
       const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, resultsPage, $selectedSteamGridGameId, isCustomName);
       grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
+      console.log("grids length:", grids.length);
+      console.log("as set:", (new Set(grids)).size);
+      // TODO: easy fix would be make it a set but the issue is something else is going wrong
     }
   }
 

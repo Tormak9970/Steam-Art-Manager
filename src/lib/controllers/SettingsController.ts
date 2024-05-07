@@ -109,21 +109,21 @@ export class SettingsController {
     this.hiddenGameIdsSub = hiddenGameIds.subscribe((newIds) => {
       if (JSON.stringify(newIds) !== JSON.stringify(this.oldHiddenGameIds)) {
         SettingsManager.updateSetting("hiddenGameIds", newIds);
-        this.oldHiddenGameIds = newIds;
+        this.oldHiddenGameIds = structuredClone(newIds);
       }
     });
 
     this.manualSteamGamesSub = manualSteamGames.subscribe((newGames) => {
       if (JSON.stringify(newGames) !== JSON.stringify(this.oldManualSteamGames)) {
         SettingsManager.updateSetting("manualSteamGames", newGames);
-        this.oldManualSteamGames = newGames;
+        this.oldManualSteamGames = structuredClone(newGames);
       }
     });
     
     this.customGameNamesSub = customGameNames.subscribe((newGameNames) => {
       if (JSON.stringify(newGameNames) !== JSON.stringify(this.oldCustomGameNames)) {
         SettingsManager.updateSetting("customGameNames", newGameNames);
-        this.oldCustomGameNames = newGameNames;
+        this.oldCustomGameNames = structuredClone(newGameNames);
       }
     });
 
@@ -154,7 +154,7 @@ export class SettingsController {
     this.dbFiltersSub = dbFilters.subscribe((newFilters) => {
       if (JSON.stringify(newFilters) !== JSON.stringify(this.oldDbFilters)) {
         SettingsManager.updateSetting("windowSettings.main.filters", newFilters);
-        this.oldDbFilters = newFilters;
+        this.oldDbFilters = structuredClone(newFilters);
       }
     });
 
@@ -297,19 +297,19 @@ export class SettingsController {
    */
   private loadNicheSettings(): void {
     const manualSteamGamesSetting = SettingsManager.getSetting<GameStruct[]>("manualSteamGames");
-    this.oldManualSteamGames = manualSteamGamesSetting;
+    this.oldManualSteamGames = structuredClone(manualSteamGamesSetting);
     if (manualSteamGamesSetting.length > 0) {
       manualSteamGames.set(manualSteamGamesSetting);
       LogController.log(`Loaded ${manualSteamGamesSetting.length} manually added games.`);
     }
 
     const customGameNamesSetting = SettingsManager.getSetting<Record<string, string>>("customGameNames");
-    this.oldCustomGameNames = customGameNamesSetting;
+    this.oldCustomGameNames = structuredClone(customGameNamesSetting);
     customGameNames.set(customGameNamesSetting);
     LogController.log(`Loaded ${Object.keys(customGameNamesSetting).length} custom game names.`);
 
     const hiddenGameIdsSetting = SettingsManager.getSetting<number[]>("hiddenGameIds");
-    this.oldHiddenGameIds = hiddenGameIdsSetting;
+    this.oldHiddenGameIds = structuredClone(hiddenGameIdsSetting);
     hiddenGameIds.set(hiddenGameIdsSetting);
   }
 
@@ -326,7 +326,7 @@ export class SettingsController {
     showHidden.set(showHiddenGamesSetting);
     
     const dbFiltersSetting = SettingsManager.getSetting<DBFilters>("windowSettings.main.filters");
-    this.oldDbFilters = dbFiltersSetting;
+    this.oldDbFilters = structuredClone(dbFiltersSetting);
     dbFilters.set(dbFiltersSetting);
     
     const gridTypeSetting = SettingsManager.getSetting<string>("windowSettings.main.type") as GridTypes;
