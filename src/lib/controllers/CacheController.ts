@@ -240,19 +240,17 @@ export class CacheController {
   }
 
   /**
-   * Gets the current type of grid for the provided app id.
+   * Gets the sgdb game id for the provided game.
    * @param appId The id of the app to fetch.
    * @param gameName The name of the game to fetch grids for.
-   * @param page The page of results to get.
    * @param selectedPlatform The game's platforms.
    * @param useCoreFile Whether or not to use the core log file.
-   * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @param isCustomName Whether the app name is custom or not.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: number, gameName: string, page: number, selectedPlatform: Platforms, useCoreFile: boolean, selectedSteamGridId: string | null, isCustomName?: boolean): Promise<SGDBImage[]> {
-    logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
+  async chooseSteamGridGameId(appId: number, gameName: string, selectedPlatform: Platforms, useCoreFile: boolean, isCustomName?: boolean): Promise<string> {
+    logToFile(`Finding SGDB game for ${appId}...`, useCoreFile);
 
     const type = get(gridType);
     const searchCache = get(steamGridSearchCache);
@@ -266,7 +264,7 @@ export class CacheController {
       } catch (e: any) {
         logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
         ToastController.showWarningToast("Error searching for game on SGDB.");
-        return [];
+        return "None";
       }
     }
 
@@ -283,27 +281,40 @@ export class CacheController {
         } catch (e: any) {
           logErrorToFile(`Error getting game from SGDB by steam id. Game: ${gameName}. AppId: ${appId}. Error: ${e.message}.`, useCoreFile);
           ToastController.showWarningToast("Error getting game from SGDB.");
-          return [];
+          return "None";
         }
       }
       
-      chosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() === selectedSteamGridId) : null;
-      chosenResult ||= results.find((game) => game.id.toString() === gameId);
+      chosenResult = results.find((game) => game.id.toString() === gameId);
       if (!chosenResult && results.length > 0) chosenResult = results[0];
     } else {
-      chosenResult = selectedSteamGridId ? results.find((game) => game.id.toString() === selectedSteamGridId) : results.find((game) => game.name === gameName);
+      chosenResult = results.find((game) => game.name === gameName);
       if (!chosenResult && results.length > 0) chosenResult = results[0];
     }
 
     if (chosenResult?.id) {
-      if (useCoreFile) selectedSteamGridGameId.set(chosenResult.id.toString());
       steamGridSearchCache.set(searchCache);
-
-      return await this.fetchGridsForGame(chosenResult.id, type, page, getPageNumberForGame(chosenResult.id.toString(), type), useCoreFile);
+      return chosenResult.id.toString();
     } else {
       logToFile(`No results for ${type} for ${gameName}.`, useCoreFile);
-      return [];
+      return "None";
     }
+  }
+
+  /**
+   * Gets the current type of grid for the provided app id.
+   * @param appId The id of the app to fetch.
+   * @param page The page of results to get.
+   * @param useCoreFile Whether or not to use the core log file.
+   * @param selectedSteamGridId Optional id of the current steamGridGame.
+   * @returns A promise resolving to the grids.
+   * ? Logging complete.
+   */
+  async fetchGrids(appId: number, page: number, useCoreFile: boolean, selectedSteamGridId: string): Promise<SGDBImage[]> {
+    logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
+    const type = get(gridType);
+
+    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, getPageNumberForGame(selectedSteamGridId, type), useCoreFile);
   }
 
   /**
@@ -365,7 +376,8 @@ export class CacheController {
           gameName = nonSteamGameNameMap[appid];
         }
 
-        const grids = await this.fetchGrids(appidInt, gameName, 0, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false, null);
+        const sgdbGameId = await this.chooseSteamGridGameId(appidInt, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
+        const grids = await this.fetchGrids(appidInt, 0, false, sgdbGameId);
         const filtered = filterGrids(grids, selectedGridType, filters, gameName, false);
         
         if (filtered.length > 0) {
