@@ -6,6 +6,13 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.3
+
+Bug Fixes
+* linux build no longer panics on load ([91d5723](https://github.com/Tormak9970/Steam-Art-Manager/commit/91d5723))
+* no longer loads duplicate grids or looses grids ([c9c3e9f](https://github.com/Tormak9970/Steam-Art-Manager/commit/c9c3e9f))
+* object settings now save properly ([bf054d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/bf054d8))
+
 ## v3.6.2
 
 Bug Fixes
