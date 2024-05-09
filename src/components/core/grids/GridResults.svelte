@@ -61,11 +61,10 @@
           $selectedSteamGridGameId = sgdbGameId;
         });
       } else {
-        handleLoadOnScroll();
-        isLoading = false;
+        handleLoadOnScroll().then(() => {
+          isLoading = false;
+        });
       }
-    } else {
-      isLoading = false;
     }
   });
 </script>
@@ -90,7 +89,7 @@
               </div>
             {:else}
               <div class="message">
-                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$selectedGameName}".
+                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$steamGridSearchCache[$selectedGameAppId].find((game) => game.id.toString() === $selectedSteamGridGameId).name}".
               </div>
             {/if}
           {/if}
