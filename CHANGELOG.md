@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.4
+
+Bug Fixes
+* grids now reset properly on game change ([31672e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/31672e5))
+
 ## v3.6.3
 
 Bug Fixes
