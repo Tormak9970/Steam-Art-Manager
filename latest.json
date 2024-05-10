@@ -1,15 +1,15 @@
 {
-	"version": "3.6.3",
-	"notes": "Bug Fixes\n* linux build no longer panics on load ([91d5723](https://github.com/Tormak9970/Steam-Art-Manager/commit/91d5723))\n* no longer loads duplicate grids or looses grids ([c9c3e9f](https://github.com/Tormak9970/Steam-Art-Manager/commit/c9c3e9f))\n* object settings now save properly ([bf054d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/bf054d8))",
-	"pub_date": "2024-05-08T00:30:40.089Z",
+	"version": "3.6.4",
+	"notes": "Bug Fixes\n* grids now reset properly on game change ([31672e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/31672e5))",
+	"pub_date": "2024-05-10T00:01:43.933Z",
 	"platforms": {
 		"linux-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXY4WlFGMkpwQ1F6NWhuRlpNYzNLcGx6Y1R2ZGlrWDVxaGp4OHVWY0pPL0NXc0VWQ1ZiZ2xxTWpuQjYwenZ2b0FsUWwvejZ1T2NEWi9xMVRwVG1tSndvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE1MTI4MDkwCWZpbGU6c3RlYW0tYXJ0LW1hbmFnZXJfMy42LjNfYW1kNjQuQXBwSW1hZ2UudGFyLmd6Ckxna1lnWktOa1FqV3Z5RkdWeXpyUlFDSnBHNCt0R2QzZWt0bGliUzNqVm1obDh6YzNKeUJzR2M5UnhtTmxWV1EwSlV4czFNczhFb1A1Y094b3M5ZUN3PT0K",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.6.3/steam-art-manager_3.6.3.AppImage.tar.gz"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXFHenVBQ2I3MHgzLzRaSVd2M0xxNEk0Q2NOdmJhVzhXUlQzZUxMOEpydElzSWhpcXM4c2s1MUxOZ3dJT1lHVzBkQUcvSWZqTDBxckJ5dTVZL1VnaEF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE1Mjk5MjI1CWZpbGU6c3RlYW0tYXJ0LW1hbmFnZXJfMy42LjRfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CnFNc215RXV6cG0xNkhEZjNtelZWa09XMW9kRkVTME0zYW0rQWNyaWdDRU9xRXgvcFU1YnNOZHB3eE5QaWYwdWNPMyswRWZTNEl1Nnk5NTJ4M2dNZEJRPT0K",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.6.4/steam-art-manager_3.6.4.AppImage.tar.gz"
 		},
 		"windows-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZW1QTWt3RUc0cyt5UjZkcXhveG1lS0wyYnRoQ05US0VsM1pldW5kZHlraGF2bTRRRllVOUtFQnFuNlRZampnUklpMDUrWE0rbVVJc2N3VmdIZ0M2MlFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE1MTI4MjMwCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy42LjNfeDY0X2VuLVVTLm1zaS56aXAKR0dKQThmbFczeTRiRk9xWk9HVUdRUFNicTFBVitZQ1dVOW5UREdHZnhvN29FZmVaVkxOMzF2WmdDcUNROVNNMTBPNkpja1Zva3ZpZmFSeWNKN0E1QXc9PQo=",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.6.3/steam-art-manager_3.6.3.msi.zip"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXVLNFNOZmxGSXpvTEY1aUd3TnRxb2VVOGl4MUZncG1KajhYUWxjS0p0bi9GUldnV2x1SklaSldURkxrSDk5dHJzcjhiMmNMdkcwdjlqVjlJeWhhS2dNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE1Mjk5Mjk1CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy42LjRfeDY0X2VuLVVTLm1zaS56aXAKSUNFckVERGZZV0xoMUQyMUNzQWpsRzBxVjVUMDMvNHlXQjZydnBQTUpSalAxUWVEbTlxcHRlczdRVlZBU0RubVFBM0V4UWFZNDU3U3QzMWkzMFZXQ3c9PQo=",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.6.4/steam-art-manager_3.6.4.msi.zip"
 		}
 	}
 }
