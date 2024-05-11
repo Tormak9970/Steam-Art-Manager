@@ -73,10 +73,11 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
  * @param type The selected GridType.
  * @param filters The filters object.
  * @param gameName The name of the game being filtered.
+ * @param page The page that was searched.
  * @param useCoreFile Whether or not to log to the core file.
  * @returns The list of filtered grids.
  */
-export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
+export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, page: number, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
   const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
@@ -96,7 +97,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
       && (grid.nsfw ? nsfwAllowed : true);
   });
 
-  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
+  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName} - page${page === 1 ? " 1" : "s 1 - " + page}"`;
   if (resGrids.length > 0) {
     if (useCoreFile) {
       LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);

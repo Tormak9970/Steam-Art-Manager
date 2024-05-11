@@ -123,7 +123,7 @@
     selectedAppIdUnsub = selectedGameAppId.subscribe(() => {
       availableSteamGridGames = [ { label: "None", data: "None" } ];
       $selectedSteamGridGameId = "None";
-    })
+    });
 
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       resetGridStores();
