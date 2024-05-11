@@ -16,15 +16,14 @@
   import GridResults from "./GridResults.svelte";
 
   let windowWidth: number;
-  let skipUpdate = false;
 
+  let selectedAppIdUnsub: Unsubscriber;
   let steamGridSearchCacheUnsub: Unsubscriber;
   let manualGamesUnsub: Unsubscriber;
   let customGameNamesUnsub: Unsubscriber;
   let selectedPlatformUnsub: Unsubscriber;
   let apiKeyUnsub: Unsubscriber;
 
-  let isLoading = false;
   let availableSteamGridGames = [ { label: "None", data: "None" } ];
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let hasCustomName = !!$customGameNames[$selectedGameAppId];
@@ -40,7 +39,6 @@
       if ($customGameNames[$selectedGameAppId] && res.name === originalName) {
         delete $customGameNames[$selectedGameAppId];
       } else {
-        skipUpdate = true;
         $customGameNames[$selectedGameAppId] = res.name;
       }
 
@@ -115,19 +113,16 @@
     });
 
     customGameNamesUnsub = customGameNames.subscribe(async (customNames) => {
-      if (!skipUpdate) {
-        if (customNames[$selectedGameAppId] && !hasCustomName) {
-          hasCustomName = true;
-          $selectedGameName = customNames[$selectedGameAppId];
-          delete $steamGridSearchCache[$selectedGameAppId];
-        } else if (!customNames[$selectedGameAppId] && hasCustomName) {
-          hasCustomName = false;
-          $selectedGameName = originalName;
-          delete $steamGridSearchCache[$selectedGameAppId];
-        }
-      } else {
-        skipUpdate = false;
-      }
+      hasCustomName = !customNames[$selectedGameAppId];
+      $selectedGameName = customNames[$selectedGameAppId] ?? originalName;
+      delete $steamGridSearchCache[$selectedGameAppId];
+      availableSteamGridGames = [ { label: "None", data: "None" } ];
+      $selectedSteamGridGameId = "None";
+    });
+
+    selectedAppIdUnsub = selectedGameAppId.subscribe(() => {
+      availableSteamGridGames = [ { label: "None", data: "None" } ];
+      $selectedSteamGridGameId = "None";
     });
 
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
@@ -139,6 +134,7 @@
   });
 
   onDestroy(() => {
+    if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
     if (manualGamesUnsub) manualGamesUnsub();
     if (customGameNamesUnsub) customGameNamesUnsub();

@@ -178,7 +178,7 @@ export class SteamController {
    */
   private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<GameStruct[]> {
     const requestTimeout = get(requestTimeoutLength);
-    LogController.log("Loading games from Steam Community page...");
+    // LogController.log("Loading games from Steam Community page...");
 
     const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
@@ -216,7 +216,7 @@ export class SteamController {
    */
   private static async getGamesFromSteamAPI(bUserId: bigint): Promise<GameStruct[]> {
     const requestTimeout = get(requestTimeoutLength);
-    LogController.log("Loading games from Steam API...");
+    // LogController.log("Loading games from Steam API...");
 
     const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
       method: "GET",
@@ -247,7 +247,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
-    LogController.log("Loading games from appinfo.vdf...");
+    // LogController.log("Loading games from appinfo.vdf...");
 
     const vdf = await RustInterop.readAppinfoVdf();
 
@@ -266,7 +266,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
-    LogController.log("Loading games from localconfig.vdf...");
+    // LogController.log("Loading games from localconfig.vdf...");
 
     const userId = get(activeUserId);
     const appInfoGames = await SteamController.getGamesFromAppinfo();
@@ -299,7 +299,6 @@ export class SteamController {
         steamGames.set(games);
       
         LogController.log(`Loaded ${games.length} games from Steam API.`);
-        LogController.log("Steam games loaded.");
       }
     }
     
@@ -312,7 +311,6 @@ export class SteamController {
           steamGames.set(games);
         
           LogController.log(`Loaded ${games.length} games from Steam Community page.`);
-          LogController.log("Steam games loaded.");
         }
       } catch (e: any) {
         LogController.error(e.message);
@@ -327,7 +325,6 @@ export class SteamController {
         steamGames.set(games);
       
         LogController.log(`Loaded ${games.length} games from localconfig.vdf.`);
-        LogController.log("Steam games loaded.");
       }
     }
 
@@ -360,7 +357,7 @@ export class SteamController {
   static async getUserApps(): Promise<void> {
     const userId = get(activeUserId);
 
-    LogController.log("Loading non-steam games...");
+    // LogController.log("Loading non-steam games...");
     const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
     originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
     steamShortcuts.set(Object.values(shortcuts));
@@ -374,7 +371,7 @@ export class SteamController {
     nonSteamGames.set(structuredShortcuts);
     LogController.log("Loaded non-steam games.");
 
-    LogController.log("Getting steam games...");
+    // LogController.log("Getting steam games...");
 
     const filteredCache = await SteamController.getCacheData(structuredShortcuts);
 
