@@ -97,7 +97,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
       && (grid.nsfw ? nsfwAllowed : true);
   });
 
-  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName} - page${page === 1 ? " 1" : "s 1 - " + page}"`;
+  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName} - page${page === 0 ? " 0" : ("s 0 - " + page)}"`;
   if (resGrids.length > 0) {
     if (useCoreFile) {
       LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
@@ -269,16 +269,16 @@ export function getHasMorePages(sgdbGameId: string, type: GridTypes) {
  * Gets the most recent page number cached for a given sgdb game.
  * @param sgdbGameId The id of the sgdb game to check for more pages.
  * @param type The current grid type.
- * @returns The most recent page number cached.
+ * @returns The most recent page number cached, or -1 if never cached.
  */
-export function getPageNumberForGame(sgdbGameId: string, type: GridTypes) {
+export function getLastLoadedPageNumberForGame(sgdbGameId: string, type: GridTypes) {
   if (sgdbGameId === "None") {
-    return 0;
+    return -1;
   } else {
     const id = parseInt(sgdbGameId);
 
     if (!lastPageCache[id]) lastPageCache[id] = {};
-    if (!lastPageCache[id][type]) lastPageCache[id][type] = 0;
+    if (!lastPageCache[id][type] && lastPageCache[id][type] !== 0) lastPageCache[id][type] = -1;
 
     return lastPageCache[id][type];
   }
