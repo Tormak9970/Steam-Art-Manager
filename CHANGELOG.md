@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.6
+
+Bug Fixes
+* now loads first page for games ([9213bc1](https://github.com/Tormak9970/Steam-Art-Manager/commit/9213bc1))
+
 ## v3.6.5
 
 Bug Fixes
