@@ -26,7 +26,7 @@
    */
   async function filterGridsOnStateChange(resultsPage: number): Promise<void> {
     const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, resultsPage, $selectedSteamGridGameId);
-    grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
+    grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName, resultsPage);
   }
 
   /**

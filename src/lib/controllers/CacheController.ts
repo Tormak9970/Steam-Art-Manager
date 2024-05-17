@@ -1,6 +1,6 @@
 /**
  * Steam Art Manager is a tool for setting the artwork of your Steam library.
- * Copyright (C) 2023 Travis Lane (Tormak)
+ * Copyright (C) 2024 Travis Lane (Tormak)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,9 +94,9 @@ export class CacheController {
     try {
       if (!(await fs.exists(path))) {
         await fs.createDir(path);
-        LogController.log(`Created ${dirName} dir.`);
+        // LogController.log(`Created ${dirName} dir.`);
       } else {
-        LogController.log(`Found ${dirName} dir.`);
+        // LogController.log(`Found ${dirName} dir.`);
       }
     } catch(e) {
       LogController.error(e.message);
@@ -109,7 +109,7 @@ export class CacheController {
    * ? Logging complete.
    */
   private async init(): Promise<void> {
-    LogController.log("Initializing CacheController...");
+    // LogController.log("Initializing CacheController...");
     
     this.appCacheDirPath = await appCacheDir();
     await this.createDirIfNotExists(this.appCacheDirPath, "cache");
@@ -154,7 +154,7 @@ export class CacheController {
    */
   async getGridImage(appId: number, imageURL: string, useCoreFile = true): Promise<string> {
     const requestTimeout = get(requestTimeoutLength);
-    logToFile(`Fetching image ${imageURL}...`, useCoreFile);
+    // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
     const localImagePath = await path.join(this.gridCacheDirPath, get(gridType), fileName);
 
@@ -213,19 +213,19 @@ export class CacheController {
   
         if (types.includes(type)) {
           if (lastPageCached === page) {
-            logToFile(`Already fetched page #${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
+            // logToFile(`Already fetched page #${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
           } else {
-            logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
+            // logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
             const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
             gridsCache[steamGridAppId.toString()][type] = gridsCache[steamGridAppId.toString()][type].concat(grids);
           }
         } else {
-          logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
+          // logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
           const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
           gridsCache[steamGridAppId.toString()][type] = grids;
         }
       } else {
-        logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
+        // logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
         const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
         gridsCache[steamGridAppId.toString()] = {};
         gridsCache[steamGridAppId.toString()][type] = grids;
@@ -378,7 +378,7 @@ export class CacheController {
 
         const sgdbGameId = await this.chooseSteamGridGameId(appidInt, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
         const grids = await this.fetchGrids(appidInt, 0, false, sgdbGameId);
-        const filtered = filterGrids(grids, selectedGridType, filters, gameName, false);
+        const filtered = filterGrids(grids, selectedGridType, filters, gameName, 0, false);
         
         if (filtered.length > 0) {
           const grid = filtered[0];
@@ -442,7 +442,7 @@ export class CacheController {
    * ? Logging complete.
    */
   private async invalidateCache(): Promise<void> {
-    LogController.log("Clearing cache...");
+    // LogController.log("Clearing cache...");
     await fs.removeDir(this.gridCacheDirPath, { recursive: true });
     LogController.log("Cleared cache.");
   }
@@ -452,7 +452,7 @@ export class CacheController {
    * ? Logging complete.
    */
   async destroy() {
-    LogController.log("Destroying CacheController...");
+    // LogController.log("Destroying CacheController...");
     this.apiKeyUnsub();
     await this.invalidateCache();
     LogController.log("CacheController destroyed.");

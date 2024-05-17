@@ -165,7 +165,7 @@
     <div class="settings-container">
       <FilePathEntry
         label="Steam Install Path"
-        description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/steam</b> on Linux. You must restart after changing this."}
+        description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
         value={steamInstallLocation}
         onChange={onInstallLocationChange}
         useValidator
