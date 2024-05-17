@@ -489,16 +489,26 @@ export class AppController {
   }
 
   /**
+   * Chooses the steam grid game id for the provided game.
+   * @param appId The id of the app to get.
+   * @param isCustomName Whether the app name is custom or not.
+   * @returns A promise resolving to the id.
+   * ? Logging complete.
+   */
+  static async chooseSteamGridGameId(appId: number, isCustomName: boolean): Promise<string> {
+    return await AppController.cacheController.chooseSteamGridGameId(appId, get(selectedGameName), get(currentPlatform), true, isCustomName);
+  }
+
+  /**
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
    * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
-   * @param isCustomName Whether the app name is custom or not.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId: string | null, isCustomName: boolean): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, get(selectedGameName), page, get(currentPlatform), true, selectedSteamGridId, isCustomName);
+  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId: string | null): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, page, true, selectedSteamGridId);
   }
 
   /**

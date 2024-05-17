@@ -18,6 +18,7 @@
   let windowWidth: number;
   let skipUpdate = false;
 
+  let selectedAppIdUnsub: Unsubscriber;
   let steamGridSearchCacheUnsub: Unsubscriber;
   let manualGamesUnsub: Unsubscriber;
   let customGameNamesUnsub: Unsubscriber;
@@ -130,6 +131,11 @@
       }
     });
 
+    selectedAppIdUnsub = selectedGameAppId.subscribe(() => {
+      availableSteamGridGames = [ { label: "None", data: "None" } ];
+      $selectedSteamGridGameId = "None";
+    })
+
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       resetGridStores();
     });
@@ -139,6 +145,7 @@
   });
 
   onDestroy(() => {
+    if (selectedAppIdUnsub) selectedAppIdUnsub();
     if (steamGridSearchCacheUnsub) steamGridSearchCacheUnsub();
     if (manualGamesUnsub) manualGamesUnsub();
     if (customGameNamesUnsub) customGameNamesUnsub();

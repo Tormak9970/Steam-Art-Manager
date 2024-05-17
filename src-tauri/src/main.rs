@@ -535,6 +535,40 @@ async fn clean_grids(app_handle: AppHandle, steam_path: String, steam_active_use
 
 
 #[tauri::command]
+// Validates the steam install path
+async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool {
+  let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
+  let steam_path_res = pre_canonicalized_path.canonicalize();
+
+  if steam_path_res.is_ok() {
+    let steam_path = steam_path_res.ok().unwrap();
+    let steam_path_str: String = steam_path.to_str().expect("Should have been able to convert pathbuf to string").to_owned();
+
+    add_path_to_scope(app_handle, steam_path_str).await;
+
+    if steam_path.exists() {
+      let contents_res = fs::read_dir(steam_path);
+      let mut contents = contents_res.ok().expect("Should have been able to read the provided directory.");
+
+      return contents.any(| entry_res | {
+        if entry_res.is_ok() {
+          let entry = entry_res.ok().expect("Entry should have been ok");
+
+          return entry.file_name().eq_ignore_ascii_case("steam.exe") || entry.file_name().eq_ignore_ascii_case("steam.sh");
+        }
+
+        return false;
+      });
+    }
+  } else {
+    let path_err = steam_path_res.err().unwrap();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Error canonicalizing {}: {}.", target_path, path_err.to_string()).as_str(), 1);
+  }
+
+  return false;
+}
+
+#[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
   let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
@@ -637,7 +671,8 @@ fn main() {
       save_changes,
       write_shortcuts,
       download_grid,
-      clean_grids
+      clean_grids,
+      validate_steam_path
     ])
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);

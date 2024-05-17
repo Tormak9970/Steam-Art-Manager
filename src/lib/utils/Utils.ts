@@ -209,14 +209,7 @@ export async function restartApp(): Promise<void> {
  * @returns True if the path is a valid install.
  */
 export async function validateSteamPath(steamPath: string): Promise<boolean> {
-  const normalized = await path.normalize(steamPath);
-  const wasAdded = await RustInterop.addPathToScope(normalized);
-  if (wasAdded && await fs.exists(normalized)) {
-    const contents = (await fs.readDir(normalized)).map((entry) => entry.name);
-    return contents.includes("steam.exe");
-  }
-
-  return false;
+  return await RustInterop.validateSteamPath(steamPath);
 }
 
 
@@ -248,8 +241,8 @@ export async function validateSGDBAPIKey(key: string): Promise<boolean> {
   
   const apiModel = new SGDB(key);
 
-  const res = await apiModel.getGameById(5138060);
-  return res?.name === "Baldur's Gate 3";
+  const res = await apiModel.searchGame("s");
+  return res?.length > 0;
 }
 
 /**
