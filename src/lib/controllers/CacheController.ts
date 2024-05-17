@@ -20,12 +20,12 @@ import { appCacheDir } from "@tauri-apps/api/path";
 
 import { get, type Unsubscriber } from "svelte/store";
 import { RequestError, SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, steamGridDBKey, gridsCache, lastPageCache, selectedSteamGridGameId, steamGridSteamAppIdMap, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
+import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, steamGridDBKey, gridsCache, steamGridSteamAppIdMap, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
 import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, batchApplyMessage  } from "../../stores/Modals";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import { ToastController } from "./ToastController";
-import { filterGrids, getPageNumberForGame } from "../utils/Utils";
+import { filterGrids, getLastLoadedPageNumberForGame } from "../utils/Utils";
 
 
 /**
@@ -314,7 +314,7 @@ export class CacheController {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
     const type = get(gridType);
 
-    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, getPageNumberForGame(selectedSteamGridId, type), useCoreFile);
+    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, getLastLoadedPageNumberForGame(selectedSteamGridId, type), useCoreFile);
   }
 
   /**

@@ -3,7 +3,7 @@
   import type { SGDBImage } from "../../../lib/models/SGDB";
   import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, selectedSteamGridGameId, lastPageCache, hasMorePagesCache, loadingSettings, steamGridSearchCache } from "../../../stores/AppState";
   import Grid from "./Grid.svelte";
-  import { debounce, filterGrids, getHasMorePages, getPageNumberForGame } from "../../../lib/utils/Utils";
+  import { debounce, filterGrids, getHasMorePages, getLastLoadedPageNumberForGame } from "../../../lib/utils/Utils";
   import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
   import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
   import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
@@ -34,12 +34,13 @@
    */
   async function handleLoadOnScroll() {
     if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId) {
-      const lastPageLoaded = getPageNumberForGame($selectedSteamGridGameId, $gridType);
+      const lastPageLoaded = getLastLoadedPageNumberForGame($selectedSteamGridGameId, $gridType);
+      const newPageNumber = lastPageLoaded + 1;
       const oldGridsLength = grids.length;
 
-      await filterGridsOnStateChange(lastPageLoaded + 1);
+      await filterGridsOnStateChange(newPageNumber);
       if (oldGridsLength !== grids.length) {
-        lastPageCache[parseInt($selectedSteamGridGameId)][$gridType] = lastPageLoaded + 1;
+        lastPageCache[parseInt($selectedSteamGridGameId)][$gridType] = newPageNumber;
       } else {
         hasMorePagesCache[parseInt($selectedSteamGridGameId)][$gridType] = false;
         hasMorePages = false;
