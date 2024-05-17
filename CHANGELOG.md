@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.5
+
+Bug Fixes
+* added additional paths to allowlist to prevent sarm from not finding install paths ([27d87bc](https://github.com/Tormak9970/Steam-Art-Manager/commit/27d87bc))
+* grids now refresh properly when a custom name is set ([b6ba640](https://github.com/Tormak9970/Steam-Art-Manager/commit/b6ba640))
+
 ## v3.6.4
 
 Bug Fixes
