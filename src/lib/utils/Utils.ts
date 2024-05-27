@@ -171,10 +171,9 @@ export async function steamDialogSequence(): Promise<void> {
  */
 export async function findSteamPath(savedInstallPath: string): Promise<void> {
   if (savedInstallPath !== "") {
-    const steamInstallPathAdded = await RustInterop.addPathToScope(savedInstallPath);
     const isValidInstall = await validateSteamPath(savedInstallPath);
 
-    if (steamInstallPathAdded && isValidInstall && await fs.exists(savedInstallPath)) {
+    if (isValidInstall) {
       steamInstallPath.set(savedInstallPath);
     } else {
       await steamDialogSequence();

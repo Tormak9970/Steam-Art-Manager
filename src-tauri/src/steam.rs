@@ -47,8 +47,8 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
     pc_home_dir = pc_home_dir.join(".steam/steam");
   }
 
-  let final_path = fs::canonicalize(pc_home_dir).expect("Should have been able to resolve path with symlinks in it.");
-  if final_path.exists() {
+  // let final_path = fs::canonicalize(pc_home_dir).expect("Should have been able to resolve path with symlinks in it.");
+  if pc_home_dir.exists() {
     return Ok(final_path);
   } else {
     return Err(String::from("Steam install path does not exist."));
@@ -67,8 +67,7 @@ pub fn get_grids_directory(app_handle: AppHandle, steam_path: String, steam_acti
     let _ = create_dir_all(&joined_path);
   }
 
-  let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize userdata/USER_ID/config/grid");
-  let grids_dir: String = canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let grids_dir: String = joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   let dir_create_res = fs::create_dir_all(grids_dir.clone());
   if dir_create_res.is_err() {
@@ -86,8 +85,7 @@ pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) ->
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
   let library_cache_path: PathBuf = steam_root.join("appcache/librarycache");
-  let canonicalized_path: PathBuf = library_cache_path.canonicalize().expect("Should have been able to canonicalize appcache/librarycache");
-  let library_cache_str: String = canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  let library_cache_str: String = library_cache_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 
   if library_cache_path.exists() {
     return library_cache_str;
@@ -105,9 +103,8 @@ pub fn get_appinfo_path(app_handle: AppHandle, steam_path: String) -> String {
   
   let steam_root: PathBuf = PathBuf::from(steam_path);
   let joined_path: PathBuf = steam_root.join("appcache/appinfo.vdf");
-  let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize appcache/appinfo.vdf");
 
-  return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
 }
 
 #[tauri::command]
@@ -119,8 +116,7 @@ pub fn get_shortcuts_path(app_handle: AppHandle, steam_path: String, steam_activ
   let joined_path: PathBuf = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/shortcuts.vdf");
 
   if joined_path.as_path().exists() {
-    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize config/shortcuts.vdf");
-    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
   } else {
     // * It will won't get read because it doesn't exist.
     return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -136,8 +132,7 @@ pub fn get_localconfig_path(app_handle: AppHandle, steam_path: String, steam_act
   let joined_path: PathBuf = steam_root.join("userdata").join(steam_active_user_id.to_string()).join("config/localconfig.vdf");
 
   if joined_path.as_path().exists() {
-    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize config/localconfig.vdf");
-    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
   } else {
     // * It will won't get read because it doesn't exist.
     return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -153,8 +148,7 @@ pub fn get_sourcemod_path(app_handle: AppHandle, steam_path: String) -> String {
   let joined_path: PathBuf = steam_root.join("steamapps/sourcemods");
 
   if joined_path.as_path().exists() {
-    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize steamapps/sourcemod path");
-    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
   } else {
     // * It will won't get read because it doesn't exist.
     return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -170,8 +164,7 @@ pub fn get_goldsrc_path(app_handle: AppHandle, steam_path: String) -> String {
   let joined_path: PathBuf = steam_root.join("steamapps/sourcemods/Half-Life");
 
   if joined_path.as_path().exists() {
-    let canonicalized_path: PathBuf = joined_path.canonicalize().expect("Should have been able to canonicalize steamapps/sourcemod/Half-Life path");
-    return canonicalized_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
   } else {
     // * It will won't get read because it doesn't exist.
     return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
@@ -218,8 +211,7 @@ fn read_steam_users(steam_path: String) -> Map<String, Value> {
     
   let steam_root: PathBuf = PathBuf::from(steam_path);
 
-  // TODO: account for if this file does not exist
-  let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf").canonicalize().expect("Should have been able to canonicalize config/loginusers.vdf");
+  let loginusers_vdf: PathBuf = steam_root.join("config/loginusers.vdf");
   let contents: String = fs::read_to_string(loginusers_vdf).unwrap();
 
   let id_start_matches: Vec<(usize, &str)> = contents.match_indices("\n\t\"").collect();
