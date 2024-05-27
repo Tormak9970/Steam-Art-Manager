@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.6.8
+
+Bug Fixes
+* path resolution on linux should now work correctly ([926ab1d](https://github.com/Tormak9970/Steam-Art-Manager/commit/926ab1d))
+
 ## v3.6.6
 
 Bug Fixes
