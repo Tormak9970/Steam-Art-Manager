@@ -77,30 +77,22 @@ export class SettingsController {
     this.steamInstallPathSub = steamInstallPath.subscribe(async (newPath) => {
       if (newPath !== this.oldSteamInstallPath) {
         SettingsManager.updateSetting("steamInstallPath", newPath);
-        const success = await RustInterop.addPathToScope(newPath);
-        
-        if (success) {
-          LogController.log(`Added ${newPath} to scope.`);
 
-          if (this.oldSteamInstallPath !== "") {
-            const shouldReloadGames = await DialogController.ask(
-              "Steam Install Path Changed",
-              "WARNING",
-              "A change to your Steam install path was detected, would you like to reload your games?",
-              "Yes",
-              "No"
-            );
-  
-            if (shouldReloadGames) {
-              await restartApp();
-            }
+        if (this.oldSteamInstallPath !== "") {
+          const shouldReloadGames = await DialogController.ask(
+            "Steam Install Path Changed",
+            "WARNING",
+            "A change to your Steam install path was detected, would you like to reload your games?",
+            "Yes",
+            "No"
+          );
+
+          if (shouldReloadGames) {
+            await restartApp();
           }
-          
-          this.oldSteamInstallPath = newPath;
-        } else {
-          LogController.log(`Failed to add ${newPath} to scope.`);
-          ToastController.showWarningToast(`Failed to add ${newPath} to scope.`);
         }
+        
+        this.oldSteamInstallPath = newPath;
       }
     });
 

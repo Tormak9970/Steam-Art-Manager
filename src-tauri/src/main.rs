@@ -564,14 +564,12 @@ async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool
 #[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
-  let pre_canonicalized_path: PathBuf = PathBuf::from(&target_path);
+  let path_as_buf: PathBuf = PathBuf::from(&target_path);
 
-  if !pre_canonicalized_path.as_path().exists() {
+  if !path_as_buf.as_path().exists() {
     logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
     return false;
   }
-
-  let path_as_buf: PathBuf = pre_canonicalized_path.canonicalize().expect("Should have been able to resolve target path.");
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
