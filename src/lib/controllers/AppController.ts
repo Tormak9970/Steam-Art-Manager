@@ -521,6 +521,15 @@ export class AppController {
   }
 
   /**
+   * Gets the steam appid for the provided SGDB game.
+   * @param game The game to use.
+   * @returns A promise resolving to the appid, or null if not found.
+   */
+  static async getAppidForSGDBGame(game: SGDBGame): Promise<string | null> {
+    return await AppController.cacheController.getAppidForSGDBGame(game);
+  }
+
+  /**
    * Shows the game search modal and returns the result.
    * @param defaultName The currently selected game name.
    * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.

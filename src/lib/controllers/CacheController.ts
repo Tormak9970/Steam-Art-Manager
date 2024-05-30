@@ -333,6 +333,27 @@ export class CacheController {
   }
 
   /**
+   * Gets the steam appid for the provided SGDB game.
+   * @param game The game to use.
+   * @returns A promise resolving to the appid, or null if not found.
+   */
+  async getAppidForSGDBGame(game: SGDBGame): Promise<string | null> {
+    try {
+      const res = await this.client.getGameById(game.id, { platformdata: [ "steam" ] });
+      
+      if (res.external_platform_data?.steam?.length > 0) {
+        return res.external_platform_data?.steam[0].id;
+      }
+      
+      return null;
+    } catch (e: any) {
+      const error = e as RequestError;
+      LogController.warn(`SGDB Appid Request "${game.id}" does not have a steam appid. Message: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
    * Batch applies grids to the provided games.
    * @param appIds The list of ids.
    * ? Logging Complete.

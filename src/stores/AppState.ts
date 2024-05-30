@@ -96,4 +96,4 @@ export const dbFilters:Writable<DBFilters> = writable(DEFAULT_FILTERS);
 
 
 export const selectedCleanGridsPreset: Writable<"clean" | "custom"> = writable("clean");
-export const selectedManualGamesAddMethod: Writable<"manual" | "search"> = writable("manual");
+export const selectedManualGamesAddMethod: Writable<"manual" | "search"> = writable("search");

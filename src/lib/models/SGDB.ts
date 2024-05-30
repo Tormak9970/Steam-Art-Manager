@@ -24,6 +24,9 @@ export interface SGDBGame {
   types: string[];
   verified: boolean;
   numResultPages: number;
+  external_platform_data?: {
+    steam?: { id: string }[]
+  }
 }
 
 export interface SGDBAuthor {
@@ -76,6 +79,10 @@ export interface SGDBImageOptions {
   humor?: string;
   oneoftag?: string;
   page?: number;
+}
+
+export interface SGDBGetGameOptions {
+  platformdata: string[]
 }
 
 export interface SGDBGridTotals {
@@ -144,7 +151,7 @@ export class SGDB {
    * @returns The built query.
    */
   private buildQuery(options: any): { [key: string]: string; } {
-    const multiParams = ["styles", "dimensions", "mimes", "types"];
+    const multiParams = ["styles", "dimensions", "mimes", "types", "platformdata"];
     const singleParams = ["nsfw", "humor", "epilepsy", "oneoftag", "page"];
     const params: any = {};
 
@@ -209,13 +216,6 @@ export class SGDB {
     }
   }
 
-  // async getTotalGridsForGame(id: number): Promise<void> { //Promise<SGDBGridTotals>
-  //   const gameInfoFromId = await this.getGameById(id);
-  //   console.log(`from id ${id}:`, gameInfoFromId);
-  //   const publicGameInfo = await this.handleRequest("GET", `/game/${id}`, {}, null, true);
-  //   console.log(`${id}:`, publicGameInfo);
-  // }
-
   /**
    * Gets a list of possible matches for a query.
    * @param query The search query.
@@ -228,28 +228,34 @@ export class SGDB {
   /**
    * Gets information for a game.
    * @param options The SGDB request options
+   * @param params Optional request parameters.
    * @returns A promise resolving to the game's information.
    */
-  async getGame(options: any): Promise<SGDBGame> {
+  async getGame(options: any, params?: SGDBGetGameOptions): Promise<SGDBGame> {
+    if(params) {
+      return await this.handleRequest("GET", `/games/${options.type}/${options.id}`, this.buildQuery(params));
+    }
     return await this.handleRequest("GET", `/games/${options.type}/${options.id}`);
   }
 
   /**
    * Gets information for a game given its id.
    * @param id The game's id.
+   * @param params Optional request parameters.
    * @returns A promise resolving to the game's information.
    */
-  async getGameById(id: number): Promise<SGDBGame> {
-    return this.getGame({id: id, type: "id"});
+  async getGameById(id: number, params?: SGDBGetGameOptions): Promise<SGDBGame> {
+    return this.getGame({id: id, type: "id"}, params);
   }
 
   /**
    * Gets information for a steam game given its id.
    * @param id The game's id.
+   * @param params Optional request parameters.
    * @returns A promise resolving to the game's information.
    */
-  async getGameBySteamAppId(id: number): Promise<SGDBGame> {
-    return this.getGame({id: id, type: "steam"});
+  async getGameBySteamAppId(id: number, params?: SGDBGetGameOptions): Promise<SGDBGame> {
+    return this.getGame({id: id, type: "steam"}, params);
   }
 
   /**
