@@ -175,7 +175,7 @@ export class CacheController {
       dowloadingGridId.set(null);
 
       switch (status) {
-        case "sucess":
+        case "success":
           LogController.warn(`Request for ${imageURL} succeeded.`);
           break;
         case "timedOut":
