@@ -164,19 +164,11 @@ export class CacheController {
       dowloadingGridId.set(appId);
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
 
-      // const imageData = await http.fetch<Uint8Array>(imageURL, {
-      //   method: "GET",
-      //   responseType: 3,
-      //   timeout: requestTimeout
-      // });
-      
-      // await fs.writeBinaryFile(localImagePath, imageData.data);
-      
       dowloadingGridId.set(null);
 
       switch (status) {
         case "success":
-          LogController.warn(`Request for ${imageURL} succeeded.`);
+          LogController.log(`Request for ${imageURL} succeeded.`);
           break;
         case "timedOut":
           ToastController.showWarningToast("Grid requested timed out");
