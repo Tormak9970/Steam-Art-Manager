@@ -19,9 +19,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.{ts,svelte}\"",
-    "lint:timing": "set TIMING=1 && eslint \"src/**/*.{ts,svelte}\" --cache --cache-strategy metadata",
-    "lint:fix": "eslint --fix  \"src/**/*.{ts,svelte}\"",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "tauri": "tauri",
     "prepare": "husky install"
@@ -45,12 +42,7 @@
     "@tsconfig/svelte": "^3.0.0",
     "@types/markdown-it": "^12.2.3",
     "@types/node": "^18.7.10",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "eslint": "^8.50.0",
-    "eslint-plugin-svelte": "^2.33.2",
     "husky": "^8.0.3",
-    "lint-staged": "^14.0.1",
     "svelte": "^3.54.0",
     "svelte-check": "^3.0.0",
     "svelte-eslint-parser": "^0.33.0",
@@ -58,8 +50,5 @@
     "tslib": "^2.4.1",
     "typescript": "^4.6.4",
     "vite": "^4.0.0"
-  },
-  "lint-staged": {
-    "*.{js,ts,svelte}": "pnpm run lint"
   }
 }
