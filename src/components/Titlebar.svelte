@@ -1,15 +1,17 @@
 <script lang="ts">
-  import { appWindow } from "@tauri-apps/api/window";
   import { onDestroy, onMount } from "svelte";
-  import { exit } from "@tauri-apps/api/process";
+  import { exit } from "@tauri-apps/plugin-process";
   import { canSave } from "../stores/AppState";
   import { LogController } from "../lib/controllers/LogController";
   import { DialogController } from "../lib/controllers/DialogController";
+  import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
   let windowCloseUnsub: () => void;
 
   export let title: string;
   export let isMaxed = false;
+
+  $: appWindow = WebviewWindow.getByLabel("main")!;
 
   let minimize: HTMLDivElement;
   let maximize: HTMLDivElement;
@@ -51,6 +53,7 @@
   });
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div data-tauri-drag-region on:contextmenu|preventDefault class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />

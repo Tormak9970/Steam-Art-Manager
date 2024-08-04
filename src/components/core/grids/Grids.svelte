@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dialog } from "@tauri-apps/api";
+  import * as dialog from "@tauri-apps/plugin-dialog";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
@@ -50,7 +50,7 @@
    * Prompts the user to select their custom game art.
    */
   async function prompUserForArt(): Promise<void> {
-    const path = await dialog.open({
+    const file = await dialog.open({
       title: "Select your game art",
       filters: [
         {
@@ -72,7 +72,7 @@
       ],
       multiple: false
     });
-    if (path && path !== "") AppController.setCustomArt(path as string);
+    if (file && file.path && file.path !== "") AppController.setCustomArt(file.path as string);
   }
   
   /**

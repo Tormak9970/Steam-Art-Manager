@@ -1,8 +1,7 @@
 <script lang="ts">
   import MarkdownIt from "markdown-it";
-  import { open } from "@tauri-apps/api/shell";
-  import { installUpdate } from "@tauri-apps/api/updater"
-  import { relaunch } from "@tauri-apps/api/process"
+  import { open } from "@tauri-apps/plugin-shell";
+  import { relaunch } from "@tauri-apps/plugin-process"
   
   import { showUpdateModal, updateManifest } from "../../../stores/Modals";
 
@@ -11,16 +10,18 @@
   import Button from "../../interactables/Button.svelte";
   import { LogController } from "../../../lib/controllers/LogController";
   import { ToastController } from "../../../lib/controllers/ToastController";
-    import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
 
   const mdIt = new MarkdownIt({
     html: true,
     linkify: true
   });
 
+  $: updateData = $updateManifest!;
+
   const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
-  const dateParts = $updateManifest.date.split(" ");
+  const dateParts = $updateManifest!.date!.split(" ");
   const dateSegs = dateParts[0].split("-").map((seg) => parseInt(seg));
   const cleanDate = `${months[dateSegs[1]-1]} ${dateSegs[2]}, ${dateSegs[0]}`
 
@@ -42,11 +43,11 @@
    * Applies the update
    */
   async function update(): Promise<void> {
-    LogController.log(`Installing update v${$updateManifest.version}, released on ${$updateManifest.date}.`);
+    LogController.log(`Installing update v${updateData.version}, released on ${updateData.date}.`);
     ToastController.showGenericToast("Installing update...");
 
     // Install the update. This will also restart the app on Windows!
-    await installUpdate();
+    await updateData.downloadAndInstall();
 
     // On macOS and Linux you will need to restart the app manually.
     // You could use this step to display another confirmation dialog.
@@ -57,17 +58,17 @@
    * Ignores the update.
    */
   async function ignoreUpdate(): Promise<void> {
-    LogController.log(`Skipping update v${$updateManifest.version}.`);
+    LogController.log(`Skipping update v${updateData.version}.`);
     $showUpdateModal = false;
   }
 </script>
 
-<ModalBody title={`Update v${$updateManifest.version} is Available!`} canClose={false}>
+<ModalBody title={`Update v${updateData.version} is Available!`} canClose={false}>
   <div class="content">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
       <UpdateField label="Your Version" value={APP_VERSION} />
-      <UpdateField label="Newest Version" value={$updateManifest.version} />
+      <UpdateField label="Newest Version" value={updateData.version} />
       <UpdateField label="Release Date" value={cleanDate} />
     </div>
     <div class="changelog">
@@ -75,9 +76,10 @@
       <div class="release-notes-container">
         <PaddedScrollContainer height={"calc(100% - 10px)"} width={"calc(100% - 10px)"}  background={"transparent"} marginTop="0px" padding="5px">
           <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="release-notes" on:click={clickListener}>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html mdIt.render($updateManifest.body)}
+            {@html mdIt.render(updateData.body ?? "No update details found")}
           </div>
         </PaddedScrollContainer>
       </div>

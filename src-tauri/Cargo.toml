@@ -6,24 +6,31 @@ authors = ["you"]
 license = ""
 repository = ""
 edition = "2021"
-rust-version = "1.57"
+rust-version = "1.79"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5.1", features = [] }
+tauri-build = { version = "2.0.0-beta", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.6.1", features = ["devtools", "dialog-all", "fs-all", "http-request", "os-all", "path-all", "process-exit", "process-relaunch", "protocol-all", "reqwest-client", "shell-open", "updater", "window-all"] }
-tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
+tauri = { version = "2.0.0-beta", features = [ "protocol-asset", "devtools" ] }
+tauri-plugin-fs = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2" }
+tauri-plugin-http = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2" }
+tauri-plugin-dialog = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v2" }
+tauri-plugin-process = "2.0.0-beta.7"
+tauri-plugin-shell = "2.0.0-beta"
+tauri-plugin-single-instance = "2.0.0-beta"
+tauri-plugin-updater = "2.0.0-beta"
+
+panic-message = "0.3.0"
 chrono = "0.4.34"
+image = "0.25.1"
+
 home = "0.5.9"
 zip = "0.6.6"
-reqwest = "0.11.24"
-panic-message = "0.3.0"
-image = "0.24.8"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

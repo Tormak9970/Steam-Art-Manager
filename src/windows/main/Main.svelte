@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { checkUpdate } from "@tauri-apps/api/updater";
+  import { check as checkUpdate } from "@tauri-apps/plugin-updater";
 	import { SvelteToast } from "@zerodevx/svelte-toast";
 	import { onDestroy, onMount } from "svelte";
 	import Titlebar from "../../components/Titlebar.svelte";
@@ -9,7 +9,7 @@
 	import Games from "../../components/core/games/Games.svelte";
 	import Grids from "../../components/core/grids/Grids.svelte";
   import { AppController } from "../../lib/controllers/AppController";
-  import { exit } from "@tauri-apps/api/process";
+  import { exit } from "@tauri-apps/plugin-process";
   import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "../../stores/AppState";
   import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal, showUpdateTilesModal } from "../../stores/Modals";
 	import DropDown from "../../components/interactables/DropDown.svelte";
@@ -32,7 +32,6 @@
   import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
   import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
 	
-  let updateUnsub;
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
 
@@ -94,10 +93,10 @@
 		}
 
     try {
-      const { shouldUpdate, manifest } = await checkUpdate();
+      const update = await checkUpdate();
 
-      if (shouldUpdate) {
-        $updateManifest = manifest;
+      if (update && update.available && update.currentVersion <= update.version) {
+        $updateManifest = update;
         $showUpdateModal = true;
       }
     } catch (error) {
@@ -118,7 +117,6 @@
     window.removeEventListener("error", onError);
 		await AppController.destroy();
 
-    if (updateUnsub) updateUnsub()
 		if (activeUserIdUnsub) activeUserIdUnsub();
 		if (usersUnsub) usersUnsub();
 	});

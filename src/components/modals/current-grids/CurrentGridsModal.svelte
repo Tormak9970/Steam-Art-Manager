@@ -3,7 +3,7 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
   import CurrentGridImage from "./CurrentGridImage.svelte";
-  import { tauri } from "@tauri-apps/api";
+  import { convertFileSrc } from "@tauri-apps/api/core";
 
   /**
    * The function to run when the modal closes.
@@ -27,9 +27,9 @@
   $: {
     for (const gridType of [ "Capsule", "Wide Capsule", "Hero", "Logo", "Icon" ]) {
       if ($appLibraryCache[game.appid][gridType] === "REMOVE") {
-        imageSources[gridType] = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][gridType]);
+        imageSources[gridType] = convertFileSrc($unfilteredLibraryCache[game.appid][gridType]);
       } else {
-        imageSources[gridType] = tauri.convertFileSrc($appLibraryCache[game.appid][gridType]);
+        imageSources[gridType] = convertFileSrc($appLibraryCache[game.appid][gridType]);
       }
     }
 

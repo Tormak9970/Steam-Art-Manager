@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
   import Toggle from "../../interactables/Toggle.svelte";
 
   export let label = "";

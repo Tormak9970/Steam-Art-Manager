@@ -1,6 +1,6 @@
 <script lang="ts">
   import MarkDownIt from "markdown-it";
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
 
   import Lazy from "svelte-lazy";
   import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";

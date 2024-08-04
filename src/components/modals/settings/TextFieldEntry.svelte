@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
   import TextInput from "../../interactables/TextInput.svelte";
   import Spacer from "../../layout/Spacer.svelte";
   import { onMount } from "svelte";
@@ -17,13 +17,14 @@
   export let useValidator = false;
   export let validator: (value: string) => Promise<boolean> = async (value: string) => true;
 
-  let isValid = null;
+  let isValid = false;
   
   /**
    * A wrapper for the onChange event.
    */
   async function changeWrapper(): Promise<void> {
     isValid = await validator(value);
+    console.log(isValid);
     onChange(value, isValid);
   }
 

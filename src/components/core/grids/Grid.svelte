@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
   import { AppController } from "../../../lib/controllers/AppController";
   
   import type { SGDBImage } from "../../../lib/models/SGDB";

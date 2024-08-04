@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { tauri } from "@tauri-apps/api"
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
 
@@ -8,6 +7,7 @@
   import ListEntry from "./list-view/ListEntry.svelte";
   import GridEntry from "./grid-view/GridEntry.svelte";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
+  import { convertFileSrc } from "@tauri-apps/api/core";
 
   export let game: GameStruct;
 
@@ -74,11 +74,11 @@
       if (libraryCache[game.appid][type]) {
         showImage = true;
         if (libraryCache[game.appid][type] === "REMOVE") {
-          imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
-          iconPath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid].Icon);
+          imagePath = convertFileSrc($unfilteredLibraryCache[game.appid][type]);
+          iconPath = convertFileSrc($unfilteredLibraryCache[game.appid].Icon);
         } else {
-          imagePath = tauri.convertFileSrc(libraryCache[game.appid][type]);
-          iconPath = tauri.convertFileSrc(libraryCache[game.appid].Icon);
+          imagePath = convertFileSrc(libraryCache[game.appid][type]);
+          iconPath = convertFileSrc(libraryCache[game.appid].Icon);
         }
       }  else {
         showImage = false;

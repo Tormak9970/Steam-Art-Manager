@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
+  import { open } from "@tauri-apps/plugin-shell";
   import TextInput from "../../interactables/TextInput.svelte";
   import FileButton from "../../interactables/FileButton.svelte";
   import Spacer from "../../layout/Spacer.svelte";

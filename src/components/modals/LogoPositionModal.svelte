@@ -20,14 +20,14 @@
   import Button from "../interactables/Button.svelte";
   import { AppController } from "../../lib/controllers/AppController";
   import { afterUpdate, onMount } from "svelte";
-  import { tauri } from "@tauri-apps/api";
   import DropDown from "../interactables/DropDown.svelte";
   import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import { showLogoPositionModal } from "../../stores/Modals";
   import Spacer from "../layout/Spacer.svelte";
-    import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
+  import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
+  import { convertFileSrc } from "@tauri-apps/api/core";
 
   /**
    * The function to run when the modal closes.
@@ -144,9 +144,9 @@
   onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
       if ($appLibraryCache[$selectedGameAppId].Hero === "REMOVE") {
-        heroPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
+        heroPath = convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
       } else {
-        heroPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
+        heroPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
       }
     } else {
       heroPath = "";
@@ -154,9 +154,9 @@
 
     if ($appLibraryCache[$selectedGameAppId]?.Logo) {
       if ($appLibraryCache[$selectedGameAppId].Logo === "REMOVE") {
-        logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
+        logoPath = convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
       } else {
-        logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
+        logoPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
     }
     

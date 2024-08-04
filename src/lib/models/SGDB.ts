@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { http } from "@tauri-apps/api";
+import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 import { requestTimeoutLength } from "../../stores/AppState";
 
@@ -102,15 +102,14 @@ export type TauriRequest = {
 }
 
 export class RequestError extends Error {
-  response: TauriRequest;
+  response: Response;
 
-  constructor(message: string, response: TauriRequest) {
+  constructor(message: string, response: Response) {
     super(message);
     this.name = "Request Error"
     this.response = response;
   }
 }
-
 /**
  * Tauri compatible wrapper for the SteamGridDB API.
  */
@@ -179,7 +178,7 @@ export class SGDB {
    * @param usePublic Whether to use the public api or v2.
    * @returns A promise resolving to the request's result.
    */
-  async handleRequest(method: http.HttpVerb, url: string, params: { [key: string]: string; } = {}, formData = null, usePublic = false): Promise<any> {
+  async handleRequest(method: "GET", url: string, params: { [key: string]: string; } = {}, formData = null, usePublic = false): Promise<any> {
     const requestTimeout = get(requestTimeoutLength);
     let strParams: string;
 
@@ -190,29 +189,30 @@ export class SGDB {
       });
       strParams = strParams.substring(1);
     } else {
-      strParams = null;
+      strParams = "";
     }
 
     let options = {
       headers: this.headers,
       method,
-      timeout: requestTimeout
+      signal: AbortSignal.timeout(requestTimeout)
     };
 
     if (formData) {
       options = Object.assign({}, options, { formData: formData });
     }
 
-    let response = await http.fetch<any>(`${this.baseURL}${usePublic ? "public" : "v2"}${url}${strParams ? `?${strParams}` : ""}`, options);
+    let response = await fetch(`${this.baseURL}${usePublic ? "public" : "v2"}${url}${strParams ? `?${strParams}` : ""}`, options);
 
     if (response.ok) {
-      if (response?.data.success) {
-        return response.data.data ?? response.data.success;
+      const data = await response.json();
+      if (data.success) {
+        return data.data;
       } else {
-        throw new RequestError(response.data?.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
+        throw new RequestError(data.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
       }
     } else {
-      throw new RequestError(response.data?.errors?.join(", ") ?? "SteamGridDB error.", response);
+      throw new RequestError(response.statusText ?? "SteamGridDB error.", response);
     }
   }
 
@@ -608,16 +608,5 @@ export class SGDB {
       epilepsy: epilepsy,
       page: page,
     });
-  }
-
-  /**
-   * Deletes the provided grids from SteamGridDB.
-   * @param ids Id or list of ids of grids to delete.
-   * @returns A promise resolving to true if the operation succeeded.
-   */
-  async deleteGrids(ids:number|number[]):Promise<boolean> {
-    const gridIds = Array.isArray(ids) ? ids.join(",") : ids.toString();
-
-    return await this.handleRequest("DELETE", `/grids/${Array.isArray(gridIds) ? gridIds.join(",") : gridIds}`);
   }
 }

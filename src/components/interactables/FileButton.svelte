@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Placement } from "tippy.js";
   import IconButton from "./IconButton.svelte";
-  import { dialog } from "@tauri-apps/api";
+  import * as dialog from "@tauri-apps/plugin-dialog";
 
   export let label: string;
   export let tooltipPosition: Placement = "top-end";

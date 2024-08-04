@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { fs, path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { LogController } from "../controllers/LogController";
 import { DEFAULT_SETTINGS } from "../models/Defaults";
+import { path } from "@tauri-apps/api";
 
 /**
  * A class for managing application settings
@@ -39,7 +40,7 @@ export class SettingsManager {
    */
   private static async setSettingsPath(): Promise<void> {
     const appDir = await path.appConfigDir();
-    if (!(await fs.exists(appDir))) await fs.createDir(appDir);
+    if (!(await fs.exists(appDir))) await fs.create(appDir);
 
     const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
@@ -101,10 +102,7 @@ export class SettingsManager {
 
     settings.version = APP_VERSION;
 
-    await fs.writeFile({
-      path: SettingsManager.settingsPath,
-      contents: JSON.stringify(settings),
-    });
+    await fs.writeTextFile(SettingsManager.settingsPath, JSON.stringify(settings));
 
     LogController.log("Finished checking settings for new app version and/or migration.");
 
@@ -177,10 +175,7 @@ export class SettingsManager {
     parentObject[fieldPath[fieldPath.length - 1]] = val;
 
     SettingsManager.settings = settings;
-    await fs.writeFile({
-      path: SettingsManager.settingsPath,
-      contents: JSON.stringify(settings),
-    });
+    await fs.writeTextFile(SettingsManager.settingsPath, JSON.stringify(settings));
 
     LogController.log(`Updated setting ${field} to ${JSON.stringify(val)}.`);
   }

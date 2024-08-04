@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
-import type { UpdateManifest } from "@tauri-apps/api/updater";
+import type { Update } from "@tauri-apps/plugin-updater";
 
 export const showGridModal = writable(false);
 export const gridModalInfo: Writable<SGDBImage> = writable(null);
@@ -24,7 +24,7 @@ export const showCleanConflictDialog = writable(false);
 export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
 
 export const showUpdateModal = writable(false);
-export const updateManifest: Writable<UpdateManifest> = writable(null);
+export const updateManifest: Writable<Update | null> = writable(null);
 
 export const showSteamPathModal = writable(false);
 export const steamPathModalClose = writable(async () => {});

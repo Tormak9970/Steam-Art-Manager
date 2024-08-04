@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { fs, path } from "@tauri-apps/api";
-import { appCacheDir } from "@tauri-apps/api/path";
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 
 import { get, type Unsubscriber } from "svelte/store";
 import { RequestError, SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
@@ -93,12 +93,12 @@ export class CacheController {
   private async createDirIfNotExists(path: string, dirName: string): Promise<void> {
     try {
       if (!(await fs.exists(path))) {
-        await fs.createDir(path);
+        await fs.create(path);
         // LogController.log(`Created ${dirName} dir.`);
       } else {
         // LogController.log(`Found ${dirName} dir.`);
       }
-    } catch(e) {
+    } catch(e: any) {
       LogController.error(e.message);
       ToastController.showWarningToast(`Unable to add ${dirName} dir to scope`);
     }
@@ -111,7 +111,7 @@ export class CacheController {
   private async init(): Promise<void> {
     // LogController.log("Initializing CacheController...");
     
-    this.appCacheDirPath = await appCacheDir();
+    this.appCacheDirPath = await path.appCacheDir();
     await this.createDirIfNotExists(this.appCacheDirPath, "cache");
 
     this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
@@ -456,7 +456,7 @@ export class CacheController {
    */
   private async invalidateCache(): Promise<void> {
     // LogController.log("Clearing cache...");
-    await fs.removeDir(this.gridCacheDirPath, { recursive: true });
+    await fs.remove(this.gridCacheDirPath, { recursive: true });
     LogController.log("Cleared cache.");
   }
   

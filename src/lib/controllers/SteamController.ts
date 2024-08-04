@@ -1,4 +1,5 @@
-import { fs, http } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
+import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 import { xml2json } from "../external/xml2json";
 
@@ -10,7 +11,8 @@ import { RustInterop } from "./RustInterop";
 
 import { getIdFromGridName } from "../utils/Utils";
 import { DialogController } from "./DialogController";
-import { exit } from "@tauri-apps/api/process";
+import { exit } from "@tauri-apps/plugin-process";
+import { join } from "@tauri-apps/api/path";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,
@@ -33,17 +35,18 @@ export class SteamController {
   
   /**
    * Caches the steam game logo configs.
+   * @param gridsDir The grids directory
    * @param logoConfigs The list of logoConfig files.
    * ? Logging complete.
    */
-  private static async cacheLogoConfigs(logoConfigs: fs.FileEntry[]): Promise<void> {
+  private static async cacheLogoConfigs(gridsDir: string, logoConfigs: fs.DirEntry[]): Promise<void> {
     const configs = {};
 
     for (const logoConfig of logoConfigs) {
       const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
 
       if (!isNaN(id)) {
-        const contents = await fs.readTextFile(logoConfig.path);
+        const contents = await fs.readTextFile(await join(gridsDir, logoConfig.name));
         const jsonContents = JSON.parse(contents);
         if (jsonContents.logoPosition) configs[id] = jsonContents;
       }
@@ -57,12 +60,13 @@ export class SteamController {
   
   /**
    * Filters and structures the library grids based on the app's needs.
+   * @param gridsDir The grids directory.
    * @param gridsDirContents The contents of the grids dir.
    * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured grids dir.
    * ? Logging complete.
    */
-  private static filterGridsDir(gridsDirContents: fs.FileEntry[], shortcutsIds: string[]): [{ [appid: string]: LibraryCacheEntry }, fs.FileEntry[]] {
+  private static async filterGridsDir(gridsDir: string, gridsDirContents: fs.DirEntry[], shortcutsIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, fs.DirEntry[]]> {
     const resKeys = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
@@ -88,7 +92,7 @@ export class SteamController {
               // @ts-ignore
               res[appid] = {};
             }
-            res[appid][gridTypeLUT[type]] = fileEntry.path;
+            res[appid][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
           }
         }
       }
@@ -99,13 +103,14 @@ export class SteamController {
 
   /**
    * Filters and structures the library cache based on the app's needs.
+   * @param libraryCacheDir The library cache dir.
    * @param libraryCacheContents The contents of the library cache.
    * @param gridsInfos The filtered grid infos.
    * @param shortcutIds The list of loaded shortcuts ids.
    * @returns The filtered and structured library cache.
    * ? Logging complete.
    */
-  private static filterLibraryCache(libraryCacheContents: fs.FileEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): { [appid: string]: LibraryCacheEntry } {
+  private static async filterLibraryCache(libraryCacheDir: string, libraryCacheContents: fs.DirEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
@@ -129,9 +134,9 @@ export class SteamController {
           unfiltered[appId] = {};
         }
         
-        if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = fileEntry.path;
+        if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = await join(libraryCacheDir, fileEntry.name);
         
-        unfiltered[appId][libraryCacheLUT[type]] = fileEntry.path;
+        unfiltered[appId][libraryCacheLUT[type]] = await join(libraryCacheDir, fileEntry.name);
       }
     }
 
@@ -151,7 +156,7 @@ export class SteamController {
     const gridDirContents = (await fs.readDir(gridsDir));
 
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ filteredGrids, logoConfigs ] = SteamController.filterGridsDir(gridDirContents, shortcutIds);
+    const [ filteredGrids, logoConfigs ] = await SteamController.filterGridsDir(gridsDir, gridDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
@@ -162,10 +167,10 @@ export class SteamController {
     }
 
     const libraryCacheContents = (await fs.readDir(libraryCacheDir));
-    const filteredCache = SteamController.filterLibraryCache(libraryCacheContents, filteredGrids, shortcutIds);
+    const filteredCache = await SteamController.filterLibraryCache(libraryCacheDir, libraryCacheContents, filteredGrids, shortcutIds);
     LogController.log("Library Cache loaded.");
 
-    await SteamController.cacheLogoConfigs(logoConfigs);
+    await SteamController.cacheLogoConfigs(gridsDir, logoConfigs);
 
     return filteredCache;
   }
@@ -180,14 +185,13 @@ export class SteamController {
     const requestTimeout = get(requestTimeoutLength);
     // LogController.log("Loading games from Steam Community page...");
 
-    const res = await http.fetch<string>(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
+    const res = await fetch(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
       method: "GET",
-      responseType: http.ResponseType.Text,
-      timeout: requestTimeout
+      signal: AbortSignal.timeout(requestTimeout)
     });
     
     if (res.ok) {
-      const xmlData = SteamController.domParser.parseFromString(res.data, "text/xml");
+      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
       const jsonStr = xml2json(xmlData, "");
       const games = JSON.parse(jsonStr);
 
@@ -198,7 +202,7 @@ export class SteamController {
         }
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
     } else {
-      const xmlData = SteamController.domParser.parseFromString(res.data, "text/xml");
+      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
       const jsonStr = xml2json(xmlData, "");
       const err = JSON.parse(jsonStr);
 
@@ -218,20 +222,20 @@ export class SteamController {
     const requestTimeout = get(requestTimeoutLength);
     // LogController.log("Loading games from Steam API...");
 
-    const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+    const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
       method: "GET",
-      timeout: requestTimeout
+      signal: AbortSignal.timeout(requestTimeout)
     });
 
     if (res.ok) {
-      return res.data.response.games.map((game: any) => {
+      return (await res.json()).response.games.map((game: any) => {
         return {
           "appid": game.appid,
           "name": game.name
         }
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
     } else {
-      const xmlData = SteamController.domParser.parseFromString(res.data, "text/xml");
+      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
       const jsonStr = xml2json(xmlData, "");
       const err = JSON.parse(jsonStr);
 

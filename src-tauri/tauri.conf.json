@@ -1,166 +1,19 @@
 {
-	"build": {
-		"beforeDevCommand": "pnpm run dev",
-		"beforeBuildCommand": "pnpm run build",
-		"devPath": "http://localhost:1420",
-		"distDir": "../dist",
-		"withGlobalTauri": false
-	},
-	"package": {
-		"productName": "Steam Art Manager",
-		"version": "../package.json"
-	},
-	"tauri": {
-		"allowlist": {
-			"dialog": { "all": true },
-			"path": { "all": true },
-			"os": { "all": true },
-			"fs": {
-				"all": true,
-				"scope": {
-          "allow": [
-            "$DESKTOP",
-            "$DESKTOP/**",
-            "$APPCONFIG",
-            "/var/home/*/.config/dev.tormak.steam-art-manager",
-            "$APPCONFIG/**",
-            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
-            "$Home/**",
-            "/var/home/*/**",
-            "/home/*/.steam/**",
-            "/home/*/.local/share/steam/**",
-            "$DATA",
-            "$DATA/**",
-            "$APPLOG",
-            "$APPLOG/**",
-            "$APPCACHE",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager",
-            "$APPCACHE/**",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
-            "C:/Users/*/scoop/persist/**"
-          ],
-          "requireLiteralLeadingDot": false
-        }
-			},
-			"http": {
-				"all": false,
-				"request": true,
-				"scope": [
-					"https://*.steamgriddb.com/api/*",
-					"https://*.steamgriddb.com/file/*",
-					"http://api.steampowered.com/IPlayerService/GetOwnedGames/*",
-					"https://steamcommunity.com/profiles/*"
-				]
-			},
-			"protocol": {
-				"all": true,
-				"asset": true,
-				"assetScope": {
-          "allow": [
-            "$DESKTOP",
-            "$DESKTOP/**",
-            "$APPCONFIG",
-            "/var/home/*/.config/dev.tormak.steam-art-manager",
-            "$APPCONFIG/**",
-            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
-            "$Home/**",
-            "/var/home/*/**",
-            "/home/*/.steam/**",
-            "/home/*/.local/share/steam/**",
-            "$DATA",
-            "$DATA/**",
-            "$APPLOG",
-            "$APPLOG/**",
-            "$APPCACHE",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager",
-            "$APPCACHE/**",
-            "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
-            "C:/Users/*/scoop/persist/**"
-          ],
-          "requireLiteralLeadingDot": false
-        }
-			},
-			"shell": {
-				"all": false,
-				"open": ".*"
-			},
-			"window": {
-				"all": true
-			},
-			"process": {
-				"all": false,
-				"exit": true,
-				"relaunch": true,
-				"relaunchDangerousAllowSymlinkMacos": false
-			}
-		},
-		"bundle": {
-			"active": true,
-			"category": "Utility",
-			"copyright": "Copyright Travis Lane 2024",
-			"deb": {
-				"depends": []
-			},
-			"externalBin": [],
-			"icon": [
-				"icons/32x32.png",
-				"icons/64x64.png",
-				"icons/128x128.png",
-				"icons/128x128@2x.png",
-				"icons/256x256.png",
-				"icons/icon.icns",
-				"icons/icon.ico",
-        "icons/icon.png"
-			],
-			"identifier": "dev.tormak.steam-art-manager",
-			"longDescription": "A tool for setting the artwork of your Steam library.",
-			"resources": [],
-			"shortDescription": "A tool for setting the artwork of your Steam library.",
-			"targets": [
-				"appimage",
-				"msi",
-				"updater"
-			],
-			"windows": {
-				"certificateThumbprint": null,
-				"digestAlgorithm": "sha256",
-				"timestampUrl": "",
-				"webviewInstallMode": {
-					"type": "offlineInstaller"
-				},
-        "wix": {
-          "language": {
-            "en-US": {
-              "localePath": "wix/locales/en-US.wxl"
-            }
-          },
-          "license": "wix/short-license.txt",
-          "bannerPath": "wix/bannerImage.jpg",
-          "dialogImagePath": "wix/dialogImage.jpg"
-        }
-			},
-			"appimage": {
-				"bundleMediaFramework": false
-			}
-		},
-		"security": {
-			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; media-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; style-src 'self' 'unsafe-inline'",
-			"dangerousDisableAssetCspModification": [
-				"style-src"
-			]
-		},
-		"updater": {
-			"active": true,
-			"endpoints": [
-				"https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
-			],
-			"dialog": false,
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
-		},
-		"windows": [
-			{
-				"label": "main",
-				"title": "Steam Art Manager",
+  "productName": "Steam Art Manager",
+  "version": "../package.json",
+  "identifier": "dev.tormak.steam-art-manager",
+  "build": {
+    "beforeDevCommand": "bun dev",
+    "beforeBuildCommand": "bun build",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Steam Art Manager",
 				"url": "src/windows/main/main.html",
 				"height": 802,
 				"minHeight": 740,
@@ -172,7 +25,104 @@
         "transparent": true,
 				"center": true,
 				"visible": true
-			}
-		]
-	}
+      }
+    ],
+    "security": {
+      "assetProtocol": {
+        "scope": {
+          "allow": [
+            "$DESKTOP",
+            "$DESKTOP/**",
+            "$APPCONFIG",
+            "/var/home/*/.config/dev.tormak.steam-art-manager",
+            "$APPCONFIG/**",
+            "/var/home/*/.config/dev.tormak.steam-art-manager/**",
+            "$Home/**",
+            "/var/home/*/**",
+            "/home/*/.steam/**",
+            "/home/*/.local/share/steam/**",
+            "$DATA",
+            "$DATA/**",
+            "$APPLOG",
+            "$APPLOG/**",
+            "$APPCACHE",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager",
+            "$APPCACHE/**",
+            "/var/home/*/.cache/dev.tormak.steam-art-manager/**",
+            "C:/Users/*/scoop/persist/**"
+          ],
+          "requireLiteralLeadingDot": false
+        },
+        "enable": true
+      },
+      "capabilities": [
+        "main-window-capabilities"
+      ],
+      "dangerousDisableAssetCspModification": [
+        "style-src"
+      ],
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; media-src 'self' asset: https://asset.localhost https://*.steamgriddb.com; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+			"endpoints": [
+				"https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/release/latest.json"
+			],
+			"dialog": false,
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNThCMDI0MkM2ODEzMTIKUldRU0UyZ3NKTEJZZXRHdnBJQmU1K01KMFM3ZmR5RE0reVJvcHhNK3V0NSsrZVhxNHhkOWJqSGMK"
+    },
+    "fs": {
+      "requireLiteralLeadingDot": false
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Utility",
+    "copyright": "Copyright Travis Lane 2024",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "webviewInstallMode": {
+        "type": "offlineInstaller"
+      },
+      "wix": {
+        "language": {
+          "en-US": {
+            "localePath": "wix/locales/en-US.wxl"
+          }
+        },
+        "dialogImagePath": "wix/dialogImage.jpg",
+        "bannerPath": "wix/bannerImage.jpg"
+      }
+    },
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false,
+        "files": {}
+      }
+    },
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/64x64.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/256x256.png",
+      "icons/icon.icns",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "longDescription": "A tool for setting the artwork of your Steam library.",
+    "resources": [],
+    "shortDescription": "A tool for setting the artwork of your Steam library.",
+    "targets": [
+      "appimage",
+      "msi"
+    ],
+    "licenseFile": "wix/short-license.txt",
+    "createUpdaterArtifacts": "v1Compatible"
+  }
 }

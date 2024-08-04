@@ -3,9 +3,10 @@ import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, acti
 import { DialogController } from "../controllers/DialogController";
 import { LogController } from "../controllers/LogController";
 import { SGDB, type SGDBImage } from "../models/SGDB";
-import { exit } from "@tauri-apps/api/process";
+import { exit } from "@tauri-apps/plugin-process";
 import { RustInterop } from "../controllers/RustInterop";
-import { fs, path, process, http } from "@tauri-apps/api";
+import { fetch } from "@tauri-apps/plugin-http";
+import * as process from "@tauri-apps/plugin-process";
 import { get } from "svelte/store";
 
 /**
@@ -223,9 +224,9 @@ export async function validateSteamAPIKey(key: string, userId?: number): Promise
   const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
   const timeout = get(requestTimeoutLength)
 
-  const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+  const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
     method: "GET",
-    timeout: timeout
+    signal: AbortSignal.timeout(timeout)
   });
 
   return res.ok || key === "";
@@ -241,8 +242,13 @@ export async function validateSGDBAPIKey(key: string): Promise<boolean> {
   
   const apiModel = new SGDB(key);
 
-  const res = await apiModel.searchGame("s");
-  return res?.length > 0;
+  try {
+    const res = await apiModel.searchGame("s");
+    return res?.length > 0;
+  } catch (e: any) {
+    console.error(e);
+    return false;
+  }
 }
 
 /**

@@ -23,7 +23,7 @@ import { RustInterop } from "./RustInterop";
 import { restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "../utils/Utils";
 
 import "tippy.js/dist/tippy.css"
-import { exit } from "@tauri-apps/api/process";
+import { exit } from "@tauri-apps/plugin-process";
 import { DialogController } from "./DialogController";
 import { findSteamPath } from "../utils/Utils";
 import type { Unsubscriber } from "svelte/store";

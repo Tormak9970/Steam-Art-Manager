@@ -5,17 +5,18 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import { ToastController } from "../../../lib/controllers/ToastController";
   import { LogController } from "../../../lib/controllers/LogController";
-  import { fs, tauri } from "@tauri-apps/api";
+  import * as fs from "@tauri-apps/plugin-fs";
   import Button from "../../interactables/Button.svelte";
     
   import Lazy from "svelte-lazy";
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
+    import { convertFileSrc } from "@tauri-apps/api/core";
 
   let conflictNumber: number = 1;
   let conflict: CleanConflict;
   $: conflictGridType = conflict ? conflict.gridType : "";
-  $: fileAPath = conflict ? tauri.convertFileSrc(conflict.fileAPath) : "";
-  $: fileBPath = conflict ? tauri.convertFileSrc(conflict.fileBPath) : "";
+  $: fileAPath = conflict ? convertFileSrc(conflict.fileAPath) : "";
+  $: fileBPath = conflict ? convertFileSrc(conflict.fileBPath) : "";
 
   /**
    * Get the next grid conflict.
@@ -30,7 +31,7 @@
    * @param keepChoiceA If true, keep choice A, if false, keep choice B.
    */
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
-    await fs.removeFile(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
+    await fs.remove(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
 
     LogController.log(`Appid: ${conflict.appid}. Keeping ${keepChoiceA ? conflict.fileAName : conflict.fileBName} and deleting ${keepChoiceA ? conflict.fileBName : conflict.fileAName}.`);
     
@@ -63,8 +64,8 @@
   onMount(() => {
     conflict = getNextConflict();
     conflictGridType = conflict.gridType;
-    fileAPath = tauri.convertFileSrc(conflict.fileAPath);
-    fileBPath = tauri.convertFileSrc(conflict.fileBPath);
+    fileAPath = convertFileSrc(conflict.fileAPath);
+    fileBPath = convertFileSrc(conflict.fileBPath);
   });
 </script>
 

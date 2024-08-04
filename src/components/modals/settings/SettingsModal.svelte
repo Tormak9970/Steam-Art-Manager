@@ -13,7 +13,7 @@
   import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
   import IconButton from "../../interactables/IconButton.svelte";
   import { appLogDir } from "@tauri-apps/api/path";
-  import { shell } from "@tauri-apps/api";
+  import * as shell from "@tauri-apps/plugin-shell";
   import { DialogController } from "../../../lib/controllers/DialogController";
   import { AppController } from "../../../lib/controllers/AppController";
 
