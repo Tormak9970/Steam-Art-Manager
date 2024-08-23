@@ -83,13 +83,13 @@ runs:
           }
           
 
-          const linuxInstallerPath = path.resolve(process.cwd(), "build-resources", "linux-installer.sh");
-          const linuxInstallerContents = fs.readFileSync(linuxInstallerPath, "utf-8");
+          const appimageInstallerPath = path.resolve(process.cwd(), "build-resources", "appimage-installer.sh");
+          const appimageInstallerContents = fs.readFileSync(appimageInstallerPath, "utf-8");
           core.info(`Release Tag: ${process.env.release_tag}`);
 
-          const modifiedContents = linuxInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
-          await uploadReleaseAsset("linux-installer.sh", Buffer.from(modifiedContents));
-          core.info("Uploaded linux installer to release.");
+          const modifiedContents = appimageInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
+          await uploadReleaseAsset("appimage-installer.sh", Buffer.from(modifiedContents));
+          core.info("Uploaded appimage installer to release.");
 
 
           if (process.env.git_branch == "release") {
