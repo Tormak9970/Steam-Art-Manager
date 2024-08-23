@@ -1,10 +1,9 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
+  import { TextInput } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
-  import TextInput from "../../interactables/TextInput.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import { debounce } from "@utils";
   import { onMount } from "svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import { debounce } from "../../../lib/utils/Utils";
 
   export let label: string;
   export let description: string;
@@ -80,6 +79,7 @@
     {/if}
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="description" on:click={clickListener}>
     <b>Usage:</b><br/>
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->

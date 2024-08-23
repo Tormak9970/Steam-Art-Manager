@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SGDBGame } from "../../../../lib/models/SGDB";
+  import type { SGDBGame } from "@types";
 
   export let game: SGDBGame;
   export let isSelected: boolean;
@@ -7,6 +7,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="search-entry" class:selected={isSelected} on:click={() => { onSelect(game); }}>
   <div class="name">{game.name}</div>
 </div>

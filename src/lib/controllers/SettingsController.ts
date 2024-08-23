@@ -15,18 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { ToastController } from "./ToastController";
-import { SettingsManager } from "../utils/SettingsManager";
-import { LogController } from "./LogController";
-import { GridTypes, activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
-import { RustInterop } from "./RustInterop";
-import { restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "../utils/Utils";
-
-import "tippy.js/dist/tippy.css"
 import { exit } from "@tauri-apps/plugin-process";
-import { DialogController } from "./DialogController";
-import { findSteamPath } from "../utils/Utils";
+import { SettingsManager, findSteamPath, restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "@utils";
 import type { Unsubscriber } from "svelte/store";
+import "tippy.js/dist/tippy.css";
+import { GridTypes, activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
+import { DialogController } from "./DialogController";
+import { LogController } from "./LogController";
+import { RustInterop } from "./RustInterop";
+import { ToastController } from "./ToastController";
 
 /**
  * The main controller for the application.

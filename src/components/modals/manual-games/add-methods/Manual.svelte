@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { ToastController } from "../../../../lib/controllers/ToastController";
-  import Button from "../../../interactables/Button.svelte";
-  import NumberInput from "../../../interactables/NumberInput.svelte";
-  import TextInput from "../../../interactables/TextInput.svelte";
-  import Spacer from "../../../layout/Spacer.svelte";
+  import { ToastController } from "@controllers";
+  import { Button, NumberInput, TextInput } from "@interactables";
+  import type { GameStruct } from "@types";
   
-  export let onGameSave: (game:GameStruct) => void;
+  export let onGameSave: (game: GameStruct) => void;
 
   let gameName: string = "";
   let appId: number = 0;

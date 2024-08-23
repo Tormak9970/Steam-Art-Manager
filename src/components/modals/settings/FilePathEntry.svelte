@@ -1,10 +1,8 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
+  import { FileButton, TextInput } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
-  import TextInput from "../../interactables/TextInput.svelte";
-  import FileButton from "../../interactables/FileButton.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
   import { onMount } from "svelte";
-    import { AppController } from "../../../lib/controllers/AppController";
 
   export let label: string;
   export let description: string;

@@ -1,18 +1,14 @@
 <script lang="ts">
-  import Button from "../../interactables/Button.svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import DropDown from "../../interactables/DropDown.svelte";
-  import ManualGameEntry from "./ManualGameEntry.svelte";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import Search from "./add-methods/Search.svelte";
-  import Manual from "./add-methods/Manual.svelte";
-  import Table from "../../layout/Table.svelte";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
-  import { showManualGamesModal } from "../../../stores/Modals";
-  import { selectedManualGamesAddMethod } from "../../../stores/AppState";
-  import { LogController } from "../../../lib/controllers/LogController";
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { Button, DropDown } from "@interactables";
+  import { Table } from "@layout";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, steamGames } from "@stores/AppState";
+  import { showManualGamesModal } from "@stores/Modals";
+  import type { GameStruct } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import Manual from "./add-methods/Manual.svelte";
+  import Search from "./add-methods/Search.svelte";
+  import ManualGameEntry from "./ManualGameEntry.svelte";
 
   /**
    * The function to run when the modal closes.

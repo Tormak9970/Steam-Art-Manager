@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { steamInstallPath } from "../../stores/AppState";
-  import { steamPathModalClose } from "../../stores/Modals";
-  import { LogController } from "../../lib/controllers/LogController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import Button from "../interactables/Button.svelte";
+  import { LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import { steamInstallPath } from "@stores/AppState";
+  import { steamPathModalClose } from "@stores/Modals";
+  import { validateSteamPath } from "@utils";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import FilePathEntry from "./settings/FilePathEntry.svelte";
-  import Spacer from "../layout/Spacer.svelte";
-  import { validateSteamPath } from "../../lib/utils/Utils";
 
   let canSave = false;
 

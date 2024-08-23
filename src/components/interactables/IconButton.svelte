@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
   import type { Placement } from "tippy.js";
-  import { AppController } from "../../lib/controllers/AppController";
 
   export let label: string;
   export let tooltipPosition: Placement = "top-end";

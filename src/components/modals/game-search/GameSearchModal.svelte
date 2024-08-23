@@ -1,25 +1,20 @@
 <script lang="ts">
-  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "../../../stores/Modals";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import Button from "../../interactables/Button.svelte";
-  import ModalBody from "../modal-utils/ModalBody.svelte";
-  import SearchBar from "../../interactables/SearchBar.svelte";
-  import type { SGDBGame } from "../../../lib/models/SGDB";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { Button, IconButton, SearchBar } from "@interactables";
+  import { PaddedScrollContainer } from "@layout";
+  import { selectedGameName, steamGridNameSearchCache } from "@stores/AppState";
+  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
+  import type { SGDBGame } from "@types";
   import { onMount } from "svelte";
-  import GameSearchEntry from "./GameSearchEntry.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-  import IconButton from "../../interactables/IconButton.svelte";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
-  import { selectedGameName, steamGridNameSearchCache } from "../../../stores/AppState";
-  import Spacer from "../../layout/Spacer.svelte";
+  import GameSearchEntry from "./GameSearchEntry.svelte";
 
   let canApply = false;
   let loading = true;
   let requestTimedOut = false;
   let searchQuery = $gameSearchModalDefault;
-  let selectedGame: SGDBGame = null
+  let selectedGame: SGDBGame | null = null
 
   let results: SGDBGame[] = [];
   
@@ -37,7 +32,7 @@
 	function applyChoice(): void {
     canApply = false;
 
-    LogController.log(`Applied game choice ${selectedGame.name}`);
+    LogController.log(`Applied game choice ${selectedGame!.name}`);
     ToastController.showSuccessToast("Choice applied!");
 
     $gameSearchModalSelect(selectedGame);

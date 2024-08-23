@@ -1,15 +1,14 @@
 <script lang="ts">
-  import MarkDownIt from "markdown-it";
   import { open } from "@tauri-apps/plugin-shell";
+  import MarkDownIt from "markdown-it";
 
+  import { AppController } from "@controllers";
+  import { Button } from "@interactables";
+  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
+  import { gridModalInfo, showGridModal } from "@stores/Modals";
+  import { PREVIEW_GRID_DIMENSIONS } from "@utils";
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
-  import Button from "../interactables/Button.svelte";
-  import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import { gridModalInfo, showGridModal } from "../../stores/Modals";
-  import Spacer from "../layout/Spacer.svelte";
-  import { PREVIEW_GRID_DIMENSIONS } from "../../lib/utils/ImageConstants";
 
   /**
    * The function to run when the modal closes.

@@ -15,23 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { ToastController } from "./ToastController";
-import { SettingsManager } from "../utils/SettingsManager";
-import { LogController } from "./LogController";
+import type { SGDBGame, SGDBImage } from "@types";
+import { SettingsManager, restartApp } from "@utils";
+import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
+import { hideAll, type Instance, type Props } from "tippy.js";
+import "tippy.js/dist/tippy.css";
 import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
-import { RustInterop } from "./RustInterop";
-import type { SGDBGame, SGDBImage } from "../models/SGDB";
-
-import { createTippy } from "svelte-tippy";
-import "tippy.js/dist/tippy.css"
-import { hideAll, type Instance, type Props } from "tippy.js";
-import { SteamController } from "./SteamController";
-import { SettingsController } from "./SettingsController";
-import { restartApp } from "../utils/Utils";
 import { DialogController } from "./DialogController";
+import { LogController } from "./LogController";
+import { RustInterop } from "./RustInterop";
+import { SettingsController } from "./SettingsController";
+import { SteamController } from "./SteamController";
+import { ToastController } from "./ToastController";
 
 /**
  * The main controller for the application.
@@ -39,7 +37,7 @@ import { DialogController } from "./DialogController";
 export class AppController {
   private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController = null;
-  private static tippyInstance = null;
+  private static tippyInstance: Instance<Props> = null;
 
   static tippy = createTippy({
     hideOnClick: false,

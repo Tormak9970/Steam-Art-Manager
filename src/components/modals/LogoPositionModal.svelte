@@ -16,18 +16,15 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../stores/AppState";
-  import Button from "../interactables/Button.svelte";
-  import { AppController } from "../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
+  import { Button, DropDown, Slider } from "@interactables";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "@stores/AppState";
+  import { showLogoPositionModal } from "@stores/Modals";
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import { IMAGE_FADE_OPTIONS } from "@utils";
   import { afterUpdate, onMount } from "svelte";
-  import DropDown from "../interactables/DropDown.svelte";
-  import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import { showLogoPositionModal } from "../../stores/Modals";
-  import Spacer from "../layout/Spacer.svelte";
-  import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
-  import { convertFileSrc } from "@tauri-apps/api/core";
 
   /**
    * The function to run when the modal closes.

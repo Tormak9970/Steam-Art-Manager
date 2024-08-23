@@ -18,14 +18,15 @@
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
+import { RequestError, SGDB } from "@models";
+import type { GameStruct, SGDBGame, SGDBImage, SteamShortcut } from "@types";
+import { filterGrids, getLastLoadedPageNumberForGame } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
-import { RequestError, SGDB, type SGDBGame, type SGDBImage } from "../models/SGDB";
-import { dowloadingGridId, gridType, GridTypes, steamGridSearchCache, Platforms, steamGridDBKey, gridsCache, steamGridSteamAppIdMap, canSave, appLibraryCache, steamGames, nonSteamGames, steamShortcuts, dbFilters, requestTimeoutLength, manualSteamGames } from "../../stores/AppState";
-import { batchApplyWasCancelled, showBatchApplyProgress, batchApplyProgress, batchApplyMessage  } from "../../stores/Modals";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridsCache, gridType, GridTypes, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, steamGames, steamGridDBKey, steamGridSearchCache, steamGridSteamAppIdMap, steamShortcuts } from "../../stores/AppState";
+import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "../../stores/Modals";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
 import { ToastController } from "./ToastController";
-import { filterGrids, getLastLoadedPageNumberForGame } from "../utils/Utils";
 
 
 /**
@@ -71,12 +72,14 @@ function logErrorToFile(message: string, useCoreFile: boolean): void {
  * Controller class for handling caching of requests.
  */
 export class CacheController {
+  // @ts-expect-error This will always be defined eventually.
   private appCacheDirPath: string;
+  // @ts-expect-error This will always be defined eventually.
   private gridCacheDirPath: string;
 
-  apiKeyUnsub: Unsubscriber;
-  client: SGDB;
-  key: string;
+  apiKeyUnsub: Unsubscriber | undefined;
+  client: SGDB | null = null;
+  key: string | null = null;
 
   /**
    * Creates a new CacheController.
@@ -466,7 +469,7 @@ export class CacheController {
    */
   async destroy() {
     // LogController.log("Destroying CacheController...");
-    this.apiKeyUnsub();
+    if (this.apiKeyUnsub) this.apiKeyUnsub();
     await this.invalidateCache();
     LogController.log("CacheController destroyed.");
   }

@@ -1,12 +1,10 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
+  import { LoadingSpinner } from "@layout";
+  import { dowloadingGridId, gridType } from "@stores/AppState";
   import { open } from "@tauri-apps/plugin-shell";
-  import { AppController } from "../../../lib/controllers/AppController";
-  
-  import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { throttle } from "../../../lib/utils/Utils";
-
-  import { dowloadingGridId, gridType } from "../../../stores/AppState";
-  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import type { SGDBImage } from "@types";
+  import { throttle } from "@utils";
   import GridImage from "../GridImage.svelte";
 
   export let grid: SGDBImage;
@@ -30,6 +28,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="grid" on:click={selectGame}>
   <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id}>
     <LoadingSpinner width="40px" height="40px" />

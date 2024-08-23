@@ -1,14 +1,10 @@
 <script lang="ts">
-  import { showUpdateTilesModal } from "../../stores/Modals";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../stores/AppState";
-
-  import { AppController } from "../../lib/controllers/AppController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import { LogController } from "../../lib/controllers/LogController";
-
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "@stores/AppState";
+  import { showUpdateTilesModal } from "@stores/Modals";
+  import type { GameStruct } from "@types";
   import { onMount } from "svelte";
-  import Button from "../interactables/Button.svelte";
-  import Spacer from "../layout/Spacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import GameFilter from "./modal-utils/game-filter/GameFilter.svelte";
 

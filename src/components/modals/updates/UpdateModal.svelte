@@ -1,16 +1,15 @@
 <script lang="ts">
-  import MarkdownIt from "markdown-it";
+  import { relaunch } from "@tauri-apps/plugin-process";
   import { open } from "@tauri-apps/plugin-shell";
-  import { relaunch } from "@tauri-apps/plugin-process"
+  import MarkdownIt from "markdown-it";
   
-  import { showUpdateModal, updateManifest } from "../../../stores/Modals";
+  import { showUpdateModal, updateManifest } from "@stores/Modals";
 
-  import UpdateField from "./UpdateField.svelte";
+  import { LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import { PaddedScrollContainer } from "@layout";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import Button from "../../interactables/Button.svelte";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+  import UpdateField from "./UpdateField.svelte";
 
   const mdIt = new MarkdownIt({
     html: true,

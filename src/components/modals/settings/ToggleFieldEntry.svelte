@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { Toggle } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
-  import Toggle from "../../interactables/Toggle.svelte";
 
   export let label = "";
   export let description = "";
@@ -28,6 +28,7 @@
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="description" on:click={clickListener}>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html description}<br/>

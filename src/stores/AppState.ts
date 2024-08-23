@@ -1,6 +1,6 @@
+import { DEFAULT_FILTERS } from "@models";
+import type { SGDBGame, SGDBImage } from "@types";
 import { writable, type Writable } from "svelte/store";
-import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
-import { DEFAULT_FILTERS } from "../lib/models/Defaults";
 
 export type DBFilters = {
   [key in GridTypes]: {

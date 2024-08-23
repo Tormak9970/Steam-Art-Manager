@@ -1,10 +1,9 @@
 <script lang="ts">
-  import GridLoadingSkeleton from "../../../layout/GridLoadingSkeleton.svelte";
+  import { GridLoadingSkeleton, VirtualGrid } from "@layout";
+  import { currentPlatform, gridType } from "@stores/AppState";
+  import type { GameStruct } from "@types";
+  import { SMALL_GRID_DIMENSIONS } from "@utils";
   import GameEntry from "../GameEntry.svelte";
-  
-  import { currentPlatform, gridType } from "../../../../stores/AppState";
-  import VirtualGrid from "../../../layout/VirtualGrid.svelte";
-  import { SMALL_GRID_DIMENSIONS } from "../../../../lib/utils/ImageConstants";
 
   export let isLoading: boolean;
   export let games: GameStruct[];

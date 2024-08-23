@@ -1,16 +1,16 @@
 <script lang="ts">
+  import { LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import * as fs from "@tauri-apps/plugin-fs";
   import { onMount } from "svelte";
   import { GridTypes } from "../../../stores/AppState";
   import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import * as fs from "@tauri-apps/plugin-fs";
-  import Button from "../../interactables/Button.svelte";
     
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import type { CleanConflict } from "@types";
+  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
-  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
-    import { convertFileSrc } from "@tauri-apps/api/core";
 
   let conflictNumber: number = 1;
   let conflict: CleanConflict;

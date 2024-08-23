@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { selectedGameAppId } from "../../../../stores/AppState";
-  import { AppController } from "../../../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
+  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
   import Lazy from "svelte-lazy";
+  import { selectedGameAppId } from "../../../../stores/AppState";
   import AllGridsIcon from "../../../icons/AllGridsIcon.svelte";
-  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "../../../../lib/utils/ImageConstants";
 
   export let game: GameStruct;
   export let iconPath: string;
@@ -20,6 +20,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="list-entry" class:selected={$selectedGameAppId === game.appid} on:click={selectGame}>
   <div class="entry-info">
     <div class="icon-container">

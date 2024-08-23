@@ -1,18 +1,16 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
+  import { DropDown, IconButton } from "@interactables";
   import * as dialog from "@tauri-apps/plugin-dialog";
+  import type { SGDBGame } from "@types";
+  import { debounce } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import type { SGDBGame } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, selectedGameAppId, selectedGameName, steamGridDBKey, currentPlatform, selectedSteamGridGameId, steamGridSearchCache, Platforms, appLibraryCache, manualSteamGames, customGameNames, gridsSize, steamGames, nonSteamGames } from "../../../stores/AppState";
-  import SectionTitle from "../SectionTitle.svelte";
-  import DropDown from "../../interactables/DropDown.svelte";
-  import IconButton from "../../interactables/IconButton.svelte";
-  import { debounce } from "../../../lib/utils/Utils";
-  import Divider from "../Divider.svelte";
+  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, GridTypes, isOnline, manualSteamGames, nonSteamGames, Platforms, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "../../../stores/AppState";
   import { showLogoPositionModal } from "../../../stores/Modals";
-  import Spacer from "../../layout/Spacer.svelte";
+  import Divider from "../Divider.svelte";
+  import SectionTitle from "../SectionTitle.svelte";
   import GridResults from "./GridResults.svelte";
 
   let windowWidth: number;
@@ -150,14 +148,13 @@
     <SectionTitle title="Grids" />
 
     <div class="content" style="position: relative; z-index: 2; overflow: initial;">
-      <div style="margin-left: 6px; display: flex; justify-content: space-between;">
-        <div style="display: flex;">
+      <div class="inputs">
+        <div class="controls">
           {#if !windowWidth || windowWidth >= 1265}
             <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} />
           {:else}
             <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
           {/if}
-          <Spacer orientation="HORIZONTAL" />
           <IconButton label="Customize Search" onClick={handleCustomNameInput} tooltipPosition={"top"} disabled={!$selectedGameAppId} height="24px" width="24px">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
               <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -171,7 +168,6 @@
         {:else}
           <DropDown options={steamGridTypes} width={"130px"} showTooltip={false} bind:value={$gridType} />
         {/if}
-        <Spacer orientation="HORIZONTAL" />
 
         <div class="buttons-cont">
           <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={!$selectedGameAppId || !$appLibraryCache[$selectedGameAppId]?.Logo}>
@@ -180,7 +176,6 @@
               <path d="M160 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v64H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96c17.7 0 32-14.3 32-32V64zM32 320c-17.7 0-32 14.3-32 32s14.3 32 32 32H96v64c0 17.7 14.3 32 32 32s32-14.3 32-32V352c0-17.7-14.3-32-32-32H32zM352 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V64zM320 320c-17.7 0-32 14.3-32 32v96c0 17.7 14.3 32 32 32s32-14.3 32-32V384h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H320z"/>
             </svg>
           </IconButton>
-          <Spacer orientation="HORIZONTAL" />
 
           <IconButton label="Upload Local Art" onClick={prompUserForArt} width="auto" disabled={!$selectedGameAppId}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
@@ -191,8 +186,7 @@
         </div>
       </div>
       
-      <Divider marginTop={"7px"} />
-      <Spacer orientation="VERTICAL" />
+      <Divider marginTop={"6px"} />
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
@@ -207,6 +201,9 @@
   .inner {
     margin-right: 1px;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .content {
@@ -214,7 +211,18 @@
     max-height: calc(100% - 65px);
   }
 
+  .inputs {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .controls {
+    display: flex;
+    gap: 7px;
+  }
+
   .buttons-cont {
     display: flex;
+    gap: 7px;
   }
 </style>

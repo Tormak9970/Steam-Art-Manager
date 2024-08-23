@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { AppController } from "../../../lib/controllers/AppController";
-  import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, selectedSteamGridGameId, lastPageCache, hasMorePagesCache, loadingSettings, steamGridSearchCache } from "../../../stores/AppState";
-  import Grid from "./Grid.svelte";
-  import { debounce, filterGrids, getHasMorePages, getLastLoadedPageNumberForGame } from "../../../lib/utils/Utils";
-  import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-  import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
-  import InfiniteScroll from "../../layout/pagination/InfiniteScroll.svelte";
+  import { AppController } from "@controllers";
+  import { GridLoadingSkeleton, InfiniteScroll, PaddedScrollContainer } from "@layout";
+  import { dbFilters, gridType, GridTypes, hasMorePagesCache, isOnline, lastPageCache, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import type { SGDBImage } from "@types";
+  import { debounce, filterGrids, getHasMorePages, getLastLoadedPageNumberForGame, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
+  import Grid from "./Grid.svelte";
   
   const padding = 20;
 

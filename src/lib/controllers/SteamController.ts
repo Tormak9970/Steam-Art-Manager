@@ -6,13 +6,13 @@ import { xml2json } from "../external/xml2json";
 import { GridTypes, activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
 
 import { LogController } from "./LogController";
-import { ToastController } from "./ToastController";
 import { RustInterop } from "./RustInterop";
+import { ToastController } from "./ToastController";
 
-import { getIdFromGridName } from "../utils/Utils";
-import { DialogController } from "./DialogController";
-import { exit } from "@tauri-apps/plugin-process";
 import { join } from "@tauri-apps/api/path";
+import { exit } from "@tauri-apps/plugin-process";
+import { getIdFromGridName } from "@utils";
+import { DialogController } from "./DialogController";
 
 const gridTypeLUT = {
   "capsule": GridTypes.CAPSULE,

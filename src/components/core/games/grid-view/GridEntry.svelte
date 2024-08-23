@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
   import { gridType, selectedGameAppId } from "../../../../stores/AppState";
-  import { AppController } from "../../../../lib/controllers/AppController";
-  import GridImage from "../../GridImage.svelte";
   import AllGridsIcon from "../../../icons/AllGridsIcon.svelte";
+  import GridImage from "../../GridImage.svelte";
 
   export let game: GameStruct;
   export let imagePath: string;

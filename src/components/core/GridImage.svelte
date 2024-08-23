@@ -1,7 +1,7 @@
 <script lang="ts">
   import Lazy from "svelte-lazy";
   import { gridType } from "../../stores/AppState";
-  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "../../lib/utils/ImageConstants";
+  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
 
   export let imagePath: string;
   export let altText: string;

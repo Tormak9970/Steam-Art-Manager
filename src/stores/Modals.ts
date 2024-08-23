@@ -1,6 +1,6 @@
-import { writable, type Writable } from "svelte/store";
-import type { SGDBGame, SGDBImage } from "../lib/models/SGDB";
 import type { Update } from "@tauri-apps/plugin-updater";
+import type { SGDBGame, SGDBImage } from "@types";
+import { writable, type Writable } from "svelte/store";
 
 export const showGridModal = writable(false);
 export const gridModalInfo: Writable<SGDBImage> = writable(null);

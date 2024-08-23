@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
-  import { exit } from "@tauri-apps/plugin-process";
-  import { canSave } from "../stores/AppState";
-  import { LogController } from "../lib/controllers/LogController";
-  import { DialogController } from "../lib/controllers/DialogController";
+  import { DialogController, LogController } from "@controllers";
   import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { exit } from "@tauri-apps/plugin-process";
+  import { onDestroy, onMount } from "svelte";
+  import { canSave } from "../stores/AppState";
 
   let windowCloseUnsub: () => void;
 

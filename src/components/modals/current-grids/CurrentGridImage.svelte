@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { CURRENT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
   import { GridTypes } from "../../../stores/AppState";
-  import { CURRENT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
   
   export let gameTitle: string;
   export let gridType: GridTypes;

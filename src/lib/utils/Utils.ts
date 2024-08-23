@@ -1,35 +1,12 @@
-import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
-import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId, hasMorePagesCache, lastPageCache } from "../../stores/AppState";
-import { DialogController } from "../controllers/DialogController";
-import { LogController } from "../controllers/LogController";
-import { SGDB, type SGDBImage } from "../models/SGDB";
-import { exit } from "@tauri-apps/plugin-process";
-import { RustInterop } from "../controllers/RustInterop";
+import { DialogController, LogController, RustInterop } from "@controllers";
+import { SGDB } from "@models";
 import { fetch } from "@tauri-apps/plugin-http";
 import * as process from "@tauri-apps/plugin-process";
+import { exit } from "@tauri-apps/plugin-process";
+import type { SGDBImage } from "@types";
 import { get } from "svelte/store";
-
-/**
- * Throttles a function to only run every provided interval.
- * @param func The function to throttle.
- * @param wait The amount of time in between each run.
- * @returns A function that throttles the provided function.
- */
-export function throttle(func: any, wait: number) {
-  let waiting = false;
-  return function (...args: any[]) {
-    if (waiting) {
-      return;
-    } else {
-      func.apply(this, args);
-    }
-
-    waiting = true;
-    setTimeout(() => {
-      waiting = false;
-    }, wait);
-  }
-}
+import { activeUserId, GridTypes, hasMorePagesCache, lastPageCache, requestTimeoutLength, steamInstallPath, type DBFilters } from "../../stores/AppState";
+import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
 
 /**
  * Debounces a function by the provided interval.
@@ -38,19 +15,66 @@ export function throttle(func: any, wait: number) {
  * @param immediate Whether to run the function immediately, then debounce, or debounce from the start.
  * @returns The debounced function.
  */
-export function debounce(func: any, wait:number, immediate?:boolean) {
-  let timeout:NodeJS.Timeout|null;
+export function debounce(func: any, wait:number, immediate?: boolean) {
+  let timeout:any|null;
+
   return function (...args: any[]) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const context = this;
     const later = function () {
       timeout = null;
-      if (!immediate) func.apply(context, args);
+      if (!immediate) func(...args);
     };
+
     const callNow = immediate && !timeout;
-    clearTimeout(timeout as NodeJS.Timeout);
+    clearTimeout(timeout as any);
     timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
+    
+    if (callNow) func(...args);
+  }
+}
+
+/**
+ * Throttles a function to only run every provided interval. From underscore souce code.
+ * @param func The function to throttle.
+ * @param wait How long to wait before running the function again.
+ * @param immediate Whether to run the function immediately or not. 
+ * @returns The throttled function.
+ */
+export function throttle(func: any, wait: number, immediate = false) {
+  let context: any, args: any, result: any;
+  let timeout: any = null;
+  let previous: any = 0;
+
+  const later = function() {
+    previous = immediate === false ? 0 : new Date();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+
+  return function() {
+    const now = new Date();
+    if (!previous && immediate === false) previous = now;
+    // @ts-ignore
+    const remaining = wait - (now - previous);
+    // @ts-ignore
+    context = this;
+    args = arguments;
+
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+
+      previous = now;
+      result = func.apply(context, args);
+
+      if (!timeout) context = args = null;
+    } else if (!timeout && immediate !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+
+    return result;
   }
 }
 
@@ -81,7 +105,7 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
 export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, page: number, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-  const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
+  const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
   const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
   const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
   const humorAllowed = targetFilters.oneoftag.humor;

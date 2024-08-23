@@ -1,14 +1,12 @@
 <script lang="ts">
-  import { needsSGDBAPIKey } from "../../../../stores/AppState";
-  import { ToastController } from "../../../../lib/controllers/ToastController";
-  import type { SGDBGame } from "../../../../lib/models/SGDB";
-  import Button from "../../../interactables/Button.svelte";
-  import SearchBar from "../../../interactables/SearchBar.svelte";
-  import Table from "../../../layout/Table.svelte";
+  import { AppController, ToastController } from "@controllers";
+  import { Button, SearchBar } from "@interactables";
+  import { Table } from "@layout";
+  import { needsSGDBAPIKey } from "@stores/AppState";
+  import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
-  import { AppController } from "../../../../lib/controllers/AppController";
   
-  export let onGameSave: (game:GameStruct) => void;
+  export let onGameSave: (game: GameStruct) => void;
 
   let searchQuery: string = "";
   let selectedGame: SGDBGame;

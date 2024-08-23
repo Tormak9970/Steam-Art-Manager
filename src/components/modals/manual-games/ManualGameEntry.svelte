@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { appLibraryCache, unfilteredLibraryCache } from "../../../stores/AppState";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
+  import { appLibraryCache, unfilteredLibraryCache } from "@stores/AppState";
 
   export let game: GameStruct;
   export let onRemove: (game: GameStruct) => void;

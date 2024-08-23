@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Placement } from "tippy.js";
+  import { AppController } from "@controllers";
   import { afterUpdate } from "svelte";
-  import { AppController } from "../../lib/controllers/AppController";
+  import type { Placement } from "tippy.js";
 
   export let leftTooltip: string;
   export let rightTooltip: string;

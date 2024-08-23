@@ -1,36 +1,35 @@
 <script lang="ts">
-  import { check as checkUpdate } from "@tauri-apps/plugin-updater";
-	import { SvelteToast } from "@zerodevx/svelte-toast";
-	import { onDestroy, onMount } from "svelte";
-	import Titlebar from "../../components/Titlebar.svelte";
-	import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
-	import Footer from "../../components/Footer.svelte";
-	import Options from "../../components/core/filters/Options.svelte";
-	import Games from "../../components/core/games/Games.svelte";
-	import Grids from "../../components/core/grids/Grids.svelte";
-  import { AppController } from "../../lib/controllers/AppController";
+  import { AppController, LogController } from "@controllers";
+  import { DropDown } from "@interactables";
+  import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "@stores/AppState";
+  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSettingsModal, showSteamPathModal, showUpdateModal, showUpdateTilesModal, updateManifest } from "@stores/Modals";
   import { exit } from "@tauri-apps/plugin-process";
-  import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "../../stores/AppState";
-  import { showManualGamesModal, showBatchApplyModal, showBatchApplyProgress, showGridModal, showLogoPositionModal, showSettingsModal, showCleanGridsModal, showCleanConflictDialog, showUpdateModal, updateManifest, showDialogModal, showSteamPathModal, showGameSearchModal, showInfoModal, showCurrentGridsModal, showUpdateTilesModal } from "../../stores/Modals";
-	import DropDown from "../../components/interactables/DropDown.svelte";
-	import type { Unsubscriber } from "svelte/store";
+  import { check as checkUpdate } from "@tauri-apps/plugin-updater";
+  import { SettingsManager } from "@utils";
+  import { SvelteToast } from "@zerodevx/svelte-toast";
+  import { onDestroy, onMount } from "svelte";
+  import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
+  import type { Unsubscriber } from "svelte/store";
+  import Footer from "../../components/Footer.svelte";
+  import Titlebar from "../../components/Titlebar.svelte";
+  import Options from "../../components/core/filters/Options.svelte";
+  import Games from "../../components/core/games/Games.svelte";
+  import Grids from "../../components/core/grids/Grids.svelte";
+  import DialogModal from "../../components/modals/DialogModal.svelte";
   import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
-  import { LogController } from "../../lib/controllers/LogController";
   import LogoPositionModal from "../../components/modals/LogoPositionModal.svelte";
+  import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
+  import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
   import BatchApplyModal from "../../components/modals/batch-apply/BatchApplyModal.svelte";
   import BatchApplyProgressModal from "../../components/modals/batch-apply/BatchApplyProgressModal.svelte";
-  import ManualGamesModal from "../../components/modals/manual-games/ManualGamesModal.svelte";
-  import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
-  import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
   import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
-  import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
-  import DialogModal from "../../components/modals/DialogModal.svelte";
-  import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
+  import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
+  import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
   import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
   import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
-  import { SettingsManager } from "../../lib/utils/SettingsManager";
-  import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
-  import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
+  import ManualGamesModal from "../../components/modals/manual-games/ManualGamesModal.svelte";
+  import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
+  import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
 	
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
@@ -95,7 +94,7 @@
     try {
       const update = await checkUpdate();
 
-      if (update && update.available && update.currentVersion <= update.version) {
+      if (update && update.available) {
         $updateManifest = update;
         $showUpdateModal = true;
       }
@@ -228,7 +227,7 @@
 
 	.content {
 		width: 100%;
-		height: calc(100% - 60px);
+		height: calc(100% - 62px);
 
 		display: flex;
 		flex-direction: column;

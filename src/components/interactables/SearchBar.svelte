@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LoadingSpinner from "../info/LoadingSpinner.svelte";
+  import { LoadingSpinner } from "@layout";
 
   export const setSearchFocus = () => { searchInput.focus(); }
 

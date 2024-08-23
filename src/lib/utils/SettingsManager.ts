@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import * as fs from "@tauri-apps/plugin-fs";
-import { LogController } from "../controllers/LogController";
-import { DEFAULT_SETTINGS } from "../models/Defaults";
+import { LogController } from "@controllers";
+import { DEFAULT_SETTINGS } from "@models";
 import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
+import type { AppSettings } from "@types";
 
 /**
  * A class for managing application settings
@@ -88,12 +89,14 @@ export class SettingsManager {
 
     for (const [ key, val ] of defEntries) {
       if (!curKeys.includes(key)) {
+        // @ts-expect-error This will always be fine.
         settings[key] = val;
       }
     }
 
     for (const key in currentSettings) {
       if (!defKeys.includes(key)) {
+        // @ts-expect-error This will always be fine.
         delete settings[key];
       }
     }
@@ -120,9 +123,11 @@ export class SettingsManager {
     let parentObject = settings;
 
     for (let i = 0; i < fieldPath. length - 1; i++) {
+      // @ts-expect-error This will always be fine.
       parentObject = parentObject[fieldPath[i]];
     }
 
+    // @ts-expect-error This will always be fine.
     return parentObject[fieldPath[fieldPath.length - 1]];
   }
 
@@ -140,6 +145,7 @@ export class SettingsManager {
       const key = fieldPath[i];
       
       if (Object.keys(parentObject).includes(key)) {
+        // @ts-expect-error This will always be fine.
         parentObject = parentObject[key];
       } else {
         const defaultValue = SettingsManager.getDefault<T>(field);
@@ -150,6 +156,7 @@ export class SettingsManager {
 
     const finalKey = fieldPath[fieldPath.length - 1];
     if (Object.keys(parentObject).includes(finalKey)) {
+      // @ts-expect-error This will always be fine.
       return parentObject[finalKey];
     } else {
       const defaultValue = SettingsManager.getDefault<T>(field);
@@ -169,9 +176,11 @@ export class SettingsManager {
     let parentObject = settings;
 
     for (let i = 0; i < fieldPath. length - 1; i++) {
+      // @ts-expect-error This will always be fine.
       parentObject = parentObject[fieldPath[i]];
     }
 
+    // @ts-expect-error This will always be fine.
     parentObject[fieldPath[fieldPath.length - 1]] = val;
 
     SettingsManager.settings = settings;

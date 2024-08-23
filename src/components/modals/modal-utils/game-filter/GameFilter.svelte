@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "../../../../stores/AppState";
-  import { AppController } from "../../../../lib/controllers/AppController";
-  import DropDown from "../../../interactables/DropDown.svelte";
-  import SelectedGameEntry from "./SelectedGameEntry.svelte";
+  import { AppController } from "@controllers";
+  import { DropDown, Toggle } from "@interactables";
+  import { Table } from "@layout";
+  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "@stores/AppState";
+  import type { GameStruct } from "@types";
   import { onMount } from "svelte";
-  import Toggle from "../../../interactables/Toggle.svelte";
-  import Table from "../../../layout/Table.svelte";
-  import Spacer from "../../../layout/Spacer.svelte";
+  import SelectedGameEntry from "./SelectedGameEntry.svelte";
   
   export let selectedGameIds: string[];
   export let showFilters = true;
