@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { debounce } from "@utils";
 	import { onMount, tick } from "svelte";
-	import { scrollShadow } from "../../lib/directives/scrollShadow";
 
 	// * Component Props.
 	export let items: any[];

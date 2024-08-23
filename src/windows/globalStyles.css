@@ -93,48 +93,40 @@ a:visited { color: var(--link-color-visited); }
 }
 
 
-.overflow-shadow-container {
-  width: 100%;
-  height: 100%;
+.scroll-shadow {
   position: relative;
-
-  overflow: hidden;
 }
-.overflow-shadow-container::before,
-.overflow-shadow-container::after {
+
+.scroll-shadow.overflow-top::before {
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--scroll-shadow-color) / 0.8),
+    transparent
+  );
   content: "";
+  width: 100%;
   position: absolute;
-  left: 0;
-  right: 8px;
-  height: 10px;
-  opacity: 0;
-  transition: opacity 0.1s;
-
+  height: 40px;
   z-index: 2;
-}
-
-.overflow-shadow-container::before {
-  --mask: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
   top: 0;
-  mask-image: var(--mask);
-  -webkit-mask-image: var(--mask);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+
+  pointer-events: none;
 }
 
-.overflow-shadow-container::after {
-  --mask: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0) 100%);
-  bottom: 0px;
-  mask-image: var(--mask);
-  -webkit-mask-image: var(--mask);
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
-}
+.scroll-shadow.overflow-bottom::after {
+  background: linear-gradient(
+    to top,
+    rgb(var(--scroll-shadow-color) / 0.8),
+    transparent
+  );
+  content: "";
+  width: 100%;
+  position: absolute;
+  height: 40px;
+  z-index: 2;
+  bottom: 0;
 
-.overflow-shadow-container.is-overflowing:not(.is-scrolled-bottom)::after {
-  opacity: 1;
-}
-
-.overflow-shadow-container.is-overflowing:not(.is-scrolled-top)::before {
-  opacity: 1;
+  pointer-events: none;
 }
 
 

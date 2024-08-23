@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, tick } from "svelte";
-  import { scrollShadow } from "../../lib/directives/scrollShadow";
 
 	// * Component Props.
 	export let items: any[];
