@@ -21,6 +21,7 @@
   import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "@stores/AppState";
   import { showLogoPositionModal } from "@stores/Modals";
   import { convertFileSrc } from "@tauri-apps/api/core";
+  import type { LogoPinPositions } from "@types";
   import { IMAGE_FADE_OPTIONS } from "@utils";
   import { afterUpdate, onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -112,6 +113,7 @@
         right: (100 - widthPct) / 2,
       },
     };
+    // @ts-expect-error REMOVE will never be pos' value.
     return positions[pos];
   }
 
@@ -188,8 +190,6 @@
       </div>
       {#if canClear}
         <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <Spacer orientation="HORIZONTAL" />
-        <Spacer orientation="HORIZONTAL" />
         <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
         <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
@@ -247,6 +247,8 @@
     padding: 0px 10px;
 
     display: flex;
+
+    gap: 7px;
   }
 
   .logo-size { width: 220px; }

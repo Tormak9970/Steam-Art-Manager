@@ -10,6 +10,9 @@
   import Lazy from "svelte-lazy";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
+
+  $: definedModalInfo = $gridModalInfo!;
+
   /**
    * The function to run when the modal closes.
    */
@@ -29,7 +32,7 @@
    * Apply the grid being previewed.
    */
   function applyGrid(): void {
-    AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
+    AppController.setSteamGridArt(definedModalInfo.id, definedModalInfo.url);
   }
 
   /**
@@ -49,7 +52,7 @@
 
 <ModalBody title={`${games.find((game) => game.appid === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
+    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {definedModalInfo.width}px; height: {definedModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">
         <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
           <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" />
@@ -64,17 +67,13 @@
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
-        <Spacer orientation="VERTICAL" />
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
         <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
-        <Spacer orientation="VERTICAL" />
         {#if $gridModalInfo?.notes}
-          <Spacer orientation="VERTICAL" />
           <div class="label">Notes:</div>
           <div class="border" />
-          <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
         {:else}
           <div class="border" />
@@ -184,6 +183,7 @@
   .author {
     display: flex;
     align-items: center;
+    margin-bottom: 7px;
   }
 
   .author > .name {
@@ -199,11 +199,15 @@
   }
 
   .label {
+    margin-top: 7px;
     font-size: 16px;
   }
   .label-small { font-size: 14px; }
 
-  .notes { font-size: 14px; }
+  .notes {
+    margin-top: 7px;
+    font-size: 14px;
+  }
 
   .buttons {
     margin-top: 14px;

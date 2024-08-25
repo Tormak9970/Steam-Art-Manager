@@ -33,7 +33,6 @@
   <div class="description">
     The name of the game you're adding. Try to be as accurate as possible.
   </div>
-  <Spacer orientation="VERTICAL" />
   <NumberInput label={"App Id"} bind:value={appId} onChange={() => {}} />
   <div class="description">
     The appid of the game. You can find this by going to the game's steam page, and looking at the number in the url, or looking up "what is the steam appid for GAME_NAME".
@@ -54,11 +53,16 @@
   }
 
   .description {
-    width: calc(100% - 20px);
+    width: calc(100% - 30px);
     margin-top: 7px;
-    margin-bottom: 14px;
+    margin-bottom: 21px;
 
     font-size: 14px;
+
+    background-color: var(--background-dark);
+    border-radius: 4px;
+
+    padding: 5px;
   }
 
   .buttons {

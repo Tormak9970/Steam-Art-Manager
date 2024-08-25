@@ -45,8 +45,6 @@
 
 <ModalBody title={"Choose Your Steam Install Path"} canClose={false}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <FilePathEntry
       label="Steam Install Path"
       description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
@@ -68,6 +66,7 @@
   .content {
 		width: 600px;
 		height: calc(100% - 60px);
+    padding-top: 14px;
 
 		display: flex;
 		flex-direction: column;

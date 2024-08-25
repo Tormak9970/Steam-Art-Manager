@@ -6,8 +6,8 @@
   import { showUpdateModal, updateManifest } from "@stores/Modals";
 
   import { LogController, ToastController } from "@controllers";
+  import { scrollShadow } from "@directives";
   import { Button } from "@interactables";
-  import { PaddedScrollContainer } from "@layout";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import UpdateField from "./UpdateField.svelte";
 
@@ -73,14 +73,13 @@
     <div class="changelog">
       <div class="header"><b>Changelog</b>:</div>
       <div class="release-notes-container">
-        <PaddedScrollContainer height={"calc(100% - 10px)"} width={"calc(100% - 10px)"}  background={"transparent"} marginTop="0px" padding="5px">
+        <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="release-notes" on:click={clickListener}>
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html mdIt.render(updateData.body ?? "No update details found")}
           </div>
-        </PaddedScrollContainer>
+        </div>
       </div>
     </div>
     <div class="buttons">
@@ -132,6 +131,13 @@
 
   :global(.changelog .release-notes li) {
     margin-bottom: 3px;
+  }
+
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
   }
 
   .buttons {

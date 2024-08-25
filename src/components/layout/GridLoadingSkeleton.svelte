@@ -1,7 +1,3 @@
-<script lang="ts">
-
-</script>
-
 <div class="grid-placeholder">
   <div class="shine" />
   <div class="img-placeholder" />

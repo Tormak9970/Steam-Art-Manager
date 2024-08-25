@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
 
   export let threshold = 0;
   export let horizontal = false;
@@ -11,7 +11,7 @@
 
   $: {
     if (component) {
-      const element = component.parentNode.parentNode;
+      const element = component.parentNode;
 
       element.addEventListener("scroll", onScroll);
       element.addEventListener("resize", onScroll);
@@ -35,7 +35,7 @@
 
   onDestroy(() => {
     if (component) {
-      const element = component.parentNode.parentNode;
+      const element = component.parentNode;
 
       element.removeEventListener("scroll", null);
       element.removeEventListener("resize", null);

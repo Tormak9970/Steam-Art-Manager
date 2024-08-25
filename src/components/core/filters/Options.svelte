@@ -1,7 +1,8 @@
 <script lang="ts">
   import { LogController } from "@controllers";
+  import { scrollShadow } from "@directives";
   import { Toggle } from "@interactables";
-  import { Accordion, PaddedScrollContainer } from "@layout";
+  import { Accordion } from "@layout";
   import { dbFilters, gridType, optionsSize, theme } from "@stores/AppState";
   import { Pane } from "svelte-splitpanes";
   import Divider from "../Divider.svelte";
@@ -61,9 +62,9 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <PaddedScrollContainer height={"100%"} width={"100%"} background={"transparent"} marginTop="0px" padding="0px">
+      <div class="scroll-container" use:scrollShadow={{ background: "red"}}>
         <div class="wrapper">
-          {#each Object.keys($dbFilters[$gridType]) as section, i}
+          {#each Object.keys($dbFilters[$gridType]) as section}
             <Accordion
               label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
               open={true}
@@ -80,7 +81,7 @@
             </Accordion>
           {/each}
         </div>
-      </PaddedScrollContainer>
+      </div>
     </div>
   </div>
 </Pane>
@@ -118,5 +119,11 @@
     justify-content: space-between;
     align-items: center;
     height: 20px;
+  }
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
   }
 </style>

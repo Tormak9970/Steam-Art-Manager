@@ -1,9 +1,9 @@
 import type { Update } from "@tauri-apps/plugin-updater";
-import type { SGDBGame, SGDBImage } from "@types";
-import { writable, type Writable } from "svelte/store";
+import type { CleanConflict, DialogModalType, SGDBGame, SGDBImage } from "@types";
+import { writable } from "svelte/store";
 
 export const showGridModal = writable(false);
-export const gridModalInfo: Writable<SGDBImage> = writable(null);
+export const gridModalInfo = writable<SGDBImage | null>(null);
 
 export const showLogoPositionModal = writable(false);
 
@@ -21,10 +21,10 @@ export const showCleanGridsModal = writable(false);
 export const showSettingsModal = writable(false);
 
 export const showCleanConflictDialog = writable(false);
-export const cleanConflicts: Writable<CleanConflict[]> = writable([]);
+export const cleanConflicts = writable<CleanConflict[]>([]);
 
 export const showUpdateModal = writable(false);
-export const updateManifest: Writable<Update | null> = writable(null);
+export const updateManifest = writable<Update | null>(null);
 
 export const showSteamPathModal = writable(false);
 export const steamPathModalClose = writable(async () => {});
@@ -37,7 +37,7 @@ export const gameSearchModalCancel = writable(() => {});
 export const showDialogModal = writable(false);
 export const dialogModalTitle = writable("");
 export const dialogModalMessage = writable("");
-export const dialogModalType: Writable<DialogModalType> = writable("INFO");
+export const dialogModalType = writable<DialogModalType>("INFO");
 export const dialogModalConfirmText = writable("");
 export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = writable("");

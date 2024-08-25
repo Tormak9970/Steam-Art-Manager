@@ -64,7 +64,6 @@
 
 <ModalBody title={"Update Start Menu Tiles"} onClose={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can batch update the game icons shown in your Operating System's start menu to match your custom icons shown in steam.
       <br/>
@@ -76,8 +75,6 @@
         <li>You have changed the icon for this game.</li>
       </ul>
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="view">
       <GameFilter steamGames={filteredSteamGames} bind:selectedGameIds={selectedGameIds} showPlatforms={false} showFilters={false} noGamesMessage={"No games with tiles/new icons were found."}/>
     </div>
@@ -97,11 +94,14 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    gap: 7px;
 	}
 
   .description {
     width: calc(100% - 14px);
     font-size: 14px;
+    margin-top: 7px;
   }
 
   .description ul {

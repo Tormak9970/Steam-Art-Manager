@@ -1,6 +1,7 @@
 <script lang="ts">
   import { IconToggle, SearchBar, Toggle } from "@interactables";
   import { ListTabs } from "@layout";
+  import type { GameStruct } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";

@@ -1,5 +1,4 @@
-export { default as InfiniteScroll } from "./pagination/InfiniteScroll.svelte";
-export { default as Pages } from "./pagination/Pages.svelte";
+export { default as InfiniteScroll } from "./InfiniteScroll.svelte";
 
 export { default as ListTabs } from "./tabs/ListTabs.svelte";
 export { default as Tab } from "./tabs/Tab.svelte";
@@ -10,8 +9,8 @@ export { default as Accordion } from "./Accordion.svelte";
 export { default as GridLoadingSkeleton } from "./GridLoadingSkeleton.svelte";
 
 export { default as LoadingSpinner } from "./LoadingSpinner.svelte";
-export { default as PaddedScrollContainer } from "./PaddedScrollContainer.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
 export { default as Table } from "./Table.svelte";
 export { default as VirtualGrid } from "./VirtualGrid.svelte";
 export { default as VirtualList } from "./VirtualList.svelte";
+

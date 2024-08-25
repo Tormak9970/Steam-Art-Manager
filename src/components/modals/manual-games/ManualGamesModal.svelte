@@ -92,7 +92,6 @@
       <div class="info">
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
-      <Spacer orientation="VERTICAL" />
       <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
       <Table>
         <span slot="header">
@@ -135,11 +134,9 @@
           <div style="margin-right: 7px;">Method for Adding Games:</div>
           <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
         </div>
-        <Spacer orientation="VERTICAL" />
       </div>
       <div class="section-label">Game Info</div>
-      <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
-      <Spacer orientation="VERTICAL" />
+      <div class="border" style="margin-right: 20px; margin-bottom: 7px; width: calc(100% - 20px);" />
       {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
       {:else if $selectedManualGamesAddMethod === "manual"}
@@ -173,6 +170,7 @@
   .info {
     margin-top: 7px;
     margin-left: 7px;
+    margin-bottom: 7px;
     font-size: 14px;
   }
 
@@ -198,6 +196,8 @@
 
     font-size: 14px;
     align-items: center;
+
+    margin-bottom: 7px;
   }
 
   .options {

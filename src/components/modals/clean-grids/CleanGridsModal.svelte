@@ -40,7 +40,6 @@
 
 <ModalBody title={"Clean Grids"} onClose={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can tidy up your custom artwork.<br/>
       <ul>
@@ -48,13 +47,9 @@
         <li><b>Custom</b>: Allows you to customize which games you want to delete the grids for.</li>
       </ul>
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="options">
       <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="100px" showTooltip={false} />
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="view">
       {#if $selectedCleanGridsPreset === "custom"}
         <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} showFilters={false}/>
@@ -76,11 +71,14 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    gap: 7px;
 	}
 
   .description {
     width: calc(100% - 14px);
     font-size: 14px;
+    margin-top: 7px;
   }
 
   .description ul {

@@ -34,8 +34,8 @@
     { label: "Missing", data: "Missing" }
   ];
 
-  let gamesToFilter = [];
-  let selectedGames = {};
+  let gamesToFilter: GameStruct[] = [];
+  let selectedGames: Record<string, boolean> = {};
   let includeHidden = false;
 
   /**
@@ -80,9 +80,7 @@
         <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
     </div>
-    <Spacer orientation="VERTICAL" />
     <Toggle label="Include Hidden" bind:value={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
-    <Spacer orientation="VERTICAL" />
   </div>
   <Table>
     <span slot="header">
@@ -123,5 +121,10 @@
   .options {
     margin-top: 7px;
     margin-left: 7px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
   }
 </style>

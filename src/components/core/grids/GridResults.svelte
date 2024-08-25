@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { GridLoadingSkeleton, InfiniteScroll, PaddedScrollContainer } from "@layout";
+  import { scrollShadow } from "@directives";
+  import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
   import { dbFilters, gridType, GridTypes, hasMorePagesCache, isOnline, lastPageCache, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import type { SGDBImage } from "@types";
   import { debounce, filterGrids, getHasMorePages, getLastLoadedPageNumberForGame, SMALL_GRID_DIMENSIONS } from "@utils";
@@ -67,7 +68,9 @@
   });
 </script>
 
-<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px" onOverflowChange={debouncedResize}>
+<svelte:document on:resize={debouncedResize} />
+
+<div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
   {#if !$loadingSettings}
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
@@ -116,7 +119,7 @@
     threshold={100}
     on:loadMore={handleLoadOnScroll}
   />
-</PaddedScrollContainer>
+</div>
 
 <style>
   .game-grid {
@@ -130,6 +133,13 @@
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
+  }
+  
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
   }
 
   .message {

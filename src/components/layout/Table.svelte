@@ -1,9 +1,8 @@
 <script lang="ts">
-  import PaddedScrollContainer from "./PaddedScrollContainer.svelte";
+  import { scrollShadow } from "@directives";
 
   export let height = "400px";
   export let marginLeft = "7px";
-  export let loading = false;
 </script>
 
 <div class="table" style="height: {height}; margin-left: {marginLeft};">
@@ -11,9 +10,11 @@
     <slot name="header" />
   </div>
   <div class="border" style="margin-top: 3px;"></div>
-  <PaddedScrollContainer height={"calc(100% - 25px)"} width={"100%"} background={"transparent"} padding={"5px 0px 0px 0px"} marginTop="0px" loading={loading}>
-    <slot name="data" />
-  </PaddedScrollContainer>
+  <div class="content-container">
+    <div class="scroll-container" use:scrollShadow={{ background: "--background-dark" }}>
+      <slot name="data" />
+    </div>
+  </div>
 </div>
 
 <style>
@@ -42,5 +43,23 @@
 
     display: flex;
     justify-content: flex-start;
+  }
+
+  .content-container {
+    padding-top: 5px;
+    height: calc(100% - 25px);
+    width: 100%;
+
+    position: relative;
+
+    overflow: hidden;
+  }
+
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+
+    overflow: auto;
   }
 </style>
