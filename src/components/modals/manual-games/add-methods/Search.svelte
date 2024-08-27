@@ -9,7 +9,7 @@
   export let onGameSave: (game: GameStruct) => void;
 
   let searchQuery: string = "";
-  let selectedGame: SGDBGame;
+  let selectedGame: SGDBGame | null;
   let results: SGDBGame[] = [];
 
   /**
@@ -38,14 +38,14 @@
    * Wrapper function for saving the users selection.
    */
   async function saveWrapper(): Promise<void> {
-    const appid = await AppController.getAppidForSGDBGame(selectedGame);
+    const appid = await AppController.getAppidForSGDBGame(selectedGame!);
     
     if (appid) {
-      onGameSave({ appid: parseInt(appid), name: selectedGame.name });
+      onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
       selectedGame = null;
       results = [];
       searchQuery = "";
-      ToastController.showSuccessToast(`Added ${selectedGame.name}!`);
+      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
     } else {
       selectedGame = null;
       ToastController.showWarningToast("No appid found for the selected game!");

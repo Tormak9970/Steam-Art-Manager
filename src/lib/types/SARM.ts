@@ -3,6 +3,14 @@ export type GameStruct = {
   name: string,
 }
 
+export enum GridTypes {
+  CAPSULE="Capsule",
+  WIDE_CAPSULE="Wide Capsule",
+  HERO="Hero",
+  LOGO="Logo",
+  ICON="Icon"
+}
+
 export type MainWindowPanels = {
   options: number,
   games: number,
@@ -13,16 +21,12 @@ export type CleanGridsPreset = "clean" | "custom";
 export type ManageManualGamesMethod = "manual" | "search";
 
 export type LibraryCacheEntry = {
-  "Capsule": string,
-  "Wide Capsule": string,
-  "Hero": string,
-  "Logo": string,
-  "Icon": string,
+  [key in GridTypes]?: string;
 }
 
 export type ChangedPath = {
   appId: string,
-  gridType: string,
+  gridType: GridTypes,
   oldPath: string,
   targetPath: string,
   sourcePath: string

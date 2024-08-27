@@ -46,6 +46,6 @@ export const dialogModalCancel = writable(async () => {});
 export const showInfoModal = writable(false);
 
 export const showCurrentGridsModal = writable(false);
-export const currentGridsAppid = writable(null);
+export const currentGridsAppid = writable("");
 
 export const showUpdateTilesModal = writable(false);

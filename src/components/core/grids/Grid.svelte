@@ -10,7 +10,7 @@
   export let grid: SGDBImage;
 
   let imagePath = grid.thumb.toString();
-  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
+  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id.toString(), grid.url); }, 500);
 
   /**
    * Sets this grid to be the current grid for the selected game.
@@ -30,7 +30,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="grid" on:click={selectGame}>
-  <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id}>
+  <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id.toString()}>
     <LoadingSpinner width="40px" height="40px" />
   </div>
   <div class="image-control show-view" on:click|stopPropagation={() => { AppController.viewSteamGridImage(grid); }} use:AppController.tippy={{ content: "View Grid", placement: "right", onShow: AppController.onTippyShow }}>

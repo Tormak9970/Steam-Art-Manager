@@ -1,6 +1,6 @@
 import { DEFAULT_FILTERS } from "@models";
-import type { SGDBGame, SGDBImage } from "@types";
-import { writable, type Writable } from "svelte/store";
+import { GridTypes, type GameStruct, type LibraryCacheEntry, type SGDBGame, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
+import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilters = {
   [key in GridTypes]: {
@@ -10,14 +10,6 @@ export type DBFilters = {
     types: Record<string, boolean>,
     oneoftag: Record<string, boolean>,
   }
-}
-
-export enum GridTypes {
-  CAPSULE="Capsule",
-  WIDE_CAPSULE="Wide Capsule",
-  HERO="Hero",
-  LOGO="Logo",
-  ICON="Icon"
 }
 
 export enum Platforms {
@@ -30,17 +22,24 @@ export enum Theme {
   LIGHT
 }
 
-export const loadingSettings = writable(true);
+export const requestTimeoutLength = writable(5000);
 
-export const windowIsMaximized = writable(false);
+// * Settings
 export const theme = writable(Theme.DARK);
 export const debugMode = writable(false);
 export const renderGamesInList = writable(false);
+
 export const optionsSize = writable(16);
 export const gamesSize = writable(42);
 export const gridsSize = writable(42);
 
-export const requestTimeoutLength = writable(5000);
+export const selectedCleanGridsPreset = writable<"clean" | "custom">("clean");
+export const selectedManualGamesAddMethod = writable<"manual" | "search">("search");
+
+
+// * App State
+export const loadingSettings = writable(true);
+export const windowIsMaximized = writable(false);
 
 export const needsSGDBAPIKey = writable(true);
 export const steamGridDBKey = writable("");
@@ -56,44 +55,57 @@ export const loadingGames = writable(true);
 export const currentPlatform: Writable<Platforms> = writable(Platforms.STEAM);
 export const gridType: Writable<GridTypes> = writable(GridTypes.CAPSULE);
 
-export const selectedGameAppId: Writable<number> = writable(null);
-export const selectedGameName: Writable<string> = writable(null);
-export const dowloadingGridId: Writable<number> = writable(null);
+export const selectedGameAppId = writable<string>("");
+export const dowloadingGridId = writable<string>("");
+export const selectedSteamGridGameId = writable("None");
 
 export const showHidden = writable(false);
 
-export const steamUsers: Writable<{ [id: string]: SteamUser }> = writable({});
+export const steamUsers = writable<{ [id: string]: SteamUser }>({});
 export const activeUserId = writable(0);
 
 
-export const originalSteamShortcuts: Writable<SteamShortcut[]> = writable([]);
-export const steamShortcuts: Writable<SteamShortcut[]> = writable([]);
+export const originalSteamShortcuts = writable<SteamShortcut[]>([]);
+export const steamShortcuts = writable<SteamShortcut[]>([]);
 
-export const steamGames: Writable<GameStruct[]> = writable([]);
-export const nonSteamGames: Writable<GameStruct[]> = writable([]);
-export const hiddenGameIds: Writable<number[]> = writable([]);
-export const manualSteamGames: Writable<GameStruct[]> = writable([]);
-export const customGameNames: Writable<{ [appid: string]: string }> = writable({});
+export const steamGames = writable<GameStruct[]>([]);
+export const nonSteamGames = writable<GameStruct[]>([]);
+export const hiddenGameIds = writable<number[]>([]);
+export const manualSteamGames = writable<GameStruct[]>([]);
+export const customGameNames = writable<{ [appid: string]: string }>({});
 
-export const unfilteredLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
-export const originalAppLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
-export const appLibraryCache: Writable<{ [appid: string]: LibraryCacheEntry }> = writable({});
-
-
-export const steamGridSteamAppIdMap: { [appid: number]: string } = {};
-export const steamGridSearchCache:Writable<{ [appid: number]: SGDBGame[] }> = writable({});
-export const steamGridNameSearchCache: { [query: string]: SGDBGame[] } = {};
-export const gridsCache: { [steamGridId: number]: SGDBImage[] } = {};
-export const lastPageCache: { [steamGridId: number]: Record<string, number> } = {};
-export const hasMorePagesCache: { [steamGridId: number]: Record<string, boolean> } = {};
-export const selectedSteamGridGameId = writable("None");
-
-export const originalLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
-export const steamLogoPositions:Writable<{ [appid: string]: SteamLogoConfig }> = writable({});
+export const unfilteredLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+export const originalAppLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+export const appLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
 
 
-export const dbFilters:Writable<DBFilters> = writable(DEFAULT_FILTERS);
+export const steamGridSearchCache: Writable<{ [appid: string]: SGDBGame[] }> = writable({});
+export const hasMorePagesCache = writable<{ [steamGridId: string]: { [key in GridTypes]?: boolean } }>({});
+
+export const originalLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
+export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
 
 
-export const selectedCleanGridsPreset: Writable<"clean" | "custom"> = writable("clean");
-export const selectedManualGamesAddMethod: Writable<"manual" | "search"> = writable("search");
+export const dbFilters: Writable<DBFilters> = writable(DEFAULT_FILTERS);
+
+export const selectedGameName = derived(
+  [selectedGameAppId, steamGames, nonSteamGames, manualSteamGames, customGameNames],
+  ([$selectedGameAppId, $steamGames, $nonSteamGames, $manualSteamGames, $customGameNames]) => {
+    if ($selectedGameAppId === "") return "None";
+
+    if ($customGameNames[$selectedGameAppId]) return $customGameNames[$selectedGameAppId];
+
+    const appId = parseInt($selectedGameAppId);
+
+    const steamGame = $steamGames.find((game) => game.appid === appId);
+    if (steamGame) return steamGame.name;
+
+    const manualGame = $manualSteamGames.find((game) => game.appid === appId);
+    if (manualGame) return manualGame.name;
+
+    const nonSteam = $nonSteamGames.find((game) => game.appid === appId);
+    if (nonSteam) return nonSteam.name;
+
+    return "None";
+  }
+);

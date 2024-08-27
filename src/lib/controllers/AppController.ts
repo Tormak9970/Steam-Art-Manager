@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import type { SGDBGame, SGDBImage } from "@types";
+import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage } from "@types";
 import { SettingsManager, restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { GridTypes, Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { DialogController } from "./DialogController";
@@ -36,8 +36,8 @@ import { ToastController } from "./ToastController";
  */
 export class AppController {
   private static settingsController: SettingsController = new SettingsController();
-  private static cacheController: CacheController = null;
-  private static tippyInstance: Instance<Props> = null;
+  private static cacheController: CacheController;
+  private static tippyInstance: Instance<Props>;
 
   static tippy = createTippy({
     hideOnClick: false,
@@ -64,8 +64,6 @@ export class AppController {
     await SettingsManager.init();
     await AppController.settingsController.loadSettings();
     await AppController.settingsController.subscribeToSettingChanges();
-
-    // TODO: test goldsrc and sourcemod loading here
 
     LogController.log("App setup complete.");
   }
@@ -108,7 +106,7 @@ export class AppController {
 
     const originalLogoPos = get(originalLogoPositions);
     const steamLogoPos = get(steamLogoPositions);
-    const logoPosStrings = {};
+    const logoPosStrings: Record<string, string> = {};
 
     for (const [ appid, steamLogo ] of Object.entries(steamLogoPos)) {
       const originalPos = originalLogoPos[appid]?.logoPosition;
@@ -128,8 +126,9 @@ export class AppController {
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
+        
         if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() === changedPath.appId);
+          const shortcut = shortcuts.find((s) => s.appid.toString() === changedPath.appId)!;
           shortcut.icon = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
         }
       }
@@ -141,7 +140,7 @@ export class AppController {
 
       let logoPosEntries = Object.entries(steamLogoPos);
       logoPosEntries = logoPosEntries.filter(([ appid, logoPos ]) => {
-        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE"
+        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE";
       });
 
       originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
@@ -177,7 +176,7 @@ export class AppController {
    * Discard changes for a given app.
    * @param appId The id of the app to clear changes for.
    */
-  static discardChangesForGame(appId: number): void {
+  static discardChangesForGame(appId: string): void {
     const originalCache = get(originalAppLibraryCache);
     const originalLogoCache = get(originalLogoPositions);
     const originalShortcuts = get(originalSteamShortcuts);
@@ -188,8 +187,8 @@ export class AppController {
     const platform = get(currentPlatform);
 
     if (platform === Platforms.NON_STEAM) {
-      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
-      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid === appId);
+      let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid.toString() === appId);
+      const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid.toString() === appId);
       shortcutToEdit = targetShortcut;
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -197,7 +196,7 @@ export class AppController {
     appCache[appId] = originalCache[appId];
     appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
     
-    logoPositionCache[appId] = originalLogoPositions[appId];
+    logoPositionCache[appId] = originalLogoCache[appId];
     steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
 
     ToastController.showSuccessToast("Discarded!");
@@ -210,13 +209,13 @@ export class AppController {
    * Clears all custom grids for a given app.
    * @param appId The id of the app to clear art for.
    */
-  static clearCustomArtForGame(appId: number): void {
+  static clearCustomArtForGame(appId: string): void {
     const appCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
     if (platform === Platforms.NON_STEAM) {
-      const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === appId);
+      const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid.toString() === appId)!;
       shortcutToEdit.icon = "";
       steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
     }
@@ -240,7 +239,7 @@ export class AppController {
    * Clears the custom name for a given app.
    * @param appId The id of the app to clear the name of.
    */
-  static clearCustomNameForGame(appId: number): void {
+  static clearCustomNameForGame(appId: string): void {
     const customNames = get(customGameNames);
     delete customNames[appId];
     customGameNames.set(customNames);
@@ -251,7 +250,7 @@ export class AppController {
    * Clears the logo position for a given app.
    * @param appid The id of the app to clear the logo position of.
    */
-  static clearLogoPosition(appid: number): void {
+  static clearLogoPosition(appid: string): void {
     const logoPositionCache = get(steamLogoPositions);
 
     logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
@@ -277,7 +276,7 @@ export class AppController {
 
     for (const game of games) {
       if (platform === Platforms.NON_STEAM) {
-        const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === game.appid);
+        const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid === game.appid)!;
         shortcutToEdit.icon = "";
       }
   
@@ -329,7 +328,7 @@ export class AppController {
 
     if (get(currentPlatform) === Platforms.NON_STEAM && type === GridTypes.ICON) {
       const shortcuts = get(steamShortcuts);
-      const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
+      const shortcut = shortcuts.find((s) => s.appid.toString() === selectedGameId)!;
       shortcut.icon = path;
       steamShortcuts.set(shortcuts);
     }
@@ -346,7 +345,7 @@ export class AppController {
    * @param url The url of the SteamGridDB image.
    * ? Logging complete.
    */
-  static async setSteamGridArt(appId: number, url: URL): Promise<void> {
+  static async setSteamGridArt(appId: string, url: URL): Promise<void> {
     let imgUrl = url.toString();
     if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
     
@@ -368,7 +367,7 @@ export class AppController {
       
       if (get(currentPlatform) === Platforms.NON_STEAM && selectedGridType === GridTypes.ICON) {
         const shortcuts = get(steamShortcuts);
-        const shortcut = shortcuts.find((s) => s.appid === selectedGameId);
+        const shortcut = shortcuts.find((s) => s.appid.toString() === selectedGameId)!;
         shortcut.icon = localPath;
         steamShortcuts.set(shortcuts);
       }
@@ -390,7 +389,7 @@ export class AppController {
    * @param widthPct The width percentage.
    * ? Logging complete.
    */
-  static setLogoPosition(appId: number, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): void {
+  static setLogoPosition(appId: string, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): void {
     const logoPositions = get(steamLogoPositions);
 
     const currentPos = logoPositions[appId];
@@ -439,7 +438,7 @@ export class AppController {
       
       for (const [ id, path ] of Object.entries(iconsToSet)) {
         if (shortcutIds.includes(id)) {
-          const shortcut = shortcuts.find((s) => s.appid.toString() === id);
+          const shortcut = shortcuts.find((s) => s.appid.toString() === id)!;
           shortcut.icon = path;
         }
       }
@@ -493,20 +492,20 @@ export class AppController {
    * @returns A promise resolving to the id.
    * ? Logging complete.
    */
-  static async chooseSteamGridGameId(appId: number, isCustomName: boolean): Promise<string> {
+  static async chooseSteamGridGameId(appId: string, isCustomName: boolean): Promise<string> {
     return await AppController.cacheController.chooseSteamGridGameId(appId, get(selectedGameName), get(currentPlatform), true, isCustomName);
   }
 
   /**
    * Gets a list of grids for the provided game.
    * @param appId The id of the app to get.
-   * @param page The page of results to get.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
+   * @param useFirstPage Whether to only get just the first page's results.
    * @returns A promise resolving to a list of the results.
    * ? Logging complete.
    */
-  static async getSteamGridArt(appId: number, page: number, selectedSteamGridId: string | null): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, page, true, selectedSteamGridId);
+  static async getSteamGridArt(appId: string, selectedSteamGridId: string, useFirstPage: boolean): Promise<SGDBImage[]> {
+    return await AppController.cacheController.fetchGrids(appId, true, selectedSteamGridId, useFirstPage);
   }
 
   /**
@@ -514,7 +513,7 @@ export class AppController {
    * @param query The search query to use.
    * @returns A promise resolving to the results array, or null if it timed out.
    */
-  static async searchSGDBForGame(query: string): Promise<SGDBGame[] | null> {
+  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
     return await AppController.cacheController.searchForGame(query);
   }
 
@@ -641,7 +640,7 @@ export class AppController {
    */
   static async changeSteamUser(userId: string): Promise<void> {
     const users = get(steamUsers);
-    const user = Object.values(users).find((user) => user.id32 === userId);
+    const user = Object.values(users).find((user) => user.id32 === userId)!;
     const oldUserId = get(activeUserId).toString();
 
     if (userId !== oldUserId) {

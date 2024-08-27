@@ -2,7 +2,7 @@
   import { AppController, LogController, ToastController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { Button, IconButton, SearchBar } from "@interactables";
-  import { selectedGameName, steamGridNameSearchCache } from "@stores/AppState";
+  import { selectedGameName } from "@stores/AppState";
   import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
   import type { SGDBGame } from "@types";
   import { onMount } from "svelte";
@@ -53,14 +53,12 @@
    * @param query The query to use.
    */
   async function makeRequest(query: string): Promise<void> {
-    const cache = steamGridNameSearchCache[query];
     loading = true;
     requestTimedOut = false;
-    const res = cache ?? await AppController.searchSGDBForGame(query);
+    const res = await AppController.searchSGDBForGame(query);
 
     if (res) {
       results = res as SGDBGame[];
-      if (!cache) steamGridNameSearchCache[query] = results;
     } else {
       requestTimedOut = true;
       results = [];

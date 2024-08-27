@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
+import { activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "@stores/AppState";
 import { exit } from "@tauri-apps/plugin-process";
+import { GridTypes, type CleanGridsPreset, type GameStruct, type MainWindowPanels, type ManageManualGamesMethod, type SteamUser } from "@types";
 import { SettingsManager, findSteamPath, restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "@utils";
 import type { Unsubscriber } from "svelte/store";
 import "tippy.js/dist/tippy.css";
-import { GridTypes, activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "../../stores/AppState";
 import { DialogController } from "./DialogController";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
@@ -30,42 +31,42 @@ import { ToastController } from "./ToastController";
  */
 export class SettingsController {
   private oldSteamInstallPath = "";
-  private steamInstallPathSub: Unsubscriber;
+  private steamInstallPathSub?: Unsubscriber;
 
   private oldHiddenGameIds: number[] = [];
-  private hiddenGameIdsSub: Unsubscriber;
+  private hiddenGameIdsSub?: Unsubscriber;
 
   private oldManualSteamGames: GameStruct[] = [];
-  private manualSteamGamesSub: Unsubscriber;
+  private manualSteamGamesSub?: Unsubscriber;
 
-  private oldCustomGameNames: Record<string, string>;
-  private customGameNamesSub: Unsubscriber;
+  private oldCustomGameNames?: Record<string, string>;
+  private customGameNamesSub?: Unsubscriber;
 
 
   private oldTheme = 0;
-  private themeSub: Unsubscriber;
+  private themeSub?: Unsubscriber;
 
-  private oldDebugMode: boolean;
-  private debugModeSub: Unsubscriber;
+  private oldDebugMode?: boolean;
+  private debugModeSub?: Unsubscriber;
 
   private oldShowHiddenGames = false;
-  private showHiddenGamesSub: Unsubscriber;
+  private showHiddenGamesSub?: Unsubscriber;
 
-  private oldDbFilters: DBFilters;
-  private dbFiltersSub: Unsubscriber;
+  private oldDbFilters?: DBFilters;
+  private dbFiltersSub?: Unsubscriber;
 
   private oldGameViewType = false;
-  private gameViewTypeSub: Unsubscriber;
+  private gameViewTypeSub?: Unsubscriber;
 
   private oldGridType = GridTypes.CAPSULE;
-  private gridTypeSub: Unsubscriber;
+  private gridTypeSub?: Unsubscriber;
 
   private oldManualGamesAddMethod: ManageManualGamesMethod = "manual";
-  private manualGamesAddMethodSub: Unsubscriber;
+  private manualGamesAddMethodSub?: Unsubscriber;
 
 
   private oldCleanGridsPreset: CleanGridsPreset = "clean";
-  private cleanGridsPresetSub: Unsubscriber;
+  private cleanGridsPresetSub?: Unsubscriber;
 
   /**
    * Register subscriptions for setting changes.
@@ -225,6 +226,7 @@ export class SettingsController {
     // ? need to clean the data here bc props can vary in terms of case
     for (const [ id, user ] of Object.entries(users)) {
       const userKeys = Object.keys(user);
+      // @ts-expect-error since we're mapping from user's keys, it should always work.
       const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [ key.toLowerCase(), user[key] ]));
 
       cleanedUsers[id] = {
@@ -268,7 +270,7 @@ export class SettingsController {
     }
 
 
-    const steamApiKeyMapSetting = SettingsManager.getSetting<string>("steamApiKeyMap");
+    const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
     if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
       const isValidSteamKey = await validateSteamAPIKey(steamApiKeyMapSetting[activeUserId], parseInt(activeUserId));
 

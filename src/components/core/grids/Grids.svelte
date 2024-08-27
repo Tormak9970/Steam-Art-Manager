@@ -1,14 +1,14 @@
 <script lang="ts">
   import { AppController } from "@controllers";
   import { DropDown, IconButton } from "@interactables";
+  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, Platforms, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { showLogoPositionModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
-  import type { SGDBGame } from "@types";
+  import { GridTypes, type SGDBGame } from "@types";
   import { debounce } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, GridTypes, isOnline, manualSteamGames, nonSteamGames, Platforms, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "../../../stores/AppState";
-  import { showLogoPositionModal } from "../../../stores/Modals";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import GridResults from "./GridResults.svelte";
@@ -25,7 +25,7 @@
   let availableSteamGridGames = [ { label: "None", data: "None" } ];
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let hasCustomName = !!$customGameNames[$selectedGameAppId];
-  $: originalName = ($steamGames.find((game) => game.appid === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid === $selectedGameAppId))?.name;
+  $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
 
   /**
    * Handles when the user changes the custom game name
@@ -78,7 +78,7 @@
    * @param searchCache The SGDB game search cache.
    * @param selectedAppId The selected game's appid.
    */
-  function setAvailableSgdbGamesOnStateChange(searchCache: { [appid: number]: SGDBGame[] }, selectedAppId: number): void {
+  function setAvailableSgdbGamesOnStateChange(searchCache: { [appid: string]: SGDBGame[] }, selectedAppId: string): void {
     if (($currentPlatform === Platforms.STEAM || $currentPlatform === Platforms.NON_STEAM) && $selectedGameName && searchCache[selectedAppId]) {
       availableSteamGridGames = Object.values(searchCache[selectedAppId]).map((value) => {
         return {
@@ -94,8 +94,7 @@
    */
   function resetGridStores(): void {
     availableSteamGridGames = [ { label: "None", data: "None" } ];
-    $selectedGameAppId = null;
-    $selectedGameName = null;
+    $selectedGameAppId = "";
     $selectedSteamGridGameId = "None";
   }
 
@@ -107,12 +106,11 @@
     });
 
     manualGamesUnsub = manualSteamGames.subscribe((games) => {
-      if ($selectedGameAppId && !games.find((game) => game.appid === $selectedGameAppId)) resetGridStores();
+      if ($selectedGameAppId && !games.find((game) => game.appid.toString() === $selectedGameAppId)) resetGridStores();
     });
 
     customGameNamesUnsub = customGameNames.subscribe(async (customNames) => {
       hasCustomName = !customNames[$selectedGameAppId];
-      $selectedGameName = customNames[$selectedGameAppId] ?? originalName;
       delete $steamGridSearchCache[$selectedGameAppId];
       availableSteamGridGames = [ { label: "None", data: "None" } ];
       $selectedSteamGridGameId = "None";

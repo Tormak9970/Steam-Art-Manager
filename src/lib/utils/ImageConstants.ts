@@ -1,6 +1,12 @@
+import type { GridTypes } from "@types";
+
 export const IMAGE_FADE_OPTIONS = { delay: 0, duration: 500 };
 
-export const PREVIEW_GRID_DIMENSIONS = {
+type GridDimensions = Record<string, {
+  [key in GridTypes]: number
+}>
+
+export const PREVIEW_GRID_DIMENSIONS: GridDimensions = {
   "widths": {
     "Capsule": 400,
     "Wide Capsule": 600,
@@ -17,7 +23,7 @@ export const PREVIEW_GRID_DIMENSIONS = {
   }
 }
 
-export const CURRENT_GRID_DIMENSIONS = {
+export const CURRENT_GRID_DIMENSIONS: GridDimensions = {
   "widths": {
     "Capsule": 200,
     "Wide Capsule": 460,
@@ -34,7 +40,7 @@ export const CURRENT_GRID_DIMENSIONS = {
   }
 }
 
-export const SMALL_GRID_DIMENSIONS = {
+export const SMALL_GRID_DIMENSIONS: GridDimensions = {
   "widths": {
     "Capsule": 100,
     "Wide Capsule": 200,
@@ -51,7 +57,7 @@ export const SMALL_GRID_DIMENSIONS = {
   }
 }
 
-export const CLEAN_CONFLICT_GRID_DIMENSIONS = {
+export const CLEAN_CONFLICT_GRID_DIMENSIONS: Record<string, Record<string, number>> = {
   "widths": {
     "capsule": 200,
     "widecapsule": 280,

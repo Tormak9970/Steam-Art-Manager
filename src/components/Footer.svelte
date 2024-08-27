@@ -1,9 +1,9 @@
 <script lang="ts">
   import { AppController, DialogController } from "@controllers";
   import { Button, IconButton } from "@interactables";
+  import { showBatchApplyModal, showCleanGridsModal, showInfoModal, showManualGamesModal, showSettingsModal, showUpdateTilesModal } from "@stores/Modals";
   import { open } from "@tauri-apps/plugin-shell";
   import { canSave, isOnline } from "../stores/AppState";
-  import { showBatchApplyModal, showCleanGridsModal, showInfoModal, showManualGamesModal, showSettingsModal, showUpdateTilesModal } from "../stores/Modals";
 
   /**
    * Wrapper function for handling when the Clean Grids action is selected.

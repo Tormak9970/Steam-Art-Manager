@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { showInfoModal } from "@stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import InfoModalSection from "./InfoModalSection.svelte";
-  import { showInfoModal } from "../../../stores/Modals";
 
   /**
    * The function to run when the modal closes.

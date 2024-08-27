@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { GridTypes, appLibraryCache, manualSteamGames, nonSteamGames, steamGames, unfilteredLibraryCache } from "../../../stores/AppState";
-  import ModalBody from "../modal-utils/ModalBody.svelte";
-  import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
-  import CurrentGridImage from "./CurrentGridImage.svelte";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, steamGames, unfilteredLibraryCache } from "@stores/AppState";
+  import { currentGridsAppid, showCurrentGridsModal } from "@stores/Modals";
   import { convertFileSrc } from "@tauri-apps/api/core";
+  import { GridTypes } from "@types";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
+  import CurrentGridImage from "./CurrentGridImage.svelte";
 
   /**
    * The function to run when the modal closes.
    */
   function onClose(): void {
     $showCurrentGridsModal = false;
-		$currentGridsAppid = null;
+		$currentGridsAppid = "";
   }
 
   let imageSources = {
@@ -22,14 +23,17 @@
   }
   
   $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
-  $: game = games.find((game) => game.appid === $currentGridsAppid);
+  $: game = games.find((game) => game.appid.toString() === $currentGridsAppid)!;
 
   $: {
-    for (const gridType of [ "Capsule", "Wide Capsule", "Hero", "Logo", "Icon" ]) {
-      if ($appLibraryCache[game.appid][gridType] === "REMOVE") {
-        imageSources[gridType] = convertFileSrc($unfilteredLibraryCache[game.appid][gridType]);
-      } else {
-        imageSources[gridType] = convertFileSrc($appLibraryCache[game.appid][gridType]);
+    for (const gridType of [ GridTypes.CAPSULE, GridTypes.WIDE_CAPSULE, GridTypes.HERO, GridTypes.LOGO, GridTypes.ICON ]) {
+      const unfilteredCache = $unfilteredLibraryCache[game.appid.toString()][gridType];
+      const filteredCache = $appLibraryCache[game.appid.toString()][gridType];
+      
+      if ($appLibraryCache[game.appid][gridType] === "REMOVE" && unfilteredCache) {
+        imageSources[gridType] = convertFileSrc(unfilteredCache);
+      } else if (filteredCache) {
+        imageSources[gridType] = convertFileSrc(filteredCache);
       }
     }
 

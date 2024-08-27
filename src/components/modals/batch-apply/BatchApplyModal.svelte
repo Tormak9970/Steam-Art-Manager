@@ -1,7 +1,8 @@
 <script lang="ts">
   import { AppController, ToastController } from "@controllers";
   import { Button } from "@interactables";
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
+  import { GridTypes } from "@types";
+  import { gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
   import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";

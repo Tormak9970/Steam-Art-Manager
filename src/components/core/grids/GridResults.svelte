@@ -2,9 +2,9 @@
   import { AppController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
-  import { dbFilters, gridType, GridTypes, hasMorePagesCache, isOnline, lastPageCache, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
-  import type { SGDBImage } from "@types";
-  import { debounce, filterGrids, getHasMorePages, getLastLoadedPageNumberForGame, SMALL_GRID_DIMENSIONS } from "@utils";
+  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { GridTypes, type SGDBImage } from "@types";
+  import { debounce, filterGrids, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
   import Grid from "./Grid.svelte";
   
@@ -15,34 +15,19 @@
   let gridsContainer: HTMLDivElement;
 
   let isLoading = true;
-  let hasMorePages = getHasMorePages($selectedSteamGridGameId, $gridType);
   let grids: SGDBImage[] = [];
 
-  /**
-   * Filters the grids based when relevant state changes.
-   * @param resultsPage The results page to show.
-   */
-  async function filterGridsOnStateChange(resultsPage: number): Promise<void> {
-    const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, resultsPage, $selectedSteamGridGameId);
-    grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName, resultsPage);
-  }
+  $: hasMore = $hasMorePagesCache[$selectedSteamGridGameId][$gridType];
+
+  $: searchCache = $steamGridSearchCache[$selectedGameAppId]!;
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
     if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId) {
-      const lastPageLoaded = getLastLoadedPageNumberForGame($selectedSteamGridGameId, $gridType);
-      const newPageNumber = lastPageLoaded + 1;
-      const oldGridsLength = grids.length;
-
-      await filterGridsOnStateChange(newPageNumber);
-      if (oldGridsLength !== grids.length) {
-        lastPageCache[parseInt($selectedSteamGridGameId)][$gridType] = newPageNumber;
-      } else {
-        hasMorePagesCache[parseInt($selectedSteamGridGameId)][$gridType] = false;
-        hasMorePages = false;
-      }
+      const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId, false);
+      grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
     }
   }
 
@@ -90,7 +75,7 @@
               </div>
             {:else}
               <div class="message">
-                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$steamGridSearchCache[$selectedGameAppId].find((game) => game.id.toString() === $selectedSteamGridGameId).name}".
+                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{searchCache.find((game) => game.id.toString() === $selectedSteamGridGameId)?.name ?? "Unkown"}".
               </div>
             {/if}
           {/if}
@@ -115,7 +100,7 @@
     </div>
   {/if}
   <InfiniteScroll
-    hasMore={hasMorePages}
+    hasMore={hasMore}
     threshold={100}
     on:loadMore={handleLoadOnScroll}
   />

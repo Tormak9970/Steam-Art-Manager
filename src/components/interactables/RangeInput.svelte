@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { fly, fade } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
 
   // Props
   export let min = 0;
@@ -10,18 +10,18 @@
   export let value = typeof initialValue === "string" ? parseInt(initialValue) : initialValue;
 
   // Node Bindings
-  let container = null;
-  let thumb = null;
-  let progressBar = null;
-  let element = null;
+  let container: HTMLDivElement;
+  let thumb: HTMLDivElement;
+  let progressBar: HTMLDivElement;
+  let element: HTMLDivElement;
 
   // Internal State
-  let elementX = null;
-  let currentThumb = null;
+  let elementX: number;
+  let currentThumb: HTMLDivElement | null = null;
   let holding = false;
   let thumbHover = false;
   let keydownAcceleration = 0;
-  let accelerationTimer = null;
+  let accelerationTimer: NodeJS.Timeout;
 
   // Dispatch 'change' events
   const dispatch = createEventDispatcher();
@@ -45,10 +45,6 @@
     onDragStart(e);
   }
 
-  function onHover(e:MouseEvent) {
-    thumbHover = thumbHover ? false : true;
-  }
-
   function onDragStart(e:any) {
     // If mouse event add a pointer events shield
     if (e.type === "mousedown") {
@@ -60,12 +56,12 @@
   function onDragEnd(e:any) {
     // If using mouse - remove pointer event shield
     if (e.type === "mouseup") {
-      if (document.body.contains(mouseEventShield)) {
-        document.body.removeChild(mouseEventShield);
-      }
+      if (document.body.contains(mouseEventShield)) document.body.removeChild(mouseEventShield);
+
       // Needed to check whether thumb and mouse overlap after shield removed
       if (isMouseInElement(e, thumb)) thumbHover = true;
     }
+
     currentThumb = null;
   }
 
@@ -73,8 +69,10 @@
   function isMouseInElement(event:MouseEvent, element:HTMLElement) {
     let rect = element.getBoundingClientRect();
     let { clientX: x, clientY: y } = event;
+
     if (x < rect.left || x >= rect.right) return false;
     if (y < rect.top || y >= rect.bottom) return false;
+
     return true;
   }
 
@@ -110,7 +108,7 @@
    * @param clientX The x coordinate of the events mouse.
    * ? Verified this is working properly.
    */
-  function calculateNewValue(clientX:number) {
+  function calculateNewValue(clientX: number) {
     // Find distance between cursor and element's left cord (17px / 2 ~= 8px) - Center of thumb
     let delta = clientX - (elementX + 8);
 
@@ -186,6 +184,7 @@
     <div class="range__track" bind:this={container}>
       <div class="range__track--highlighted" bind:this={progressBar} />
       <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="range__thumb"
         class:range__thumb--holding={holding}

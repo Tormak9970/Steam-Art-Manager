@@ -24,10 +24,12 @@
 
 <div class="icon-toggle">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="side left" class:selected={!value} on:click={() => setValue(false)} use:AppController.tippy={{ content: leftTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
     <slot name="left" />
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="side right" class:selected={value} on:click={() => setValue(true)} use:AppController.tippy={{ content: rightTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
     <slot name="right" />
   </div>

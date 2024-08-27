@@ -4,8 +4,9 @@
 
   import { AppController } from "@controllers";
   import { Button } from "@interactables";
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
+  import { gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
   import { gridModalInfo, showGridModal } from "@stores/Modals";
+  import { GridTypes } from "@types";
   import { PREVIEW_GRID_DIMENSIONS } from "@utils";
   import Lazy from "svelte-lazy";
   import ModalBody from "./modal-utils/ModalBody.svelte";
@@ -32,7 +33,7 @@
    * Apply the grid being previewed.
    */
   function applyGrid(): void {
-    AppController.setSteamGridArt(definedModalInfo.id, definedModalInfo.url);
+    AppController.setSteamGridArt(definedModalInfo.id.toString(), definedModalInfo.url);
   }
 
   /**
@@ -50,7 +51,7 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
+<ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
     <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {definedModalInfo.width}px; height: {definedModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">

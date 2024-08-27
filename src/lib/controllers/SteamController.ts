@@ -3,7 +3,7 @@ import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 import { xml2json } from "../external/xml2json";
 
-import { GridTypes, activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
 
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
@@ -11,10 +11,13 @@ import { ToastController } from "./ToastController";
 
 import { join } from "@tauri-apps/api/path";
 import { exit } from "@tauri-apps/plugin-process";
+import { GridTypes, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig, type SteamShortcut } from "@types";
 import { getIdFromGridName } from "@utils";
 import { DialogController } from "./DialogController";
 
-const gridTypeLUT = {
+type LUTMap = Record<string, GridTypes>;
+
+const gridTypeLUT: LUTMap = {
   "capsule": GridTypes.CAPSULE,
   "wide_capsule": GridTypes.WIDE_CAPSULE,
   "hero": GridTypes.HERO,
@@ -22,7 +25,7 @@ const gridTypeLUT = {
   "logo": GridTypes.LOGO
 }
 
-const libraryCacheLUT = {
+const libraryCacheLUT: LUTMap = {
   "library_600x900": GridTypes.CAPSULE,
   "header": GridTypes.WIDE_CAPSULE,
   "library_hero": GridTypes.HERO,
@@ -40,7 +43,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async cacheLogoConfigs(gridsDir: string, logoConfigs: fs.DirEntry[]): Promise<void> {
-    const configs = {};
+    const configs: Record<string, SteamLogoConfig> = {};
 
     for (const logoConfig of logoConfigs) {
       const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
@@ -48,7 +51,7 @@ export class SteamController {
       if (!isNaN(id)) {
         const contents = await fs.readTextFile(await join(gridsDir, logoConfig.name));
         const jsonContents = JSON.parse(contents);
-        if (jsonContents.logoPosition) configs[id] = jsonContents;
+        if (jsonContents.logoPosition) configs[id.toString()] = jsonContents;
       }
     }
 
@@ -67,7 +70,7 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async filterGridsDir(gridsDir: string, gridsDirContents: fs.DirEntry[], shortcutsIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, fs.DirEntry[]]> {
-    const resKeys = [];
+    const resKeys: string[] = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
@@ -76,25 +79,27 @@ export class SteamController {
     for (const fileEntry of gridsDirContents) {
       if (fileEntry.name.endsWith(".json")) {
         logoConfigs.push(fileEntry);
-      } else {
-        const [ appid, type ] = getIdFromGridName(fileEntry.name);
+        continue;
+      }
+      
+      const [ appid, type ] = getIdFromGridName(fileEntry.name);
         
-        const idTypeString = `${appid}_${type}`;
+      const idTypeString = `${appid}_${type}`;
 
-        if (foundApps.includes(idTypeString)) {
-          ToastController.showWarningToast("Duplicate grid found. Try cleaning");
-          LogController.warn(`Duplicate grid found for ${appid}.`);
-        } else {
-          //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
-          if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
-            if (!resKeys.includes(appid)) {
-              resKeys.push(appid);
-              // @ts-ignore
-              res[appid] = {};
-            }
-            res[appid][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
-          }
+      if (foundApps.includes(idTypeString)) {
+        ToastController.showWarningToast("Duplicate grid found. Try cleaning");
+        LogController.warn(`Duplicate grid found for ${appid}.`);
+        continue;
+      }
+      
+      //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
+      if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
+        if (!resKeys.includes(appid)) {
+          resKeys.push(appid);
+          res[appid] = {};
         }
+
+        res[appid][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
       }
     }
 
@@ -114,7 +119,7 @@ export class SteamController {
     const resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
 
-    const unfilteredKeys = [];
+    const unfilteredKeys: string[] = [];
     const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
 
     for (const fileEntry of libraryCacheContents) {
@@ -125,12 +130,11 @@ export class SteamController {
       if (libraryCacheLUT[type]) {
         if (!resKeys.includes(appId)) {
           resKeys.push(appId);
-          // @ts-ignore
           res[appId] = {};
         }
+
         if (!unfilteredKeys.includes(appId)) {
           unfilteredKeys.push(appId);
-          // @ts-ignore
           unfiltered[appId] = {};
         }
         

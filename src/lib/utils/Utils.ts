@@ -1,12 +1,12 @@
 import { DialogController, LogController, RustInterop } from "@controllers";
 import { SGDB } from "@models";
+import { activeUserId, requestTimeoutLength, steamInstallPath, type DBFilters } from "@stores/AppState";
+import { showSteamPathModal, steamPathModalClose } from "@stores/Modals";
 import { fetch } from "@tauri-apps/plugin-http";
 import * as process from "@tauri-apps/plugin-process";
 import { exit } from "@tauri-apps/plugin-process";
-import type { SGDBImage } from "@types";
+import { GridTypes, type SGDBImage } from "@types";
 import { get } from "svelte/store";
-import { activeUserId, GridTypes, hasMorePagesCache, lastPageCache, requestTimeoutLength, steamInstallPath, type DBFilters } from "../../stores/AppState";
-import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
 
 /**
  * Debounces a function by the provided interval.
@@ -102,7 +102,7 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
  * @param useCoreFile Whether or not to log to the core file.
  * @returns The list of filtered grids.
  */
-export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, page: number, useCoreFile = true): SGDBImage[] {
+export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
   const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
@@ -122,7 +122,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
       && (grid.nsfw ? nsfwAllowed : true);
   });
 
-  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName} - page${page === 0 ? " 0" : ("s 0 - " + page)}"`;
+  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
   if (resGrids.length > 0) {
     if (useCoreFile) {
       LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
@@ -272,43 +272,5 @@ export async function validateSGDBAPIKey(key: string): Promise<boolean> {
   } catch (e: any) {
     console.error(e);
     return false;
-  }
-}
-
-/**
- * Checks if there are more result pages to load for a given sgdb game.
- * @param sgdbGameId The id of the sgdb game to check for more pages.
- * @param type The current grid type.
- * @returns True if there are more result pages to load, false if not.
- */
-export function getHasMorePages(sgdbGameId: string, type: GridTypes) {
-  if (sgdbGameId === "None") {
-    return true;
-  } else {
-    const id = parseInt(sgdbGameId);
-    
-    if (!hasMorePagesCache[id]) hasMorePagesCache[id] = {};
-    if (!Object.keys(hasMorePagesCache[id]).includes(type)) hasMorePagesCache[id][type] = true;
-    
-    return hasMorePagesCache[id][type];
-  }
-}
-
-/**
- * Gets the most recent page number cached for a given sgdb game.
- * @param sgdbGameId The id of the sgdb game to check for more pages.
- * @param type The current grid type.
- * @returns The most recent page number cached, or -1 if never cached.
- */
-export function getLastLoadedPageNumberForGame(sgdbGameId: string, type: GridTypes) {
-  if (sgdbGameId === "None") {
-    return -1;
-  } else {
-    const id = parseInt(sgdbGameId);
-
-    if (!lastPageCache[id]) lastPageCache[id] = {};
-    if (!lastPageCache[id][type] && lastPageCache[id][type] !== 0) lastPageCache[id][type] = -1;
-
-    return lastPageCache[id][type];
   }
 }
