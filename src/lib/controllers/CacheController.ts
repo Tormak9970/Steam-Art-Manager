@@ -216,7 +216,7 @@ export class CacheController {
     const totalCountEntry = this.totalGridCountCache[steamGridAppId];
     
     const morePagesCache = get(hasMorePagesCache);
-    if (!morePagesCache[steamGridAppId]) morePagesCache[steamGridAppId] = {};
+    if (!morePagesCache[steamGridAppId.toString()]) morePagesCache[steamGridAppId.toString()] = {};
     const morePagesEntry = morePagesCache[steamGridAppId];
 
     if (!Object.keys(morePagesEntry).includes(type)) morePagesEntry[type] = true;

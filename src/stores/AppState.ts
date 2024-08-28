@@ -80,7 +80,7 @@ export const appLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>(
 
 
 export const steamGridSearchCache: Writable<{ [appid: string]: SGDBGame[] }> = writable({});
-export const hasMorePagesCache = writable<{ [steamGridId: number]: GridTypesOptionalMap<boolean> }>({});
+export const hasMorePagesCache = writable<{ [steamGridId: string]: GridTypesOptionalMap<boolean> }>({});
 
 export const originalLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
 export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
