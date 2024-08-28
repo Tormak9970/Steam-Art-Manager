@@ -225,14 +225,12 @@ export class CacheController {
 
     let page = 0;
 
-    // * checking undefined here because 0 is falsy
+    // * checking undefined here because 0 is falsy.
     if (!useFirstPage && currentCountEntry[type] !== undefined && totalCountEntry[type] !== undefined) {
       page = Math.max(Math.floor(currentCountEntry[type] / this.SGDB_GRID_RESULT_LIMIT), 0);
     }
 
     try {
-      // TODO: check if there are anymore pages (this should be present on the first response)
-
       if (!gridsCacheEntry[type]) gridsCacheEntry[type] = [];
       
       logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);

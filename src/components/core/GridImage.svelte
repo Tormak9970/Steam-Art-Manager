@@ -30,9 +30,22 @@
   {#if showImage}
     <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
-        <video src="{imagePath}" muted loop autoplay={false} style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" on:mouseover={onEnter} on:mouseleave={onLeave} />
+        <video
+          src="{imagePath}"
+          muted
+          loop
+          autoplay={false}
+          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          on:mouseover={onEnter}
+          on:mouseleave={onLeave}
+        />
       {:else}
-        <img src="{imagePath}" alt="{altText}" style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" draggable="false" />
+        <img
+          src="{imagePath}"
+          alt="{altText}"
+          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          draggable="false"
+        />
       {/if}
     </Lazy>
   {:else}

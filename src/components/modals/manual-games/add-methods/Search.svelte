@@ -42,10 +42,10 @@
     
     if (appid) {
       onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
+      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
       selectedGame = null;
       results = [];
       searchQuery = "";
-      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
     } else {
       selectedGame = null;
       ToastController.showWarningToast("No appid found for the selected game!");
@@ -79,7 +79,7 @@
           <div class="name">Name</div>
         </span>
         <span slot="data">
-          {#each results as game (`${game.id}|${game.name}`)}
+          {#each results as game (game.id)}
             <SearchEntry game={game} isSelected={selectedGame?.id === game.id} onSelect={onGameSelect} />
           {/each}
         </span>
