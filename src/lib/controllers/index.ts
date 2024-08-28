@@ -6,4 +6,4 @@ export * from "./RustInterop";
 export * from "./SettingsController";
 export * from "./SteamController";
 export * from "./ToastController";
-export * from "./WindowController";
+

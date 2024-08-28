@@ -1,10 +1,8 @@
-import type { GridTypes } from "@types";
+import type { GridTypesMap } from "@types";
 
 export const IMAGE_FADE_OPTIONS = { delay: 0, duration: 500 };
 
-type GridDimensions = Record<string, {
-  [key in GridTypes]: number
-}>
+type GridDimensions = Record<string, GridTypesMap<number>>
 
 export const PREVIEW_GRID_DIMENSIONS: GridDimensions = {
   "widths": {

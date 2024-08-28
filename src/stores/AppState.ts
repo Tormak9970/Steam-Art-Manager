@@ -1,16 +1,16 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, type GameStruct, type LibraryCacheEntry, type SGDBGame, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
+import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
-export type DBFilters = {
-  [key in GridTypes]: {
-    styles: Record<string, boolean>,
-    dimensions?: Record<string, boolean>,
-    mimes: Record<string, boolean>,
-    types: Record<string, boolean>,
-    oneoftag: Record<string, boolean>,
-  }
-}
+export type DBFilter = {
+  styles: Record<string, boolean>;
+  dimensions?: Record<string, boolean>;
+  mimes: Record<string, boolean>;
+  types: Record<string, boolean>;
+  oneoftag: Record<string, boolean>;
+};
+
+export type DBFilters = GridTypesMap<DBFilter>;
 
 export enum Platforms {
   STEAM="Steam",
@@ -80,7 +80,7 @@ export const appLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>(
 
 
 export const steamGridSearchCache: Writable<{ [appid: string]: SGDBGame[] }> = writable({});
-export const hasMorePagesCache = writable<{ [steamGridId: string]: { [key in GridTypes]?: boolean } }>({});
+export const hasMorePagesCache = writable<{ [steamGridId: number]: GridTypesOptionalMap<boolean> }>({});
 
 export const originalLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
 export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});

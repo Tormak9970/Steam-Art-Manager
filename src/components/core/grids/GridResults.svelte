@@ -17,15 +17,15 @@
   let isLoading = true;
   let grids: SGDBImage[] = [];
 
-  $: hasMore = $hasMorePagesCache[$selectedSteamGridGameId][$gridType];
+  $: hasMore = ($hasMorePagesCache && $hasMorePagesCache[$selectedSteamGridGameId]) ? $hasMorePagesCache[$selectedSteamGridGameId][$gridType] : true;
 
-  $: searchCache = $steamGridSearchCache[$selectedGameAppId]!;
+  $: searchCache = $selectedGameAppId !== "" ? $steamGridSearchCache[$selectedGameAppId]! : [];
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
-    if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId) {
+    if ($isOnline && $steamGridDBKey !== "" && $selectedGameAppId !== "") {
       const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId, false);
       grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
     }
@@ -39,7 +39,7 @@
   const debouncedResize = debounce(handleResize, 500);
 
   onMount(() => {
-    if ($selectedGameAppId) {
+    if ($selectedGameAppId !== "") {
       if ($selectedSteamGridGameId === "None") {
         AppController.chooseSteamGridGameId($selectedGameAppId, hasCustomName).then((sgdbGameId) => {
           $selectedSteamGridGameId = sgdbGameId;
@@ -59,7 +59,7 @@
   {#if !$loadingSettings}
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
-        {#if !!$selectedGameAppId}
+        {#if $selectedGameAppId !== ""}
           {#if isLoading}
             <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
               {#each new Array(100) as _}

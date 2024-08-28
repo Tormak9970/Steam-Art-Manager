@@ -16,8 +16,9 @@
  */
 import { requestTimeoutLength } from "@stores/AppState";
 import { fetch } from "@tauri-apps/plugin-http";
-import type { SGDBGame, SGDBGetGameOptions, SGDBImage, SGDBImageOptions, SGDBOptions } from "@types";
+import type { GridResults, SGDBGame, SGDBGetGameOptions, SGDBImageOptions, SGDBOptions } from "@types";
 import { get } from "svelte/store";
+
 
 export class RequestError extends Error {
   response: Response;
@@ -125,7 +126,7 @@ export class SGDB {
     if (response.ok) {
       const data = await response.json();
       if (data.success) {
-        return data.data;
+        return data;
       } else {
         throw new RequestError(data.errors?.join(", ") ?? "Unknown SteamGridDB error.", response);
       }
@@ -140,7 +141,7 @@ export class SGDB {
    * @returns A promise resolving to a list of possible matches.
    */
   async searchGame(query: string): Promise<SGDBGame[]> {
-    return await this.handleRequest("GET", `/search/autocomplete/${encodeURIComponent(query)}`);
+    return (await this.handleRequest("GET", `/search/autocomplete/${encodeURIComponent(query)}`)).data;
   }
 
   /**
@@ -150,10 +151,11 @@ export class SGDB {
    * @returns A promise resolving to the game's information.
    */
   async getGame(options: any, params?: SGDBGetGameOptions): Promise<SGDBGame> {
-    if(params) {
-      return await this.handleRequest("GET", `/games/${options.type}/${options.id}`, this.buildQuery(params));
+    if (params) {
+      return (await this.handleRequest("GET", `/games/${options.type}/${options.id}`, this.buildQuery(params))).data;
     }
-    return await this.handleRequest("GET", `/games/${options.type}/${options.id}`);
+    
+    return (await this.handleRequest("GET", `/games/${options.type}/${options.id}`)).data;
   }
 
   /**
@@ -181,11 +183,18 @@ export class SGDB {
    * @param options The SGDB request options.
    * @returns A promise resolving to the game's grids.
    */
-  async getGrids(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (await this.handleRequest("GET", `/grids/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+  async getGrids(options: SGDBImageOptions): Promise<GridResults> {
+    const results = await this.handleRequest("GET", `/grids/${options.type}/${options.id}`, this.buildQuery(options));
+    const grids = results.data.map((img: any) => {
       img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
+
+    return {
+      images: grids,
+      page: results.page,
+      total: results.total,
+    };
   }
 
   /**
@@ -211,7 +220,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getGrids({
       type: "game",
       id: id,
@@ -249,7 +258,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getGrids({
       type: "steam",
       id: id,
@@ -269,11 +278,19 @@ export class SGDB {
    * @param options The SGDB request options.
    * @returns A promise resolving to the game's heros.
    */
-  async getHeroes(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+  async getHeroes(options: SGDBImageOptions): Promise<GridResults> {
+    const results = await this.handleRequest("GET", `/heroes/${options.type}/${options.id}`, this.buildQuery(options));
+
+    const grids = results.data.map((img: any) => {
       img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
+
+    return {
+      images: grids,
+      page: results.page,
+      total: results.total,
+    };
   }
 
   /**
@@ -299,7 +316,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getHeroes({
       type: "game",
       id: id,
@@ -337,7 +354,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getHeroes({
       type: "steam",
       id: id,
@@ -357,11 +374,19 @@ export class SGDB {
    * @param options The SGDB request options.
    * @returns A promise resolving to the game's icons.
    */
-  async getIcons(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+  async getIcons(options: SGDBImageOptions): Promise<GridResults> {
+    const results = await this.handleRequest("GET", `/icons/${options.type}/${options.id}`, this.buildQuery(options));
+
+    const grids = results.data.map((img: any) => {
       img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
+
+    return {
+      images: grids,
+      page: results.page,
+      total: results.total,
+    };
   }
 
   /**
@@ -387,7 +412,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getIcons({
       type: "game",
       id: id,
@@ -425,7 +450,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getIcons({
       type: "steam",
       id: id,
@@ -445,11 +470,19 @@ export class SGDB {
    * @param options The SGDB request options.
    * @returns A promise resolving to the game's logos.
    */
-  async getLogos(options: SGDBImageOptions): Promise<SGDBImage[]> {
-    return (await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options))).map((img: any) => {
+  async getLogos(options: SGDBImageOptions): Promise<GridResults> {
+    const results = await this.handleRequest("GET", `/logos/${options.type}/${options.id}`, this.buildQuery(options));
+
+    const grids = results.data.map((img: any) => {
       img.isAnimated = img.thumb.includes('.webm');
       return img;
     });
+
+    return {
+      images: grids,
+      page: results.page,
+      total: results.total,
+    };
   }
 
   /**
@@ -475,7 +508,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getLogos({
       type: "game",
       id: id,
@@ -513,7 +546,7 @@ export class SGDB {
     humor?: string,
     epilepsy?: string,
     page?: number
-  ): Promise<SGDBImage[]> {
+  ): Promise<GridResults> {
     return this.getLogos({
       type: "steam",
       id: id,

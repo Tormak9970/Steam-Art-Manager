@@ -69,18 +69,24 @@
    */
   function updateOnStateChange(libraryCache: { [appid: string]: LibraryCacheEntry}, type: GridTypes): void {
     if (libraryCache[game.appid]) {
-      if (libraryCache[game.appid][type]) {
-        showImage = true;
-        
-        if (libraryCache[game.appid][type] === "REMOVE") {
-          imagePath = convertFileSrc($unfilteredLibraryCache[game.appid][type]!);
-          iconPath = convertFileSrc($unfilteredLibraryCache[game.appid].Icon!);
-        } else {
-          imagePath = convertFileSrc(libraryCache[game.appid][type]!);
-          iconPath = convertFileSrc(libraryCache[game.appid].Icon!);
-        }
-      }  else {
+      const filteredCache = libraryCache[game.appid.toString()][type];
+
+      if (!filteredCache) {
         showImage = false;
+        return;
+      }
+
+      showImage = true;
+      const unfilteredCache = $unfilteredLibraryCache[game.appid.toString()][type];
+      const unfilteredCacheIcon = $unfilteredLibraryCache[game.appid.toString()].Icon;
+      const filteredCacheIcon = libraryCache[game.appid.toString()].Icon;
+      
+      if (filteredCache === "REMOVE") {
+        imagePath = unfilteredCache ? convertFileSrc(unfilteredCache) : "";
+        iconPath = unfilteredCacheIcon ? convertFileSrc(unfilteredCacheIcon) : "";
+      } else {
+        imagePath = convertFileSrc(filteredCache);
+        iconPath = filteredCacheIcon ? convertFileSrc(filteredCacheIcon) : "";
       }
 
       showIcon = !!libraryCache[game.appid].Icon;

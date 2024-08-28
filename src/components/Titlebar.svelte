@@ -1,16 +1,14 @@
 <script lang="ts">
   import { DialogController, LogController } from "@controllers";
-  import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { canSave } from "@stores/AppState";
+  import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
   import { onDestroy, onMount } from "svelte";
-  import { canSave } from "../stores/AppState";
 
   let windowCloseUnsub: () => void;
 
   export let title: string;
   export let isMaxed = false;
-
-  $: appWindow = WebviewWindow.getByLabel("main")!;
 
   let minimize: HTMLDivElement;
   let maximize: HTMLDivElement;
@@ -35,6 +33,9 @@
   }
 
   onMount(async () => {
+    // * This is actually async but isn't typed properly.
+    const appWindow = await Window.getByLabel("main")!;
+    
     minimize.addEventListener("click", () => appWindow.minimize());
     maximize.addEventListener("click", () => {
       appWindow.toggleMaximize();

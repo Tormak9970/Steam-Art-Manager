@@ -15,6 +15,12 @@ export interface SGDBAuthor {
   avatar: URL;
 }
 
+export interface GridResults {
+  images: SGDBImage[];
+  page: number;
+  total: number;
+}
+
 export interface SGDBImage {
   author: SGDBAuthor;
 

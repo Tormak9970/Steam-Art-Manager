@@ -7,6 +7,8 @@
     "core:event:default",
     "core:webview:default",
     "core:app:default",
+    "core:window:default",
+    "core:window:allow-start-dragging",
     "dialog:default",
     "updater:default",
     {
@@ -33,10 +35,9 @@
         "C:/Users/*/scoop/persist/**"
       ]
     },
+    "fs:allow-create",
     "fs:read-all",
     "fs:write-all",
-    "core:window:default",
-    "core:window:allow-start-dragging",
     "shell:allow-open",
     "process:default",
     {

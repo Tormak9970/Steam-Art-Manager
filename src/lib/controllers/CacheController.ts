@@ -19,9 +19,9 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
-import { GridTypes, type GameStruct, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
+import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
 import { LogController } from "./LogController";
@@ -72,17 +72,21 @@ function logErrorToFile(message: string, useCoreFile: boolean): void {
  * Controller class for handling caching of requests.
  */
 export class CacheController {
+  private readonly SGDB_GRID_RESULT_LIMIT = 50;
   // @ts-expect-error This will always be defined eventually.
   private appCacheDirPath: string;
   // @ts-expect-error This will always be defined eventually.
   private gridCacheDirPath: string;
 
-  private gridsCache: { [steamGridId: number]: { [key in GridTypes]?: SGDBImage[] } } = {};
-  private lastPageCache: { [steamGridId: number]: Record<string, number> } = {};
+  private steamGridSteamAppIdMap: Record<string, number> = {};
+
+  private gridsCache: { [steamGridId: number]: GridTypesOptionalMap<SGDBImage[]> } = {};
+  private currentGridCountCache: { [steamGridId: number]: GridTypesOptionalMap<number> } = {};
+  private totalGridCountCache: { [steamGridId: number]: GridTypesOptionalMap<number> } = {};
 
   apiKeyUnsub: Unsubscriber | undefined;
-  client: SGDB | null = null;
-  key: string | null = null;
+  client?: SGDB;
+  key?: string;
 
   /**
    * Creates a new CacheController.
@@ -99,13 +103,13 @@ export class CacheController {
   private async createDirIfNotExists(path: string, dirName: string): Promise<void> {
     try {
       if (!(await fs.exists(path))) {
-        await fs.create(path);
+        await fs.mkdir(path, { recursive: true });
         // LogController.log(`Created ${dirName} dir.`);
       } else {
         // LogController.log(`Found ${dirName} dir.`);
       }
     } catch(e: any) {
-      LogController.error(e.message);
+      LogController.error(typeof e === "string" ? e : e.message);
       ToastController.showWarningToast(`Unable to add ${dirName} dir to scope`);
     }
   }
@@ -143,8 +147,8 @@ export class CacheController {
         this.client = new SGDB(key);
         this.key = key;
       } else {
-        this.client = null;
-        this.key = null;
+        this.client = undefined;
+        this.key = undefined;
       }
     });
     
@@ -196,43 +200,54 @@ export class CacheController {
    * Gets the grids for a non steam game.
    * @param steamGridAppId The sgdb appId of the app to get.
    * @param type The selected grid type.
-   * @param page The page of results to get.
-   * @param lastPageCached The last page that was cached.
+   * @param useFirstPage Whether to only get just the first page's results.
    * @param useCoreFile Whether or not to use the core log file.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForGame(steamGridAppId: number, type: GridTypes, page: number, lastPageCached: number, useCoreFile: boolean): Promise<SGDBImage[]> {
-    const gridCacheKeys = Object.keys(this.gridsCache);
-    
-    try {
-      if (gridCacheKeys.includes(steamGridAppId.toString())) {
-        const types = Object.keys(this.gridsCache[steamGridAppId]);
-  
-        if (types.includes(type)) {
-          if (lastPageCached === page) {
-            // logToFile(`Already fetched page #${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
-          } else {
-            // logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
-            // @ts-expect-error This will always be a function on this.cleint
-            const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-            this.gridsCache[steamGridAppId][type] = this.gridsCache[steamGridAppId][type].concat(grids);
-          }
-        } else {
-          // logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
-          // @ts-expect-error This will always be a function on this.cleint
-          const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-          this.gridsCache[steamGridAppId][type] = grids;
-        }
-      } else {
-        // logToFile(`Need to fetch ${type} for ${steamGridAppId}.`, useCoreFile);
-        // @ts-expect-error This will always be a function on this.cleint
-        const grids = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-        this.gridsCache[steamGridAppId] = {};
-        this.gridsCache[steamGridAppId][type] = grids;
-      }
+  private async fetchGridsForGame(steamGridAppId: number, type: GridTypes, useFirstPage: boolean, useCoreFile: boolean): Promise<SGDBImage[]> {
+    if (!this.gridsCache[steamGridAppId]) this.gridsCache[steamGridAppId] = {};
+    const gridsCacheEntry = this.gridsCache[steamGridAppId];
 
-      return this.gridsCache[steamGridAppId][type];
+    if (!this.currentGridCountCache[steamGridAppId]) this.currentGridCountCache[steamGridAppId] = {};
+    const currentCountEntry = this.currentGridCountCache[steamGridAppId];
+    
+    if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = {};
+    const totalCountEntry = this.totalGridCountCache[steamGridAppId];
+    
+    const morePagesCache = get(hasMorePagesCache);
+    if (!morePagesCache[steamGridAppId]) morePagesCache[steamGridAppId] = {};
+    const morePagesEntry = morePagesCache[steamGridAppId];
+
+    if (!Object.keys(morePagesEntry).includes(type)) morePagesEntry[type] = true;
+
+    if ((!morePagesEntry[type] || useFirstPage) && gridsCacheEntry[type]) return gridsCacheEntry[type];
+
+    let page = 0;
+
+    // * checking undefined here because 0 is falsy
+    if (!useFirstPage && currentCountEntry[type] !== undefined && totalCountEntry[type] !== undefined) {
+      page = Math.max(Math.floor(currentCountEntry[type] / this.SGDB_GRID_RESULT_LIMIT), 0);
+    }
+
+    try {
+      // TODO: check if there are anymore pages (this should be present on the first response)
+
+      if (!gridsCacheEntry[type]) gridsCacheEntry[type] = [];
+      
+      logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
+
+      // @ts-expect-error This will always be a function on this.cleint
+      const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+      
+      gridsCacheEntry[type] = gridsCacheEntry[type].concat(gridResults.images);
+      currentCountEntry[type] = gridsCacheEntry[type].length;
+      totalCountEntry[type] = gridResults.total;
+      morePagesEntry[type] = currentCountEntry[type] !== totalCountEntry[type];
+
+      hasMorePagesCache.set(morePagesCache);
+
+      return gridsCacheEntry[type];
     } catch (e: any) {
       logErrorToFile(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`, useCoreFile);
       ToastController.showWarningToast("Error fetching grids for game.");
@@ -272,13 +287,13 @@ export class CacheController {
     let chosenResult: SGDBGame | undefined;
     
     if (selectedPlatform === Platforms.STEAM && !isCustomName) {
-      let gameId = steamGridSteamAppIdMap[appId];
+      let gameId = this.steamGridSteamAppIdMap[appId];
 
       if (!gameId) {
         try {
           const gameInfo = await this.client!.getGameBySteamAppId(parseInt(appId));
-          gameId = gameInfo.id.toString();
-          steamGridSteamAppIdMap[appId] = gameId;
+          gameId = gameInfo.id;
+          this.steamGridSteamAppIdMap[appId] = gameId;
         } catch (e: any) {
           logErrorToFile(`Error getting game from SGDB by steam id. Game: ${gameName}. AppId: ${appId}. Error: ${e.message}.`, useCoreFile);
           ToastController.showWarningToast("Error getting game from SGDB.");
@@ -286,7 +301,7 @@ export class CacheController {
         }
       }
       
-      chosenResult = results.find((game) => game.id.toString() === gameId);
+      chosenResult = results.find((game) => game.id === gameId);
       if (!chosenResult && results.length > 0) chosenResult = results[0];
     } else {
       chosenResult = results.find((game) => game.name === gameName);
@@ -315,7 +330,7 @@ export class CacheController {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
     const type = get(gridType);
 
-    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, getLastLoadedPageNumberForGame(selectedSteamGridId, type), useCoreFile);
+    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, useFirstPage, useCoreFile);
   }
 
   /**

@@ -11,6 +11,14 @@ export enum GridTypes {
   ICON="Icon"
 }
 
+export type GridTypesOptionalMap<T> = {
+  [key in GridTypes]?: T;
+}
+
+export type GridTypesMap<T> = {
+  [key in GridTypes]: T;
+}
+
 export type MainWindowPanels = {
   options: number,
   games: number,
@@ -20,9 +28,7 @@ export type MainWindowPanels = {
 export type CleanGridsPreset = "clean" | "custom";
 export type ManageManualGamesMethod = "manual" | "search";
 
-export type LibraryCacheEntry = {
-  [key in GridTypes]?: string;
-}
+export type LibraryCacheEntry = GridTypesOptionalMap<string>;
 
 export type ChangedPath = {
   appId: string,

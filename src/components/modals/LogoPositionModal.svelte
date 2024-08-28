@@ -50,7 +50,7 @@
   });
   
   $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
-  $: game = games.find((game) => game.appid === $selectedGameAppId);
+  $: game = games.find((game) => game.appid.toString() === $selectedGameAppId)!;
   let heroPath = "";
   let logoPath = "";
 
@@ -143,7 +143,8 @@
   onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
       if ($appLibraryCache[$selectedGameAppId].Hero === "REMOVE") {
-        heroPath = convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
+        const heroImagePath = $unfilteredLibraryCache[$selectedGameAppId].Hero;
+        heroPath = heroImagePath ? convertFileSrc(heroImagePath) : "";
       } else {
         heroPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
       }
@@ -153,7 +154,8 @@
 
     if ($appLibraryCache[$selectedGameAppId]?.Logo) {
       if ($appLibraryCache[$selectedGameAppId].Logo === "REMOVE") {
-        logoPath = convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
+        const logoImagePath = $unfilteredLibraryCache[$selectedGameAppId].Logo;
+        logoPath = logoImagePath ? convertFileSrc(logoImagePath) : "";
       } else {
         logoPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
