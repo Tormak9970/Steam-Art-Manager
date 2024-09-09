@@ -33,6 +33,7 @@
 <style>
   .accordion {
     color: var(--font-color);
+    /* width: calc(100% - 7px); */
     width: 100%;
 
     user-select: none;

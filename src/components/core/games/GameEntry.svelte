@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { tauri } from "@tauri-apps/api"
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
 
-  import { GridTypes, Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, selectedGameAppId, selectedGameName, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
-  import { renderGamesInList } from "../../../stores/AppState";
-  import ListEntry from "./list-view/ListEntry.svelte";
-  import GridEntry from "./grid-view/GridEntry.svelte";
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import type { GameStruct, GridTypes, LibraryCacheEntry } from "@types";
+  import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, renderGamesInList, selectedGameAppId, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
+  import GridEntry from "./grid-view/GridEntry.svelte";
+  import ListEntry from "./list-view/ListEntry.svelte";
 
   export let game: GameStruct;
 
@@ -31,8 +31,7 @@
    * Selects this game.
    */
   function selectGame(): void {
-    $selectedGameName = $customGameNames[game.appid] ?? game.name;
-    $selectedGameAppId = game.appid;
+    $selectedGameAppId = game.appid.toString();
   }
 
   /**
@@ -44,9 +43,8 @@
     if (shouldHide) {
       tmp.push(game.appid);
 
-      if ($selectedGameAppId === game.appid) {
-        $selectedGameAppId = null;
-        $selectedGameName = null;
+      if ($selectedGameAppId === game.appid.toString()) {
+        $selectedGameAppId = "";
       }
     } else {
       tmp.splice($hiddenGameIds.indexOf(game.appid), 1);
@@ -60,7 +58,7 @@
    * @param appid The appid of the chosen game.
    */
   function showAllGrids(appid: number): void {
-    $currentGridsAppid = appid;
+    $currentGridsAppid = appid.toString();
     $showCurrentGridsModal = true;
   }
 
@@ -71,17 +69,24 @@
    */
   function updateOnStateChange(libraryCache: { [appid: string]: LibraryCacheEntry}, type: GridTypes): void {
     if (libraryCache[game.appid]) {
-      if (libraryCache[game.appid][type]) {
-        showImage = true;
-        if (libraryCache[game.appid][type] === "REMOVE") {
-          imagePath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid][type]);
-          iconPath = tauri.convertFileSrc($unfilteredLibraryCache[game.appid].Icon);
-        } else {
-          imagePath = tauri.convertFileSrc(libraryCache[game.appid][type]);
-          iconPath = tauri.convertFileSrc(libraryCache[game.appid].Icon);
-        }
-      }  else {
+      const filteredCache = libraryCache[game.appid.toString()][type];
+
+      if (!filteredCache) {
         showImage = false;
+        return;
+      }
+
+      showImage = true;
+      const unfilteredCache = $unfilteredLibraryCache[game.appid.toString()][type];
+      const unfilteredCacheIcon = $unfilteredLibraryCache[game.appid.toString()].Icon;
+      const filteredCacheIcon = libraryCache[game.appid.toString()].Icon;
+      
+      if (filteredCache === "REMOVE") {
+        imagePath = unfilteredCache ? convertFileSrc(unfilteredCache) : "";
+        iconPath = unfilteredCacheIcon ? convertFileSrc(unfilteredCacheIcon) : "";
+      } else {
+        imagePath = convertFileSrc(filteredCache);
+        iconPath = filteredCacheIcon ? convertFileSrc(filteredCacheIcon) : "";
       }
 
       showIcon = !!libraryCache[game.appid].Icon;

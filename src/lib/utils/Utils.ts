@@ -1,34 +1,12 @@
-import { showSteamPathModal, steamPathModalClose } from "../../stores/Modals";
-import { GridTypes, type DBFilters, steamInstallPath, requestTimeoutLength, activeUserId, hasMorePagesCache, lastPageCache } from "../../stores/AppState";
-import { DialogController } from "../controllers/DialogController";
-import { LogController } from "../controllers/LogController";
-import { SGDB, type SGDBImage } from "../models/SGDB";
-import { exit } from "@tauri-apps/api/process";
-import { RustInterop } from "../controllers/RustInterop";
-import { fs, path, process, http } from "@tauri-apps/api";
+import { DialogController, LogController, RustInterop } from "@controllers";
+import { SGDB } from "@models";
+import { activeUserId, requestTimeoutLength, steamInstallPath, type DBFilters } from "@stores/AppState";
+import { showSteamPathModal, steamPathModalClose } from "@stores/Modals";
+import { fetch } from "@tauri-apps/plugin-http";
+import * as process from "@tauri-apps/plugin-process";
+import { exit } from "@tauri-apps/plugin-process";
+import { GridTypes, type SGDBImage } from "@types";
 import { get } from "svelte/store";
-
-/**
- * Throttles a function to only run every provided interval.
- * @param func The function to throttle.
- * @param wait The amount of time in between each run.
- * @returns A function that throttles the provided function.
- */
-export function throttle(func: any, wait: number) {
-  let waiting = false;
-  return function (...args: any[]) {
-    if (waiting) {
-      return;
-    } else {
-      func.apply(this, args);
-    }
-
-    waiting = true;
-    setTimeout(() => {
-      waiting = false;
-    }, wait);
-  }
-}
 
 /**
  * Debounces a function by the provided interval.
@@ -37,19 +15,66 @@ export function throttle(func: any, wait: number) {
  * @param immediate Whether to run the function immediately, then debounce, or debounce from the start.
  * @returns The debounced function.
  */
-export function debounce(func: any, wait:number, immediate?:boolean) {
-  let timeout:NodeJS.Timeout|null;
+export function debounce(func: any, wait:number, immediate?: boolean) {
+  let timeout:any|null;
+
   return function (...args: any[]) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const context = this;
     const later = function () {
       timeout = null;
-      if (!immediate) func.apply(context, args);
+      if (!immediate) func(...args);
     };
+
     const callNow = immediate && !timeout;
-    clearTimeout(timeout as NodeJS.Timeout);
+    clearTimeout(timeout as any);
     timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
+    
+    if (callNow) func(...args);
+  }
+}
+
+/**
+ * Throttles a function to only run every provided interval. From underscore souce code.
+ * @param func The function to throttle.
+ * @param wait How long to wait before running the function again.
+ * @param immediate Whether to run the function immediately or not. 
+ * @returns The throttled function.
+ */
+export function throttle(func: any, wait: number, immediate = false) {
+  let context: any, args: any, result: any;
+  let timeout: any = null;
+  let previous: any = 0;
+
+  const later = function() {
+    previous = immediate === false ? 0 : new Date();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+
+  return function() {
+    const now = new Date();
+    if (!previous && immediate === false) previous = now;
+    // @ts-ignore
+    const remaining = wait - (now - previous);
+    // @ts-ignore
+    context = this;
+    args = arguments;
+
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+
+      previous = now;
+      result = func.apply(context, args);
+
+      if (!timeout) context = args = null;
+    } else if (!timeout && immediate !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+
+    return result;
   }
 }
 
@@ -77,10 +102,10 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
  * @param useCoreFile Whether or not to log to the core file.
  * @returns The list of filtered grids.
  */
-export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, page: number, useCoreFile = true): SGDBImage[] {
+export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-  const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions).filter((dimension) => targetFilters.dimensions[dimension]) : [];
+  const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
   const imageFormats = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
   const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
   const humorAllowed = targetFilters.oneoftag.humor;
@@ -97,7 +122,7 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
       && (grid.nsfw ? nsfwAllowed : true);
   });
 
-  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName} - page${page === 0 ? " 0" : ("s 0 - " + page)}"`;
+  const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
   if (resGrids.length > 0) {
     if (useCoreFile) {
       LogController.log(`Query: ${query}. Result: ${resGrids.length} grids.`);
@@ -223,9 +248,9 @@ export async function validateSteamAPIKey(key: string, userId?: number): Promise
   const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
   const timeout = get(requestTimeoutLength)
 
-  const res = await http.fetch<any>(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+  const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
     method: "GET",
-    timeout: timeout
+    signal: AbortSignal.timeout(timeout)
   });
 
   return res.ok || key === "";
@@ -241,44 +266,11 @@ export async function validateSGDBAPIKey(key: string): Promise<boolean> {
   
   const apiModel = new SGDB(key);
 
-  const res = await apiModel.searchGame("s");
-  return res?.length > 0;
-}
-
-/**
- * Checks if there are more result pages to load for a given sgdb game.
- * @param sgdbGameId The id of the sgdb game to check for more pages.
- * @param type The current grid type.
- * @returns True if there are more result pages to load, false if not.
- */
-export function getHasMorePages(sgdbGameId: string, type: GridTypes) {
-  if (sgdbGameId === "None") {
-    return true;
-  } else {
-    const id = parseInt(sgdbGameId);
-    
-    if (!hasMorePagesCache[id]) hasMorePagesCache[id] = {};
-    if (!Object.keys(hasMorePagesCache[id]).includes(type)) hasMorePagesCache[id][type] = true;
-    
-    return hasMorePagesCache[id][type];
-  }
-}
-
-/**
- * Gets the most recent page number cached for a given sgdb game.
- * @param sgdbGameId The id of the sgdb game to check for more pages.
- * @param type The current grid type.
- * @returns The most recent page number cached, or -1 if never cached.
- */
-export function getLastLoadedPageNumberForGame(sgdbGameId: string, type: GridTypes) {
-  if (sgdbGameId === "None") {
-    return -1;
-  } else {
-    const id = parseInt(sgdbGameId);
-
-    if (!lastPageCache[id]) lastPageCache[id] = {};
-    if (!lastPageCache[id][type] && lastPageCache[id][type] !== 0) lastPageCache[id][type] = -1;
-
-    return lastPageCache[id][type];
+  try {
+    const res = await apiModel.searchGame("s");
+    return res?.length > 0;
+  } catch (e: any) {
+    console.error(e);
+    return false;
   }
 }

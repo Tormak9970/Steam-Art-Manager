@@ -1,9 +1,22 @@
-type SteamRegistryApp = {
+export type LogoPinPositions = "BottomLeft" | "CenterCenter" | "UpperCenter" | "BottomCenter" | "REMOVE";
+
+export type LogoPosition = {
+  pinnedPosition: LogoPinPositions,
+  nWidthPct: number,
+  nHeightPct: number,
+};
+
+export type SteamLogoConfig = {
+  nVersion: number,
+  logoPosition: LogoPosition,
+}
+
+export type SteamRegistryApp = {
   appid: string,
   name: string
 }
 
-type SteamShortcut = {
+export type SteamShortcut = {
   AllowDesktopConfig: number
   AllowOverlay: number
   AppName: string
@@ -25,7 +38,7 @@ type SteamShortcut = {
   }
 }
 
-type SteamUser = {
+export type SteamUser = {
   id64: string,
   id32: string,
   AccountName: string,

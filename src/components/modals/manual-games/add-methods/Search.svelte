@@ -1,30 +1,23 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { needsSGDBAPIKey, steamGridDBKey } from "../../../../stores/AppState";
-  import { ToastController } from "../../../../lib/controllers/ToastController";
-  import { SGDB, type SGDBGame } from "../../../../lib/models/SGDB";
-  import Button from "../../../interactables/Button.svelte";
-  import SearchBar from "../../../interactables/SearchBar.svelte";
-  import Table from "../../../layout/Table.svelte";
+  import { AppController, ToastController } from "@controllers";
+  import { Button, SearchBar } from "@interactables";
+  import { Table } from "@layout";
+  import { needsSGDBAPIKey } from "@stores/AppState";
+  import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
   
-  export let onGameSave: (game:GameStruct) => void;
+  export let onGameSave: (game: GameStruct) => void;
 
-  let notSGDBV3 = true;
-  let client: SGDB;
   let searchQuery: string = "";
-  let selectedGame: GameStruct;
-  let results: GameStruct[] = [];
-
-  let gameInfoCache: { [id: string]: GameStruct } = {};
+  let selectedGame: SGDBGame | null;
+  let results: SGDBGame[] = [];
 
   /**
    * Function to run when a game is selected.
    * @param game The game to select.
    */
-  function onGameSelect(game: GameStruct): void {
+  function onGameSelect(game: SGDBGame): void {
     selectedGame = game;
-    ToastController.showGenericToast(`Selected ${game.name}`);
   }
 
   /**
@@ -32,34 +25,31 @@
    * @param query The query to use.
    */
   async function searchGame(query: string): Promise<void> {
-    // TODO: switch to using the appController method?
-    const searchRes = await client.searchGame(query);
-    const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
-    console.log(searchRes);
-
-    const resultsWithInfo: GameStruct[] = [];
-
-    for (const sgdbGame of steamGames) {
-      const appid = 0;
-      // TODO: look up the steam app id here
-      resultsWithInfo.push({
-        appid: appid,
-        name: sgdbGame.name
-      })
+    if (query === "") {
+      results = [];
+    } else {
+      const searchRes = await AppController.searchSGDBForGame(query);
+      const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
+      results = steamGames;
     }
-
-    results = resultsWithInfo;
   }
 
   /**
    * Wrapper function for saving the users selection.
    */
-  function saveWrapper(): void {
-    ToastController.showSuccessToast(`Added ${selectedGame.name}!`);
-    onGameSave({ appid: selectedGame.appid, name: selectedGame.name });
-    selectedGame = null;
-    results = [];
-    searchQuery = "";
+  async function saveWrapper(): Promise<void> {
+    const appid = await AppController.getAppidForSGDBGame(selectedGame!);
+    
+    if (appid) {
+      onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
+      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
+      selectedGame = null;
+      results = [];
+      searchQuery = "";
+    } else {
+      selectedGame = null;
+      ToastController.showWarningToast("No appid found for the selected game!");
+    }
   }
 
   /**
@@ -71,18 +61,10 @@
     results = [];
     searchQuery = "";
   }
-
-  onMount(() => {
-    if (!$needsSGDBAPIKey) client = new SGDB($steamGridDBKey);
-  });
 </script>
 
 <div class="search-add">
-  {#if notSGDBV3}
-    <div class="description">
-      <b>Unfortunately, his feature is unavailable until a new version of the SGDB API is released.</b>
-    </div>
-  {:else if $needsSGDBAPIKey}
+  {#if $needsSGDBAPIKey}
     <div class="description">
       <b>Please provide a SteamGridDB API key in settings if you would like to use the game search!</b>
     </div>
@@ -92,21 +74,20 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="292px" marginLeft="0px">
+      <Table height="325px" marginLeft="0px">
         <span slot="header">
-          <div class="appid">App Id</div>
-          <div>Name</div>
+          <div class="name">Name</div>
         </span>
         <span slot="data">
-          {#each results as game (`${game.appid}|${game.name}`)}
-            <SearchEntry game={game} isSelected={selectedGame?.appid === game.appid} onSelect={onGameSelect} />
+          {#each results as game (game.id)}
+            <SearchEntry game={game} isSelected={selectedGame?.id === game.id} onSelect={onGameSelect} />
           {/each}
         </span>
       </Table>
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" onClick={saveWrapper} width="47.5%" />
+      <Button label="Add Selected" onClick={saveWrapper} disabled={!selectedGame} width="47.5%" />
       <Button label="Clear" onClick={clear} width="47.5%" />
     </div>
   {/if}
@@ -122,8 +103,8 @@
 
   .description {
     width: calc(100% - 20px);
-    margin-top: 7px;
-    margin-bottom: 14px;
+    margin-top: 6px;
+    margin-bottom: 7px;
 
     font-size: 14px;
   }
@@ -132,9 +113,8 @@
     width: calc(100% - 7px);
   }
 
-  .appid {
+  .name {
     margin-left: 3px;
-    margin-right: 60px;
   }
 
   .buttons {

@@ -1,18 +1,16 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
-  import { AppController } from "../../../lib/controllers/AppController";
-  
-  import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { throttle } from "../../../lib/utils/Utils";
-
-  import { dowloadingGridId, gridType } from "../../../stores/AppState";
-  import LoadingSpinner from "../../info/LoadingSpinner.svelte";
+  import { AppController } from "@controllers";
+  import { LoadingSpinner } from "@layout";
+  import { dowloadingGridId, gridType } from "@stores/AppState";
+  import { open } from "@tauri-apps/plugin-shell";
+  import type { SGDBImage } from "@types";
+  import { throttle } from "@utils";
   import GridImage from "../GridImage.svelte";
 
   export let grid: SGDBImage;
 
   let imagePath = grid.thumb.toString();
-  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id, grid.url); }, 500);
+  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id.toString(), grid.url); }, 500);
 
   /**
    * Sets this grid to be the current grid for the selected game.
@@ -30,8 +28,9 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="grid" on:click={selectGame}>
-  <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id}>
+  <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id.toString()}>
     <LoadingSpinner width="40px" height="40px" />
   </div>
   <div class="image-control show-view" on:click|stopPropagation={() => { AppController.viewSteamGridImage(grid); }} use:AppController.tippy={{ content: "View Grid", placement: "right", onShow: AppController.onTippyShow }}>

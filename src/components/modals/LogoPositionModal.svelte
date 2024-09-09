@@ -16,18 +16,16 @@
  along with this program. If not, see <https://www.gnu.org/licenses/>
  -->
  <script lang="ts">
-  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "../../stores/AppState";
-  import Button from "../interactables/Button.svelte";
-  import { AppController } from "../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
+  import { Button, DropDown, Slider } from "@interactables";
+  import { appLibraryCache, manualSteamGames, nonSteamGames, originalLogoPositions, selectedGameAppId, steamGames, steamLogoPositions, unfilteredLibraryCache } from "@stores/AppState";
+  import { showLogoPositionModal } from "@stores/Modals";
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import type { LogoPinPositions } from "@types";
+  import { IMAGE_FADE_OPTIONS } from "@utils";
   import { afterUpdate, onMount } from "svelte";
-  import { tauri } from "@tauri-apps/api";
-  import DropDown from "../interactables/DropDown.svelte";
-  import Slider from "../interactables/Slider.svelte";
   import { fade } from "svelte/transition";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import { showLogoPositionModal } from "../../stores/Modals";
-  import Spacer from "../layout/Spacer.svelte";
-    import { IMAGE_FADE_OPTIONS } from "../../lib/utils/ImageConstants";
 
   /**
    * The function to run when the modal closes.
@@ -52,7 +50,7 @@
   });
   
   $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
-  $: game = games.find((game) => game.appid === $selectedGameAppId);
+  $: game = games.find((game) => game.appid.toString() === $selectedGameAppId)!;
   let heroPath = "";
   let logoPath = "";
 
@@ -115,6 +113,7 @@
         right: (100 - widthPct) / 2,
       },
     };
+    // @ts-expect-error REMOVE will never be pos' value.
     return positions[pos];
   }
 
@@ -144,9 +143,10 @@
   onMount(() => {
     if ($appLibraryCache[$selectedGameAppId]?.Hero) {
       if ($appLibraryCache[$selectedGameAppId].Hero === "REMOVE") {
-        heroPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Hero);
+        const heroImagePath = $unfilteredLibraryCache[$selectedGameAppId].Hero;
+        heroPath = heroImagePath ? convertFileSrc(heroImagePath) : "";
       } else {
-        heroPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
+        heroPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Hero);
       }
     } else {
       heroPath = "";
@@ -154,9 +154,10 @@
 
     if ($appLibraryCache[$selectedGameAppId]?.Logo) {
       if ($appLibraryCache[$selectedGameAppId].Logo === "REMOVE") {
-        logoPath = tauri.convertFileSrc($unfilteredLibraryCache[$selectedGameAppId].Logo);
+        const logoImagePath = $unfilteredLibraryCache[$selectedGameAppId].Logo;
+        logoPath = logoImagePath ? convertFileSrc(logoImagePath) : "";
       } else {
-        logoPath = tauri.convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
+        logoPath = convertFileSrc($appLibraryCache[$selectedGameAppId].Logo);
       }
     }
     
@@ -191,8 +192,6 @@
       </div>
       {#if canClear}
         <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <Spacer orientation="HORIZONTAL" />
-        <Spacer orientation="HORIZONTAL" />
         <Button label="Reset" onClick={clearLogoPosition} width="102px" />
       {:else}
         <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
@@ -250,6 +249,8 @@
     padding: 0px 10px;
 
     display: flex;
+
+    gap: 7px;
   }
 
   .logo-size { width: 220px; }

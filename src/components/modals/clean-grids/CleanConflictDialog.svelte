@@ -1,28 +1,28 @@
 <script lang="ts">
+  import { LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import * as fs from "@tauri-apps/plugin-fs";
   import { onMount } from "svelte";
-  import { GridTypes } from "../../../stores/AppState";
   import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { fs, tauri } from "@tauri-apps/api";
-  import Button from "../../interactables/Button.svelte";
     
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import { type CleanConflict } from "@types";
+  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
-  import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "../../../lib/utils/ImageConstants";
 
   let conflictNumber: number = 1;
-  let conflict: CleanConflict;
+  let conflict: CleanConflict | null;
   $: conflictGridType = conflict ? conflict.gridType : "";
-  $: fileAPath = conflict ? tauri.convertFileSrc(conflict.fileAPath) : "";
-  $: fileBPath = conflict ? tauri.convertFileSrc(conflict.fileBPath) : "";
+  $: fileAPath = conflict ? convertFileSrc(conflict.fileAPath) : "";
+  $: fileBPath = conflict ? convertFileSrc(conflict.fileBPath) : "";
 
   /**
    * Get the next grid conflict.
    */
   function getNextConflict(): CleanConflict | null {
     conflictNumber++;
-    return $cleanConflicts.length > 0 ? $cleanConflicts.shift() : null;
+    return $cleanConflicts.length > 0 ? $cleanConflicts.shift()! : null;
   }
 
   /**
@@ -30,9 +30,9 @@
    * @param keepChoiceA If true, keep choice A, if false, keep choice B.
    */
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
-    await fs.removeFile(keepChoiceA ? conflict.fileBPath : conflict.fileAPath);
+    await fs.remove(keepChoiceA ? conflict!.fileBPath : conflict!.fileAPath);
 
-    LogController.log(`Appid: ${conflict.appid}. Keeping ${keepChoiceA ? conflict.fileAName : conflict.fileBName} and deleting ${keepChoiceA ? conflict.fileBName : conflict.fileAName}.`);
+    LogController.log(`Appid: ${conflict!.appid}. Keeping ${keepChoiceA ? conflict!.fileAName : conflict!.fileBName} and deleting ${keepChoiceA ? conflict!.fileBName : conflict!.fileAName}.`);
     
     conflict = getNextConflict();
 
@@ -48,7 +48,7 @@
    * Function to call when the user wants to keep both grids.
    */
   function keepBoth(): void {
-    LogController.log(`Appid: ${conflict.appid}. Keeping both ${conflict.fileAName} and ${conflict.fileBName}.`);
+    LogController.log(`Appid: ${conflict!.appid}. Keeping both ${conflict!.fileAName} and ${conflict!.fileBName}.`);
 
     conflict = getNextConflict();
 
@@ -62,9 +62,9 @@
 
   onMount(() => {
     conflict = getNextConflict();
-    conflictGridType = conflict.gridType;
-    fileAPath = tauri.convertFileSrc(conflict.fileAPath);
-    fileBPath = tauri.convertFileSrc(conflict.fileBPath);
+    conflictGridType = conflict!.gridType;
+    fileAPath = convertFileSrc(conflict!.fileAPath);
+    fileBPath = convertFileSrc(conflict!.fileBPath);
   });
 </script>
 
@@ -76,7 +76,7 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+          <div class="img" class:logo-background={conflictGridType === "logo"} class:icon-background={conflictGridType === "icon"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
             <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
               <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
@@ -86,7 +86,7 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === GridTypes.LOGO} class:icon-background={conflictGridType === GridTypes.ICON} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+          <div class="img" class:logo-background={conflictGridType === "logo"} class:icon-background={conflictGridType === "icon"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
             <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
               <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>

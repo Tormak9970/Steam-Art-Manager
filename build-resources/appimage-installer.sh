@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Tormak
+# Author: Travis Lane
 
 errorRed='\033[1;91m'
 warningYellow='\033[1;93m'
@@ -11,7 +11,7 @@ noColor='\033[0m'
 comment="A tool for setting the artwork of your Steam library."
 uninstallComment="Uninstalls all files related to SARM."
 
-currentVersion="v2.9.0"
+currentVersion="VALUE_TO_SEARCH_FOR"
 
 # Show starting message.
 echo -e "${infoCyan}[INFO]${noColor}: Installing Steam Art Manager (SARM) $currentVersion..."
@@ -54,10 +54,10 @@ echo -e "${successGreen}[INFO]${noColor}: Downloaded AppImage."
 echo ""
 
 # Download the uninstall script from GitHub.
-rm -rf "$HOME"/.sarm/linux-uninstaller.sh 2>/dev/null
+rm -rf "$HOME"/.sarm/appimage-uninstaller.sh 2>/dev/null
 echo -e "${infoCyan}[INFO]${noColor}: Downloading Uninstall Script..."
-curl -L https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/build-resources/linux-uninstaller.sh --output ~/.sarm/linux-uninstaller.sh
-chmod 700 ~/.sarm/linux-uninstaller.sh
+curl -L https://raw.githubusercontent.com/Tormak9970/Steam-Art-Manager/$currentVersion/build-resources/appimage-uninstaller.sh --output ~/.sarm/appimage-uninstaller.sh
+chmod 700 ~/.sarm/appimage-uninstaller.sh
 echo -e "${successGreen}[INFO]${noColor}: Downloaded Uninstall Script."
 echo ""
 
@@ -98,7 +98,7 @@ StartupNotify=false
 
 EOM
 
-uninstallScriptPath="$absSarmPath/linux-uninstaller.sh"
+uninstallScriptPath="$absSarmPath/appimage-uninstaller.sh"
 
 # Create the uninstaller .desktop.
 read -r -d '' uninstallSarmContent <<- EOM

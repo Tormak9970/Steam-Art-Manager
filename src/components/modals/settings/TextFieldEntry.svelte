@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
-  import TextInput from "../../interactables/TextInput.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import { AppController } from "@controllers";
+  import { TextInput } from "@interactables";
+  import { open } from "@tauri-apps/plugin-shell";
+  import { debounce } from "@utils";
   import { onMount } from "svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import { debounce } from "../../../lib/utils/Utils";
 
   export let label: string;
   export let description: string;
@@ -17,13 +16,14 @@
   export let useValidator = false;
   export let validator: (value: string) => Promise<boolean> = async (value: string) => true;
 
-  let isValid = null;
+  let isValid = false;
   
   /**
    * A wrapper for the onChange event.
    */
   async function changeWrapper(): Promise<void> {
     isValid = await validator(value);
+    console.log(isValid);
     onChange(value, isValid);
   }
 
@@ -64,31 +64,34 @@
   </div>
   <div class="inputs">
     <TextInput placeholder={"Your API key"} onInput={debouncedWrapper} width="{220}" bind:value={value} />
-    <Spacer orientation="HORIZONTAL" />
 
-    {#if useValidator && isValid !== null}
+    {#if useValidator}
       {#if isValid}
+        <div class="valid-value">Valid api key</div>
+      {:else}
         {#if value === "" && canBeEmpty}
           <div class="warn-value">No api key provided</div>
         {:else}
-          <div class="valid-value">Valid api key</div>
+          <div class="invalid-value">Not a valid api key!</div>
         {/if}
-      {:else}
-        <div class="invalid-value">Not a valid api key!</div>
       {/if}
     {/if}
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="description" on:click={clickListener}>
-    <b>Usage:</b><br/>
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html description}<br/>
+    <div class="part">
+      <b>Usage:</b><br/>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html description}<br/>
+    </div>
 
     {#if notes !== ""}
-      <Spacer orientation="VERTICAL" />
-      <b>Notes:</b><br/>
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html notes}
+      <div class="part">
+        <b>Notes:</b><br/>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html notes}
+      </div>
     {/if}
   </div>
 </div>
@@ -128,16 +131,26 @@
     font-size: 18px;
   }
 
+  .part {
+    width: 100%;
+  }
+
   .description {
     line-height: 18px;
     font-size: 14px;
     margin: 7px 0px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   
   .inputs {
     display: flex;
     align-items: center;
+
+    gap: 7px;
   }
 
   .valid-value {

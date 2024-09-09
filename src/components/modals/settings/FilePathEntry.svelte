@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
-  import TextInput from "../../interactables/TextInput.svelte";
-  import FileButton from "../../interactables/FileButton.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import { AppController } from "@controllers";
+  import { FileButton, TextInput } from "@interactables";
+  import { open } from "@tauri-apps/plugin-shell";
   import { onMount } from "svelte";
-    import { AppController } from "../../../lib/controllers/AppController";
 
   export let label: string;
   export let description: string;
@@ -17,7 +15,7 @@
   export let validPathMessage = "";
   export let validator: (path: string) => Promise<boolean> = async (path: string) => true;
 
-  let isValid = null;
+  let isValid = false;
 
   /**
    * A wrapper for the onChange event.
@@ -71,11 +69,9 @@
   </div>
   <div class="inputs">
     <TextInput placeholder={"~/something/something"} onChange={changeWrapper} width="{188}" bind:value={value} />
-    <Spacer orientation="HORIZONTAL" />
     <FileButton label="Select Folder" tooltipPosition={"right"} onChange={dialogChangeWrapper} />
-    <Spacer orientation="HORIZONTAL" />
-
-    {#if useValidator && isValid !== null}
+    
+    {#if useValidator}
       {#if isValid}
         <div class="valid-value">{validPathMessage}</div>
       {:else}
@@ -84,16 +80,20 @@
     {/if}
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="description" on:click={clickListener}>
-    <b>Usage:</b><br/>
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html description}<br/>
+    <div class="part">
+      <b>Usage:</b><br/>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html description}<br/>
+    </div>
 
     {#if notes !== ""}
-      <Spacer orientation="VERTICAL" />
-      <b>Notes:</b><br/>
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html notes}
+      <div class="part">
+        <b>Notes:</b><br/>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html notes}
+      </div>
     {/if}
   </div>
 </div>
@@ -136,12 +136,22 @@
   .inputs {
     display: flex;
     align-items: center;
+
+    gap: 7px;
+  }
+
+  .part {
+    width: 100%;
   }
 
   .description {
     line-height: 18px;
     font-size: 14px;
     margin: 7px 0px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .valid-value {

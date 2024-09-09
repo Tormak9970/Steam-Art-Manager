@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
-  import Button from "../../interactables/Button.svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
+  import { AppController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import { GridTypes } from "@types";
+  import { gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
+  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
-  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
   $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
 

@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { Checkbox } from "@interactables";
+  import type { GameStruct } from "@types";
   import { Platforms } from "../../../../stores/AppState";
-  import Checkbox from "../../../interactables/Checkbox.svelte";
 
   export let game: GameStruct;
   export let platform: string;

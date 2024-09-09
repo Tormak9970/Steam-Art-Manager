@@ -3,3 +3,6 @@
 
 declare const APP_VERSION: string;
 declare const IS_DEBUG: boolean;
+
+
+declare module "svelte-lazy"

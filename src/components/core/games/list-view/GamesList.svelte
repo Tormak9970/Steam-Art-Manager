@@ -1,9 +1,9 @@
 <script lang="ts">
-  import VirtualList from "../../../layout/VirtualList.svelte";
+  import { VirtualList } from "@layout";
+  import { currentPlatform } from "@stores/AppState";
+  import type { GameStruct } from "@types";
   import GameEntry from "../GameEntry.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
-  
-  import { currentPlatform } from "../../../../stores/AppState";
 
   export let isLoading: boolean;
   export let games: GameStruct[];

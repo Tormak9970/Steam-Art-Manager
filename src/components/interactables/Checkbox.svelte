@@ -12,6 +12,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="check-box-container" on:click={check}>
   <input type="checkbox" id="" bind:checked={value}>
   <span class="check-box">

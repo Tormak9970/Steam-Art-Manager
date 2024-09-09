@@ -1,48 +1,60 @@
-name: Debug Release
+name: Release Candidate
 
 on:
   push:
     branches:
-      - "debug-release"
+      - "release-candidate"
 
 jobs:
   create-release:
     permissions:
       contents: write
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
-      tag: ${{ steps.create-release.outputs.tag }}
+      change_log: ${{ steps.changelog.outputs.changelog }}
+      version: ${{ steps.changelog.outputs.version }}
+      tag: ${{ steps.changelog.outputs.tag }}
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: release-candidate
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-          
-      - name: Get Package Version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+          node-version: lts/*
+
+      - name: Generate Changelog for Release
+        id: changelog
+        uses: Tormak9970/reliable-changelog@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          tag-prefix: "rc-"
+          git-branch: "release-candidate"
+          current-version: "./package.json"
+          version-path: "version"
+          patch-version-bump-interval: "10"
 
       - name: Create Release
         id: create-release
         uses: actions/github-script@v6
+        env:
+          RELEASE_TAG: ${{ steps.changelog.outputs.tag }}
+          RELEASE_LOG: ${{ steps.changelog.outputs.changelog }}
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `debug-${process.env.PACKAGE_VERSION}`,
-              name: `Steam Art Manager debug-${process.env.PACKAGE_VERSION}`,
-              body: `Download the release for your platform below`,
+              tag_name: process.env.RELEASE_TAG,
+              name: `SARM ${process.env.RELEASE_TAG}`,
+              body: `${process.env.RELEASE_LOG}`,
               draft: true,
               prerelease: true
             });
-
-            core.setOutput("tag", `debug-${process.env.PACKAGE_VERSION}`);
-
             return data.id
 
   build-tauri:
@@ -52,65 +64,62 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        platform: [ubuntu-18.04, windows-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: "debug-release"
+          ref: release-candidate
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: lts/*
 
-      - name: Setup Pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8.6.11
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install Dependencies (Linux Only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install Frontend Dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Build App
         uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_PRIVATE_KEY_PASSWORD }}
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: ${{ needs.create-release.outputs.tag }}
-          releaseBody: "Download the release for your platform below"
+          releaseBody: "Check Github for the release notes!"
           releaseDraft: true
-          includeDebug: true
-          includeRelease: false
           includeUpdaterJson: false
+          tauriScript: "bun tauri"
             
   publish-release:
     needs: [create-release, build-tauri]
     permissions:
       contents: write
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: "debug-release"
+          ref: release-candidate
 
       - name: Update Release Assets
         uses: ./.github/workflows/create-release-assets
@@ -118,7 +127,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           release_id: ${{ needs.create-release.outputs.release_id }}
           release_tag: ${{ needs.create-release.outputs.tag }}
-          git_branch: "debug-release"
+          git_branch: "release-candidate"
+          change_log: ${{ needs.create-release.outputs.change_log }}
 
       - name: Publish Release
         id: publish-release

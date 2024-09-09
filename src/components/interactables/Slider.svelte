@@ -10,8 +10,8 @@
 </script>
 
 <div class="slider" style="width: {width};">
-  <!-- svelte-ignore a11y-label-has-associated-control -->
   {#if label !== ""}
+    <!-- svelte-ignore a11y-label-has-associated-control -->
     <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   {/if}
   <RangeInput min={min} max={max} bind:value="{value}" on:change={onChange}/>

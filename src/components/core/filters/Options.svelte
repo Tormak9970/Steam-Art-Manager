@@ -1,13 +1,12 @@
 <script lang="ts">
+  import { LogController } from "@controllers";
+  import { scrollShadow } from "@directives";
+  import { Toggle } from "@interactables";
+  import { Accordion } from "@layout";
+  import { dbFilters, gridType, optionsSize, theme } from "@stores/AppState";
   import { Pane } from "svelte-splitpanes";
-  import Toggle from "../../interactables/Toggle.svelte";
-  import Accordion from "../../layout/Accordion.svelte";
-  import SectionTitle from "../SectionTitle.svelte";
-  import { LogController } from "../../../lib/controllers/LogController";
   import Divider from "../Divider.svelte";
-  import { dbFilters, gridType, optionsSize, theme } from "../../../stores/AppState";
-  import Spacer from "../../layout/Spacer.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+  import SectionTitle from "../SectionTitle.svelte";
 
   /**
    * Creates a function to update the specified filter.
@@ -19,6 +18,7 @@
     return (value: boolean) => {
       const filters = $dbFilters;
 
+      // @ts-expect-error this will always work because the properties come from $dbFilters' keys.
       filters[$gridType][section][filter] = value;
 
       $dbFilters = { ...filters };
@@ -53,37 +53,35 @@
   <div class="inner">
     <SectionTitle title="Options" />
   
-    <div class="content" style="height: 35px;">
-      <div style="padding-left: 6px; margin-top: 10px; display: flex; justify-content: space-between;">
+    <div class="content">
+      <div class="toggle-container">
         <Toggle label="Dark Mode" value={$theme === 0} onChange={onDarkModeChange}/>
       </div>
       
       <Divider />
-      <Spacer orientation="VERTICAL" />
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <PaddedScrollContainer height={"100%"} width={"100%"} background={"transparent"} marginTop="0px" padding="0px">
-        {#each Object.keys($dbFilters[$gridType]) as section, i}
-          <Accordion
-            label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
-            open={true}
-          >
-            <Spacer orientation="VERTICAL" />
-            {#each Object.keys($dbFilters[$gridType][section]) as filter}
-              <Toggle
-                label="{filter === "material" ? "Minimal" : toUpperCaseSplit(filter)}"
-                value={$dbFilters[$gridType][section][filter]}
-                onChange={updateFilters(section, filter)}
-              />
-              <Spacer orientation="VERTICAL" />
-            {/each}
-          </Accordion>
-          {#if i+1 !== Object.keys($dbFilters[$gridType]).length}
-            <Spacer orientation="VERTICAL" />
-          {/if}
-        {/each}
-      </PaddedScrollContainer>
+      <div class="scroll-container" use:scrollShadow={{ background: "red"}}>
+        <div class="wrapper">
+          {#each Object.keys($dbFilters[$gridType]) as section}
+            <Accordion
+              label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+              open={true}
+            >
+              <div class="accordion-body">
+                {#each Object.keys($dbFilters[$gridType][section]) as filter}
+                  <Toggle
+                    label="{filter === "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                    value={$dbFilters[$gridType][section][filter]}
+                    onChange={updateFilters(section, filter)}
+                  />
+                {/each}
+              </div>
+            </Accordion>
+          {/each}
+        </div>
+      </div>
     </div>
   </div>
 </Pane>
@@ -93,9 +91,39 @@
     margin-left: 1px;
     height: 100%;
     width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
   .content {
     padding: 0px 6px;
     max-height: calc(100% - 65px)
+  }
+  .wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .accordion-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 7px 0px;
+  }
+  .toggle-container {
+    padding-left: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20px;
+  }
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
   }
 </style>

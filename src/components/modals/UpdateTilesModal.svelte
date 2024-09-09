@@ -1,14 +1,10 @@
 <script lang="ts">
-  import { showUpdateTilesModal } from "../../stores/Modals";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../stores/AppState";
-
-  import { AppController } from "../../lib/controllers/AppController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import { LogController } from "../../lib/controllers/LogController";
-
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { Button } from "@interactables";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "@stores/AppState";
+  import { showUpdateTilesModal } from "@stores/Modals";
+  import type { GameStruct } from "@types";
   import { onMount } from "svelte";
-  import Button from "../interactables/Button.svelte";
-  import Spacer from "../layout/Spacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import GameFilter from "./modal-utils/game-filter/GameFilter.svelte";
 
@@ -68,7 +64,6 @@
 
 <ModalBody title={"Update Start Menu Tiles"} onClose={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can batch update the game icons shown in your Operating System's start menu to match your custom icons shown in steam.
       <br/>
@@ -80,8 +75,6 @@
         <li>You have changed the icon for this game.</li>
       </ul>
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="view">
       <GameFilter steamGames={filteredSteamGames} bind:selectedGameIds={selectedGameIds} showPlatforms={false} showFilters={false} noGamesMessage={"No games with tiles/new icons were found."}/>
     </div>
@@ -101,11 +94,14 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    gap: 7px;
 	}
 
   .description {
     width: calc(100% - 14px);
     font-size: 14px;
+    margin-top: 7px;
   }
 
   .description ul {

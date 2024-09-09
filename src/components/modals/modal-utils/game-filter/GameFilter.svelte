@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "../../../../stores/AppState";
-  import { AppController } from "../../../../lib/controllers/AppController";
-  import DropDown from "../../../interactables/DropDown.svelte";
-  import SelectedGameEntry from "./SelectedGameEntry.svelte";
+  import { AppController } from "@controllers";
+  import { DropDown, Toggle } from "@interactables";
+  import { Table } from "@layout";
+  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "@stores/AppState";
+  import type { GameStruct } from "@types";
   import { onMount } from "svelte";
-  import Toggle from "../../../interactables/Toggle.svelte";
-  import Table from "../../../layout/Table.svelte";
-  import Spacer from "../../../layout/Spacer.svelte";
+  import SelectedGameEntry from "./SelectedGameEntry.svelte";
   
   export let selectedGameIds: string[];
   export let showFilters = true;
@@ -35,8 +34,8 @@
     { label: "Missing", data: "Missing" }
   ];
 
-  let gamesToFilter = [];
-  let selectedGames = {};
+  let gamesToFilter: GameStruct[] = [];
+  let selectedGames: Record<string, boolean> = {};
   let includeHidden = false;
 
   /**
@@ -81,9 +80,7 @@
         <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
     </div>
-    <Spacer orientation="VERTICAL" />
     <Toggle label="Include Hidden" bind:value={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
-    <Spacer orientation="VERTICAL" />
   </div>
   <Table>
     <span slot="header">
@@ -124,5 +121,10 @@
   .options {
     margin-top: 7px;
     margin-left: 7px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
   }
 </style>

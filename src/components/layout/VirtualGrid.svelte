@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
-  import { debounce } from "../../lib/utils/Utils";
-  import { scrollShadow } from "../../lib/directives/scrollShadow";
+  import { scrollShadow } from "@directives";
+  import { debounce } from "@utils";
+  import { onMount, tick } from "svelte";
 
 	// * Component Props.
 	export let items: any[];
@@ -22,7 +22,7 @@
   let mounted: boolean;
   let entries: HTMLCollectionOf<HTMLElement>;
   let visible: any[];
-  let heightMap = [];
+  let heightMap: number[] = [];
 
   let viewport: HTMLElement;
   let viewportHeight = 0;
@@ -42,7 +42,15 @@
   // * Whenever `items` changes, invalidate the current heightmap.
   $: if (mounted) refresh(items, viewportHeight, itemHeight);
 
-  async function refresh(items: any[], viewportHeight: number, itemHeight: number) {
+  /**
+   * Refreshes the contents of the virtual grid.
+   * @param items The items to render.
+   * @param viewportHeight The viewport height.
+   * @param itemHeight The height of the elements being rendered.
+   */
+   async function refresh(items: any[], viewportHeight: number, itemHeight: number) {
+    if (!viewport) return;
+    
     const { scrollTop } = viewport;
     const numEntriesPerRow = Math.floor((viewport.clientWidth + columnGap) / (itemWidth + columnGap));
 
@@ -62,7 +70,6 @@
 				entry = entries[i - start];
 			}
 
-      // TODO: maybe try only adding rowGap if we're not on the last row.
 			const entryHeight = heightMap[i] = (itemHeight + rowGap);
       // * Only increase the contentHeight if this is the last element in the row, or the last element.
       if (i % numEntriesPerRow === numEntriesPerRow - 1 || i === items.length - 1) contentHeight += entryHeight;
@@ -70,7 +77,6 @@
 			i++;
 		}
 
-    // TODO: see if this is needed.
     contentHeight -= rowGap;
 
 		end = i;
@@ -82,8 +88,12 @@
 		heightMap.length = items.length;
   }
 
+  /**
+   * Handles when the virtual grid is scrolled.
+   */
   async function handleScroll() {
     const { scrollTop } = viewport;
+
     const numEntriesPerRow = Math.floor((viewport.clientWidth + columnGap) / (itemWidth + columnGap));
 
 		const oldStart = start;
@@ -147,10 +157,6 @@
 			const d = actualHeight - expectedHeight;
 			viewport.scrollTo(0, scrollTop + d);
 		}
-
-		// TODO if we overestimated the space these
-		// rows would occupy we may need to add some
-		// more. maybe we can just call handle_scroll again?
   }
 
   const debouncedRefresh = debounce(() => refresh(items, viewportHeight, itemHeight), 100);
@@ -164,14 +170,15 @@
   });
 </script>
 
-<div class="overflow-shadow-container" style="width: {width}; height: {height};" bind:this={overflowContainer}>
+<div style="width: {width}; height: {height};">
   <svelte-virtual-grid-viewport
     style="height: {height}; --img-width: {itemWidth}px; --img-height: {itemHeight}px; --column-gap: {columnGap}px; --row-gap: {rowGap}px;"
+    class="styled-scrollbar"
     on:scroll={handleScroll}
+    use:scrollShadow={{ background: "--background" }}
     bind:offsetHeight={viewportHeight}
     bind:offsetWidth={viewportWidth}
     bind:this={viewport}
-    use:scrollShadow={{ target: contents, container: overflowContainer, heightBump: 0 }}
   >
     <svelte-virtual-grid-contents
       style="padding-top: {top}px; padding-bottom: {bottom}px;"
@@ -190,7 +197,7 @@
 	svelte-virtual-grid-viewport {
 		position: relative;
 		overflow-y: auto;
-		-webkit-overflow-scrolling:touch;
+		-webkit-overflow-scrolling: touch;
 		display: block;
 	}
 
@@ -198,7 +205,7 @@
 		width: 100%;
     display: grid;
     
-    grid-template-columns: repeat(auto-fit, var(--img-width));
+    grid-template-columns: repeat(auto-fill, var(--img-width));
     
     row-gap: var(--row-gap);
     column-gap: var(--column-gap);
@@ -208,21 +215,4 @@
 
     justify-content: center;
 	}
-
-	svelte-virtual-grid-entry {
-		overflow: hidden;
-	}
-
-  /* .game-grid {
-    width: 100%;
-    display: grid;
-    
-    grid-template-columns: repeat(auto-fit, var(--img-width));
-    row-gap: 15px;
-    column-gap: 15px;
-    grid-auto-flow: row;
-    grid-auto-rows: var(--img-height);
-
-    justify-content: center;
-  } */
 </style>

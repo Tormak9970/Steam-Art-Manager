@@ -1,21 +1,15 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath, debugMode, loadingGames } from "../../../stores/AppState";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import Button from "../../interactables/Button.svelte";
-  import ModalBody from "../modal-utils/ModalBody.svelte";
-  import TextFieldEntry from "./TextFieldEntry.svelte";
-  import FilePathEntry from "./FilePathEntry.svelte";
-  import { showSettingsModal } from "../../../stores/Modals";
-  import Spacer from "../../layout/Spacer.svelte";
-  import { validateSteamPath, validateSGDBAPIKey, validateSteamAPIKey } from "../../../lib/utils/Utils";
-  import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
-  import IconButton from "../../interactables/IconButton.svelte";
+  import { AppController, DialogController, LogController, ToastController } from "@controllers";
+  import { Button, IconButton } from "@interactables";
+  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamInstallPath, steamKey } from "@stores/AppState";
+  import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
-  import { shell } from "@tauri-apps/api";
-  import { DialogController } from "../../../lib/controllers/DialogController";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import * as shell from "@tauri-apps/plugin-shell";
+  import { SettingsManager, validateSGDBAPIKey, validateSteamAPIKey, validateSteamPath } from "@utils";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
+  import FilePathEntry from "./FilePathEntry.svelte";
+  import TextFieldEntry from "./TextFieldEntry.svelte";
+  import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
 
   let steamApiKeyChanged = false;
 
@@ -160,8 +154,6 @@
 
 <ModalBody title={"Settings"} onClose={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="settings-container">
       <FilePathEntry
         label="Steam Install Path"
@@ -173,8 +165,6 @@
         validator={validateSteamPath}
         required
       />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
       <TextFieldEntry
         label="SteamGrid Api Key"
         description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
@@ -184,8 +174,6 @@
         validator={validateSGDBAPIKey}
         required
       />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
       <TextFieldEntry
         label="Steam Api key"
         description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
@@ -196,8 +184,6 @@
         useValidator
         validator={validateSteamAPIKey}
       />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
       <ToggleFieldEntry
         label="Debug Mode"
         description={"Enables the inspect element window and automatically opens it on launch."}
@@ -225,14 +211,19 @@
 
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-start;
 		align-items: center;
+    padding-top: 14px;
 	}
 
   .settings-container {
 		max-height: 73vh;
     overflow-y: scroll;
     margin: 0px 7px;
+    
+		display: flex;
+		flex-direction: column;
+
+    gap: 14px;
   }
 
   .buttons {

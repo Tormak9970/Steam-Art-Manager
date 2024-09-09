@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Placement } from "tippy.js";
-  import { AppController } from "../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
   import { afterUpdate } from "svelte";
+  import type { Placement } from "tippy.js";
 
   export let label:string = "";
   export let options: {label: string, data: any}[];
@@ -59,6 +59,7 @@
 <svelte:window on:click={closeDropdowns} />
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper" on:click|stopPropagation>
   {#if label !== ""}
     <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
@@ -127,7 +128,7 @@
 
     background-color: var(--foreground);
     transition: background-color 0.15s ease-in-out;
-
+    
     min-width: 160px;
   }
   .custom-select:hover {
@@ -145,6 +146,7 @@
     overflow: hidden;
 
     width: calc(100% - 30px);
+    line-height: 16px;
   }
   .select-selected::after {
     position: absolute;

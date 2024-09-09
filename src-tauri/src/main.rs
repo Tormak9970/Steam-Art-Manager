@@ -11,6 +11,10 @@ mod shortcuts_vdf_parser;
 mod vdf_reader;
 mod start_menu_tiles;
 
+use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_fs::FsExt;
+use tauri_plugin_http::reqwest::Client;
+
 use std::{path::PathBuf, collections::HashMap, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit};
 
 use appinfo_vdf_parser::open_appinfo_vdf;
@@ -20,14 +24,10 @@ use shortcuts_vdf_parser::{open_shortcuts_vdf, write_shortcuts_vdf};
 use home::home_dir;
 
 use serde;
-use reqwest::{self, Client};
 use steam::get_steam_root_dir;
 use panic_message::get_panic_info_message;
-use tauri::{
-  AppHandle,
-  api::dialog::{blocking::{FileDialogBuilder, MessageDialogBuilder}, MessageDialogButtons},
-  FsScope, Manager
-};
+use tauri::{self, AppHandle, Manager};
+use tauri::Emitter;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -157,13 +157,13 @@ fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shor
 #[tauri::command]
 /// Exports the users grids to a Grids zip file.
 async fn export_grids_to_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
-  let file_dialog = FileDialogBuilder::new()
+  let file_dialog = app_handle.dialog().file()
     .set_title("Save Grids Zip")
     .set_file_name("Steam_Grids_Export.zip")
     .add_filter("zip", &["zip"])
     .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
 
-  let file_path = file_dialog.save_file();
+  let file_path = file_dialog.blocking_save_file();
 
   if file_path.is_some() {
     let zip_path = file_path.unwrap();
@@ -188,12 +188,12 @@ async fn export_grids_to_zip(app_handle: AppHandle, steam_path: String, steam_ac
 #[tauri::command]
 /// Sets the users grids from a Grids zip file.
 async fn import_grids_from_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
-  let file_dialog = FileDialogBuilder::new()
+  let file_dialog = app_handle.dialog().file()
     .set_title("Pick a Grids Zip")
     .add_filter("zip", &["zip"])
     .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
 
-  let file_path = file_dialog.pick_file();
+  let file_path = file_dialog.blocking_save_file();
 
   if file_path.is_some() {
     let zip_path = file_path.unwrap();
@@ -277,13 +277,6 @@ async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_a
     return "{}".to_owned();
   }
 }
-
-// #[tauri::command]
-// /// Reads the installed sourcemods.
-// async fn read_sourcemods(app_handle: AppHandle, steam_path: String) -> String {
-
-// }
-
 
 #[tauri::command]
 /// Applies the changes the user has made.
@@ -425,7 +418,7 @@ async fn write_shortcuts(app_handle: AppHandle, steam_path: String, steam_active
 async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String, timeout: u64) -> String {
   logger::log_to_core_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
   
-  let http_client_res = reqwest::Client::builder().timeout(Duration::from_secs(timeout)).build();
+  let http_client_res = Client::builder().timeout(Duration::from_secs(timeout)).build();
   let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
 
   let response_res = http_client.get(grid_url.clone()).send().await;
@@ -567,31 +560,23 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
   let path_as_buf: PathBuf = PathBuf::from(&target_path);
 
   if !path_as_buf.as_path().exists() {
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
+    logger::log_to_core_file(app_handle.clone(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
     return false;
   }
 
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  let fs_res = FsScope::allow_directory(&fs_scope, &path_as_buf, true);
-  let asset_res = FsScope::allow_directory(&asset_scope, &path_as_buf, true);
+  fs_scope.allow_directory(&path_as_buf, true);
+  let asset_res = asset_scope.allow_directory(&path_as_buf, true);
 
-  if fs_res.is_ok() && asset_res.is_ok() {
-    logger::log_to_core_file(app_handle.to_owned(), format!("Added {} to scope.", &target_path).as_str(), 0);
+  if asset_res.is_ok() {
+    logger::log_to_core_file(app_handle.clone(), format!("Added {} to scope.", &target_path).as_str(), 0);
     return true;
-  } else if fs_res.is_err() {
-    let err = fs_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. FS Scope Error: {}", &target_path, err.to_string()).as_str(), 0);
-  } else if asset_res.is_err() {
-    let err = asset_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. Asset Scope Error: {}", &target_path, err.to_string()).as_str(), 0);
-  } else {
-    let fs_err = fs_res.err().unwrap();
-    let asset_err = asset_res.err().unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Error adding {} to scope. FS Scope Error: {}. Asset Scope Error: {}", &target_path, fs_err.to_string(), asset_err.to_string()).as_str(), 0);
   }
 
+  let err = asset_res.err().unwrap();
+  logger::log_to_core_file(app_handle.clone(), format!("Error adding {} to scope. Asset Scope Error: {}", &target_path, err.to_string()).as_str(), 2);
   return false;
 }
 
@@ -625,7 +610,7 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
 #[tauri::command]
 /// Toggles the dev tools for the current window.
 async fn toggle_dev_tools(app_handle: AppHandle, enable: bool) {
-  let window = app_handle.get_window("main").expect("Should have been able to get the main window.");
+  let window = app_handle.get_webview_window("main").expect("Should have been able to get the main window.");
   
   if enable {
     window.open_devtools();
@@ -665,13 +650,19 @@ fn main() {
       clean_grids,
       validate_steam_path
     ])
+    .plugin(tauri_plugin_fs::init())
+    .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_process::init())
+    .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_updater::Builder::new().build())
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);
 
-      app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+      app.emit("single-instance", Payload { args: argv, cwd }).unwrap();
     }))
     .setup(| app | {
-      let app_handle = app.handle();
+      let app_handle = app.handle().clone();
       let log_file_path = Box::new(String::from(logger::get_core_log_path(&app_handle).into_os_string().to_str().expect("Should have been able to convert osString to str.")));
       
       logger::clean_out_log(app_handle.clone());
@@ -703,9 +694,12 @@ fn main() {
         logger::log_to_file(&log_file_path_buf, &log_message, 2);
         logger::log_to_file(&log_file_path_buf, "Please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues", 2);
 
-        let hit_ok = MessageDialogBuilder::new("SARM Panic!", "Check your log file for more information, and please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues")
-          .buttons(MessageDialogButtons::Ok)
-          .show();
+        let dialog = app_handle.dialog()
+          .message("Check your log file for more information, and please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues")
+          .title("Panic!")
+          .ok_button_label("Ok");
+
+        let hit_ok = dialog.blocking_show();
 
         if hit_ok {
           exit(1);

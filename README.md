@@ -26,7 +26,7 @@ To get the most recent release, head to the [latest release](https://github.com/
 
 ### For Linux:
   - **AppImage**:
-    1. Download the `linux-installer.sh` bash script.
+    1. Download the `appimage-installer.sh` bash script.
     2. Right click it, go to permissions, and mark it as executable.
     3. Double click the script to install SARM.
 

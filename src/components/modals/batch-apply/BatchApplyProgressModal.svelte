@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "../../../stores/Modals";
-  import ProgressBar from "../../info/ProgressBar.svelte";
-  import Button from "../../interactables/Button.svelte";
+  import { Button } from "@interactables";
+  import { ProgressBar } from "@layout";
+  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
 
   /**

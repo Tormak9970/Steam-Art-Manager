@@ -1,18 +1,14 @@
 <script lang="ts">
-  import Button from "../../interactables/Button.svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import DropDown from "../../interactables/DropDown.svelte";
-  import ManualGameEntry from "./ManualGameEntry.svelte";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import Search from "./add-methods/Search.svelte";
-  import Manual from "./add-methods/Manual.svelte";
-  import Table from "../../layout/Table.svelte";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../../stores/AppState";
-  import { showManualGamesModal } from "../../../stores/Modals";
-  import { selectedManualGamesAddMethod } from "../../../stores/AppState";
-  import { LogController } from "../../../lib/controllers/LogController";
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { Button, DropDown } from "@interactables";
+  import { Table } from "@layout";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, steamGames } from "@stores/AppState";
+  import { showManualGamesModal } from "@stores/Modals";
+  import type { GameStruct } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import Manual from "./add-methods/Manual.svelte";
+  import Search from "./add-methods/Search.svelte";
+  import ManualGameEntry from "./ManualGameEntry.svelte";
 
   /**
    * The function to run when the modal closes.
@@ -96,7 +92,6 @@
       <div class="info">
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
-      <Spacer orientation="VERTICAL" />
       <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
       <Table>
         <span slot="header">
@@ -139,11 +134,9 @@
           <div style="margin-right: 7px;">Method for Adding Games:</div>
           <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
         </div>
-        <Spacer orientation="VERTICAL" />
       </div>
       <div class="section-label">Game Info</div>
-      <div class="border" style="margin-right: 20px; width: calc(100% - 20px);" />
-      <Spacer orientation="VERTICAL" />
+      <div class="border" style="margin-right: 20px; margin-bottom: 7px; width: calc(100% - 20px);" />
       {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
       {:else if $selectedManualGamesAddMethod === "manual"}
@@ -177,6 +170,7 @@
   .info {
     margin-top: 7px;
     margin-left: 7px;
+    margin-bottom: 7px;
     font-size: 14px;
   }
 
@@ -202,6 +196,8 @@
 
     font-size: 14px;
     align-items: center;
+
+    margin-bottom: 7px;
   }
 
   .options {

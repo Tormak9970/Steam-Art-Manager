@@ -1,3 +1,4 @@
+import type { DialogModalType } from "@types";
 import { dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, dialogModalType, showDialogModal } from "../../stores/Modals";
 import { LogController } from "./LogController";
 

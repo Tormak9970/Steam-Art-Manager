@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { appWindow } from "@tauri-apps/api/window";
+  import { DialogController, LogController } from "@controllers";
+  import { canSave } from "@stores/AppState";
+  import { Window } from "@tauri-apps/api/window";
+  import { exit } from "@tauri-apps/plugin-process";
   import { onDestroy, onMount } from "svelte";
-  import { exit } from "@tauri-apps/api/process";
-  import { canSave } from "../stores/AppState";
-  import { LogController } from "../lib/controllers/LogController";
-  import { DialogController } from "../lib/controllers/DialogController";
 
   let windowCloseUnsub: () => void;
 
@@ -34,6 +33,9 @@
   }
 
   onMount(async () => {
+    // * This is actually async but isn't typed properly.
+    const appWindow = await Window.getByLabel("main")!;
+    
     minimize.addEventListener("click", () => appWindow.minimize());
     maximize.addEventListener("click", () => {
       appWindow.toggleMaximize();
@@ -51,6 +53,7 @@
   });
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div data-tauri-drag-region on:contextmenu|preventDefault class="titlebar">
   <div class="info" style="width: 141px;">
     <img src="/logo.svg" alt="logo" height="20" style="margin-left: 7px; margin-right: 14px;" />

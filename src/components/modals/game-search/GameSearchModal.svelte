@@ -1,25 +1,20 @@
 <script lang="ts">
-  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "../../../stores/Modals";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import Button from "../../interactables/Button.svelte";
-  import ModalBody from "../modal-utils/ModalBody.svelte";
-  import SearchBar from "../../interactables/SearchBar.svelte";
-  import type { SGDBGame } from "../../../lib/models/SGDB";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController, LogController, ToastController } from "@controllers";
+  import { scrollShadow } from "@directives";
+  import { Button, IconButton, SearchBar } from "@interactables";
+  import { selectedGameName } from "@stores/AppState";
+  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
+  import type { SGDBGame } from "@types";
   import { onMount } from "svelte";
-  import GameSearchEntry from "./GameSearchEntry.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-  import IconButton from "../../interactables/IconButton.svelte";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
-  import { selectedGameName, steamGridNameSearchCache } from "../../../stores/AppState";
-  import Spacer from "../../layout/Spacer.svelte";
+  import GameSearchEntry from "./GameSearchEntry.svelte";
 
   let canApply = false;
   let loading = true;
   let requestTimedOut = false;
   let searchQuery = $gameSearchModalDefault;
-  let selectedGame: SGDBGame = null
+  let selectedGame: SGDBGame | null = null
 
   let results: SGDBGame[] = [];
   
@@ -37,10 +32,10 @@
 	function applyChoice(): void {
     canApply = false;
 
-    LogController.log(`Applied game choice ${selectedGame.name}`);
+    LogController.log(`Applied game choice ${selectedGame!.name}`);
     ToastController.showSuccessToast("Choice applied!");
 
-    $gameSearchModalSelect(selectedGame);
+    $gameSearchModalSelect(selectedGame!);
     onClose();
   }
 
@@ -58,14 +53,12 @@
    * @param query The query to use.
    */
   async function makeRequest(query: string): Promise<void> {
-    const cache = steamGridNameSearchCache[query];
     loading = true;
     requestTimedOut = false;
-    const res = cache ?? await AppController.searchSGDBForGame(query);
+    const res = await AppController.searchSGDBForGame(query);
 
     if (res) {
       results = res as SGDBGame[];
-      if (!cache) steamGridNameSearchCache[query] = results;
     } else {
       requestTimedOut = true;
       results = [];
@@ -98,22 +91,24 @@
             <path d="M386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H464c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0s-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3s163.8-62.5 226.3 0L386.3 160z"/>
           </svg>
         </IconButton>
-        <Spacer orientation="HORIZONTAL" />
+        <!-- <Spacer orientation="HORIZONTAL" /> -->
         <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="250px" reversed />
       </div>
-      <PaddedScrollContainer width="calc(100% - 14px)" height="200px" loading={loading}>
-        {#if loading}
-          {#each new Array(10) as _}
-            <EntryLoadingSkeleton />
-          {/each}
-        {:else if requestTimedOut}
-          <div>Request timed out. Check your internet connection or click retry.</div>
-        {:else}
-          {#each results as sgdbGame (sgdbGame.id)}
-            <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
-          {/each}
-        {/if}
-      </PaddedScrollContainer>
+      <div class="container">
+        <div class="scroll-container" use:scrollShadow={{ background: "--background" }}>
+          {#if loading}
+            {#each new Array(10) as _}
+              <EntryLoadingSkeleton />
+            {/each}
+          {:else if requestTimedOut}
+            <div>Request timed out. Check your internet connection or click retry.</div>
+          {:else}
+            {#each results as sgdbGame (sgdbGame.id)}
+              <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
+            {/each}
+          {/if}
+        </div>
+      </div>
     </div>
 
     <div class="buttons">
@@ -145,6 +140,21 @@
   .description {
     font-size: 14px;
     margin-bottom: 7px;
+  }
+
+  .container {
+    width: 100%;
+
+    position: relative;
+  }
+
+  .scroll-container {
+    width: 100%;
+    height: 200px;
+
+    overflow: auto;
+
+    margin-top: 5px;
   }
 
   .search-container {

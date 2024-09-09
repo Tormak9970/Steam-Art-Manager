@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { appLibraryCache, unfilteredLibraryCache } from "../../../stores/AppState";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import { AppController } from "@controllers";
+  import { appLibraryCache, unfilteredLibraryCache } from "@stores/AppState";
+  import type { GameStruct } from "@types";
 
   export let game: GameStruct;
   export let onRemove: (game: GameStruct) => void;
@@ -29,6 +30,7 @@
 
 <div class="selected-game-entry">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="remove-cont" on:click={() => { onRemove(game); }} use:AppController.tippy={{ content: "Remove this game", placement: "left", onShow: AppController.onTippyShow }}>
     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="width: 12px; height: 12px;">
       <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->

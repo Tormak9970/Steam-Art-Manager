@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Tormak
+# Author: Travis Lane
 
 errorRed='\033[1;91m'
 warningYellow='\033[1;93m'
