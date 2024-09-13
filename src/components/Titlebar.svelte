@@ -36,13 +36,13 @@
     // * This is actually async but isn't typed properly.
     const appWindow = await Window.getByLabel("main")!;
     
-    minimize.addEventListener("click", () => appWindow.minimize());
+    minimize.addEventListener("click", () => appWindow!.minimize());
     maximize.addEventListener("click", () => {
-      appWindow.toggleMaximize();
+      appWindow!.toggleMaximize();
       isMaxed = !isMaxed;
     });
     close.addEventListener("click", onCloseListener);
-    appWindow.onCloseRequested(async (event) => {
+    appWindow!.onCloseRequested(async (event) => {
       event.preventDefault();
       await onCloseListener();
     }).then((listener) => windowCloseUnsub = listener);
@@ -104,6 +104,9 @@
     display: inline-flex;
     justify-content: space-between;
     font-size: 14px;
+    
+    position: relative;
+    z-index: 2;
   }
   .info {
     display: flex;

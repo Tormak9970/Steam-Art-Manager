@@ -2,10 +2,9 @@
   import { scrollShadow } from "@directives";
 
   export let height = "400px";
-  export let marginLeft = "7px";
 </script>
 
-<div class="table" style="height: {height}; margin-left: {marginLeft};">
+<div class="table" style="height: {height};">
   <div class="header">
     <slot name="header" />
   </div>
@@ -21,11 +20,13 @@
   .table {
     margin-top: 7px;
 
-    width: calc(100% - 28px);
+    width: calc(100% - 14px);
     
     padding: 7px;
 
     border-radius: 4px;
+
+    font-size: 14px;
 
     background-color: var(--background-dark);
   }
@@ -58,7 +59,6 @@
   .scroll-container {
     height: 100%;
     width: 100%;
-
 
     overflow: auto;
   }
