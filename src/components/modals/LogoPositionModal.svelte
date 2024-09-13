@@ -54,6 +54,7 @@
   let heroPath = "";
   let logoPath = "";
 
+  let open = true;
   let canSave = false;
   
   const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
@@ -166,7 +167,7 @@
   });
 </script>
 
-<ModalBody title={`Set Logo Position for ${game?.name}`} onClose={onClose}>
+<ModalBody title={`Set Logo Position for ${game?.name}`} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="view">
       <div class="hero-cont">
@@ -203,8 +204,6 @@
 <style>
   .content {
     margin-bottom: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -214,9 +213,9 @@
   }
 
   .view {
-    width: calc(100% - 20px);
+    width: 100%;
     position: relative;
-    margin: 10px;
+    margin: 10px 0px;
   }
 
   .logo-cont {

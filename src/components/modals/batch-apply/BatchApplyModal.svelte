@@ -9,6 +9,7 @@
 
   $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
 
+  let open = true;
   let selectedGameIds: string[] = [];
 
   /**
@@ -36,30 +37,26 @@
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
+<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="info">
       Choose the games you would like to batch apply grids to.
     </div>
     <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
-    <div class="buttons">
-      <Button label="Apply" onClick={batchApply} width="47.5%" />
-      <Button label="Cancel" onClick={cancel} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button label="Apply" onClick={batchApply} width="47.5%" />
+    <Button label="Cancel" onClick={cancel} width="47.5%" />
+  </span>
 </ModalBody>
 
 <style>
   .info {
     margin-top: 7px;
-    margin-left: 7px;
-    margin-right: 7px;
     font-size: 14px;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-around;

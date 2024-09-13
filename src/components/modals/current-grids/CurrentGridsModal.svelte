@@ -14,6 +14,7 @@
 		$currentGridsAppid = "";
   }
 
+  let open = true;
   let imageSources = {
     "Capsule": "",
     "Wide Capsule": "",
@@ -41,7 +42,7 @@
   }
 </script>
 
-<ModalBody title={`Current Grids for ${game?.name}`} onClose={onClose}>
+<ModalBody title={`Current Grids for ${game?.name}`} open={true} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="other-grids-container">
       <div class="left-col">

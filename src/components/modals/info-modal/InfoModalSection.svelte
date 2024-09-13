@@ -14,7 +14,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 0px 14px;
 
     background-color: var(--background-dark);
     padding: 6px;
@@ -28,7 +27,7 @@
 
   .content {
     line-height: 18px;
-    font-size: 12px;
+    font-size: 14px;
     margin: 7px 0px;
   }
 </style>

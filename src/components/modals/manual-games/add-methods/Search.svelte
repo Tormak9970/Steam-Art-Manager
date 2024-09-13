@@ -74,7 +74,7 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="325px" marginLeft="0px">
+      <Table height="325px">
         <span slot="header">
           <div class="name">Name</div>
         </span>
@@ -120,7 +120,7 @@
   .buttons {
     margin-top: 14px;
     margin-bottom: 7px;
-    width: calc(100% - 20px);
+    width: calc(100% - 7px);
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;

@@ -7,6 +7,7 @@
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import FilePathEntry from "./settings/FilePathEntry.svelte";
 
+  let open = true;
   let canSave = false;
 
   let steamInstallLocation = $steamInstallPath;
@@ -43,7 +44,7 @@
   }
 </script>
 
-<ModalBody title={"Choose Your Steam Install Path"} canClose={false}>
+<ModalBody title={"Choose Your Steam Install Path"} open={open} on:close={() => open = false} canClose={false}>
   <div class="content">
     <FilePathEntry
       label="Steam Install Path"
@@ -55,11 +56,11 @@
       validator={validateSteamPath}
       required
     />
-
-    <div class="buttons">
-      <Button label="Save Changes" onClick={saveInstallLocation} width="100%" disabled={!canSave} />
-    </div>
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button label="Save Changes" onClick={saveInstallLocation} width="100%" disabled={!canSave} />
+  </span>
 </ModalBody>
 
 <style>
@@ -72,14 +73,10 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-
-    margin: 0px 7px;
 	}
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;

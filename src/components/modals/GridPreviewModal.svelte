@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/plugin-shell";
   import MarkDownIt from "markdown-it";
 
   import { AppController } from "@controllers";
@@ -11,7 +10,7 @@
   import Lazy from "svelte-lazy";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
-
+  let modalOpen = true;
   $: definedModalInfo = $gridModalInfo!;
 
   /**
@@ -51,17 +50,21 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
+<ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} #${$gridModalInfo?.id}`} open={modalOpen} on:close={() => modalOpen = false} on:closeEnd={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
     <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {definedModalInfo.width}px; height: {definedModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">
         <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
-          <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" />
+          <img
+            src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
+            alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
+            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          />
         </Lazy>
       </div>
     </div>
     <div class="info">
-      <div class="info-cont">
+      <div>
         <div class="author">
           <div class="pfp">
             <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author?.name}'s profile picture" />
@@ -98,11 +101,9 @@
     flex-direction: row;
     height: calc(100% - 38px);
   }
-  .capsule .info {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 4px;
-    margin-right: 10px;
+  .capsule .info, .icon .info {
+    margin: 10px;
+    margin-right: 0px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -110,17 +111,10 @@
     flex-direction: column;
     justify-content: space-between;
   }
-  .capsule .info > .info-cont {
-    min-width: 200px;
-
-    display: flex;
-    flex-direction: column;
-  }
 
   .wide-capsule .info, .hero .info, .logo .info {
     margin-bottom: 10px;
-    margin-left: 14px;
-    margin-right: 10px;
+    margin-top: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -135,26 +129,14 @@
     height: calc(100% - 38px);
     max-width: 550px;
   }
-  .icon .info {
+
+  .img-cont {
     margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 4px;
-    margin-right: 10px;
-    min-width: 200px;
-    min-height: calc(100% - 20px);
-
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
   }
-  .icon .info > .info-cont {
-    min-width: 200px;
-
-    display: flex;
-    flex-direction: column;
-  }
-
-  .img-cont { padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
   .img-cont > .img {
     border-radius: 2px;

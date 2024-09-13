@@ -2,7 +2,7 @@
   import { AppController, LogController } from "@controllers";
   import { DropDown } from "@interactables";
   import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "@stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSettingsModal, showSteamPathModal, showUpdateModal, showUpdateTilesModal, updateManifest } from "@stores/Modals";
+  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSteamPathModal, showUpdateModal, updateManifest } from "@stores/Modals";
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
   import { SettingsManager } from "@utils";
@@ -15,21 +15,7 @@
   import Options from "../../components/core/filters/Options.svelte";
   import Games from "../../components/core/games/Games.svelte";
   import Grids from "../../components/core/grids/Grids.svelte";
-  import DialogModal from "../../components/modals/DialogModal.svelte";
-  import GridPreviewModal from "../../components/modals/GridPreviewModal.svelte";
-  import LogoPositionModal from "../../components/modals/LogoPositionModal.svelte";
-  import SteamPathModal from "../../components/modals/SteamPathModal.svelte";
-  import UpdateTilesModal from "../../components/modals/UpdateTilesModal.svelte";
-  import BatchApplyModal from "../../components/modals/batch-apply/BatchApplyModal.svelte";
-  import BatchApplyProgressModal from "../../components/modals/batch-apply/BatchApplyProgressModal.svelte";
-  import CleanConflictDialog from "../../components/modals/clean-grids/CleanConflictDialog.svelte";
-  import CleanGridsModal from "../../components/modals/clean-grids/CleanGridsModal.svelte";
-  import CurrentGridsModal from "../../components/modals/current-grids/CurrentGridsModal.svelte";
-  import GameSearchModal from "../../components/modals/game-search/GameSearchModal.svelte";
-  import InfoModal from "../../components/modals/info-modal/InfoModal.svelte";
-  import ManualGamesModal from "../../components/modals/manual-games/ManualGamesModal.svelte";
-  import SettingsModal from "../../components/modals/settings/SettingsModal.svelte";
-  import UpdateModal from "../../components/modals/updates/UpdateModal.svelte";
+  import Modals from "../../components/modals/Modals.svelte";
 	
 	let activeUserIdUnsub: Unsubscriber;
 	let usersUnsub: Unsubscriber;
@@ -135,53 +121,7 @@
     />
   </Titlebar>
 	<div class="content">
-    {#if $showUpdateModal}
-      <UpdateModal />
-    {/if}
-    {#if !$showUpdateModal}
-      {#if $showDialogModal}
-        <DialogModal />
-      {/if}
-      {#if $showSteamPathModal}
-        <SteamPathModal />
-      {/if}
-      {#if $showGameSearchModal}
-        <GameSearchModal />
-      {/if}
-      {#if $showGridModal}
-        <GridPreviewModal />
-      {/if}
-      {#if $showBatchApplyProgress}
-        <BatchApplyProgressModal />
-      {/if}
-      {#if $showBatchApplyModal}
-        <BatchApplyModal />
-      {/if}
-      {#if $showLogoPositionModal}
-        <LogoPositionModal />
-      {/if}
-      {#if $showManualGamesModal}
-        <ManualGamesModal />
-      {/if}
-      {#if $showCleanGridsModal}
-        <CleanGridsModal />
-      {/if}
-      {#if $showSettingsModal}
-        <SettingsModal />
-      {/if}
-      {#if $showCleanConflictDialog}
-        <CleanConflictDialog />
-      {/if}
-      {#if $showInfoModal}
-        <InfoModal />
-      {/if}
-      {#if $showCurrentGridsModal}
-        <CurrentGridsModal />
-      {/if}
-      {#if $showUpdateTilesModal}
-        <UpdateTilesModal />
-      {/if}
-    {/if}
+    <Modals />
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
 
@@ -233,5 +173,8 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    position: relative;
+    z-index: 1;
 	}
 </style>

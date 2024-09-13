@@ -1,6 +1,6 @@
 <script lang="ts">
   import { relaunch } from "@tauri-apps/plugin-process";
-  import { open } from "@tauri-apps/plugin-shell";
+  import { open as openLink } from "@tauri-apps/plugin-shell";
   import MarkdownIt from "markdown-it";
   
   import { showUpdateModal, updateManifest } from "@stores/Modals";
@@ -11,6 +11,8 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import UpdateField from "./UpdateField.svelte";
 
+  let open = true;
+  
   const mdIt = new MarkdownIt({
     html: true,
     linkify: true
@@ -34,7 +36,7 @@
     if (origin) {
       e.preventDefault();
       const href = origin.href;
-      open(href);
+      openLink(href);
     }
   }
 
@@ -62,7 +64,7 @@
   }
 </script>
 
-<ModalBody title={`Update v${updateData.version} is Available!`} canClose={false}>
+<ModalBody title={`Update v${updateData.version} is Available!`} open={open} on:close={() => open = false} canClose={false}>
   <div class="content">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
@@ -82,11 +84,11 @@
         </div>
       </div>
     </div>
-    <div class="buttons">
-      <Button label="Update" onClick={update} width="47.5%" />
-      <Button label="Ignore" onClick={ignoreUpdate} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button label="Update" onClick={update} width="47.5%" />
+    <Button label="Ignore" onClick={ignoreUpdate} width="47.5%" />
+  </span>
 </ModalBody>
 
 <style>
@@ -95,14 +97,12 @@
   }
 
   .info {
-    width: calc(100% - 14px);
-    margin: 7px;
+    width: 100%;
+    margin: 7px 0px;
   }
 
   .changelog {
-    width: calc(100% - 14px);
-    margin: 7px;
-    margin-top: 0px;
+    width: 100%;
   }
 
   .changelog > .header {
@@ -141,8 +141,6 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-around;

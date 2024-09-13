@@ -101,7 +101,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 0px 7px;
 
     background-color: var(--background-dark);
     padding: 6px;
@@ -154,14 +153,17 @@
   }
 
   .valid-value {
+    font-size: 14px;
     color: var(--success);
   }
 
   .warn-value {
+    font-size: 14px;
     color: rgb(231, 198, 12);
   }
 
   .invalid-value {
+    font-size: 14px;
     color: var(--warning);
   }
 </style>

@@ -17,6 +17,7 @@
     $showManualGamesModal = false;
   }
   
+  let open = true;
   let canSave = false;
 
   const originalManualGames = $manualSteamGames;
@@ -86,13 +87,13 @@
   }
 </script>
 
-<ModalBody title={"Manage Manual Games"} onClose={onClose}>
+<ModalBody title={"Manage Manual Games"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="left">
       <div class="info">
         Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
       </div>
-      <div class="section-label" style="margin-left: 10px;">Your Manual Games</div>
+      <div class="section-label">Your Manual Games</div>
       <Table>
         <span slot="header">
           <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
@@ -169,7 +170,6 @@
 
   .info {
     margin-top: 7px;
-    margin-left: 7px;
     margin-bottom: 7px;
     font-size: 14px;
   }
@@ -214,7 +214,7 @@
     margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

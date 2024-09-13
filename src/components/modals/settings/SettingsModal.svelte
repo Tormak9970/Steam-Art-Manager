@@ -11,6 +11,7 @@
   import TextFieldEntry from "./TextFieldEntry.svelte";
   import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
 
+  let open = true;
   let steamApiKeyChanged = false;
 
   /**
@@ -152,57 +153,55 @@
   }
 </script>
 
-<ModalBody title={"Settings"} onClose={onClose}>
+<ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    <div class="settings-container">
-      <FilePathEntry
-        label="Steam Install Path"
-        description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
-        value={steamInstallLocation}
-        onChange={onInstallLocationChange}
-        useValidator
-        validPathMessage={"Path is a valid Steam install"}
-        validator={validateSteamPath}
-        required
-      />
-      <TextFieldEntry
-        label="SteamGrid Api Key"
-        description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
-        value={steamGridKey}
-        onChange={onGridKeyChange}
-        useValidator
-        validator={validateSGDBAPIKey}
-        required
-      />
-      <TextFieldEntry
-        label="Steam Api key"
-        description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
-        notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
-        value={steamAPIKey}
-        canBeEmpty
-        onChange={onSteamKeyChange}
-        useValidator
-        validator={validateSteamAPIKey}
-      />
-      <ToggleFieldEntry
-        label="Debug Mode"
-        description={"Enables the inspect element window and automatically opens it on launch."}
-        value={debugModeSetting}
-        onChange={onDebugModeChange}
-      />
-    </div>
-
-    <div class="buttons">
-      <Button label="Save Changes" onClick={saveSettings} width="46.5%" disabled={!canSave} />
-      <Button label="Cancel" onClick={cancel} width="46.5%" />
-      <IconButton label="Open log directory" onClick={openLogDirectory}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
-          <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-          <path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/>
-        </svg>
-      </IconButton>
-    </div>
+    <FilePathEntry
+      label="Steam Install Path"
+      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
+      value={steamInstallLocation}
+      onChange={onInstallLocationChange}
+      useValidator
+      validPathMessage={"Path is a valid Steam install"}
+      validator={validateSteamPath}
+      required
+    />
+    <TextFieldEntry
+      label="SteamGrid Api Key"
+      description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
+      value={steamGridKey}
+      onChange={onGridKeyChange}
+      useValidator
+      validator={validateSGDBAPIKey}
+      required
+    />
+    <TextFieldEntry
+      label="Steam Api key"
+      description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
+      notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
+      value={steamAPIKey}
+      canBeEmpty
+      onChange={onSteamKeyChange}
+      useValidator
+      validator={validateSteamAPIKey}
+    />
+    <ToggleFieldEntry
+      label="Debug Mode"
+      description={"Enables the inspect element window and automatically opens it on launch."}
+      value={debugModeSetting}
+      onChange={onDebugModeChange}
+    />
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button label="Save Changes" onClick={saveSettings} width="46.5%" disabled={!canSave} />
+    <Button label="Cancel" onClick={cancel} width="46.5%" />
+    <IconButton label="Open log directory" onClick={openLogDirectory}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
+        <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+        <path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/>
+      </svg>
+    </IconButton>
+  </span>
 </ModalBody>
 
 <style>
@@ -213,23 +212,15 @@
 		flex-direction: column;
 		align-items: center;
     padding-top: 14px;
-	}
-
-  .settings-container {
-		max-height: 73vh;
-    overflow-y: scroll;
-    margin: 0px 7px;
-    
-		display: flex;
-		flex-direction: column;
 
     gap: 14px;
-  }
+    
+		max-height: 73vh;
+    overflow-y: scroll;
+	}
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 10px;
-    width: calc(100% - 28px);
+    width: 100%;
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;

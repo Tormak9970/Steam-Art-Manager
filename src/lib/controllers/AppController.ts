@@ -43,7 +43,8 @@ export class AppController {
     hideOnClick: false,
     duration: 100,
     theme: "sarm",
-    arrow: true
+    arrow: true,
+    appendTo: 'parent'
   });
 
   static onTippyShow(instance: Instance<Props>): void {

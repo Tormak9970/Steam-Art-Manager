@@ -10,6 +10,7 @@
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
   import GameSearchEntry from "./GameSearchEntry.svelte";
 
+  let open = true;
   let canApply = false;
   let loading = true;
   let requestTimedOut = false;
@@ -78,7 +79,7 @@
   onMount(async () => await makeRequest(searchQuery));
 </script>
 
-<ModalBody title={"Customize Game Name"} onClose={onClose}>
+<ModalBody title={"Customize Game Name"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="body">
       <div class="description">
@@ -110,11 +111,11 @@
         </div>
       </div>
     </div>
-
-    <div class="buttons">
-      <Button label="Apply Choice" onClick={applyChoice} width="100%" disabled={!canApply} />
-    </div>
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button label="Apply Choice" onClick={applyChoice} width="100%" disabled={!canApply} />
+  </span>
 </ModalBody>
 
 <style>
@@ -129,8 +130,8 @@
 	}
 
   .body {
-    width: calc(100% - 14px);
-    padding: 7px;
+    width: 100%;
+    margin-top: 7px;
     
 		display: flex;
 		flex-direction: column;
@@ -161,12 +162,13 @@
     width: 100%;
     display: flex;
     align-items: center;
+
+    gap: 7px;
+    margin-bottom: 7px;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;

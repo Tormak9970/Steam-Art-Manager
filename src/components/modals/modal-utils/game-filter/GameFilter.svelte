@@ -120,7 +120,8 @@
 
   .options {
     margin-top: 7px;
-    margin-left: 7px;
+
+    width: 100%;
 
     display: flex;
     flex-direction: column;

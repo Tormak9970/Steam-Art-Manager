@@ -8,6 +8,7 @@
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import GameFilter from "./modal-utils/game-filter/GameFilter.svelte";
 
+  let open = true;
   let appsWithTilesIds: string[];
   let appsWithTiles: Record<string, string>;
   
@@ -62,7 +63,7 @@
   });
 </script>
 
-<ModalBody title={"Update Start Menu Tiles"} onClose={onClose}>
+<ModalBody title={"Update Start Menu Tiles"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="description">
       Here you can batch update the game icons shown in your Operating System's start menu to match your custom icons shown in steam.
@@ -78,11 +79,11 @@
     <div class="view">
       <GameFilter steamGames={filteredSteamGames} bind:selectedGameIds={selectedGameIds} showPlatforms={false} showFilters={false} noGamesMessage={"No games with tiles/new icons were found."}/>
     </div>
-    <div class="buttons">
-      <Button label="Update" onClick={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
-      <Button label="Cancel" onClick={onClose} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button label="Update" onClick={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
+    <Button label="Cancel" onClick={onClose} width="47.5%" />
+  </span>
 </ModalBody>
 
 <style>
@@ -99,7 +100,7 @@
 	}
 
   .description {
-    width: calc(100% - 14px);
+    width: 100%;
     font-size: 14px;
     margin-top: 7px;
   }
@@ -119,8 +120,6 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-around;
