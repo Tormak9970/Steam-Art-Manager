@@ -1,32 +1,21 @@
 <script lang="ts">
-  import { AppController, LogController } from "@controllers";
-  import { DropDown } from "@interactables";
-  import { activeUserId, isOnline, steamUsers, windowIsMaximized } from "@stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSteamPathModal, showUpdateModal, updateManifest } from "@stores/Modals";
+  import { AppController, DialogController, LogController } from "@controllers";
+  import { canSave, isOnline } from "@stores/AppState";
+  import { showUpdateModal, updateManifest } from "@stores/Modals";
+  import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
   import { SettingsManager } from "@utils";
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
-  import type { Unsubscriber } from "svelte/store";
   import Footer from "../../components/Footer.svelte";
-  import Titlebar from "../../components/Titlebar.svelte";
   import Options from "../../components/core/filters/Options.svelte";
   import Games from "../../components/core/games/Games.svelte";
   import Grids from "../../components/core/grids/Grids.svelte";
   import Modals from "../../components/modals/Modals.svelte";
-	
-	let activeUserIdUnsub: Unsubscriber;
-	let usersUnsub: Unsubscriber;
 
-	let users = Object.values($steamUsers).map((user) => {
-		return {
-			"label": user.PersonaName,
-			"data": user.id32
-		}
-	});
-	let selectedUserId = $activeUserId.toString();
+  let windowCloseUnsub: () => void;
 
   /**
    * Handler for all main window errors.
@@ -54,22 +43,33 @@
       })
     }
   }
+  
+  /**
+   * Function to run when the user attempts to close the main window.
+   */
+  async function onCloseListener(): Promise<void> {
+    if ($canSave) {
+      const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+      if (shouldQuit) {
+        const success = await exit(0);
+        LogController.log(`Program exited: ${success}`);
+      }
+    } else {
+      const success = await exit(0);
+      LogController.log(`Program exited: ${success}`);
+    }
+  }
 
 	onMount(async () => {
     window.addEventListener("error", onError);
-
-		activeUserIdUnsub = activeUserId.subscribe((id) => {
-			selectedUserId = id.toString();
-		});
-		usersUnsub = steamUsers.subscribe((sUsers) => {
-			users = Object.values(sUsers).map((user) => {
-				return {
-					"label": user.PersonaName,
-					"data": user.id32
-				}
-			});
-			if (!selectedUserId) selectedUserId = $activeUserId.toString();
-		});
+    
+    // * This is actually async but isn't typed properly.
+    Window.getByLabel("main")!.then((appWindow) => {
+      appWindow!.onCloseRequested(async (event) => {
+        event.preventDefault();
+        await onCloseListener();
+      }).then((listener) => windowCloseUnsub = listener);
+    });
 
 		let i = 0;
 
@@ -101,25 +101,12 @@
 	onDestroy(async () => {
     window.removeEventListener("error", onError);
 		await AppController.destroy();
-
-		if (activeUserIdUnsub) activeUserIdUnsub();
-		if (usersUnsub) usersUnsub();
+    
+    if (windowCloseUnsub) windowCloseUnsub();
 	});
 </script>
 
-<main class:rounded={!$windowIsMaximized}>
-	<Titlebar title="Steam Art Manager" bind:isMaxed={$windowIsMaximized}>
-		<DropDown
-      label="User"
-      options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
-      value={(users && users.length > 0) ? selectedUserId : "placeholder"}
-      onChange={AppController.changeSteamUser}
-      width="100px"
-      tooltipPosition="bottom"
-      entryTooltipPosition="right"
-      disabled={$showDialogModal || $showSteamPathModal || $showGameSearchModal || $showGridModal || $showBatchApplyProgress || $showBatchApplyModal || $showLogoPositionModal || $showManualGamesModal || $showCleanGridsModal || $showCleanConflictDialog || $showUpdateModal || $showInfoModal || $showCurrentGridsModal}
-    />
-  </Titlebar>
+<main>
 	<div class="content">
     <Modals />
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
@@ -151,12 +138,6 @@
 		transition: opacity 0.1s ease-in-out;
 	}
 
-  .rounded {
-    border-radius: 4px;
-    overflow: hidden;
-    background-color: transparent;
-  }
-
   .core-toast {
     font-size: 14px;
     --toastBorderRadius: 2px;
@@ -167,7 +148,7 @@
 
 	.content {
 		width: 100%;
-		height: calc(100% - 62px);
+		height: calc(100% - 30px);
 
 		display: flex;
 		flex-direction: column;

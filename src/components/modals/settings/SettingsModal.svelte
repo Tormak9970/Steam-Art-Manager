@@ -1,15 +1,21 @@
 <script lang="ts">
   import { AppController, DialogController, LogController, ToastController } from "@controllers";
   import { Button, IconButton } from "@interactables";
-  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamInstallPath, steamKey } from "@stores/AppState";
+  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
   import { SettingsManager, validateSGDBAPIKey, validateSteamAPIKey, validateSteamPath } from "@utils";
+  import { onDestroy, onMount } from "svelte";
+  import type { Unsubscriber } from "svelte/store";
   import ModalBody from "../modal-utils/ModalBody.svelte";
+  import DropdownEntry from "./DropdownEntry.svelte";
   import FilePathEntry from "./FilePathEntry.svelte";
   import TextFieldEntry from "./TextFieldEntry.svelte";
   import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
+  
+	let activeUserIdUnsub: Unsubscriber;
+	let usersUnsub: Unsubscriber;
 
   let open = true;
   let steamApiKeyChanged = false;
@@ -38,6 +44,14 @@
 
   let canSave = false;
 
+	let users = Object.values($steamUsers).map((user) => {
+		return {
+			"label": user.PersonaName,
+			"data": user.id32
+		}
+	});
+	let selectedUserId = $activeUserId.toString();
+  
   let steamGridKey = $steamGridDBKey;
   let steamAPIKey = $steamKey;
   let steamInstallLocation = $steamInstallPath;
@@ -68,6 +82,8 @@
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
 
+    if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
+
     LogController.log("Saved settings.");
     ToastController.showSuccessToast("Settings saved!");
     canSave = false;
@@ -81,6 +97,7 @@
   function cancel(): void {
     LogController.log("Reverting settings...");
 
+    selectedUserId = $activeUserId.toString();
     steamGridKey = $steamGridDBKey;
     steamAPIKey = $steamKey;
     steamInstallLocation = $steamInstallPath;
@@ -151,6 +168,26 @@
       canSave = false;
     }
   }
+
+  onMount(() => {
+    activeUserIdUnsub = activeUserId.subscribe((id) => {
+			selectedUserId = id.toString();
+		});
+		usersUnsub = steamUsers.subscribe((sUsers) => {
+			users = Object.values(sUsers).map((user) => {
+				return {
+					"label": user.PersonaName,
+					"data": user.id32
+				}
+			});
+			if (!selectedUserId) selectedUserId = $activeUserId.toString();
+		});
+  });
+
+  onDestroy(() => {
+    if (activeUserIdUnsub) activeUserIdUnsub();
+    if (usersUnsub) usersUnsub();
+  });
 </script>
 
 <ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
@@ -183,6 +220,13 @@
       onChange={onSteamKeyChange}
       useValidator
       validator={validateSteamAPIKey}
+    />
+    <DropdownEntry
+      label="Steam User"
+      description="Determines which Steam account to edit grids for."
+      options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
+      value={(users && users.length > 0) ? selectedUserId : "placeholder"}
+      onChange={(id) => {selectedUserId = id; canSave = true;}}
     />
     <ToggleFieldEntry
       label="Debug Mode"
