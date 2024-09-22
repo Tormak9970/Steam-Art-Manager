@@ -21,11 +21,15 @@
   $: isHidden = $hiddenGameIds.includes(game.appid);
   $: originalLogoPos = $originalLogoPositions[game.appid]?.logoPosition;
   $: steamLogoPos = $steamLogoPositions[game.appid]?.logoPosition;
-  $: canDiscard = (($currentPlatform === Platforms.STEAM && $appLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] !== $originalAppLibraryCache[game.appid][$gridType] : false)
-                  || (steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false);
+  
   $: hasCustomArt = ($currentPlatform === Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] !== $unfilteredLibraryCache[game.appid][$gridType] : false;
   $: hasCustomName = !!$customGameNames[game.appid];
 
+  $: gridChanged = ($currentPlatform === Platforms.STEAM && $appLibraryCache[game.appid]) ?
+    (!!$appLibraryCache[game.appid] && !$originalAppLibraryCache[game.appid]) || ($appLibraryCache[game.appid][$gridType] !== $originalAppLibraryCache[game.appid][$gridType]) :
+    false;
+  $: logoPosChanged = steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false;
+  $: canDiscard = gridChanged || logoPosChanged;
 
   /**
    * Selects this game.
@@ -78,8 +82,8 @@
 
       showImage = true;
       const unfiltered = $unfilteredLibraryCache[game.appid.toString()];
-      const unfilteredCache = unfiltered[type];
-      const unfilteredCacheIcon = unfiltered.Icon;
+      const unfilteredCache = unfiltered ? unfiltered[type] : null;
+      const unfilteredCacheIcon = unfiltered ? unfiltered.Icon : null;
       const filteredCacheIcon = libraryCache[game.appid.toString()].Icon;
       
       if (filteredCache === "REMOVE") {
@@ -91,6 +95,9 @@
       }
 
       showIcon = !!libraryCache[game.appid].Icon;
+    } else {
+      imagePath = "";
+      iconPath = "";
     }
   }
 
