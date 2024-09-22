@@ -24,13 +24,16 @@
     <InfoModalSection title={"Why Should I Provide an API Key?"}>
       The main benifit of providing a Steam API key is that it allows SARM to load your games faster (especially for larger libraries), and include games marked as <b>private</b> in your library.
     </InfoModalSection>
+    <div class="info">
+      <!-- svelte-ignore missing-declaration -->
+      <div style="margin-left: 8px; text-align: center;">© Travis Lane {new Date().getFullYear()}</div>
+    </div>
   </div>
 </ModalBody>
 
 <style>
   .content {
 		width: 600px;
-		height: calc(100% - 60px);
 
 		display: flex;
 		flex-direction: column;
@@ -40,4 +43,13 @@
     gap: 14px;
     padding-top: 14px;
 	}
+
+  .info {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    opacity: 0.5;
+    height: 0px;
+  }
 </style>

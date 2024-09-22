@@ -2,9 +2,9 @@
   import { AppController, DialogController } from "@controllers";
   import { Clean, Cog, Export, GameTiles, GitHub, Import, Info, Plus, Refresh, Stack } from "@icons";
   import { Button, IconButton } from "@interactables";
+  import { canSave, isOnline } from "@stores/AppState";
   import { showBatchApplyModal, showCleanGridsModal, showInfoModal, showManualGamesModal, showSettingsModal, showUpdateTilesModal } from "@stores/Modals";
   import { open } from "@tauri-apps/plugin-shell";
-  import { canSave, isOnline } from "../stores/AppState";
 
   /**
    * Wrapper function for handling when the Clean Grids action is selected.
@@ -25,7 +25,8 @@
 
 <div class="footer">
   <div class="info">
-    <div style="margin-left: 8px; text-align: center;">© Travis Lane {new Date().getFullYear()}</div>
+    <!-- svelte-ignore missing-declaration -->
+    <div style="margin-left: 8px; text-align: center;">v{APP_VERSION}</div>
   </div>
   <div class="btns">
     {#if $canSave}
@@ -84,7 +85,7 @@
   .info {
     display: flex;
     align-items: center;
-    font-size: 10px;
+    font-size: 12px;
     opacity: 0.5;
   }
   .btns {
