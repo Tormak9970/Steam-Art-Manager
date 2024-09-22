@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Footer, Games, Grids, Modals, Options } from "@components";
   import { AppController, DialogController, LogController } from "@controllers";
   import { canSave, isOnline } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
@@ -9,11 +10,6 @@
   import { SvelteToast } from "@zerodevx/svelte-toast";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
-  import Footer from "../../components/Footer.svelte";
-  import Options from "../../components/core/filters/Options.svelte";
-  import Games from "../../components/core/games/Games.svelte";
-  import Grids from "../../components/core/grids/Grids.svelte";
-  import Modals from "../../components/modals/Modals.svelte";
 
   let windowCloseUnsub: () => void;
 

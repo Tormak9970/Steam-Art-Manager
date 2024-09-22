@@ -77,8 +77,9 @@
       }
 
       showImage = true;
-      const unfilteredCache = $unfilteredLibraryCache[game.appid.toString()][type];
-      const unfilteredCacheIcon = $unfilteredLibraryCache[game.appid.toString()].Icon;
+      const unfiltered = $unfilteredLibraryCache[game.appid.toString()];
+      const unfilteredCache = unfiltered[type];
+      const unfilteredCacheIcon = unfiltered.Icon;
       const filteredCacheIcon = libraryCache[game.appid.toString()].Icon;
       
       if (filteredCache === "REMOVE") {

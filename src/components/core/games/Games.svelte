@@ -1,13 +1,12 @@
 <script lang="ts">
+  import { GridView, ListView } from "@icons";
   import { IconToggle, SearchBar, Toggle } from "@interactables";
   import { ListTabs } from "@layout";
+  import { Platforms, currentPlatform, gamesSize, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
   import type { GameStruct } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, gamesSize, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "../../../stores/AppState";
-  import GridViewIcon from "../../icons/GridViewIcon.svelte";
-  import ListViewIcon from "../../icons/ListViewIcon.svelte";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import GamesGrid from "./grid-view/GamesGrid.svelte";
@@ -141,10 +140,10 @@
         <div class="controls">
           <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
             <span slot="left">
-              <GridViewIcon />
+              <GridView />
             </span>
             <span slot="right">
-              <ListViewIcon />
+              <ListView />
             </span>
           </IconToggle>
           <Toggle label="Show hidden" bind:value={$showHidden}/>

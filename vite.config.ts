@@ -57,6 +57,8 @@ export default defineConfig({
       "@models": resolve(__dirname, "./src/lib/models"),
       "@directives": resolve(__dirname, "./src/lib/directives"),
       "@utils": resolve(__dirname, "./src/lib/utils"),
+      "@icons": resolve(__dirname, "./src/components/icons"),
+      "@components": resolve(__dirname, "./src/components"),
       "@types": resolve(__dirname, "./src/lib/types"),
     }
   },

@@ -2,6 +2,8 @@ import type { Update } from "@tauri-apps/plugin-updater";
 import type { CleanConflict, DialogModalType, SGDBGame, SGDBImage } from "@types";
 import { writable } from "svelte/store";
 
+export const showToolsModal = writable(false);
+
 export const showGridModal = writable(false);
 export const gridModalInfo = writable<SGDBImage | null>(null);
 

@@ -23,6 +23,8 @@
       "@models": ["./src/lib/models"],
       "@directives": ["./src/lib/directives"],
       "@utils": ["./src/lib/utils"],
+      "@icons": ["./src/components/icons"],
+      "@components": ["./src/components"],
       "@types": ["./src/lib/types"]
     }
   },
