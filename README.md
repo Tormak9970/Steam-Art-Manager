@@ -53,13 +53,16 @@ For SteamGridDB:
  - Browse through the images that show up when you select a game, and select one. It will be saved in memory until you apply your changes, so you can do as many as you want at once!
 
 ### Exporting to a Zip
-In order to export the zip, simply wait for your games to load, and click the "Export Zip" button, and choose a save location!
+In order to export the zip, simply wait for your games to load, open the Tools window, and then click the "Export Zip" button, and choose a save location!
 
 ### Importing from a Zip
-To import a zip, click the "Import Zip" button and select your zip file and just like that all of your game art should be updated!
+To import a zip, open the Tools window and click the "Import Zip" button and select your zip file and just like that all of your game art should be updated!
 
 ### Cleaning "Dead" Grids
-Sometimes Steam randomly changes the appid of non steam games, which leads to having a lot of images that aren't in use. To remove these, click the broom icon, and choose the settings you would like to use.
+Sometimes Steam randomly changes the appid of non steam games, which leads to having a lot of images that aren't in use. To remove these, open the Tools window and click the broom icon, and choose the settings you would like to use.
+
+### Update Game Tiles
+Want to update the icons used in your start menu or desktop shortcuts? Open the Tools window and click the tiles icon.
 
 <br/>
 
@@ -67,7 +70,7 @@ Sometimes Steam randomly changes the appid of non steam games, which leads to ha
 **Please note:** you may edit and distrubute this program as you see fit but you must retain the license and the copyright notice I included (feel free to mark your contributions as I have). <br/>
 
 ### Setting Up the Enviroment
-I used the Tauri framework for the program, so you will need to to setup your enviroment as specified [here](https://tauri.app/v1/guides/getting-started/prerequisites). Additionally, you need a [Node.js](https://nodejs.org/en/) installation, as well as `npm`, which should be included with the node install.
+I used the Tauri framework (**V2**) for the program, so you will need to to setup your enviroment as specified [here](https://v2.tauri.app/start/prerequisites/). Additionally, you need a [Node.js](https://nodejs.org/en/) installation, as well as `bun`, which can be found [here](https://bun.sh/).
 
 ### Cloning the Program
 The next step is to get a local copy of the repository. This can be done many ways, I recommend forking this repository and cloning that. <br/>
@@ -79,7 +82,7 @@ If you make changes you are not allowed to redistribute the application with me 
 Once you have cloned the repository and opened it in your preffered Editor/IDE (I recommend [VSCode](https://code.visualstudio.com/)), you will need to install the program's dependencies. To do this, you will need to run two commands: <br/>
 First:<br/>
 ```
-npm i
+bun i
 ```
 Next:<br/>
 ```
@@ -90,13 +93,13 @@ cargo install
 ### Running the Application
 Now you are finally ready to get the app up and running! Assuming everything is set up correctly, all you need to do is run:<br/>
 ```
-npm run tauri dev
+bun tauri dev
 ```
 
 ### Building With Your Changes
 Once you have made your edits and are ready to share it with the world, run the following command:
 ```
-npm run tauri build
+bun run tauri build
 ```
 This will generate a `.msi` file in `src-tauri/target/release/bundle/msi/app_name.msi`. And there you go, you've got a distributeable installer!
 
