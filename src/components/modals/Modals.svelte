@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSettingsModal, showSteamPathModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
+  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showSettingsModal, showSteamPathModal, showToolsModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
   import BatchApplyModal from "./batch-apply/BatchApplyModal.svelte";
   import BatchApplyProgressModal from "./batch-apply/BatchApplyProgressModal.svelte";
   import CleanConflictDialog from "./clean-grids/CleanConflictDialog.svelte";
@@ -13,6 +13,7 @@
   import ManualGamesModal from "./manual-games/ManualGamesModal.svelte";
   import SettingsModal from "./settings/SettingsModal.svelte";
   import SteamPathModal from "./SteamPathModal.svelte";
+  import ToolsModal from "./ToolsModal.svelte";
   import UpdateModal from "./updates/UpdateModal.svelte";
   import UpdateTilesModal from "./UpdateTilesModal.svelte";
 
@@ -64,5 +65,8 @@
   {/if}
   {#if $showUpdateTilesModal}
     <UpdateTilesModal />
+  {/if}
+  {#if $showToolsModal}
+    <ToolsModal />
   {/if}
 {/if}

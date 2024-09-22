@@ -31,4 +31,5 @@ export { default as Stack } from "./Stack.svelte";
 export { default as Steam } from "./Steam.svelte";
 export { default as Tag } from "./Tag.svelte";
 export { default as Upload } from "./Upload.svelte";
+export { default as Wrench } from "./Wrench.svelte";
 

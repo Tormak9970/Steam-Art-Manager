@@ -1,26 +1,10 @@
 <script lang="ts">
-  import { AppController, DialogController } from "@controllers";
-  import { Clean, Cog, Export, GameTiles, GitHub, Import, Info, Plus, Refresh, Stack } from "@icons";
+  import { AppController } from "@controllers";
+  import { Cog, GitHub, Info, Refresh, Wrench } from "@icons";
   import { Button, IconButton } from "@interactables";
   import { canSave, isOnline } from "@stores/AppState";
-  import { showBatchApplyModal, showCleanGridsModal, showInfoModal, showManualGamesModal, showSettingsModal, showUpdateTilesModal } from "@stores/Modals";
+  import { showInfoModal, showSettingsModal, showToolsModal } from "@stores/Modals";
   import { open } from "@tauri-apps/plugin-shell";
-
-  /**
-   * Wrapper function for handling when the Clean Grids action is selected.
-   */
-  async function onCleanGridsClick(): Promise<void> {
-    if ($canSave) {
-      const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");
-
-      if (shouldSaveAndOpen) {
-        await AppController.saveChanges();
-        $showCleanGridsModal = true;
-      }
-    } else {
-      $showCleanGridsModal = true;
-    }
-  }
 </script>
 
 <div class="footer">
@@ -46,23 +30,8 @@
     <IconButton label="Reload SARM" onClick={AppController.reload} width="auto" tooltipPosition="auto">
       <Refresh style="height: 12px; width: 12px;" />
     </IconButton>
-    <IconButton label="Update Game Tiles" onClick={() => { $showUpdateTilesModal = true; }} width="auto" tooltipPosition="auto">
-      <GameTiles style="height: 12px; width: 12px;" />
-    </IconButton>
-    <IconButton label="Clean Grids" onClick={onCleanGridsClick} width="auto" tooltipPosition="auto">
-      <Clean style="height: 12px; width: 12px;" />
-    </IconButton>
-    <IconButton label="Manage Manual Games" onClick={() => { $showManualGamesModal = true; }} width="auto" tooltipPosition="auto">
-      <Plus style="height: 12px; width: 12px;" />
-    </IconButton>
-    <IconButton label="Batch Apply" onClick={() => { $showBatchApplyModal = true; }} width="auto" tooltipPosition="auto">
-      <Stack style="height: 12px; width: 12px;" />
-    </IconButton>
-    <IconButton label="Import" onClick={AppController.importGrids} width="auto" tooltipPosition="auto">
-      <Import style="height: 12px; width: 12px;" />
-    </IconButton>
-    <IconButton label="Export" onClick={AppController.exportGrids} width="auto" tooltipPosition="auto">
-      <Export style="height: 12px; width: 12px;" />
+    <IconButton label="Tools" onClick={() => $showToolsModal = true} width="auto" tooltipPosition="auto">
+      <Wrench style="height: 12px; width: 12px;" />
     </IconButton>
     <IconButton label="Settings" onClick={() => { $showSettingsModal = true; }} width="auto">
       <Cog style="height: 12px; width: 12px;" />

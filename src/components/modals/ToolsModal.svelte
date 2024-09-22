@@ -1,17 +1,67 @@
 <script lang="ts">
-  import { showToolsModal } from "@stores/Modals";
+  import { AppController, DialogController } from "@controllers";
+  import { Clean, Export, GameTiles, Import, Plus, Stack } from "@icons";
+  import { IconButton } from "@interactables";
+  import { canSave } from "@stores/AppState";
+  import { showBatchApplyModal, showCleanGridsModal, showManualGamesModal, showToolsModal, showUpdateTilesModal } from "@stores/Modals";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
   let open = true;
 
   type Tool = {
     name: string;
-    icon: string;
-    onClick: () => Promise<void>;
+    icon: any;
+    onClick: () => Promise<void> | void;
+  }
+
+  
+  /**
+   * Wrapper function for handling when the Clean Grids action is selected.
+   */
+  async function onCleanGridsClick(): Promise<void> {
+    if ($canSave) {
+      const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");
+
+      if (shouldSaveAndOpen) {
+        await AppController.saveChanges();
+        $showCleanGridsModal = true;
+      }
+    } else {
+      $showCleanGridsModal = true;
+    }
   }
 
   const toolsList: Tool[] = [
-    
+    {
+      name: "Export",
+      icon: Export,
+      onClick: AppController.exportGrids
+    },
+    {
+      name: "Import",
+      icon: Import,
+      onClick: AppController.importGrids
+    },
+    {
+      name: "Batch Apply",
+      icon: Stack,
+      onClick: () => { $showBatchApplyModal = true; }
+    },
+    {
+      name: "Manage Manual Games",
+      icon: Plus,
+      onClick: () => { $showManualGamesModal = true; }
+    },
+    {
+      name: "Clean Grids",
+      icon: Clean,
+      onClick: onCleanGridsClick
+    },
+    {
+      name: "Update Game Tiles",
+      icon: GameTiles,
+      onClick: () => { $showUpdateTilesModal = true; }
+    },
   ];
 
   /**
@@ -24,22 +74,28 @@
 
 <ModalBody title={"Tools"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    
+    {#each toolsList as tool}
+      <IconButton label={tool.name} onClick={tool.onClick} height="auto" width="auto" tooltipPosition="bottom">
+        <svelte:component this={tool.icon} style="height: 18px; width: 18px; padding: 32px;" />
+      </IconButton>
+    {/each}
   </div>
 </ModalBody>
 
 <style>
   .content {
-		width: 600px;
+		width: 400px;
 
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+		display: grid;
+    gap: 14px;
+		grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: row;
+
+
     padding-top: 14px;
 
-    gap: 14px;
     
-		max-height: 73vh;
+		/* max-height: 73vh; */
     overflow-y: scroll;
 	}
 </style>
