@@ -7,26 +7,10 @@
   export let game: GameStruct;
   export let onRemove: (game: GameStruct) => void;
 
-  /**
-   * Checks if the entry has any existing steam art on the pc.
-   * @returns True if it does, false if not.
-   */
-  function getSteamArtStatus(): boolean {
-    return !!$unfilteredLibraryCache[game.appid];
-  }
-
-  /**
-   * Checks if the entry has any existing custom art on the pc.
-   * @returns True if it does, false if not.
-   */
-  function getCustomArtStatus(): boolean {
-    // * Need this bc we want to only compare the properties of the objects.
-    // eslint-disable-next-line eqeqeq
-    return $unfilteredLibraryCache[game.appid] && $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
-  }
-
-  $: hasSteamArt = getSteamArtStatus();
-  $: hasCustomArt = getCustomArtStatus();
+  $: hasSteamArt = !!$unfilteredLibraryCache[game.appid];
+  $: steamArtMsg = hasSteamArt ? "Existing official art" : "No official art";
+  $: hasCustomArt = $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
+  $: customArtMsg = hasCustomArt ? "Existing custom art" : "No custom art";
 </script>
 
 <div class="selected-game-entry">
@@ -36,14 +20,14 @@
     <CloseOutlined style="width: 12px; height: 12px;" />
   </div>
   <div class="name">{game.name}</div>
-  <div class="steam-art" use:AppController.tippy={{ content: hasSteamArt ? "Existing official art" : "No official art", placement: "left", onShow: AppController.onTippyShow }}>
+  <div class="steam-art" use:AppController.tippy={{ content: steamArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
     {#if hasSteamArt}
       <CheckOutlined style="width: 12px; height: 12px; fill: var(--success);" />
     {:else}
       <CloseOutlined style="width: 12px; height: 12px; fill: var(--font-color);" />
     {/if}
   </div>
-  <div class="custom-art" use:AppController.tippy={{ content: hasSteamArt ? "Existing custom art" : "No custom art", placement: "left", onShow: AppController.onTippyShow }}>
+  <div class="custom-art" use:AppController.tippy={{ content: customArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
     {#if hasCustomArt}
       <CheckOutlined style="width: 12px; height: 12px; fill: var(--success);" />
     {:else}
