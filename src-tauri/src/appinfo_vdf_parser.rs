@@ -1,3 +1,4 @@
+use std::i64;
 use std::{path::PathBuf, fs};
 use std::io::Read;
 
@@ -26,13 +27,29 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
   let _universe = reader.read_uint32(true); //always 1
 
   let entries: Vec<Value>;
+  let mut strings: Vec<String> = vec![];
 
-  if magic == 0x07564428 {
-    entries = read_app_sections(reader, 64);
-  } else if magic == 0x07564427 {
-    entries = read_app_sections(reader, 44);
+  if magic == 0x07564429 {
+    let string_table_offset = reader.read_int64(true);
+    let data_offset = reader.get_offset();
+    
+    reader.seek(string_table_offset.try_into().expect("String table offset couldn't be converted to usize"), 0);
+
+    let string_count = reader.read_uint32(true);
+    
+    for _i in 0..string_count {
+      let string = reader.read_string(None);
+
+      strings.push(string);
+    }
+    
+    reader.seek(data_offset, 0);
+    
+    entries = read_app_sections(reader, string_table_offset, Some(magic), &Some(&mut strings));
+  } else if magic == 0x07564428 {
+    entries = read_app_sections(reader, i64::MAX, None, &None);
   } else {
-    panic!("Magic header is unknown. Expected 0x07564428 or 0x07564427 but got {magic}");
+    panic!("Magic header is unknown. Expected 0x07564428 or 0x07564429 but got {magic}");
   }
 
   let mut res: Map<String, Value> = Map::new();
@@ -42,19 +59,34 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
 }
 
 /// Reads the appinfo.vdf app sections to a JSON array.
-fn read_app_sections(reader: &mut Reader, skip: u8) -> Vec<Value> {
+fn read_app_sections(reader: &mut Reader, string_table_offset: i64, magic: Option<u32>, strings: &Option<&mut Vec<String>>) -> Vec<Value> {
   let mut entries: Vec<Value> = vec![];
   let mut id: u32 = reader.read_uint32(true);
 
-  while id != 0x00000000 {
-    reader.seek(skip.into(), 1); // Skip a bunch of fields we don't care about
+  let eof: usize = (string_table_offset - 4).try_into().unwrap();
 
-    let _null_prefix = reader.read_uint8(true);
-    let name: String = reader.read_string(None).to_owned();
+  while id != 0x00000000 && reader.get_offset() < eof {
+    let size = reader.read_uint32(true);
+    let offset = reader.get_offset();
 
-    let mut entry: Map<String, Value> = read_entry_map(reader);
-    entry.insert(String::from("name"), Value::String(name));
-    entry.insert(String::from("id"), Value::Number(id.into()));
+    let data_end: usize = size.try_into().unwrap();
+    
+    // let _state = reader.read_uint32(true);
+    // let _last_updated = reader.read_uint32(true);
+    // let _access_token = reader.read_uint64(true);
+    // reader.seek(20, 1);
+    // let _version_number = reader.read_uint32(true);
+    // reader.seek(20, 1);
+    reader.seek(60, 1);
+
+    let mut entry: Map<String, Value> = read_entry_map(reader, magic, strings);
+
+    if entry.contains_key("appinfo") {
+      let appinfo_val: &Value = entry.get("appinfo").expect("Should have been able to get \"appinfo\".");
+      let appinfo = appinfo_val.as_object().expect("appinfo should have been an object.");
+      
+      entry = appinfo.clone();
+    }
   
     if entry.contains_key("common") {
       let common_val: &Value = entry.get("common").expect("Should have been able to get \"common\".");
@@ -68,7 +100,7 @@ fn read_app_sections(reader: &mut Reader, skip: u8) -> Vec<Value> {
       }
     }
 
-    reader.seek(1, 1);
+    reader.seek(offset + data_end, 0);
     id = reader.read_uint32(true);
   }
 

@@ -261,9 +261,8 @@ export class SteamController {
 
     return vdf.entries.map((game: any) => {
       return {
-        "appid": game.id,
-        // eslint-disable-next-line no-control-regex
-        "name": typeof game.common.name === "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
+        appid: game.appid,
+        name: typeof game.common.name === "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
