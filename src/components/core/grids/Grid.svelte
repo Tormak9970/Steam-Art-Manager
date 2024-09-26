@@ -34,22 +34,24 @@
   <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id.toString()}>
     <LoadingSpinner width="40px" height="40px" />
   </div>
-  <div class="image-control show-view" on:click|stopPropagation={() => { AppController.viewSteamGridImage(grid); }} use:AppController.tippy={{ content: "View Grid", placement: "right", onShow: AppController.onTippyShow }}>
-    <Expand />
-  </div>
-  <div class="image-control show-view-sgdb" on:click|stopPropagation={viewOnSteamGridDB} use:AppController.tippy={{ content: "View on SGDB", placement: "right", onShow: AppController.onTippyShow }}>
-    <Share />
-  </div>
-  {#if grid?.isAnimated}
-    <div class="image-control show-animated" use:AppController.tippy={{ content: "Animated", placement: "left", onShow: AppController.onTippyShow }}>
-      <Film />
+  <div class="button-container">
+    <div class="image-control" on:click|stopPropagation={() => { AppController.viewSteamGridImage(grid); }} use:AppController.tippy={{ content: "View Grid", placement: "right", onShow: AppController.onTippyShow }}>
+      <Expand />
     </div>
-  {/if}
-  {#if grid?.notes}
-    <div class="image-control show-notes" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow }}>
-      <Edit />
+    <div class="image-control" on:click|stopPropagation={viewOnSteamGridDB} use:AppController.tippy={{ content: "View on SGDB", placement: "right", onShow: AppController.onTippyShow }}>
+      <Share />
     </div>
-  {/if}
+    {#if grid?.notes}
+      <div class="image-control non-interactable" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow }}>
+        <Edit />
+      </div>
+    {/if}
+    {#if grid?.isAnimated}
+      <div class="image-control non-interactable" use:AppController.tippy={{ content: "Animated", placement: "right", onShow: AppController.onTippyShow }}>
+        <Film />
+      </div>
+    {/if}
+  </div>
   <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Unable to display grid" isVideo={grid.isAnimated} />
   <div class="author">By {grid.author.name}</div>
 </div>
@@ -114,9 +116,23 @@
     display: flex;
   }
 
-  .image-control {
+  .button-container {
     position: absolute;
 
+    top: 2px;
+    left: 2px;
+    
+    width: 14px;
+
+    z-index: 2;
+
+    flex-direction: column;
+    gap: 5px;
+
+    display: none;
+  }
+
+  .image-control {
     border-radius: 50%;
 
     width: 14px;
@@ -124,45 +140,21 @@
 
     padding: 5px;
 
-    left: 2px;
-
     fill: var(--font-color);
 
     background-color: var(--background);
 
     opacity: 0.8;
-
-    display: none;
-
-    z-index: 2;
   }
   .image-control:hover {
     cursor: pointer;
     opacity: 1;
   }
 
-  .show-view { top: 2px; }
-  
-  .show-view-sgdb { top: 30px; }
+  .grid:hover > .button-container { display: flex; }
 
-  .show-notes { cursor: default; top: 58px; }
-  .show-notes:hover { cursor: default; opacity: 0.8; }
-
-  .show-animated {
-    display: flex;
-    cursor: default;
-
-    top: 2px;
-    left: auto;
-    right: 2px;
-    
-    background-color: var(--background);
-    opacity: 0.8;
+  .non-interactable,
+  .non-interactable:hover {
+    cursor: default; opacity: 0.8;
   }
-  .show-animated:hover {
-    display: flex;
-    cursor: default;
-  }
-
-  .grid:hover > .image-control { display: flex; }
 </style>
