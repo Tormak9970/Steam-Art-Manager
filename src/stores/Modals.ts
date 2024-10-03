@@ -45,6 +45,10 @@ export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = writable("");
 export const dialogModalCancel = writable(async () => {});
 
+export const showProgressModal = writable(false);
+export const progressModalTitle = writable("");
+export const progressModalMessage = writable("");
+
 export const showInfoModal = writable(false);
 
 export const showCurrentGridsModal = writable(false);
