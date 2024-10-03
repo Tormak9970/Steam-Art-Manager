@@ -133,10 +133,10 @@ export class AppController {
           shortcut.icon = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
         }
       }
-      originalAppLibraryCache.set(JSON.parse(JSON.stringify(libraryCache)));
+      originalAppLibraryCache.set(structuredClone(libraryCache));
       appLibraryCache.set(libraryCache);
       
-      originalSteamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+      originalSteamShortcuts.set(structuredClone(shortcuts));
       steamShortcuts.set(shortcuts);
 
       let logoPosEntries = Object.entries(steamLogoPos);
@@ -144,8 +144,9 @@ export class AppController {
         return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE";
       });
 
-      originalLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
-      steamLogoPositions.set(JSON.parse(JSON.stringify(Object.fromEntries(logoPosEntries))));
+      const logoPos = Object.fromEntries(logoPosEntries);
+      originalLogoPositions.set(structuredClone(logoPos));
+      steamLogoPositions.set(structuredClone(logoPos));
       ToastController.showSuccessToast("Changes saved!");
       LogController.log("Saved changes.");
     }
@@ -159,13 +160,13 @@ export class AppController {
    */
   static discardChanges(): void {
     const originalCache = get(originalAppLibraryCache);
-    appLibraryCache.set(JSON.parse(JSON.stringify(originalCache)));
+    appLibraryCache.set(structuredClone(originalCache));
 
     const originalShortcuts = get(originalSteamShortcuts);
-    steamShortcuts.set(JSON.parse(JSON.stringify(originalShortcuts)));
+    steamShortcuts.set(structuredClone(originalShortcuts));
 
     const originalPositions = get(originalLogoPositions);
-    steamLogoPositions.set(JSON.parse(JSON.stringify(originalPositions)));
+    steamLogoPositions.set(structuredClone(originalPositions));
 
     ToastController.showSuccessToast("Changes discarded!");
     LogController.log("Discarded changes.");
@@ -191,14 +192,14 @@ export class AppController {
       let shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid.toString() === appId);
       const targetShortcut = originalShortcuts.find((shortcut) => shortcut.appid.toString() === appId);
       shortcutToEdit = targetShortcut;
-      steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+      steamShortcuts.set(structuredClone(shortcuts));
     }
     
     appCache[appId] = originalCache[appId];
-    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    appLibraryCache.set(structuredClone(appCache));
     
     logoPositionCache[appId] = originalLogoCache[appId];
-    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
+    steamLogoPositions.set(structuredClone(logoPositionCache));
 
     ToastController.showSuccessToast("Discarded!");
     LogController.log(`Discarded changes for ${appId}.`);
@@ -218,7 +219,7 @@ export class AppController {
     if (platform === Platforms.NON_STEAM) {
       const shortcutToEdit = shortcuts.find((shortcut) => shortcut.appid.toString() === appId)!;
       shortcutToEdit.icon = "";
-      steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
+      steamShortcuts.set(structuredClone(shortcuts));
     }
 
     appCache[appId] = {
@@ -228,7 +229,7 @@ export class AppController {
       "Logo": "REMOVE",
       "Icon": "REMOVE"
     };
-    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    appLibraryCache.set(structuredClone(appCache));
 
     ToastController.showSuccessToast("Cleared!");
     LogController.log(`Cleared grids for ${appId}.`);
@@ -255,7 +256,7 @@ export class AppController {
     const logoPositionCache = get(steamLogoPositions);
 
     logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
-    steamLogoPositions.set(JSON.parse(JSON.stringify(logoPositionCache)));
+    steamLogoPositions.set(structuredClone(logoPositionCache));
 
     LogController.log(`Cleared logo position for ${appid}`);
 
@@ -290,8 +291,8 @@ export class AppController {
       };
     }
     
-    steamShortcuts.set(JSON.parse(JSON.stringify(shortcuts)));
-    appLibraryCache.set(JSON.parse(JSON.stringify(appCache)));
+    steamShortcuts.set(structuredClone(shortcuts));
+    appLibraryCache.set(structuredClone(appCache));
 
     ToastController.showSuccessToast("Cleared all grids!");
     LogController.log("Cleared all grids.");

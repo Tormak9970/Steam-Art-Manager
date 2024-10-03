@@ -386,8 +386,8 @@ export class CacheController {
     const nonSteamGameNameEntries = nonSteamGamesList.map((game: GameStruct) => [ game.appid, game.name ]);
     const nonSteamGameNameMap = Object.fromEntries(nonSteamGameNameEntries);
 
-    const gridsCopy = JSON.parse(JSON.stringify(get(appLibraryCache)));
-    const shortcutsCopy = JSON.parse(JSON.stringify(get(steamShortcuts)));
+    const gridsCopy = structuredClone(get(appLibraryCache));
+    const shortcutsCopy = structuredClone(get(steamShortcuts));
     const selectedGridType = get(gridType);
     const filters = get(dbFilters);
 
@@ -431,7 +431,7 @@ export class CacheController {
           if (localPath) {
             if (!isSteamGame && selectedGridType === GridTypes.ICON) {
               shortcutsNeedUpdate = true;
-              const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt);
+              const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt)!;
               shortcut.icon = localPath;
             }
   

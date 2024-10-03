@@ -22,7 +22,7 @@
   let canSave = false;
 
   const originalManualGames = $manualSteamGames;
-  let tempManualGames: GameStruct[] = JSON.parse(JSON.stringify(originalManualGames));
+  let tempManualGames: GameStruct[] = structuredClone(originalManualGames);
 
   let addMethods = [
     { label: "Manual", data: "manual" },
@@ -40,7 +40,7 @@
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
       tempManualGames = [ ...tempManualGames ];
-      canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
+      canSave = structuredClone(originalManualGames) !== structuredClone(tempManualGames);
     }
   }
 
@@ -53,7 +53,7 @@
     const index = tempManualGames.findIndex((g) => g.appid === game.appid);
     tempManualGames.splice(index, 1);
     tempManualGames = [ ...tempManualGames ];
-    canSave = JSON.parse(JSON.stringify(originalManualGames)) !== JSON.parse(JSON.stringify(tempManualGames));
+    canSave = structuredClone(originalManualGames) !== structuredClone(tempManualGames);
   }
 
   /**
@@ -70,8 +70,8 @@
       if (!appLibCache[game.appid]) appLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
     }
 
-    originalAppLibraryCache.set(JSON.parse(JSON.stringify(originalAppLibCache)));
-    appLibraryCache.set(JSON.parse(JSON.stringify(appLibCache)));
+    originalAppLibraryCache.set(structuredClone(originalAppLibCache));
+    appLibraryCache.set(structuredClone(appLibCache));
 
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
     ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);

@@ -55,8 +55,8 @@ export class SteamController {
       }
     }
 
-    originalLogoPositions.set(JSON.parse(JSON.stringify(configs)));
-    steamLogoPositions.set(JSON.parse(JSON.stringify(configs)));
+    originalLogoPositions.set(structuredClone(configs));
+    steamLogoPositions.set(structuredClone(configs));
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
   }
@@ -145,7 +145,7 @@ export class SteamController {
     }
 
     const entries = Object.entries(res);
-    unfilteredLibraryCache.set(JSON.parse(JSON.stringify(unfiltered)));
+    unfilteredLibraryCache.set(structuredClone(unfiltered));
     const filtered = entries.filter(([ appId, entry ]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
     return Object.fromEntries(filtered);
   }
@@ -346,7 +346,7 @@ export class SteamController {
     });
 
     if (manualGames.length !== originalManualGames.length) {
-      manualSteamGames.set(JSON.parse(JSON.stringify(manualGames)));
+      manualSteamGames.set(structuredClone(manualGames));
       ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
     }
     
@@ -366,7 +366,7 @@ export class SteamController {
 
     // LogController.log("Loading non-steam games...");
     const shortcuts = await RustInterop.readShortcutsVdf(userId.toString());
-    originalSteamShortcuts.set(JSON.parse(JSON.stringify(Object.values(shortcuts))));
+    originalSteamShortcuts.set(structuredClone(Object.values(shortcuts)));
     steamShortcuts.set(Object.values(shortcuts));
     
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
@@ -382,7 +382,7 @@ export class SteamController {
 
     const filteredCache = await SteamController.getCacheData(structuredShortcuts);
 
-    originalAppLibraryCache.set(JSON.parse(JSON.stringify(filteredCache)));
+    originalAppLibraryCache.set(structuredClone(filteredCache));
     appLibraryCache.set(filteredCache);
 
     await SteamController.loadSteamApps(Object.values(shortcuts), filteredCache);
