@@ -153,24 +153,17 @@ export class SteamController {
   /**
    * Gets the steam game image data.
    * @param shortcuts The list of non steam games.
+   * @param gridsDir The grids directory.
+   * @param gridDirContents The contents of the grids dir.
+   * @param libraryCacheDir The library cache directory.
+   * @param libraryCacheContents The contents of the library cache dir.
    * @returns A promise resolving to the image data.
    */
-  static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
-    const gridDirContents = (await fs.readDir(gridsDir));
-
+  static async getCacheData(shortcuts: GameStruct[], gridsDir: string, gridsDirContents: fs.DirEntry[], libraryCacheDir: string, libraryCacheContents: fs.DirEntry[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ filteredGrids, logoConfigs ] = await SteamController.filterGridsDir(gridsDir, gridDirContents, shortcutIds);
+    const [ filteredGrids, logoConfigs ] = await SteamController.filterGridsDir(gridsDir, gridsDirContents, shortcutIds);
     LogController.log("Grids loaded.");
 
-    const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
-
-    if (libraryCacheDir.startsWith("DNE")) {
-      await DialogController.message("LibraryCache Did Not Exist!", "ERROR", `SARM was unable to read your librarycache folder. The path ${libraryCacheDir.substring(3)} did not exist. Please open Steam and go to the library tab so it caches a few game grids.`, "Ok");
-      await exit(0);
-    }
-
-    const libraryCacheContents = (await fs.readDir(libraryCacheDir));
     const filteredCache = await SteamController.filterLibraryCache(libraryCacheDir, libraryCacheContents, filteredGrids, shortcutIds);
     LogController.log("Library Cache loaded.");
 
@@ -336,6 +329,22 @@ export class SteamController {
   }
 
   /**
+   * Loads all the heavy loading tasks in parallel.
+   * @param userId The id of the current user.
+   * @param gridsDir The grids dir.
+   * @param libraryCacheDir The library cache dir.
+   * @returns The loaded data.
+   */
+  private static async loadData(userId: number, gridsDir: string, libraryCacheDir: string): Promise<[any, GameStruct[], fs.DirEntry[], fs.DirEntry[]]> {
+    return await Promise.all([
+      RustInterop.readShortcutsVdf(userId.toString()),
+      SteamController.getSteamApps(),
+      fs.readDir(gridsDir),
+      fs.readDir(libraryCacheDir),
+    ]);
+  }
+
+  /**
    * Gets the user's apps.
    * ? Logging complete.
    */
@@ -344,10 +353,15 @@ export class SteamController {
 
     // LogController.log("Loading non-steam games...");
 
-    const [ shortcuts, steamApps ] = await Promise.all([
-      RustInterop.readShortcutsVdf(userId.toString()),
-      SteamController.getSteamApps()
-    ]);
+    const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
+    const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
+
+    if (libraryCacheDir.startsWith("DNE")) {
+      await DialogController.message("LibraryCache Did Not Exist!", "ERROR", `SARM was unable to read your librarycache folder. The path ${libraryCacheDir.substring(3)} did not exist. Please open Steam and go to the library tab so it caches a few game grids.`, "Ok");
+      await exit(0);
+    }
+
+    const [ shortcuts, steamApps, gridDirContents, libraryCacheContents ] = await this.loadData(userId, gridsDir, libraryCacheDir);
     console.log("shortcuts:", shortcuts);
     console.log("steamApps:", steamApps);
     // !: good up to here
@@ -366,14 +380,16 @@ export class SteamController {
 
     // LogController.log("Getting steam games...");
 
-    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
+    // ! this seems to be a big issue
+    const filteredCache = await SteamController.getCacheData(structuredShortcuts, gridsDir, gridDirContents, libraryCacheDir, libraryCacheContents);
     const filteredKeys = Object.keys(filteredCache);
+
+    // ! Store setting after here, doesnt affect performance
 
     originalAppLibraryCache.set(structuredClone(filteredCache));
     appLibraryCache.set(filteredCache);
 
     const games = steamApps.filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
-    
     steamGames.set(games);
 
     const originalManualGames = get(manualSteamGames);
