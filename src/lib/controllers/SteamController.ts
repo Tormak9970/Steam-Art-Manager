@@ -3,7 +3,7 @@ import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 import { xml2json } from "../external/xml2json";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "../../stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
@@ -70,7 +70,6 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async filterGridsDir(gridsDir: string, gridsDirContents: fs.DirEntry[], shortcutsIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, fs.DirEntry[]]> {
-    const resKeys: string[] = [];
     const logoConfigs = [];
     const res: { [appid: string]: LibraryCacheEntry } = {};
 
@@ -82,24 +81,21 @@ export class SteamController {
         continue;
       }
       
-      const [ appid, type ] = getIdFromGridName(fileEntry.name);
+      const [ appId, type ] = getIdFromGridName(fileEntry.name);
         
-      const idTypeString = `${appid}_${type}`;
+      const idTypeString = `${appId}_${type}`;
 
       if (foundApps.includes(idTypeString)) {
         ToastController.showWarningToast("Duplicate grid found. Try cleaning");
-        LogController.warn(`Duplicate grid found for ${appid}.`);
+        LogController.warn(`Duplicate grid found for ${appId}.`);
         continue;
       }
       
       //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
-      if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appid))) {
-        if (!resKeys.includes(appid)) {
-          resKeys.push(appid);
-          res[appid] = {};
-        }
+      if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appId))) {
+        if (!res[appId]) res[appId] = {};
 
-        res[appid][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
+        res[appId][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
       }
     }
 
@@ -116,33 +112,24 @@ export class SteamController {
    * ? Logging complete.
    */
   private static async filterLibraryCache(libraryCacheDir: string, libraryCacheContents: fs.DirEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const resKeys = Object.keys(gridsInfos);
     const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
-
-    const unfilteredKeys: string[] = [];
     const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
 
-    for (const fileEntry of libraryCacheContents) {
+    await Promise.all(libraryCacheContents.map(async (fileEntry) => {
       const firstUnderscore = fileEntry.name.indexOf("_");
       const appId = fileEntry.name.substring(0, firstUnderscore);
       const type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
 
       if (libraryCacheLUT[type]) {
-        if (!resKeys.includes(appId)) {
-          resKeys.push(appId);
-          res[appId] = {};
-        }
-
-        if (!unfilteredKeys.includes(appId)) {
-          unfilteredKeys.push(appId);
-          unfiltered[appId] = {};
-        }
+        if (!res[appId]) res[appId] = {};
+        if (!unfiltered[appId]) unfiltered[appId] = {};
         
-        if (!Object.keys(res[appId]).includes(libraryCacheLUT[type])) res[appId][libraryCacheLUT[type]] = await join(libraryCacheDir, fileEntry.name);
+        const path = await join(libraryCacheDir, fileEntry.name);
         
-        unfiltered[appId][libraryCacheLUT[type]] = await join(libraryCacheDir, fileEntry.name);
+        res[appId][libraryCacheLUT[type]] = path;
+        unfiltered[appId][libraryCacheLUT[type]] = path;
       }
-    }
+    }))
 
     const entries = Object.entries(res);
     unfilteredLibraryCache.set(structuredClone(unfiltered));
@@ -329,29 +316,11 @@ export class SteamController {
   }
 
   /**
-   * Loads all the heavy loading tasks in parallel.
-   * @param userId The id of the current user.
-   * @param gridsDir The grids dir.
-   * @param libraryCacheDir The library cache dir.
-   * @returns The loaded data.
-   */
-  private static async loadData(userId: number, gridsDir: string, libraryCacheDir: string): Promise<[any, GameStruct[], fs.DirEntry[], fs.DirEntry[]]> {
-    return await Promise.all([
-      RustInterop.readShortcutsVdf(userId.toString()),
-      SteamController.getSteamApps(),
-      fs.readDir(gridsDir),
-      fs.readDir(libraryCacheDir),
-    ]);
-  }
-
-  /**
    * Gets the user's apps.
    * ? Logging complete.
    */
   static async getUserApps(): Promise<void> {
     const userId = get(activeUserId);
-
-    // LogController.log("Loading non-steam games...");
 
     const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
@@ -361,10 +330,12 @@ export class SteamController {
       await exit(0);
     }
 
-    const [ shortcuts, steamApps, gridDirContents, libraryCacheContents ] = await this.loadData(userId, gridsDir, libraryCacheDir);
-    console.log("shortcuts:", shortcuts);
-    console.log("steamApps:", steamApps);
-    // !: good up to here
+    const [ shortcuts, steamApps, gridDirContents, libraryCacheContents ] = await Promise.all([
+      RustInterop.readShortcutsVdf(userId.toString()),
+      SteamController.getSteamApps(),
+      fs.readDir(gridsDir),
+      fs.readDir(libraryCacheDir),
+    ]);
     
     originalSteamShortcuts.set(structuredClone(Object.values(shortcuts)));
     steamShortcuts.set(Object.values(shortcuts));
@@ -376,15 +347,13 @@ export class SteamController {
       };
     });
     nonSteamGames.set(structuredShortcuts);
-    LogController.log("Loaded non-steam games.");
-
-    // LogController.log("Getting steam games...");
 
     // ! this seems to be a big issue
     const filteredCache = await SteamController.getCacheData(structuredShortcuts, gridsDir, gridDirContents, libraryCacheDir, libraryCacheContents);
     const filteredKeys = Object.keys(filteredCache);
+      
 
-    // ! Store setting after here, doesnt affect performance
+    // * Set the global state with the loaded values.
 
     originalAppLibraryCache.set(structuredClone(filteredCache));
     appLibraryCache.set(filteredCache);

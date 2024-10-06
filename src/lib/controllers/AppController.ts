@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
+import * as fs from "@tauri-apps/plugin-fs";
 import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage } from "@types";
 import { SettingsManager, restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
@@ -80,11 +81,11 @@ export class AppController {
     loadingGames.set(true);
     SteamController.getUserApps().then(() => {
       loadingGames.set(false);
-    });
 
-    if (get(needsSGDBAPIKey)) {
-      showSettingsModal.set(true);
-    }
+      if (get(needsSGDBAPIKey)) {
+        showSettingsModal.set(true);
+      }
+    });
   }
 
   /**
@@ -450,7 +451,14 @@ export class AppController {
       
       await AppController.saveChanges();
 
-      const filteredCache = await SteamController.getCacheData(get(nonSteamGames));
+      const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
+      const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
+      const [ gridDirContents, libraryCacheContents ] = await Promise.all([
+        fs.readDir(gridsDir),
+        fs.readDir(libraryCacheDir),
+      ]);
+
+      const filteredCache = await SteamController.getCacheData(get(nonSteamGames), gridsDir, gridDirContents, libraryCacheDir, libraryCacheContents);
       originalAppLibraryCache.set(filteredCache);
       appLibraryCache.set(filteredCache);
     } else {
@@ -692,7 +700,7 @@ export class AppController {
    * Reloads the Steam apps.
    */
   static async reloadSteamGames(): Promise<void> {
-    await SteamController.loadSteamApps(get(steamShortcuts), get(appLibraryCache));
+    await SteamController.getUserApps();
     loadingGames.set(false);
   }
 
