@@ -348,7 +348,7 @@ export class SteamController {
     });
     nonSteamGames.set(structuredShortcuts);
 
-    // ! this seems to be a big issue
+    
     const filteredCache = await SteamController.getCacheData(structuredShortcuts, gridsDir, gridDirContents, libraryCacheDir, libraryCacheContents);
     const filteredKeys = Object.keys(filteredCache);
       
