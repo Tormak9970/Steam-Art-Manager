@@ -25,12 +25,12 @@ import "tippy.js/dist/tippy.css";
 import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
-import { DialogController } from "./DialogController";
-import { LogController } from "./LogController";
-import { RustInterop } from "./RustInterop";
-import { SettingsController } from "./SettingsController";
 import { SteamController } from "./SteamController";
-import { ToastController } from "./ToastController";
+import { DialogController } from "./utils/DialogController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
+import { SettingsController } from "./utils/SettingsController";
+import { ToastController } from "./utils/ToastController";
 
 /**
  * The main controller for the application.

@@ -24,9 +24,9 @@ import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatc
 import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
-import { LogController } from "./LogController";
-import { RustInterop } from "./RustInterop";
-import { ToastController } from "./ToastController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
+import { ToastController } from "./utils/ToastController";
 
 
 /**

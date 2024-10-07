@@ -5,15 +5,14 @@ import { xml2json } from "../external/xml2json";
 
 import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
-import { LogController } from "./LogController";
-import { RustInterop } from "./RustInterop";
-import { ToastController } from "./ToastController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
+import { ToastController } from "./utils/ToastController";
 
-import { join } from "@tauri-apps/api/path";
+import { path } from "@tauri-apps/api";
 import { exit } from "@tauri-apps/plugin-process";
 import { GridTypes, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
-import { getIdFromGridName } from "@utils";
-import { DialogController } from "./DialogController";
+import { DialogController } from "./utils/DialogController";
 
 type LUTMap = Record<string, GridTypes>;
 
@@ -38,18 +37,18 @@ export class SteamController {
   
   /**
    * Caches the steam game logo configs.
-   * @param gridsDir The grids directory
-   * @param logoConfigs The list of logoConfig files.
+   * @param logoConfigPaths The list of logoConfig paths.
    * ? Logging complete.
    */
-  private static async cacheLogoConfigs(gridsDir: string, logoConfigs: fs.DirEntry[]): Promise<void> {
+  private static async cacheLogoConfigs(logoConfigPaths: string[]): Promise<void> {
     const configs: Record<string, SteamLogoConfig> = {};
 
-    for (const logoConfig of logoConfigs) {
-      const id = parseInt(logoConfig.name.substring(0, logoConfig.name.lastIndexOf(".")));
+    for (const configPath of logoConfigPaths) {
+      const fileName = await path.basename(configPath);
+      const id = parseInt(fileName.substring(0, fileName.lastIndexOf(".")));
 
       if (!isNaN(id)) {
-        const contents = await fs.readTextFile(await join(gridsDir, logoConfig.name));
+        const contents = await fs.readTextFile(configPath);
         const jsonContents = JSON.parse(contents);
         if (jsonContents.logoPosition) configs[id.toString()] = jsonContents;
       }
@@ -59,82 +58,6 @@ export class SteamController {
     steamLogoPositions.set(structuredClone(configs));
 
     LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
-  }
-  
-  /**
-   * Filters and structures the library grids based on the app's needs.
-   * @param gridsDir The grids directory.
-   * @param gridsDirContents The contents of the grids dir.
-   * @param shortcutIds The list of loaded shortcuts ids.
-   * @returns The filtered and structured grids dir.
-   * ? Logging complete.
-   */
-  private static async filterGridsDir(gridsDir: string, gridsDirContents: fs.DirEntry[], shortcutsIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, fs.DirEntry[]]> {
-    const logoConfigs = [];
-    const res: { [appid: string]: LibraryCacheEntry } = {};
-
-    const foundApps: string[] = [];
-
-    for (const fileEntry of gridsDirContents) {
-      if (fileEntry.name.endsWith(".json")) {
-        logoConfigs.push(fileEntry);
-        continue;
-      }
-      
-      const [ appId, type ] = getIdFromGridName(fileEntry.name);
-        
-      const idTypeString = `${appId}_${type}`;
-
-      if (foundApps.includes(idTypeString)) {
-        ToastController.showWarningToast("Duplicate grid found. Try cleaning");
-        LogController.warn(`Duplicate grid found for ${appId}.`);
-        continue;
-      }
-      
-      //? Since we have to poison the cache for icons, we also don't want to load them from the grids folder. Shortcuts don't need this.
-      if (gridTypeLUT[type] && (type !== "icon" || shortcutsIds.includes(appId))) {
-        if (!res[appId]) res[appId] = {};
-
-        res[appId][gridTypeLUT[type]] = await join(gridsDir, fileEntry.name);
-      }
-    }
-
-    return [ res, logoConfigs ];
-  }
-
-  /**
-   * Filters and structures the library cache based on the app's needs.
-   * @param libraryCacheDir The library cache dir.
-   * @param libraryCacheContents The contents of the library cache.
-   * @param gridsInfos The filtered grid infos.
-   * @param shortcutIds The list of loaded shortcuts ids.
-   * @returns The filtered and structured library cache.
-   * ? Logging complete.
-   */
-  private static async filterLibraryCache(libraryCacheDir: string, libraryCacheContents: fs.DirEntry[], gridsInfos: { [appid: string]: LibraryCacheEntry }, shortcutIds: string[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
-    const res: { [appid: string]: LibraryCacheEntry } = gridsInfos;
-    const unfiltered: { [appid: string]: LibraryCacheEntry } = {};
-
-    await Promise.all(libraryCacheContents.map(async (fileEntry) => {
-      const firstUnderscore = fileEntry.name.indexOf("_");
-      const appId = fileEntry.name.substring(0, firstUnderscore);
-      const type = fileEntry.name.substring(firstUnderscore + 1, fileEntry.name.indexOf("."));
-
-      if (libraryCacheLUT[type]) {
-        if (!res[appId]) res[appId] = {};
-        if (!unfiltered[appId]) unfiltered[appId] = {};
-        
-        const path = await join(libraryCacheDir, fileEntry.name);
-        
-        res[appId][libraryCacheLUT[type]] = path;
-        unfiltered[appId][libraryCacheLUT[type]] = path;
-      }
-    }))
-
-    const entries = Object.entries(res);
-    unfilteredLibraryCache.set(structuredClone(unfiltered));
-    const filtered = entries.filter(([ appId, entry ]) => Object.keys(entry).length >= 2 || shortcutIds.includes(appId)); //! Look into this because it seems like it aint ideal this because it caused issues with games with no grids
-    return Object.fromEntries(filtered);
   }
 
   /**
@@ -146,15 +69,15 @@ export class SteamController {
    * @param libraryCacheContents The contents of the library cache dir.
    * @returns A promise resolving to the image data.
    */
-  static async getCacheData(shortcuts: GameStruct[], gridsDir: string, gridsDirContents: fs.DirEntry[], libraryCacheDir: string, libraryCacheContents: fs.DirEntry[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
+  static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ filteredGrids, logoConfigs ] = await SteamController.filterGridsDir(gridsDir, gridsDirContents, shortcutIds);
-    LogController.log("Grids loaded.");
+    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds);
 
-    const filteredCache = await SteamController.filterLibraryCache(libraryCacheDir, libraryCacheContents, filteredGrids, shortcutIds);
-    LogController.log("Library Cache loaded.");
-
-    await SteamController.cacheLogoConfigs(gridsDir, logoConfigs);
+    unfilteredLibraryCache.set(unfilteredCache);
+    originalAppLibraryCache.set(structuredClone(filteredCache));
+    appLibraryCache.set(filteredCache);
+    
+    await SteamController.cacheLogoConfigs(logoConfigPaths);
 
     return filteredCache;
   }
@@ -322,19 +245,15 @@ export class SteamController {
   static async getUserApps(): Promise<void> {
     const userId = get(activeUserId);
 
-    const gridsDir = await RustInterop.getGridsDirectory(get(activeUserId).toString());
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
-
     if (libraryCacheDir.startsWith("DNE")) {
       await DialogController.message("LibraryCache Did Not Exist!", "ERROR", `SARM was unable to read your librarycache folder. The path ${libraryCacheDir.substring(3)} did not exist. Please open Steam and go to the library tab so it caches a few game grids.`, "Ok");
       await exit(0);
     }
 
-    const [ shortcuts, steamApps, gridDirContents, libraryCacheContents ] = await Promise.all([
+    const [ shortcuts, steamApps ] = await Promise.all([
       RustInterop.readShortcutsVdf(userId.toString()),
       SteamController.getSteamApps(),
-      fs.readDir(gridsDir),
-      fs.readDir(libraryCacheDir),
     ]);
     
     originalSteamShortcuts.set(structuredClone(Object.values(shortcuts)));
@@ -349,15 +268,11 @@ export class SteamController {
     nonSteamGames.set(structuredShortcuts);
 
     
-    const filteredCache = await SteamController.getCacheData(structuredShortcuts, gridsDir, gridDirContents, libraryCacheDir, libraryCacheContents);
+    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
     const filteredKeys = Object.keys(filteredCache);
       
 
     // * Set the global state with the loaded values.
-
-    originalAppLibraryCache.set(structuredClone(filteredCache));
-    appLibraryCache.set(filteredCache);
-
     const games = steamApps.filter((entry: GameStruct) => filteredKeys.includes(entry.appid.toString()));
     steamGames.set(games);
 
