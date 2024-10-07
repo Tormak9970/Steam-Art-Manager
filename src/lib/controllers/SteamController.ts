@@ -1,7 +1,6 @@
 import * as fs from "@tauri-apps/plugin-fs";
 import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
-import { xml2json } from "../external/xml2json";
 
 import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
@@ -12,6 +11,7 @@ import { ToastController } from "./utils/ToastController";
 import { path } from "@tauri-apps/api";
 import { exit } from "@tauri-apps/plugin-process";
 import { GridTypes, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
+import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
 
 type LUTMap = Record<string, GridTypes>;
@@ -34,6 +34,7 @@ const libraryCacheLUT: LUTMap = {
 
 export class SteamController {
   private static domParser = new DOMParser();
+  private static xmlParser = new XMLParser();
   
   /**
    * Caches the steam game logo configs.
@@ -98,20 +99,16 @@ export class SteamController {
     });
     
     if (res.ok) {
-      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const games = JSON.parse(jsonStr);
+      const games = SteamController.xmlParser.parse(await res.text());
 
       return games.gamesList.games.game.map((game: any) => {
         return {
           "appid": parseInt(game.appID),
-          "name": game.name["#cdata"]
+          "name": game.name
         }
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
     } else {
-      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const err = JSON.parse(jsonStr);
+      const err = SteamController.xmlParser.parse(await res.text());
 
       ToastController.showWarningToast("You Steam profile is private");
       LogController.warn(`Error loading games from the user's Steam profile: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
@@ -142,9 +139,7 @@ export class SteamController {
         }
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
     } else {
-      const xmlData = SteamController.domParser.parseFromString(await res.text(), "text/xml");
-      const jsonStr = xml2json(xmlData, "");
-      const err = JSON.parse(jsonStr);
+      const err = SteamController.xmlParser.parse(await res.text());
 
       ToastController.showWarningToast("Check your Steam API Key");
       LogController.warn(`Error loading games from the Steam API: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
