@@ -111,6 +111,12 @@ impl Reader<'_> {
   /// Creates a new Reader from the provided buffer.
   pub fn new(buf: &[u8]) -> Reader { return Reader { data: buf, offset: 0, length: buf.len() as u64 }; }
 
+  /// Slices the Reader's buffer and returns a new Reader for the slice.
+  pub fn slice(&self, offset: usize, length: usize) -> Reader {
+    let sliced = &self.data[offset..(offset+length)];
+    return Reader { data: sliced, offset: 0, length: length as u64 };
+  }
+
   /// Seek to a new offset, from 0 (start), 1 (current), or 2 (end) of the buffer.
   pub fn seek(&mut self, offset: usize, position: u8) {
     if position == 0 {
