@@ -94,47 +94,70 @@ runs:
 
           if (process.env.git_branch == "release") {
             const versionNoV = process.env.release_tag.substring(1);
-            const GENERIC_NAMES = {
-              "windowsInstaller": "steam-art-manager.msi",
-              "windowsUpdater": `steam-art-manager_${versionNoV}.msi.zip`,
-              "windowsUpdaterSig": `steam-art-manager_${versionNoV}.msi.zip.sig`,
-              "linuxInstaller": "steam-art-manager.AppImage",
-              "linuxUpdater": `steam-art-manager_${versionNoV}.AppImage.tar.gz`,
-              "linuxUpdaterSig": `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`
-            }
+
+            const RENAME_CONFIG = [
+              // MSI
+              {
+                extension: ".msi",
+                newName: "steam-art-manager.msi"
+              },
+              {
+                extension: ".msi.zip",
+                newName: `steam-art-manager_${versionNoV}.msi.zip`
+              },
+              {
+                extension: ".msi.zip.sig",
+                newName: `steam-art-manager_${versionNoV}.msi.zip.sig`
+              },
+              // AppInfo
+              {
+                extension: ".AppImage",
+                newName: "steam-art-manager.AppImage"
+              },
+              {
+                extension: ".AppImage.tar.gz",
+                newName: `steam-art-manager_${versionNoV}.AppImage.tar.gz`
+              },
+              {
+                extension: ".AppImage.tar.gz.sig",
+                newName: `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`
+              },
+              // DEB
+              {
+                extension: ".deb",
+                newName: "steam-art-manager.deb"
+              },
+              {
+                extension: ".deb.tar.gz",
+                newName: `steam-art-manager_${versionNoV}.deb.tar.gz`
+              },
+              {
+                extension: ".AppImage.tar.gz.sig",
+                newName: `steam-art-manager_${versionNoV}.deb.tar.gz.sig`
+              },
+            ];
 
             const assets = await github.rest.repos.listReleaseAssets({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id
             });
-            
 
-            const winInstaller = assets.data.find((asset) => asset.name.endsWith(".msi"));
-            await setReleaseAssetName(winInstaller.id, GENERIC_NAMES["windowsInstaller"]);
+            for (const renameConfig of RENAME_CONFIGS) {
+              const asset = assets.data.find((asset) => asset.name.endsWith(renameConfig.extension));
+              await setReleaseAssetName(asset.id, renameConfig.newName);
+            }
             
-            const winUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
-            await setReleaseAssetName(winUpdater.id, GENERIC_NAMES["windowsUpdater"]);
-            
-            const winUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".msi.zip.sig"));
-            await setReleaseAssetName(winUpdaterSig.id, GENERIC_NAMES["windowsUpdaterSig"]);
-            
-            const linuxInstaller = assets.data.find((asset) => asset.name.endsWith(".AppImage"));
-            await setReleaseAssetName(linuxInstaller.id, GENERIC_NAMES["linuxInstaller"]);
-            
-            const linuxUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
-            await setReleaseAssetName(linuxUpdater.id, GENERIC_NAMES["linuxUpdater"]);
-            
-            const linuxUpdaterSig = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz.sig"));
-            await setReleaseAssetName(linuxUpdaterSig.id, GENERIC_NAMES["linuxUpdaterSig"]);
+            const msiUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
+            const appimageUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
             const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
 
             let latestContents = latestContentsBuff.toString();
-            latestContents = latestContents.replace(winUpdater.name, GENERIC_NAMES["windowsUpdater"]);
-            latestContents = latestContents.replace(linuxUpdater.name, GENERIC_NAMES["linuxUpdater"]);
+            latestContents = latestContents.replace(msiUpdater.name, GENERIC_NAMES["msiUpdater"]);
+            latestContents = latestContents.replace(appinfoUpdater.name, GENERIC_NAMES["appimageUpdater"]);
 
             const latestContentsJson = JSON.parse(latestContents);
             latestContentsJson.notes = process.env.change_log;

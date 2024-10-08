@@ -119,7 +119,8 @@
     "shortDescription": "A tool for setting the artwork of your Steam library.",
     "targets": [
       "appimage",
-      "msi"
+      "msi",
+      "deb"
     ],
     "licenseFile": "wix/short-license.txt",
     "createUpdaterArtifacts": "v1Compatible"
