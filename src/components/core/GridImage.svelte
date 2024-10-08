@@ -1,13 +1,17 @@
 <script lang="ts">
-  import { gridType } from "@stores/AppState";
-  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
-  import Lazy from "svelte-lazy";
+    import { AppController } from "@controllers";
+    import { TriangleExclamation } from "@icons";
+    import { gridType } from "@stores/AppState";
+    import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
+    import Lazy from "svelte-lazy";
 
   export let imagePath: string;
   export let altText: string;
   export let showImage: boolean = true;
   export let missingMessage: string;
   export let isVideo: boolean = false;
+
+  let showWarning = false;
 
   /**
    * Function to run when the user starts hovering over a video.
@@ -27,7 +31,7 @@
 </script>
 
 <div class="grid-img" style="height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px;">
-  {#if showImage}
+  {#if showImage && !showWarning && imagePath}
     <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
         <video
@@ -45,11 +49,14 @@
           alt="{altText}"
           style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
           draggable="false"
+          on:error={() => showWarning = true}
         />
       {/if}
     </Lazy>
   {:else}
-    <div style="text-align: center;">{missingMessage}</div>
+    <div use:AppController.tippy={{ content: missingMessage, placement: "bottom", onShow: AppController.onTippyShow }}>
+      <TriangleExclamation height="3rem" width="3rem" fill="var(--foreground-light-hover)" />
+    </div>
   {/if}
 </div>
 

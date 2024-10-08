@@ -69,7 +69,7 @@
       </div>
     {/if}
   </div>
-  <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="No {$gridType} image for game" />
+  <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="Missing {$gridType}" />
   <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
 </div>
 

@@ -10,30 +10,11 @@ import { ToastController } from "./utils/ToastController";
 
 import { path } from "@tauri-apps/api";
 import { exit } from "@tauri-apps/plugin-process";
-import { GridTypes, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
+import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
 
-type LUTMap = Record<string, GridTypes>;
-
-const gridTypeLUT: LUTMap = {
-  "capsule": GridTypes.CAPSULE,
-  "wide_capsule": GridTypes.WIDE_CAPSULE,
-  "hero": GridTypes.HERO,
-  "icon": GridTypes.ICON,
-  "logo": GridTypes.LOGO
-}
-
-const libraryCacheLUT: LUTMap = {
-  "library_600x900": GridTypes.CAPSULE,
-  "header": GridTypes.WIDE_CAPSULE,
-  "library_hero": GridTypes.HERO,
-  "icon": GridTypes.ICON,
-  "logo": GridTypes.LOGO
-}
-
 export class SteamController {
-  private static domParser = new DOMParser();
   private static xmlParser = new XMLParser();
   
   /**
@@ -62,13 +43,9 @@ export class SteamController {
   }
 
   /**
-   * Gets the steam game image data.
+   * Gets the Steam grid cache data.
    * @param shortcuts The list of non steam games.
-   * @param gridsDir The grids directory.
-   * @param gridDirContents The contents of the grids dir.
-   * @param libraryCacheDir The library cache directory.
-   * @param libraryCacheContents The contents of the library cache dir.
-   * @returns A promise resolving to the image data.
+   * @returns A promise resolving to the Steam grid cache data.
    */
   static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());

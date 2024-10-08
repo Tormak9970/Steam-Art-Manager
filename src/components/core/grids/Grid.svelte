@@ -52,7 +52,7 @@
       </div>
     {/if}
   </div>
-  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Unable to display grid" isVideo={grid.isAnimated} />
+  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Failed to load" isVideo={grid.isAnimated} />
   <div class="author">By {grid.author.name}</div>
 </div>
 
