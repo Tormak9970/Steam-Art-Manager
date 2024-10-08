@@ -154,7 +154,7 @@
           {:else}
             <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
           {/if}
-          <IconButton label="Customize Search" onClick={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""} height="24px" width="24px">
+          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""} height="24px" width="24px">
             <Edit style="height: 14px; width: 14px;" />
           </IconButton>
         </div>
@@ -166,11 +166,11 @@
         {/if}
 
         <div class="buttons-cont">
-          <IconButton label="Set Logo Position" onClick={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
+          <IconButton label="Set Logo Position" on:click={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
             <Position style="height: 14px; width: 14px;" />
           </IconButton>
 
-          <IconButton label="Upload Local Art" onClick={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
+          <IconButton label="Upload Local Art" on:click={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
             <Upload style="height: 12px; width: 12px;" />
           </IconButton>
         </div>

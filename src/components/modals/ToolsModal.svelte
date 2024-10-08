@@ -75,7 +75,7 @@
 <ModalBody title={"Tools"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     {#each toolsList as tool}
-      <IconButton label={tool.name} onClick={tool.onClick} height="auto" width="auto" tooltipPosition="bottom">
+      <IconButton label={tool.name} on:click={tool.onClick} height="auto" width="auto" tooltipPosition="bottom">
         <svelte:component this={tool.icon} style="height: 18px; width: 18px; padding: 32px;" />
       </IconButton>
     {/each}

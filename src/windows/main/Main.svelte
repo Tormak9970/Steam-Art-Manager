@@ -103,8 +103,8 @@
 </script>
 
 <main>
+  <Modals />
 	<div class="content">
-    <Modals />
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
 

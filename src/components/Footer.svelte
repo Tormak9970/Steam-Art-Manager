@@ -21,19 +21,19 @@
       <Button label="Go Online" on:click={AppController.tryGoOnline} width="auto" height="22px" />
     {/if}
     
-    <IconButton label="Info" onClick={() => $showInfoModal = true} width="auto" tooltipPosition="auto">
+    <IconButton label="Info" on:click={() => $showInfoModal = true} width="auto" tooltipPosition="auto">
       <Info height="1rem" style="height: 12px; width: 12px;" />
     </IconButton>
-    <IconButton label="View on GitHub" onClick={() => open("https://github.com/Tormak9970/Steam-Art-Manager")} width="auto" tooltipPosition="auto">
+    <IconButton label="View on GitHub" on:click={() => open("https://github.com/Tormak9970/Steam-Art-Manager")} width="auto" tooltipPosition="auto">
       <GitHub style="height: 12px; width: 12px;" />
     </IconButton>
-    <IconButton label="Reload SARM" onClick={AppController.reload} width="auto" tooltipPosition="auto">
+    <IconButton label="Reload SARM" on:click={AppController.reload} width="auto" tooltipPosition="auto">
       <Refresh style="height: 12px; width: 12px;" />
     </IconButton>
-    <IconButton label="Tools" onClick={() => $showToolsModal = true} width="auto" tooltipPosition="auto">
+    <IconButton label="Tools" on:click={() => $showToolsModal = true} width="auto" tooltipPosition="auto">
       <Wrench style="height: 12px; width: 12px;" />
     </IconButton>
-    <IconButton label="Settings" onClick={() => { $showSettingsModal = true; }} width="auto">
+    <IconButton label="Settings" on:click={() => { $showSettingsModal = true; }} width="auto">
       <Cog style="height: 12px; width: 12px;" />
     </IconButton>
   </div>

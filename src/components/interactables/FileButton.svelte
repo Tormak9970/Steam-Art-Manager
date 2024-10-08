@@ -1,6 +1,7 @@
 <script lang="ts">
   import { More } from "@icons";
   import { open } from "@tauri-apps/plugin-dialog";
+  import { createEventDispatcher } from "svelte";
   import type { Placement } from "tippy.js";
   import IconButton from "./IconButton.svelte";
 
@@ -8,10 +9,11 @@
   export let tooltipPosition: Placement = "top-end";
   export let width = "22px";
   export let height = "22px";
-  export let onChange: (filepath: string) => void;
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
+
+  const dispatch = createEventDispatcher();
 
   /**
    * Handles the onClick event of the icon button.
@@ -22,10 +24,10 @@
       directory: true,
       multiple: false
     });
-    if (path && path !== "") onChange(path as string);
+    if (path && path !== "") dispatch("changed", { value: path as string });
   }
 </script>
 
-<IconButton label={label} tooltipPosition={tooltipPosition} width={width} height={height} onClick={onClick} disabled={disabled} highlight={highlight} warn={warn}>
+<IconButton label={label} tooltipPosition={tooltipPosition} width={width} height={height} on:click={onClick} disabled={disabled} highlight={highlight} warn={warn}>
   <More height="1em" />
 </IconButton>

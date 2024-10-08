@@ -67,7 +67,7 @@
   </div>
   <div class="inputs">
     <TextInput placeholder={"~/something/something"} onChange={changeWrapper} width="{188}" bind:value={value} />
-    <FileButton label="Select Folder" tooltipPosition={"right"} onChange={dialogChangeWrapper} />
+    <FileButton label="Select Folder" tooltipPosition={"right"} on:change={(e) => dialogChangeWrapper(e.detail.value)} />
     
     {#if useValidator}
       {#if isValid}

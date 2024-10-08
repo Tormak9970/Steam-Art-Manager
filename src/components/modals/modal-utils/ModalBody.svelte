@@ -217,7 +217,7 @@
     backdrop-filter: blur(1px);
 
     position: absolute;
-    top: 30px;
+    top: 0px;
   }
   @keyframes dialogIn {
     0% {

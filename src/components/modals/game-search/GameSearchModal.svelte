@@ -87,7 +87,7 @@
         Search for games in the SGDB database below
       </div>
       <div class="search-container">
-        <IconButton label="Retry" onClick={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
+        <IconButton label="Retry" on:click={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
           <Refresh style="height: 12px; width: 12px;" />
         </IconButton>
         <!-- <Spacer orientation="HORIZONTAL" /> -->

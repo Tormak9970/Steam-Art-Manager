@@ -240,7 +240,7 @@
   <span slot="buttons" class="buttons">
     <Button label="Save Changes" on:click={saveSettings} width="46.5%" disabled={!canSave} />
     <Button label="Cancel" on:click={cancel} width="46.5%" />
-    <IconButton label="Open log directory" onClick={openLogDirectory}>
+    <IconButton label="Open log directory" on:click={openLogDirectory}>
       <Folder style="height: 14px; width: 14px;" />
     </IconButton>
   </span>
