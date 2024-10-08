@@ -40,9 +40,10 @@
 
   /**
    * Function to run on theme change.
-   * @param checked Whether or not darkmode is enabled.
+   * @param event The change event.
    */
-  function onDarkModeChange(checked: boolean): void {
+  function onDarkModeChange(event: any): void {
+    const checked = event.detail.value;
     document.body.setAttribute("data-theme", checked ? "dark" : "light");
     $theme = checked ? 0 : 1;
     LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
@@ -55,7 +56,7 @@
   
     <div class="content">
       <div class="toggle-container">
-        <Toggle label="Dark Mode" value={$theme === 0} onChange={onDarkModeChange}/>
+        <Toggle label="Dark Mode" value={$theme === 0} on:change={onDarkModeChange}/>
       </div>
       
       <Divider />

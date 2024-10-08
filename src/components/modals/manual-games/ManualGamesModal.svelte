@@ -115,8 +115,8 @@
         </span>
       </Table>
       <div class="buttons">
-        <Button label="Save Changes" onClick={saveChanges} width="47.5%" disabled={!canSave} />
-        <Button label="Cancel" onClick={cancel} width="47.5%" />
+        <Button label="Save Changes" on:click={saveChanges} width="47.5%" disabled={!canSave} />
+        <Button label="Cancel" on:click={cancel} width="47.5%" />
       </div>
     </div>
     <div class="right">

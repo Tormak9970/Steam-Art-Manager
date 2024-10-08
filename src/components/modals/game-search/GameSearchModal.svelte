@@ -112,7 +112,7 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button label="Apply Choice" onClick={applyChoice} width="100%" disabled={!canApply} />
+    <Button label="Apply Choice" on:click={applyChoice} width="100%" disabled={!canApply} />
   </span>
 </ModalBody>
 

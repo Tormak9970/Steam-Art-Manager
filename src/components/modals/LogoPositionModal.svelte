@@ -192,10 +192,10 @@
         <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
       </div>
       {#if canClear}
-        <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <Button label="Reset" onClick={clearLogoPosition} width="102px" />
+        <Button label="Save" on:click={applyChanges} width="182px" disabled={!canSave} />
+        <Button label="Reset" on:click={clearLogoPosition} width="102px" />
       {:else}
-        <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
+        <Button label="Save" on:click={applyChanges} width="300px" disabled={!canSave} />
       {/if}
     </div>
   </div>

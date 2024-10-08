@@ -81,7 +81,7 @@
         <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
       {/if}
     </div>
-    <Toggle label="Include Hidden" bind:value={includeHidden} onChange={(showHidden) => { onStateChange(selectedPlatform, selectedGamesFilter, showHidden); }} />
+    <Toggle label="Include Hidden" bind:value={includeHidden} on:change={(e) => { onStateChange(selectedPlatform, selectedGamesFilter, e.detail.value); }} />
   </div>
   <Table>
     <span slot="header">

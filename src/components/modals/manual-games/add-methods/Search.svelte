@@ -87,8 +87,8 @@
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" onClick={saveWrapper} disabled={!selectedGame} width="47.5%" />
-      <Button label="Clear" onClick={clear} width="47.5%" />
+      <Button label="Add Selected" on:click={saveWrapper} disabled={!selectedGame} width="47.5%" />
+      <Button label="Clear" on:click={clear} width="47.5%" />
     </div>
   {/if}
 </div>

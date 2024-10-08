@@ -24,7 +24,7 @@
 
 <div class="setting">
   <div class="inputs">
-    <Toggle label={label} onChange={onChange} bind:value={value} />
+    <Toggle label={label} on:change={(e) => onChange(e.detail.value)} bind:value={value} />
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->

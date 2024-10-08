@@ -84,7 +84,7 @@
         {/if}
       </div>
       <div class="buttons">
-        <Button label="Apply" onClick={applyGrid} width="100%" />
+        <Button label="Apply" on:click={applyGrid} width="100%" />
       </div>
     </div>
   </div>

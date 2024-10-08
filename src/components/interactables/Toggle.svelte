@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   export let label: string = "";
   export let value = true;
-  export let onChange = (checked:boolean) => {};
+
+  const dispatch = createEventDispatcher();
 
   /**
    * Handles when the slider is clicked.
@@ -13,7 +16,7 @@
     const state = target.getAttribute("aria-checked");
 
     value = state === "true" ? false : true;
-    onChange(value);
+    dispatch("change", { value: value });
   }
 
 </script>

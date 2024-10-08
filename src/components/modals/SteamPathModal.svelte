@@ -59,7 +59,7 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button label="Save Changes" onClick={saveInstallLocation} width="100%" disabled={!canSave} />
+    <Button label="Save Changes" on:click={saveInstallLocation} width="100%" disabled={!canSave} />
   </span>
 </ModalBody>
 

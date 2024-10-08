@@ -81,8 +81,8 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label="Update" onClick={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
-    <Button label="Cancel" onClick={onClose} width="47.5%" />
+    <Button label="Update" on:click={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
+    <Button label="Cancel" on:click={onClose} width="47.5%" />
   </span>
 </ModalBody>
 

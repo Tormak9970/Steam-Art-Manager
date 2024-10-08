@@ -2,13 +2,12 @@
   export let label: string;
   export let width = "40px";
   export let height = "auto";
-  export let onClick: (e: MouseEvent) => void;
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
 </script>
 
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click>
   <div style="user-select: none;">{label}</div>
 </button>
 

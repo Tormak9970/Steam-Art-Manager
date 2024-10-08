@@ -47,9 +47,9 @@
   </div>
   <span slot="buttons" class="buttons">
     {#if $batchApplyProgress === 100}
-      <Button label="Close" onClick={closeAfterComplete} width="100%" />
+      <Button label="Close" on:click={closeAfterComplete} width="100%" />
     {:else}
-      <Button label="Cancel" onClick={cancel} width="100%" />
+      <Button label="Cancel" on:click={cancel} width="100%" />
     {/if}
   </span>
 </ModalBody>

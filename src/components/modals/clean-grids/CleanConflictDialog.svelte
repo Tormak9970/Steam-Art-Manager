@@ -98,9 +98,9 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
-    <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
-    <Button label="Keep Both" onClick={keepBoth} width="30%" />
+    <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} on:click={() => { deleteGrid(true); }} width="30%" />
+    <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} on:click={() => { deleteGrid(false); }} width="30%" />
+    <Button label="Keep Both" on:click={keepBoth} width="30%" />
   </span>
 </ModalBody>
 
