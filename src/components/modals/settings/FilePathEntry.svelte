@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AppController } from "@controllers";
+  import { Asterisk } from "@icons";
   import { FileButton, TextInput } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
   import { onMount } from "svelte";
@@ -59,17 +60,14 @@
     <div class="required-cont">
       {#if required}
         <div class="tooltip-cont" use:AppController.tippy={{ content: "This setting is required", placement: "top", onShow: AppController.onTippyShow }}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-            <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path d="M192 32c17.7 0 32 14.3 32 32V199.5l111.5-66.9c15.2-9.1 34.8-4.2 43.9 11s4.2 34.8-11 43.9L254.2 256l114.3 68.6c15.2 9.1 20.1 28.7 11 43.9s-28.7 20.1-43.9 11L224 312.5V448c0 17.7-14.3 32-32 32s-32-14.3-32-32V312.5L48.5 379.4c-15.2 9.1-34.8 4.2-43.9-11s-4.2-34.8 11-43.9L129.8 256 15.5 187.4c-15.2-9.1-20.1-28.7-11-43.9s28.7-20.1 43.9-11L160 199.5V64c0-17.7 14.3-32 32-32z"/>
-          </svg>
+          <Asterisk style="height: 14px; width: 14px; fill: var(--font-color);" />
         </div>
       {/if}
     </div>
   </div>
   <div class="inputs">
     <TextInput placeholder={"~/something/something"} onChange={changeWrapper} width="{188}" bind:value={value} />
-    <FileButton label="Select Folder" tooltipPosition={"right"} onChange={dialogChangeWrapper} />
+    <FileButton label="Select Folder" tooltipPosition={"right"} on:change={(e) => dialogChangeWrapper(e.detail.value)} />
     
     {#if useValidator}
       {#if isValid}
@@ -103,7 +101,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 0px 7px;
 
     background-color: var(--background-dark);
     padding: 6px;
@@ -119,13 +116,6 @@
   .required-cont {
     height: 14px;
     width: 14px;
-  }
-
-  .required-cont svg {
-    height: 14px;
-    width: 14px;
-
-    fill: var(--font-color);
   }
 
   .label {
@@ -155,10 +145,12 @@
   }
 
   .valid-value {
+    font-size: 14px;
     color: var(--success);
   }
 
   .invalid-value {
+    font-size: 14px;
     color: var(--warning);
   }
 </style>

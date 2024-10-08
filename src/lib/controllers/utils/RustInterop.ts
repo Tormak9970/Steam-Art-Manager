@@ -144,6 +144,16 @@ export class RustInterop {
   static async getLibraryCacheDirectory(): Promise<string> {
     return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
   }
+  
+  /**
+   * Gets the user's cache data..
+   * @param activeUserId The id of the active user.
+   * @param shortcutIds The list of shortcut ids.
+   * @returns A promise resolving to the user's cache data.
+   */
+  static async getCacheData(activeUserId: string, shortcutIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]> {
+    return await invoke<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds: shortcutIds });;
+  }
 
   /**
    * Gets a list of steam users on this computer.

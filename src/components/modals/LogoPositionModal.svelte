@@ -54,6 +54,7 @@
   let heroPath = "";
   let logoPath = "";
 
+  let open = true;
   let canSave = false;
   
   const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
@@ -166,7 +167,7 @@
   });
 </script>
 
-<ModalBody title={`Set Logo Position for ${game?.name}`} onClose={onClose}>
+<ModalBody title={`Set Logo Position for ${game?.name}`} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="view">
       <div class="hero-cont">
@@ -191,10 +192,10 @@
         <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
       </div>
       {#if canClear}
-        <Button label="Save" onClick={applyChanges} width="182px" disabled={!canSave} />
-        <Button label="Reset" onClick={clearLogoPosition} width="102px" />
+        <Button label="Save" on:click={applyChanges} width="182px" disabled={!canSave} />
+        <Button label="Reset" on:click={clearLogoPosition} width="102px" />
       {:else}
-        <Button label="Save" onClick={applyChanges} width="300px" disabled={!canSave} />
+        <Button label="Save" on:click={applyChanges} width="300px" disabled={!canSave} />
       {/if}
     </div>
   </div>
@@ -203,8 +204,6 @@
 <style>
   .content {
     margin-bottom: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -214,9 +213,9 @@
   }
 
   .view {
-    width: calc(100% - 20px);
+    width: 100%;
     position: relative;
-    margin: 10px;
+    margin: 10px 0px;
   }
 
   .logo-cont {

@@ -1,5 +1,5 @@
+import { dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, dialogModalType, progressModalMessage, progressModalTitle, showDialogModal, showProgressModal } from "@stores/Modals";
 import type { DialogModalType } from "@types";
-import { dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, dialogModalType, showDialogModal } from "../../stores/Modals";
 import { LogController } from "./LogController";
 
 /**
@@ -70,5 +70,25 @@ export class DialogController {
 
       showDialogModal.set(true);
     });
+  }
+
+  /**
+   * Shows the progress modal with the provided title and message.
+   * @param title The title of the progress modal.
+   * @param message The body of the progress modal.
+   */
+  static showProgressModal(title: string, message: string) {
+    progressModalTitle.set(title);
+    progressModalMessage.set(message);
+    showProgressModal.set(true);
+  }
+
+  /**
+   * Hides the progress modal.
+   */
+  static hideProgressModal() {
+    showProgressModal.set(false);
+    progressModalTitle.set("");
+    progressModalMessage.set("");
   }
 }

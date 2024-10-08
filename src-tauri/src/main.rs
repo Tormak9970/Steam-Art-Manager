@@ -10,6 +10,7 @@ mod appinfo_vdf_parser;
 mod shortcuts_vdf_parser;
 mod vdf_reader;
 mod start_menu_tiles;
+mod grids_cache_loader;
 
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_fs::FsExt;
@@ -636,6 +637,7 @@ fn main() {
       steam::get_goldsrc_path,
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
+      grids_cache_loader::get_cache_data,
       add_path_to_scope,
       toggle_dev_tools,
       add_steam_to_scope,

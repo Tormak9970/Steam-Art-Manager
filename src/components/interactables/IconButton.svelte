@@ -6,13 +6,12 @@
   export let tooltipPosition: Placement = "top-end";
   export let width = "22px";
   export let height = "22px";
-  export let onClick: (e: MouseEvent) => void;
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
 </script>
 
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
   <slot />
 </button>
 

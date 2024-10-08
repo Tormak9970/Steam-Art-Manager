@@ -1,9 +1,9 @@
 export * from "./AppController";
 export * from "./CacheController";
-export * from "./DialogController";
-export * from "./LogController";
-export * from "./RustInterop";
-export * from "./SettingsController";
 export * from "./SteamController";
-export * from "./ToastController";
+export * from "./utils/DialogController";
+export * from "./utils/LogController";
+export * from "./utils/RustInterop";
+export * from "./utils/SettingsController";
+export * from "./utils/ToastController";
 

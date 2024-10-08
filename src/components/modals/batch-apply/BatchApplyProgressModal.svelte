@@ -4,6 +4,8 @@
   import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
 
+  let open = true;
+
   /**
    * The function to run when the modal closes.
    */
@@ -36,42 +38,38 @@
   }
 </script>
 
-<ModalBody title={"Batch Apply Progress"} onClose={onClose}>
+<ModalBody title={"Batch Apply Progress"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="options">
       <ProgressBar bind:progress={$batchApplyProgress} width="100%" onFinish={onFinish} />
     </div>
     <div class="info">{$batchApplyMessage}</div>
-    <div class="buttons">
-      {#if $batchApplyProgress === 100}
-        <Button label="Close" onClick={closeAfterComplete} width="100%" />
-      {:else}
-        <Button label="Cancel" onClick={cancel} width="100%" />
-      {/if}
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    {#if $batchApplyProgress === 100}
+      <Button label="Close" on:click={closeAfterComplete} width="100%" />
+    {:else}
+      <Button label="Cancel" on:click={cancel} width="100%" />
+    {/if}
+  </span>
 </ModalBody>
 
 <style>
+  .content {
+    min-width: 18rem;
+  }
   .info {
     margin-top: 7px;
-    margin-left: 7px;
     font-size: 12px;
   }
 
   .options {
     margin-top: 7px;
-    margin-left: 7px;
-    margin-right: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    margin-left: 7px;
-    margin-right: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;

@@ -10,6 +10,7 @@ export { default as GridLoadingSkeleton } from "./GridLoadingSkeleton.svelte";
 
 export { default as LoadingSpinner } from "./LoadingSpinner.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
+export { default as ProgressIndicator } from "./ProgressIndicator.svelte";
 export { default as Table } from "./Table.svelte";
 export { default as VirtualGrid } from "./VirtualGrid.svelte";
 export { default as VirtualList } from "./VirtualList.svelte";

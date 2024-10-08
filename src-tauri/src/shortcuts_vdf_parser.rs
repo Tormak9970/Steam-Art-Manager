@@ -31,7 +31,7 @@ fn read(reader: &mut Reader) -> Value {
     panic!("Invalid Shortcuts File! File started with {} instead of \"shortcuts\"", fake_header);
   }
 
-  return Value::Object(read_entry_map(reader));
+  return Value::Object(read_entry_map(reader, None, &None));
 }
 
 /// Writes the shortcuts.vdf file from JSON.

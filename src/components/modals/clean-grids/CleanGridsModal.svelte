@@ -8,6 +8,7 @@
 
   $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
 
+  let open = true;
   let presets = [
     { label: "Clean", data: "clean" },
     { label: "Custom", data: "custom" },
@@ -38,7 +39,7 @@
   }
 </script>
 
-<ModalBody title={"Clean Grids"} onClose={onClose}>
+<ModalBody title={"Clean Grids"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="description">
       Here you can tidy up your custom artwork.<br/>
@@ -55,11 +56,11 @@
         <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} showFilters={false}/>
       {/if}
     </div>
-    <div class="buttons">
-      <Button label="Clean" onClick={cleanGrids} width="47.5%" />
-      <Button label="Cancel" onClick={cancel} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button label="Clean" on:click={cleanGrids} width="47.5%" />
+    <Button label="Cancel" on:click={cancel} width="47.5%" />
+  </span>
 </ModalBody>
 
 <style>
@@ -76,7 +77,7 @@
 	}
 
   .description {
-    width: calc(100% - 14px);
+    width: 100%;
     font-size: 14px;
     margin-top: 7px;
   }
@@ -92,7 +93,7 @@
   }
 
   .options {
-    width: calc(100% - 14px);
+    width: 100%;
   }
 
   .view {
@@ -100,8 +101,6 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-around;

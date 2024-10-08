@@ -4,7 +4,7 @@
   "identifier": "dev.tormak.steam-art-manager",
   "build": {
     "beforeDevCommand": "bun dev",
-    "beforeBuildCommand": "bun build",
+    "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420"
   },
@@ -15,16 +15,15 @@
         "label": "main",
         "title": "Steam Art Manager",
 				"url": "src/windows/main/main.html",
-				"height": 802,
-				"minHeight": 740,
+				"height": 765,
+				"minHeight": 700,
 				"width": 1400,
 				"minWidth": 1150,
 				"fullscreen": false,
 				"resizable": true,
-				"decorations": false,
-        "transparent": true,
 				"center": true,
-				"visible": true
+				"visible": true,
+        "tabbingIdentifier": "Steam Art Manager"
       }
     ],
     "security": {
@@ -120,7 +119,8 @@
     "shortDescription": "A tool for setting the artwork of your Steam library.",
     "targets": [
       "appimage",
-      "msi"
+      "msi",
+      "deb"
     ],
     "licenseFile": "wix/short-license.txt",
     "createUpdaterArtifacts": "v1Compatible"

@@ -2,6 +2,8 @@ import type { Update } from "@tauri-apps/plugin-updater";
 import type { CleanConflict, DialogModalType, SGDBGame, SGDBImage } from "@types";
 import { writable } from "svelte/store";
 
+export const showToolsModal = writable(false);
+
 export const showGridModal = writable(false);
 export const gridModalInfo = writable<SGDBImage | null>(null);
 
@@ -42,6 +44,10 @@ export const dialogModalConfirmText = writable("");
 export const dialogModalConfirm = writable(async () => {});
 export const dialogModalCancelText = writable("");
 export const dialogModalCancel = writable(async () => {});
+
+export const showProgressModal = writable(false);
+export const progressModalTitle = writable("");
+export const progressModalMessage = writable("");
 
 export const showInfoModal = writable(false);
 

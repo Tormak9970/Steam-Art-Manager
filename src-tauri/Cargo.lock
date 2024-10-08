@@ -93,6 +93,8 @@ dependencies = [
  "home",
  "image",
  "panic-message",
+ "phf 0.11.2",
+ "rayon",
  "serde",
  "serde_json",
  "tauri",

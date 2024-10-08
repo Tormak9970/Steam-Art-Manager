@@ -11,6 +11,7 @@
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
+  let open = true;
   let conflictNumber: number = 1;
   let conflict: CleanConflict | null;
   $: conflictGridType = conflict ? conflict.gridType : "";
@@ -68,7 +69,7 @@
   });
 </script>
 
-<ModalBody title={`Clean Conflict Dialog #${conflictNumber}`} canClose={false}>
+<ModalBody title={`Conflict #${conflictNumber}`} open={open} on:close={() => open = false} canClose={false}>
   <div class="content">
     <div class="description">
       Choose which grid you would like to keep.
@@ -76,7 +77,7 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} class:icon-background={conflictGridType === "icon"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
             <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
               <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
@@ -86,7 +87,7 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} class:icon-background={conflictGridType === "icon"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
+          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
             <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
               <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
             </Lazy>
@@ -95,12 +96,12 @@
         <div class="filename">{conflict?.fileBName}</div>
       </div>
     </div>
-    <div class="buttons">
-      <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} onClick={() => { deleteGrid(true); }} width="30%" />
-      <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} onClick={() => { deleteGrid(false); }} width="30%" />
-      <Button label="Keep Both" onClick={keepBoth} width="30%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} on:click={() => { deleteGrid(true); }} width="30%" />
+    <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} on:click={() => { deleteGrid(false); }} width="30%" />
+    <Button label="Keep Both" on:click={keepBoth} width="30%" />
+  </span>
 </ModalBody>
 
 <style>
@@ -115,9 +116,8 @@
 		align-items: center;
 	}
 
-  /* done */
   .description {
-    width: calc(100% - 14px);
+    width: 100%;
     font-size: 14px;
     margin-top: 7px;
     margin-bottom: 7px;
@@ -130,6 +130,8 @@
 
     flex-direction: row;
     justify-content: space-around;
+
+    gap: 10px;
   }
 
   .images.hero {
@@ -141,6 +143,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    gap: 10px;
   }
 
   .images.hero .split {
@@ -162,14 +166,22 @@
     max-width: 550px;
   }
 
-  /* done */
-  .img-cont { padding: 10px; }
-
   .img-cont > .img {
     border-radius: 2px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  
+  .logo-background {
+    border-radius: 8px;
+    background-color: #a3a3a3;
+    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    width: 100%;
+    display: flex;
     align-items: center;
     justify-content: center;
   }

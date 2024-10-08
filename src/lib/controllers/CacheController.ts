@@ -24,9 +24,9 @@ import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatc
 import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
-import { LogController } from "./LogController";
-import { RustInterop } from "./RustInterop";
-import { ToastController } from "./ToastController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
+import { ToastController } from "./utils/ToastController";
 
 
 /**
@@ -386,8 +386,8 @@ export class CacheController {
     const nonSteamGameNameEntries = nonSteamGamesList.map((game: GameStruct) => [ game.appid, game.name ]);
     const nonSteamGameNameMap = Object.fromEntries(nonSteamGameNameEntries);
 
-    const gridsCopy = JSON.parse(JSON.stringify(get(appLibraryCache)));
-    const shortcutsCopy = JSON.parse(JSON.stringify(get(steamShortcuts)));
+    const gridsCopy = structuredClone(get(appLibraryCache));
+    const shortcutsCopy = structuredClone(get(steamShortcuts));
     const selectedGridType = get(gridType);
     const filters = get(dbFilters);
 
@@ -431,7 +431,7 @@ export class CacheController {
           if (localPath) {
             if (!isSteamGame && selectedGridType === GridTypes.ICON) {
               shortcutsNeedUpdate = true;
-              const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt);
+              const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt)!;
               shortcut.icon = localPath;
             }
   

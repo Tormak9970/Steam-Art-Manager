@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AppController, LogController, ToastController } from "@controllers";
   import { scrollShadow } from "@directives";
+  import { Refresh } from "@icons";
   import { Button, IconButton, SearchBar } from "@interactables";
   import { selectedGameName } from "@stores/AppState";
   import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
@@ -10,6 +11,7 @@
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
   import GameSearchEntry from "./GameSearchEntry.svelte";
 
+  let open = true;
   let canApply = false;
   let loading = true;
   let requestTimedOut = false;
@@ -78,18 +80,15 @@
   onMount(async () => await makeRequest(searchQuery));
 </script>
 
-<ModalBody title={"Customize Game Name"} onClose={onClose}>
+<ModalBody title={"Customize Game Name"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="body">
       <div class="description">
         Search for games in the SGDB database below
       </div>
       <div class="search-container">
-        <IconButton label="Retry" onClick={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 12px; width: 12px;">
-            <!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-            <path d="M386.3 160H336c-17.7 0-32 14.3-32 32s14.3 32 32 32H464c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32s-32 14.3-32 32v51.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0s-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3s163.8-62.5 226.3 0L386.3 160z"/>
-          </svg>
+        <IconButton label="Retry" on:click={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
+          <Refresh style="height: 12px; width: 12px;" />
         </IconButton>
         <!-- <Spacer orientation="HORIZONTAL" /> -->
         <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="250px" reversed />
@@ -110,11 +109,11 @@
         </div>
       </div>
     </div>
-
-    <div class="buttons">
-      <Button label="Apply Choice" onClick={applyChoice} width="100%" disabled={!canApply} />
-    </div>
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button label="Apply Choice" on:click={applyChoice} width="100%" disabled={!canApply} />
+  </span>
 </ModalBody>
 
 <style>
@@ -129,8 +128,8 @@
 	}
 
   .body {
-    width: calc(100% - 14px);
-    padding: 7px;
+    width: 100%;
+    margin-top: 7px;
     
 		display: flex;
 		flex-direction: column;
@@ -161,12 +160,13 @@
     width: 100%;
     display: flex;
     align-items: center;
+
+    gap: 7px;
+    margin-bottom: 7px;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;

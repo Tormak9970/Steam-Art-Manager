@@ -74,7 +74,7 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="325px" marginLeft="0px">
+      <Table height="325px">
         <span slot="header">
           <div class="name">Name</div>
         </span>
@@ -87,8 +87,8 @@
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" onClick={saveWrapper} disabled={!selectedGame} width="47.5%" />
-      <Button label="Clear" onClick={clear} width="47.5%" />
+      <Button label="Add Selected" on:click={saveWrapper} disabled={!selectedGame} width="47.5%" />
+      <Button label="Clear" on:click={clear} width="47.5%" />
     </div>
   {/if}
 </div>
@@ -120,7 +120,7 @@
   .buttons {
     margin-top: 14px;
     margin-bottom: 7px;
-    width: calc(100% - 20px);
+    width: calc(100% - 7px);
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;
