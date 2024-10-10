@@ -61,19 +61,18 @@
   }
 
   input {
-    background-color: var(--foreground);
-    border: 1px solid transparent;
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     color: var(--font-color);
     border-radius: 4px;
-    padding: 3px;
+    padding: 5px;
     
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }
-  input:hover {
-    background-color: var(--foreground-hover);
-  }
+  input:hover,
   input:focus {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
     outline: none;
   }
 

@@ -61,7 +61,7 @@
     </div>
   </div>
   <div class="inputs">
-    <TextInput placeholder={"Your API key"} onInput={debouncedWrapper} width="{220}" bind:value={value} />
+    <TextInput placeholder={"Your API key"} on:input={debouncedWrapper} width="{220}" bind:value={value} />
 
     {#if useValidator}
       {#if isValid}

@@ -19,7 +19,7 @@
   <input type="checkbox" id="" bind:checked={value}>
   <span class="check-box">
     {#if value}
-      <Check />
+      <Check height="16px" />
     {/if}
   </span>
 </div>
@@ -30,8 +30,8 @@
     position: relative;
     cursor: pointer;
 
-    height: 16px;
-    width: 16px;
+    height: 18px;
+    width: 18px;
 
     border-radius: 4px;
     border: 1px solid transparent;
@@ -48,7 +48,8 @@
   .check-box {
     height: calc(100% - 4px);
     width: calc(100% - 4px);
-    background-color: var(--background);
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     padding: 2px;
     border-radius: 4px;
     display: flex;
@@ -62,10 +63,7 @@
   }
 
   .check-box-container:hover input ~ .check-box {
-    background-color: var(--background-hover);
-  }
-
-  :global([data-theme="light"] .check-box) {
-    fill: var(--highlight-dim) !important;
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 </style>

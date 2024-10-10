@@ -6,7 +6,6 @@
   export let max:number = 100;
   export let value:number = 0;
   export let width:string = "100px";
-  export let onChange: (e: any) => void = () => {};
 </script>
 
 <div class="slider" style="width: {width};">
@@ -14,13 +13,11 @@
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
   {/if}
-  <RangeInput min={min} max={max} bind:value="{value}" on:change={onChange}/>
+  <RangeInput min={min} max={max} bind:value="{value}" on:change />
 </div>
 
 <style>
   .slider {
-    --track-focus: var(--highlight-hover);
-		--track-highlight-bgcolor: var(--highlight-hover);
 		--track-highlight-bg: var(--highlight);
 		--thumb-holding-outline: transparent;
 
