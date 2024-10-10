@@ -45,8 +45,8 @@
     <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
   </div>
   <span slot="buttons" class="buttons">
-    <Button label="Apply" on:click={batchApply} width="47.5%" />
-    <Button label="Cancel" on:click={cancel} width="47.5%" />
+    <Button on:click={cancel} width="47.5%">Cancel</Button>
+    <Button on:click={batchApply} width="47.5%">Apply</Button>
   </span>
 </ModalBody>
 
@@ -59,7 +59,7 @@
   .buttons {
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

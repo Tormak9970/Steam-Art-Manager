@@ -147,16 +147,16 @@
   <span slot="buttons" class="buttons">
     <div class="side">
       {#if step === "changelog"}
-        <Button label="Skip" on:click={ignoreUpdate} width="100%" />
+        <Button on:click={ignoreUpdate} width="100%">Skip</Button>
       {:else if step === "restart"}
-        <Button label="No" on:click={() => { open = false }} width="100%" />
+        <Button on:click={() => { open = false }} width="100%">No</Button>
       {/if}
     </div>
     <div class="side">
       {#if step === "changelog"}
-        <Button label="Download" on:click={downloadUpdate} width="100%" />
+        <Button on:click={downloadUpdate} width="100%">Download</Button>
       {:else if step === "restart"}
-        <Button label="Yes" on:click={installUpdate} width="100%" />
+        <Button on:click={installUpdate} width="100%">Yes</Button>
       {/if}
     </div>
   </span>

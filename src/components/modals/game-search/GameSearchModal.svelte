@@ -112,7 +112,7 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button label="Apply Choice" on:click={applyChoice} width="100%" disabled={!canApply} />
+    <Button on:click={applyChoice} width="100%" disabled={!canApply}>Apply Choice</Button>
   </span>
 </ModalBody>
 
@@ -168,7 +168,7 @@
   .buttons {
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

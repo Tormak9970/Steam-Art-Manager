@@ -87,8 +87,8 @@
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" on:click={saveWrapper} disabled={!selectedGame} width="47.5%" />
-      <Button label="Clear" on:click={clear} width="47.5%" />
+      <Button on:click={clear} width="47.5%">Clear</Button>
+      <Button on:click={saveWrapper} disabled={!selectedGame} width="47.5%">Add Selected</Button>
     </div>
   {/if}
 </div>
@@ -119,7 +119,6 @@
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: calc(100% - 7px);
     display: flex;
     justify-content: space-between;

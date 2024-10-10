@@ -48,10 +48,10 @@
   </div>
   <span slot="buttons" class="buttons">
     {#if $dialogModalConfirmText !== ""}
-      <Button label={$dialogModalConfirmText} on:click={onConfirm} width={$dialogModalCancelText !== "" ? "47.5%" : "100%"} />
+      <Button on:click={onConfirm} width={$dialogModalCancelText !== "" ? "47.5%" : "100%"}>{$dialogModalConfirmText}</Button>
     {/if}
     {#if $dialogModalCancelText !== ""}
-      <Button label={$dialogModalCancelText} on:click={onCancel} width={$dialogModalConfirmText !== "" ? "47.5%" : "100%"} />
+      <Button on:click={onCancel} width={$dialogModalConfirmText !== "" ? "47.5%" : "100%"}>{$dialogModalCancelText}</Button>
     {/if}
   </span>
 </ModalBody>

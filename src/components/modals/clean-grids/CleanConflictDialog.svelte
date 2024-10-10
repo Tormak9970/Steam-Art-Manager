@@ -98,9 +98,9 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} on:click={() => { deleteGrid(true); }} width="30%" />
-    <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} on:click={() => { deleteGrid(false); }} width="30%" />
-    <Button label="Keep Both" on:click={keepBoth} width="30%" />
+    <Button on:click={() => { deleteGrid(true); }} width="30%">Keep {conflictGridType === "hero" ? "Top" : "Left"}</Button>
+    <Button on:click={() => { deleteGrid(false); }} width="30%">Keep {conflictGridType === "hero" ? "Bottom" : "Right"}</Button>
+    <Button on:click={keepBoth} width="30%">Keep Both</Button>
   </span>
 </ModalBody>
 
@@ -189,10 +189,9 @@
   /* done */
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

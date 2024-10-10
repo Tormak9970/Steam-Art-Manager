@@ -7,8 +7,8 @@
 
   export let label: string;
   export let tooltipPosition: Placement = "top-end";
-  export let width = "22px";
-  export let height = "22px";
+  export let width = "auto";
+  export let height = "auto";
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
@@ -29,5 +29,5 @@
 </script>
 
 <IconButton label={label} tooltipPosition={tooltipPosition} width={width} height={height} on:click={onClick} disabled={disabled} highlight={highlight} warn={warn}>
-  <More height="1em" />
+  <More />
 </IconButton>

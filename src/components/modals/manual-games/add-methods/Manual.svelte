@@ -39,8 +39,8 @@
   </div>
 
   <div class="buttons">
-    <Button label="Add Game" on:click={saveWrapper} width="47.5%" disabled={gameName === "" || appId === 0} />
-    <Button label="Clear" on:click={clear} width="47.5%" />
+    <Button on:click={clear} width="48.5%">Clear</Button>
+    <Button on:click={saveWrapper} width="48.5%" disabled={gameName === "" || appId === 0}>Add Game</Button>
   </div>
 </div>
 
@@ -67,7 +67,6 @@
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: calc(100% - 20px);
     display: flex;
     justify-content: space-between;

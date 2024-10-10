@@ -4,8 +4,8 @@
 
   export let label: string;
   export let tooltipPosition: Placement = "top-end";
-  export let width = "22px";
-  export let height = "22px";
+  export let width = "auto";
+  export let height = "auto";
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
@@ -17,12 +17,12 @@
 
 <style>
   .button {
-    padding: 2px;
+    padding: 6px;
     min-width: 22px;
     min-height: 22px;
         
-    background-color: var(--foreground);
-    border: 1px solid transparent;
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     border-radius: 4px;
 
     display: flex;
@@ -39,7 +39,8 @@
   }
 
   .button:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 
   .button:focus {

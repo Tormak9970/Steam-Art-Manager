@@ -115,8 +115,8 @@
         </span>
       </Table>
       <div class="buttons">
-        <Button label="Save Changes" on:click={saveChanges} width="47.5%" disabled={!canSave} />
-        <Button label="Cancel" on:click={cancel} width="47.5%" />
+        <Button on:click={cancel} width="47.5%">Cancel</Button>
+        <Button on:click={saveChanges} width="47.5%" disabled={!canSave}>Save Changes</Button>
       </div>
     </div>
     <div class="right">
@@ -201,7 +201,6 @@
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-between;

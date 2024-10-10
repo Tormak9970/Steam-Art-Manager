@@ -154,7 +154,7 @@
           {:else}
             <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
           {/if}
-          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""} height="24px" width="24px">
+          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""}>
             <Edit style="height: 14px; width: 14px;" />
           </IconButton>
         </div>

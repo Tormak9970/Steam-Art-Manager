@@ -81,8 +81,8 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label="Update" on:click={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
-    <Button label="Cancel" on:click={onClose} width="47.5%" />
+    <Button on:click={onClose} width="48.5%">Cancel</Button>
+    <Button on:click={updateGameTiles} width="48.5%" disabled={selectedGameIds.length === 0}>Update</Button>
   </span>
 </ModalBody>
 
@@ -122,7 +122,8 @@
   .buttons {
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
+    gap: 10px;
   }
 </style>
