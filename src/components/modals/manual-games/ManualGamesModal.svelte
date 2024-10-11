@@ -108,7 +108,7 @@
             <SGDBLogo style="height: 12px; width: 16px;" />
           </div>
         </span>
-        <span slot="data">
+        <span slot="data" class="entries">
           {#each tempManualGames as game}
             <ManualGameEntry game={game} onRemove={removeHandler} />
           {/each}
@@ -141,6 +141,12 @@
   .border {
     margin-top: 7px;
     border-bottom: 1px solid var(--foreground);
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .content {

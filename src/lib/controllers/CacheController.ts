@@ -235,7 +235,7 @@ export class CacheController {
       
       logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
 
-      // @ts-expect-error This will always be a function on this.cleint
+      // @ts-expect-error This will always be a function on this.client
       const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
       
       gridsCacheEntry[type] = gridsCacheEntry[type].concat(gridResults.images);

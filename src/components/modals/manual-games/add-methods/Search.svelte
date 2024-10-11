@@ -74,11 +74,11 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="325px">
+      <Table height="317px">
         <span slot="header">
           <div class="name">Name</div>
         </span>
-        <span slot="data">
+        <span slot="data" class="entries">
           {#each results as game (game.id)}
             <SearchEntry game={game} isSelected={selectedGame?.id === game.id} onSelect={onGameSelect} />
           {/each}
@@ -123,5 +123,11 @@
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 </style>

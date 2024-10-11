@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Checkbox } from "@interactables";
+  import { Platforms } from "@stores/AppState";
   import type { GameStruct } from "@types";
-  import { Platforms } from "../../../../stores/AppState";
 
   export let game: GameStruct;
   export let platform: string;
@@ -14,15 +14,15 @@
     <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
   </div>
   <div class="name">{game.name}</div>
-  <div class="platform" style="margin-left: auto; margin-right: {platform === Platforms.STEAM ? "45px" : "18px"};">{platform}</div>
+  <div class="platform" style="margin-left: auto; margin-right: {platform === Platforms.STEAM ? "60px" : "40px"};">{platform}</div>
 </div>
 
 <style>
   .selected-game-entry {
     width: calc(100% - 14px);
+    height: 24px;
     
-    padding: 3px 7px;
-    margin-bottom: 7px;
+    padding: 3px 5px;
 
     border-radius: 4px;
 

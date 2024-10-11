@@ -12,11 +12,11 @@
   import GameSearchEntry from "./GameSearchEntry.svelte";
 
   let open = true;
-  let canApply = false;
   let loading = true;
   let requestTimedOut = false;
   let searchQuery = $gameSearchModalDefault;
-  let selectedGame: SGDBGame | null = null
+  let selectedGame: SGDBGame | null = null;
+  $: canApply = selectedGame && $gameSearchModalDefault !== selectedGame.name;
 
   let results: SGDBGame[] = [];
   
@@ -46,7 +46,6 @@
    * @param game The game to select.
    */
   function setSelected(game: SGDBGame): void {
-    canApply = true;
     selectedGame = game;
   }
 
