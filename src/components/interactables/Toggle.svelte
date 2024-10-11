@@ -39,27 +39,38 @@
   }
 
   .toggle button {
-    width: 2.15em;
-    height: 1.2em;
+    width: 36px;
+    height: 22px;
+
     position: relative;
-    background: var(--foreground-light);
-    border: none;
+
+    background: var(--background-hover);
+    border: 1px solid var(--foreground);
+
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
+
+    border-radius: 11px;
   }
   .toggle button:hover {
-    background: var(--foreground-light-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 
   .toggle button::before {
     content: "";
+    
+    width: 14px;
+    height: 14px;
+
     position: absolute;
-    width: 0.9em;
-    height: 0.9em;
-    background: var(--background-dark);
-    top: 0.15em;
-    right: 1.1em;
+    top: 3px;
+    right: 17px;
+
+    background: var(--foreground-light);
     transition: transform 0.3s;
+
+    border-radius: 100%;
   }
 
   .toggle button[aria-checked="true"] {
@@ -67,12 +78,13 @@
 
     transition: background-color 0.15s ease-in-out;
   }
-  .toggle button[aria-checked="true"]:hover { background-color: var(--highlight-hover); }
-  .toggle button[aria-checked="true"]::before {
-    transform: translateX(0.9em);
-    transition: transform 0.3s;
+  .toggle button[aria-checked="true"]:hover {
+    background-color: var(--highlight-hover);
   }
-
-  .toggle button { border-radius: 1.5em; }
-  .toggle button::before { border-radius: 100%; }
+  .toggle button[aria-checked="true"]::before {
+    transform: translateX(14px);
+    transition: transform 0.3s;
+    
+    background: var(--background-dark);
+  }
 </style>
