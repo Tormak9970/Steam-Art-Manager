@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { AppController } from "@controllers";
-    import { TriangleExclamation } from "@icons";
-    import { gridType } from "@stores/AppState";
-    import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
-    import Lazy from "svelte-lazy";
+  import { AppController } from "@controllers";
+  import { TriangleExclamation } from "@icons";
+  import { gridType } from "@stores/AppState";
+  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
+  import Lazy from "svelte-lazy";
 
   export let imagePath: string;
   export let altText: string;

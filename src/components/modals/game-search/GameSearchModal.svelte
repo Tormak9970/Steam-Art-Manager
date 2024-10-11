@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AppController, LogController, ToastController } from "@controllers";
-  import { scrollShadow } from "@directives";
+  import { isOverflowing, scrollShadow } from "@directives";
   import { Refresh } from "@icons";
   import { Button, IconButton, SearchBar } from "@interactables";
   import { selectedGameName } from "@stores/AppState";
@@ -12,6 +12,7 @@
   import GameSearchEntry from "./GameSearchEntry.svelte";
 
   let open = true;
+  let overflowing = false;
   let loading = true;
   let requestTimedOut = false;
   let searchQuery = $gameSearchModalDefault;
@@ -93,18 +94,20 @@
         <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="250px" reversed />
       </div>
       <div class="container">
-        <div class="scroll-container" use:scrollShadow={{ background: "--background" }}>
-          {#if loading}
-            {#each new Array(10) as _}
-              <EntryLoadingSkeleton />
-            {/each}
-          {:else if requestTimedOut}
-            <div>Request timed out. Check your internet connection or click retry.</div>
-          {:else}
-            {#each results as sgdbGame (sgdbGame.id)}
-              <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
-            {/each}
-          {/if}
+        <div class="scroll-container" use:scrollShadow={{ background: "--background" }} use:isOverflowing={{ callback: (o) => overflowing = o }}>
+          <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+            {#if loading}
+              {#each new Array(10) as _}
+                <EntryLoadingSkeleton />
+              {/each}
+            {:else if requestTimedOut}
+              <div>Request timed out. Check your internet connection or click retry.</div>
+            {:else}
+              {#each results as sgdbGame (sgdbGame.id)}
+                <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
+              {/each}
+            {/if}
+          </div>
         </div>
       </div>
     </div>
@@ -162,6 +165,12 @@
 
     gap: 7px;
     margin-bottom: 7px;
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .buttons {

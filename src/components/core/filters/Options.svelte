@@ -1,12 +1,14 @@
 <script lang="ts">
   import { LogController } from "@controllers";
-  import { scrollShadow } from "@directives";
+  import { isOverflowing, scrollShadow } from "@directives";
   import { Toggle } from "@interactables";
   import { Accordion } from "@layout";
   import { dbFilters, gridType, optionsSize, theme } from "@stores/AppState";
   import { Pane } from "svelte-splitpanes";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
+
+  let overflowing = false;
 
   /**
    * Creates a function to update the specified filter.
@@ -64,8 +66,8 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <div class="scroll-container" use:scrollShadow={{ background: "red"}}>
-        <div class="wrapper">
+      <div class="scroll-container" use:scrollShadow={{ background: "red"}} use:isOverflowing={{ callback: (o) => overflowing = o }}>
+        <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
           {#each Object.keys($dbFilters[$gridType]) as section}
             <Accordion
               label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
@@ -103,7 +105,6 @@
     max-height: calc(100% - 65px)
   }
   .wrapper {
-    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 7px;
