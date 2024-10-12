@@ -19,14 +19,13 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
 import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
-import { ToastController } from "./utils/ToastController";
 
 
 /**
@@ -110,7 +109,7 @@ export class CacheController {
       }
     } catch(e: any) {
       LogController.error(typeof e === "string" ? e : e.message);
-      ToastController.showWarningToast(`Unable to add ${dirName} dir to scope`);
+      get(showInfoSnackbar)({ message: `Unable to add ${dirName} dir to scope` });
     }
   }
 
@@ -181,11 +180,11 @@ export class CacheController {
           LogController.log(`Request for ${imageURL} succeeded.`);
           break;
         case "timedOut":
-          ToastController.showWarningToast("Grid requested timed out");
+          get(showErrorSnackbar)({ message: "Grid requested timed out" });
           logWarnToFile(`Request for ${imageURL} timed out after ${requestTimeout / 1000} seconds.`, useCoreFile);
           return "";
         case "failed":
-          ToastController.showWarningToast("Failed to set grid.");
+          get(showErrorSnackbar)({ message: "Failed to set grid." });
           logWarnToFile(`Request for ${imageURL} failed.`, useCoreFile);
           return "";
       }
@@ -235,7 +234,7 @@ export class CacheController {
       
       logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
 
-      // @ts-expect-error This will always be a function on this.cleint
+      // @ts-expect-error This will always be a function on this.client
       const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
       
       gridsCacheEntry[type] = gridsCacheEntry[type].concat(gridResults.images);
@@ -248,7 +247,7 @@ export class CacheController {
       return gridsCacheEntry[type];
     } catch (e: any) {
       logErrorToFile(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`, useCoreFile);
-      ToastController.showWarningToast("Error fetching grids for game.");
+      get(showErrorSnackbar)({ message: "Error fetching grids for game." });
       return [];
     }
   }
@@ -277,7 +276,7 @@ export class CacheController {
         searchCache[appId] = results;
       } catch (e: any) {
         logErrorToFile(`Error searching for game on SGDB. Game: ${gameName}. Platform: ${selectedPlatform}. Error: ${e.message}.`, useCoreFile);
-        ToastController.showWarningToast("Error searching for game on SGDB.");
+        get(showErrorSnackbar)({ message: "Error searching for game on SGDB." });
         return "None";
       }
     }
@@ -294,7 +293,7 @@ export class CacheController {
           this.steamGridSteamAppIdMap[appId] = gameId;
         } catch (e: any) {
           logErrorToFile(`Error getting game from SGDB by steam id. Game: ${gameName}. AppId: ${appId}. Error: ${e.message}.`, useCoreFile);
-          ToastController.showWarningToast("Error getting game from SGDB.");
+          get(showErrorSnackbar)({ message: "Error getting game from SGDB." });
           return "None";
         }
       }
@@ -455,7 +454,7 @@ export class CacheController {
     }
 
     if (wasCancelled) {
-      ToastController.showGenericToast("Batch Apply Cancelled.");
+      get(showInfoSnackbar)({ message: "Batch Apply Cancelled." });
       LogController.batchApplyLog("Batch Apply Cancelled.");
       showBatchApplyProgress.set(false);
       batchApplyProgress.set(0);
@@ -468,7 +467,7 @@ export class CacheController {
 
       canSave.set(true);
 
-      ToastController.showSuccessToast("Batch Apply Complete!");
+      get(showInfoSnackbar)({ message: "Batch Apply Complete." });
       LogController.batchApplyLog("\n");
       LogController.batchApplyLog(`Finished batch apply for ${appIds.length} games.`);
     }

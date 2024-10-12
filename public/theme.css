@@ -32,9 +32,14 @@
 	--warning: #e24a4a;
 	--warning-hover: #e13525;
 
-	--success: #36ff04;
+  --error-snackbar-background: 255 180 171;
+  --error-snackbar-text: 105 0 5;
+  
+  --info-snackbar-background: 232 224 232;
+  --info-snackbar-text: 51 47 53;
 
-	--toastContainerTop: 2.5rem;
+
+	--success: #36ff04;
 }
 
 [data-theme="dark"] {

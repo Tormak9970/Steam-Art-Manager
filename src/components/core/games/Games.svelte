@@ -140,10 +140,10 @@
         <div class="controls">
           <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
             <span slot="left">
-              <GridView />
+              <GridView height="14px" />
             </span>
             <span slot="right">
-              <ListView />
+              <ListView height="14px" />
             </span>
           </IconToggle>
           <Toggle label="Show hidden" bind:value={$showHidden}/>

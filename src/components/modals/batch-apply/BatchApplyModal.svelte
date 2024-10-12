@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, ToastController } from "@controllers";
+  import { AppController } from "@controllers";
   import { Button } from "@interactables";
+  import { gridType, manualSteamGames, nonSteamGames, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import { showBatchApplyModal, showBatchApplyProgress } from "@stores/Modals";
   import { GridTypes } from "@types";
-  import { gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
@@ -32,7 +32,7 @@
    * Cancels batch applying grids.
    */
   function cancel(): void {
-    ToastController.showGenericToast("Cancelled Batch Apply.");
+    $showInfoSnackbar({ message: "Cancelled Batch Apply." });
     onClose();
   }
 </script>
@@ -45,8 +45,8 @@
     <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
   </div>
   <span slot="buttons" class="buttons">
-    <Button label="Apply" on:click={batchApply} width="47.5%" />
-    <Button label="Cancel" on:click={cancel} width="47.5%" />
+    <Button on:click={cancel} width="47.5%">Cancel</Button>
+    <Button on:click={batchApply} width="47.5%">Apply</Button>
   </span>
 </ModalBody>
 
@@ -59,7 +59,7 @@
   .buttons {
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

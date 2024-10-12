@@ -15,16 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "@stores/AppState";
+import { activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "@stores/AppState";
 import { exit } from "@tauri-apps/plugin-process";
 import { GridTypes, type CleanGridsPreset, type GameStruct, type MainWindowPanels, type ManageManualGamesMethod, type SteamUser } from "@types";
 import { SettingsManager, findSteamPath, restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "@utils";
-import type { Unsubscriber } from "svelte/store";
+import { get, type Unsubscriber } from "svelte/store";
 import "tippy.js/dist/tippy.css";
 import { DialogController } from "./DialogController";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
-import { ToastController } from "./ToastController";
 
 /**
  * The main controller for the application.
@@ -361,7 +360,7 @@ export class SettingsController {
     const activeUserId = await this.loadUserSettings();
 
     if (activeUserId === "0") {
-      ToastController.showGenericToast("User id was 0, try opening steam then restart the SARM");
+      get(showInfoSnackbar)({ message: "User id was 0, try opening steam then restart the SARM" });
       LogController.error("User id was 0, try opening steam then restart the SARM");
     } else {
       await this.loadApiKeySettings(activeUserId);

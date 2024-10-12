@@ -76,7 +76,7 @@
   <div class="content">
     {#each toolsList as tool}
       <IconButton label={tool.name} on:click={tool.onClick} height="auto" width="auto" tooltipPosition="bottom">
-        <svelte:component this={tool.icon} style="height: 18px; width: 18px; padding: 32px;" />
+        <svelte:component this={tool.icon} style="height: 18px; width: 18px; padding: 28px;" />
       </IconButton>
     {/each}
   </div>
@@ -93,9 +93,5 @@
 
 
     padding-top: 14px;
-
-    
-		/* max-height: 73vh; */
-    overflow-y: scroll;
 	}
 </style>

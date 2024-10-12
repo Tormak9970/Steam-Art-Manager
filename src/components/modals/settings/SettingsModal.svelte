@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { AppController, DialogController, LogController, ToastController } from "@controllers";
+  import { AppController, DialogController, LogController } from "@controllers";
+  import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -19,6 +20,7 @@
 	let usersUnsub: Unsubscriber;
 
   let open = true;
+  let overflowing = false;
   let steamApiKeyChanged = false;
 
   /**
@@ -86,7 +88,7 @@
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
 
     LogController.log("Saved settings.");
-    ToastController.showSuccessToast("Settings saved!");
+    $showInfoSnackbar({ message: "Settings saved!" });
     canSave = false;
 
     onClose();
@@ -193,53 +195,57 @@
 
 <ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    <FilePathEntry
-      label="Steam Install Path"
-      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
-      value={steamInstallLocation}
-      onChange={onInstallLocationChange}
-      useValidator
-      validPathMessage={"Path is a valid Steam install"}
-      validator={validateSteamPath}
-      required
-    />
-    <TextFieldEntry
-      label="SteamGrid Api Key"
-      description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
-      value={steamGridKey}
-      onChange={onGridKeyChange}
-      useValidator
-      validator={validateSGDBAPIKey}
-      required
-    />
-    <TextFieldEntry
-      label="Steam Api key"
-      description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
-      notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
-      value={steamAPIKey}
-      canBeEmpty
-      onChange={onSteamKeyChange}
-      useValidator
-      validator={validateSteamAPIKey}
-    />
-    <DropdownEntry
-      label="Steam User"
-      description="Determines which Steam account to edit grids for."
-      options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
-      value={(users && users.length > 0) ? selectedUserId : "placeholder"}
-      onChange={(id) => {selectedUserId = id; canSave = true;}}
-    />
-    <ToggleFieldEntry
-      label="Debug Mode"
-      description={"Enables the inspect element window and automatically opens it on launch."}
-      value={debugModeSetting}
-      onChange={onDebugModeChange}
-    />
+    <div class="scroll-container" use:isOverflowing={{ callback: (o) => overflowing = o }}>
+      <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+        <FilePathEntry
+          label="Steam Install Path"
+          description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
+          value={steamInstallLocation}
+          onChange={onInstallLocationChange}
+          useValidator
+          validPathMessage={"Path is a valid Steam install"}
+          validator={validateSteamPath}
+          required
+        />
+        <TextFieldEntry
+          label="SteamGrid Api Key"
+          description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
+          value={steamGridKey}
+          onChange={onGridKeyChange}
+          useValidator
+          validator={validateSGDBAPIKey}
+          required
+        />
+        <TextFieldEntry
+          label="Steam Api key"
+          description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
+          notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
+          value={steamAPIKey}
+          canBeEmpty
+          onChange={onSteamKeyChange}
+          useValidator
+          validator={validateSteamAPIKey}
+        />
+        <DropdownEntry
+          label="Steam User"
+          description="Determines which Steam account to edit grids for."
+          options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
+          value={(users && users.length > 0) ? selectedUserId : "placeholder"}
+          onChange={(id) => {selectedUserId = id; canSave = true;}}
+        />
+        <ToggleFieldEntry
+          label="Debug Mode"
+          description={"Enables the inspect element window and automatically opens it on launch."}
+          value={debugModeSetting}
+          onChange={onDebugModeChange}
+        />
+      </div>
+    </div>
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button label="Save Changes" on:click={saveSettings} width="46.5%" disabled={!canSave} />
-    <Button label="Cancel" on:click={cancel} width="46.5%" />
+    <Button on:click={cancel} width="46.5%">Cancel</Button>
+    <Button on:click={saveSettings} width="46.5%" disabled={!canSave}>Save Changes</Button>
     <IconButton label="Open log directory" on:click={openLogDirectory}>
       <Folder style="height: 14px; width: 14px;" />
     </IconButton>
@@ -249,17 +255,23 @@
 <style>
   .content {
 		width: 600px;
-
-		display: flex;
-		flex-direction: column;
-		align-items: center;
     padding-top: 14px;
-
-    gap: 14px;
     
 		max-height: 73vh;
-    overflow-y: scroll;
 	}
+
+  .scroll-container {
+    max-height: calc(73vh - 14px);
+    width: 100%;
+
+    overflow-y: scroll;
+  }
+  
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
   .buttons {
     width: 100%;

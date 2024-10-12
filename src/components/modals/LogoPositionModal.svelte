@@ -192,10 +192,10 @@
         <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
       </div>
       {#if canClear}
-        <Button label="Save" on:click={applyChanges} width="182px" disabled={!canSave} />
-        <Button label="Reset" on:click={clearLogoPosition} width="102px" />
+        <Button on:click={applyChanges} width="182px" disabled={!canSave}>Save</Button>
+        <Button on:click={clearLogoPosition} width="102px">Reset</Button>
       {:else}
-        <Button label="Save" on:click={applyChanges} width="300px" disabled={!canSave} />
+        <Button on:click={applyChanges} width="300px" disabled={!canSave}>Save</Button>
       {/if}
     </div>
   </div>
@@ -203,7 +203,6 @@
 
 <style>
   .content {
-    margin-bottom: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -248,6 +247,7 @@
     padding: 0px 10px;
 
     display: flex;
+    align-items: center;
 
     gap: 7px;
   }

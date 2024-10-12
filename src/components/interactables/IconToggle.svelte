@@ -40,10 +40,14 @@
     display: flex;
     align-items: center;
 		color: var(--font-color);
+
+    border-radius: 4px;
+    border: 1px solid var(--foreground);
+    overflow: hidden;
   }
 
   .side {
-    background-color: var(--foreground-light);
+    background-color: var(--background-hover);
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
@@ -59,29 +63,25 @@
     height: 1em;
   }
   :global(.side svg) {
-    fill: var(--background-dark);
+    fill: var(--font-color);
+    opacity: 0.5;
   }
   :global(.side.selected svg) {
-    fill: var(--background-dark);
-  }
-
-  .left {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-  }
-
-  .right {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    fill: var(--font-color);
+    opacity: 0.8;
   }
 
   .left:hover,
   .right:hover {
-    background-color: var(--foreground-light-hover);
+    background-color: var(--foreground);
+  }
+
+  .icon-toggle:hover {
+    border: 1px solid var(--foreground-hover);
   }
 
   .selected,
   .selected:hover {
-    background-color: var(--highlight);
+    background-color: var(--foreground);
   }
 </style>

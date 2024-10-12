@@ -39,14 +39,15 @@
 <style>
   .selected-game-entry {
     width: calc(100% - 20px);
+    height: 20px;
     
     padding: 3px 7px;
-    margin-bottom: 7px;
 
     display: flex;
     align-items: center;
 
     background-color: var(--foreground);
+    border-radius: 4px;
   }
 
   .remove-cont {

@@ -87,6 +87,8 @@
 
     margin-bottom: 7px;
     margin-right: 7px;
+
+    width: 100%;
   }
   .list-entry:hover { background-color: var(--foreground-hover); }
 

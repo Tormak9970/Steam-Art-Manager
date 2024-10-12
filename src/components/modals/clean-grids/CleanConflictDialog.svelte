@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { LogController, ToastController } from "@controllers";
+  import { LogController } from "@controllers";
   import { Button } from "@interactables";
   import * as fs from "@tauri-apps/plugin-fs";
   import { onMount } from "svelte";
   import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
     
+  import { showInfoSnackbar } from "@stores/AppState";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import { type CleanConflict } from "@types";
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
@@ -40,7 +41,7 @@
     if (!conflict) {
       $showCleanConflictDialog = false;
       $cleanConflicts = [];
-      ToastController.showSuccessToast("Finished cleaning!");
+      $showInfoSnackbar({ message: "Finished cleaning!" });
       LogController.log("Finished cleaning!");
     }
   }
@@ -56,7 +57,7 @@
     if (!conflict) {
       $showCleanConflictDialog = false;
       $cleanConflicts = [];
-      ToastController.showSuccessToast("Finished cleaning!");
+      $showInfoSnackbar({ message: "Finished cleaning!" });
       LogController.log("Finished cleaning!");
     }
   }
@@ -98,9 +99,9 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`} on:click={() => { deleteGrid(true); }} width="30%" />
-    <Button label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`} on:click={() => { deleteGrid(false); }} width="30%" />
-    <Button label="Keep Both" on:click={keepBoth} width="30%" />
+    <Button on:click={() => { deleteGrid(true); }} width="30%">Keep {conflictGridType === "hero" ? "Top" : "Left"}</Button>
+    <Button on:click={() => { deleteGrid(false); }} width="30%">Keep {conflictGridType === "hero" ? "Bottom" : "Right"}</Button>
+    <Button on:click={keepBoth} width="30%">Keep Both</Button>
   </span>
 </ModalBody>
 
@@ -189,10 +190,9 @@
   /* done */
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

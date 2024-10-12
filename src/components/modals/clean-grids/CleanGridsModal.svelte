@@ -58,8 +58,8 @@
     </div>
   </div>
   <span slot="buttons" class="buttons">
-    <Button label="Clean" on:click={cleanGrids} width="47.5%" />
-    <Button label="Cancel" on:click={cancel} width="47.5%" />
+    <Button on:click={cancel} width="48.5%">Cancel</Button>
+    <Button on:click={cleanGrids} width="48.5%">Clean</Button>
   </span>
 </ModalBody>
 
@@ -103,7 +103,7 @@
   .buttons {
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

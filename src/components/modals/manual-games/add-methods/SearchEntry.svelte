@@ -14,10 +14,10 @@
 
 <style>
   .search-entry {
-    width: calc(100% - 20px);
+    width: calc(100% - 14px);
+    height: 20px;
     
-    padding: 3px 7px;
-    margin-bottom: 7px;
+    padding: 3px;
 
     display: flex;
     align-items: center;

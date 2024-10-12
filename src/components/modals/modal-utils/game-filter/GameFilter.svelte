@@ -91,7 +91,7 @@
       <div>Name</div>
       <div style="margin-left: auto; margin-right: 57px;">Platform</div>
     </span>
-    <span slot="data">
+    <span slot="data" class="entries">
       {#each gamesToFilter as game, i (`${game.appid}|${i}`)}
         <SelectedGameEntry game={game} platform={selectedPlatform !== "All" ? selectedPlatform : (steamGames.some((steamGame) => steamGame.appid === game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
       {:else}
@@ -125,6 +125,12 @@
     display: flex;
     flex-direction: column;
 
+    gap: 7px;
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
     gap: 7px;
   }
 </style>

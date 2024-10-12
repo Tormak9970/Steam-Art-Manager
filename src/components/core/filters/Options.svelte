@@ -1,6 +1,6 @@
 <script lang="ts">
   import { LogController } from "@controllers";
-  import { scrollShadow } from "@directives";
+  import { isOverflowing, scrollShadow } from "@directives";
   import { Toggle } from "@interactables";
   import { Accordion } from "@layout";
   import { dbFilters, gridType, optionsSize, theme } from "@stores/AppState";
@@ -8,14 +8,17 @@
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
 
+  let overflowing = false;
+
   /**
    * Creates a function to update the specified filter.
    * @param section The section of the filter to update.
    * @param filter The filter to update.
    * @returns A function to update the filter.
    */
-  function updateFilters(section: string, filter: string): (value: boolean) => void {
-    return (value: boolean) => {
+  function updateFilters(section: string, filter: string): (e: any) => void {
+    return (e: any) => {
+      const value = e.detail.value;
       const filters = $dbFilters;
 
       // @ts-expect-error this will always work because the properties come from $dbFilters' keys.
@@ -63,8 +66,8 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px);">
-      <div class="scroll-container" use:scrollShadow={{ background: "red"}}>
-        <div class="wrapper">
+      <div class="scroll-container" use:scrollShadow={{ background: "red"}} use:isOverflowing={{ callback: (o) => overflowing = o }}>
+        <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
           {#each Object.keys($dbFilters[$gridType]) as section}
             <Accordion
               label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
@@ -75,7 +78,7 @@
                   <Toggle
                     label="{filter === "material" ? "Minimal" : toUpperCaseSplit(filter)}"
                     value={$dbFilters[$gridType][section][filter]}
-                    onChange={updateFilters(section, filter)}
+                    on:change={updateFilters(section, filter)}
                   />
                 {/each}
               </div>
@@ -102,7 +105,6 @@
     max-height: calc(100% - 65px)
   }
   .wrapper {
-    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 7px;
@@ -115,6 +117,7 @@
     padding: 7px 0px;
   }
   .toggle-container {
+    margin-top: 4px;
     padding-left: 6px;
     display: flex;
     justify-content: space-between;

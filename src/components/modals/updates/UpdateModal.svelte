@@ -5,10 +5,11 @@
   
   import { showUpdateModal, updateManifest } from "@stores/Modals";
 
-  import { LogController, ToastController } from "@controllers";
+  import { LogController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { Button } from "@interactables";
   import { ProgressIndicator } from "@layout";
+  import { showErrorSnackbar } from "@stores/AppState";
   import type { DownloadEvent } from "@tauri-apps/plugin-updater";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -78,7 +79,7 @@
         }
       });
     } catch (e: any) {
-      ToastController.showWarningToast("Failed to download update!");
+      $showErrorSnackbar({ message: "Failed to download update!" });
     }
   }
 
@@ -147,16 +148,16 @@
   <span slot="buttons" class="buttons">
     <div class="side">
       {#if step === "changelog"}
-        <Button label="Skip" on:click={ignoreUpdate} width="100%" />
+        <Button on:click={ignoreUpdate} width="100%">Skip</Button>
       {:else if step === "restart"}
-        <Button label="No" on:click={() => { open = false }} width="100%" />
+        <Button on:click={() => { open = false }} width="100%">No</Button>
       {/if}
     </div>
     <div class="side">
       {#if step === "changelog"}
-        <Button label="Download" on:click={downloadUpdate} width="100%" />
+        <Button on:click={downloadUpdate} width="100%">Download</Button>
       {:else if step === "restart"}
-        <Button label="Yes" on:click={installUpdate} width="100%" />
+        <Button on:click={installUpdate} width="100%">Yes</Button>
       {/if}
     </div>
   </span>

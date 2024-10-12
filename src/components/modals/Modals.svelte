@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
   import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showProgressModal, showSettingsModal, showSteamPathModal, showToolsModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
+  import ErrorSnackbar from "../snackbars/ErrorSnackbar.svelte";
+  import InfoSnackbar from "../snackbars/InfoSnackbar.svelte";
   import BatchApplyModal from "./batch-apply/BatchApplyModal.svelte";
   import BatchApplyProgressModal from "./batch-apply/BatchApplyProgressModal.svelte";
   import CleanConflictDialog from "./clean-grids/CleanConflictDialog.svelte";
@@ -74,3 +77,5 @@
     <ToolsModal />
   {/if}
 {/if}
+<ErrorSnackbar bind:show={$showErrorSnackbar} />
+<InfoSnackbar bind:show={$showInfoSnackbar} />

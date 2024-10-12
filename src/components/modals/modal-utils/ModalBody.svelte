@@ -80,7 +80,7 @@
       {/if}
     </div>
     <div class="border" />
-    <div class="content m3-font-body-medium">
+    <div class="content m3-font-body-medium" style:margin-bottom={$$slots.buttons ? "0.8rem" : "0px"}>
       <slot />
     </div>
     <div class="buttons">
@@ -165,7 +165,6 @@
   
   .content {
     color: var(--font-color);
-    margin-bottom: 0.8rem;
   }
 
   .buttons {

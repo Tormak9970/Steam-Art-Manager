@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { LogController, ToastController } from "@controllers";
+  import { LogController } from "@controllers";
   import { Button } from "@interactables";
-  import { steamInstallPath } from "@stores/AppState";
+  import { showInfoSnackbar, steamInstallPath } from "@stores/AppState";
   import { steamPathModalClose } from "@stores/Modals";
   import { validateSteamPath } from "@utils";
   import ModalBody from "./modal-utils/ModalBody.svelte";
@@ -24,7 +24,7 @@
 
     canSave = false;
 
-    ToastController.showSuccessToast("Steam Install Location saved!");
+    $showInfoSnackbar({ message: "Steam Install Location saved!" });
 
     await $steamPathModalClose();
   }
@@ -59,7 +59,7 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button label="Save Changes" on:click={saveInstallLocation} width="100%" disabled={!canSave} />
+    <Button on:click={saveInstallLocation} width="100%" disabled={!canSave}>Save Changes</Button>
   </span>
 </ModalBody>
 

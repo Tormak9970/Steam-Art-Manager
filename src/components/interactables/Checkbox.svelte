@@ -16,10 +16,10 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="check-box-container" on:click={check}>
-  <input type="checkbox" id="" bind:checked={value}>
+  <input type="checkbox" id="" bind:checked={value} />
   <span class="check-box">
     {#if value}
-      <Check />
+      <Check height="16px" />
     {/if}
   </span>
 </div>
@@ -30,8 +30,8 @@
     position: relative;
     cursor: pointer;
 
-    height: 16px;
-    width: 16px;
+    height: 20px;
+    width: 20px;
 
     border-radius: 4px;
     border: 1px solid transparent;
@@ -46,9 +46,10 @@
   }
 
   .check-box {
-    height: calc(100% - 4px);
-    width: calc(100% - 4px);
-    background-color: var(--background);
+    height: calc(100% - 6px);
+    width: calc(100% - 6px);
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     padding: 2px;
     border-radius: 4px;
     display: flex;
@@ -62,10 +63,7 @@
   }
 
   .check-box-container:hover input ~ .check-box {
-    background-color: var(--background-hover);
-  }
-
-  :global([data-theme="light"] .check-box) {
-    fill: var(--highlight-dim) !important;
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 </style>

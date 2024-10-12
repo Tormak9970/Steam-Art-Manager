@@ -18,9 +18,9 @@
 <style>
   .game-search-entry {
     width: calc(100% - 14px);
+    height: 20px;
     
     padding: 3px 7px;
-    margin-bottom: 7px;
 
     border-radius: 4px;
 
@@ -43,7 +43,7 @@
     font-size: 12px;
     user-select: none;
 
-    width: 200px;
+    width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

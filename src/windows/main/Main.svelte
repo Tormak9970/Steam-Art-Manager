@@ -7,7 +7,6 @@
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
   import { SettingsManager } from "@utils";
-  import { SvelteToast } from "@zerodevx/svelte-toast";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 
@@ -115,9 +114,6 @@
 	</div>
 	<Footer />
 </main>
-<div class="core-toast">
-  <SvelteToast />
-</div>
 
 <style>
 	main {
@@ -133,14 +129,6 @@
 
 		transition: opacity 0.1s ease-in-out;
 	}
-
-  .core-toast {
-    font-size: 14px;
-    --toastBorderRadius: 2px;
-    --toastBarHeight: 3px;
-    --toastWidth: 13rem;
-    --toastMinHeight: 3rem;
-  }
 
 	.content {
 		width: 100%;

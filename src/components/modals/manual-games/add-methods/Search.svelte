@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { AppController, ToastController } from "@controllers";
+  import { AppController } from "@controllers";
   import { Button, SearchBar } from "@interactables";
   import { Table } from "@layout";
-  import { needsSGDBAPIKey } from "@stores/AppState";
+  import { needsSGDBAPIKey, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
   
@@ -42,13 +42,13 @@
     
     if (appid) {
       onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
-      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
+      $showInfoSnackbar({ message: `Added ${selectedGame!.name}!` });
       selectedGame = null;
       results = [];
       searchQuery = "";
     } else {
       selectedGame = null;
-      ToastController.showWarningToast("No appid found for the selected game!");
+      $showErrorSnackbar({ message: "No appid found for the selected game!" });
     }
   }
 
@@ -56,7 +56,7 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast("Cleared selection.");
+    $showInfoSnackbar({ message: "Cleared selection." });
     selectedGame = null;
     results = [];
     searchQuery = "";
@@ -74,11 +74,11 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="325px">
+      <Table height="317px">
         <span slot="header">
           <div class="name">Name</div>
         </span>
-        <span slot="data">
+        <span slot="data" class="entries">
           {#each results as game (game.id)}
             <SearchEntry game={game} isSelected={selectedGame?.id === game.id} onSelect={onGameSelect} />
           {/each}
@@ -87,8 +87,8 @@
     </div>
 
     <div class="buttons">
-      <Button label="Add Selected" on:click={saveWrapper} disabled={!selectedGame} width="47.5%" />
-      <Button label="Clear" on:click={clear} width="47.5%" />
+      <Button on:click={clear} width="47.5%">Clear</Button>
+      <Button on:click={saveWrapper} disabled={!selectedGame} width="47.5%">Add Selected</Button>
     </div>
   {/if}
 </div>
@@ -119,10 +119,15 @@
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: calc(100% - 7px);
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 </style>

@@ -122,17 +122,18 @@
   .custom-select {
     user-select: none;
     position: relative;
-    padding: 3px;
+    padding: 5px;
     border-radius: 4px;
-    border: 1px solid transparent;
+    border: 1px solid var(--foreground);
 
-    background-color: var(--foreground);
+    background-color: var(--background-hover);
     transition: background-color 0.15s ease-in-out;
     
     min-width: 160px;
   }
   .custom-select:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
     cursor: pointer;
   }
   .disabled {
@@ -174,37 +175,26 @@
     overflow: hidden;
   }
   .select-items > div {
-    padding: 3px 4px;
+    padding: 4px 5px;
     padding-top: 5px;
-
-    height: calc(22px - 7px);
     
     transition: background-color 0.15s ease-in-out;
   }
-  .select-items > div:first-child {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    overflow: hidden;
-  }
-  .select-items > div:last-child {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    overflow: hidden;
-  }
   .select-items {
     position: absolute;
-    background-color: var(--foreground);
+    background-color: var(--background-hover);
     top: 102%;
     left: 0;
     right: 0;
     z-index: 99;
-    margin-top: 2px;
+    margin-top: 1px;
     border-radius: 4px;
-    border: 1px solid transparent;
+    border: 1px solid var(--foreground-hover);
     box-shadow: 3px 6px 12px -2px var(--shadow);
+    overflow: hidden;
   }
   .select-items > div:hover {
-    background-color: var(--foreground-light);
+    background-color: var(--foreground);
     cursor: pointer;
   }
   
@@ -220,7 +210,8 @@
   }
 
   .select-hide { display: none; }
-  .same-as-selected {
+  .same-as-selected,
+  .select-items > div.same-as-selected:hover {
     background-color: var(--foreground-light);
     cursor: pointer;
   }

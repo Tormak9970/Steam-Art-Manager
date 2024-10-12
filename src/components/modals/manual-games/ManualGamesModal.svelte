@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, LogController, ToastController } from "@controllers";
+  import { AppController, LogController } from "@controllers";
   import { Info, SGDBLogo, Steam } from "@icons";
   import { Button, DropDown } from "@interactables";
   import { Table } from "@layout";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, steamGames } from "@stores/AppState";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, showErrorSnackbar, showInfoSnackbar, steamGames } from "@stores/AppState";
   import { showManualGamesModal } from "@stores/Modals";
   import type { GameStruct } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -35,7 +35,7 @@
    */
   function addNewGame(game: GameStruct): void {
     if ($steamGames.find((sGame) => sGame.appid === game.appid) || tempManualGames.find((tGame) => tGame.appid === game.appid)) {
-      ToastController.showWarningToast("Game with that appid already exists! Can't have duplicates.");
+      $showErrorSnackbar({ message: "Game with that appid already exists! Can't have duplicates." });
     } else {
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
@@ -74,7 +74,7 @@
     appLibraryCache.set(structuredClone(appLibCache));
 
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
-    ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
+    $showInfoSnackbar({ message: `Saved ${tempManualGames.length} manually added games.` });
 
     onClose();
   }
@@ -83,7 +83,7 @@
    * Cancels adding games.
    */
   function cancel() {
-    ToastController.showGenericToast("Cancelled manual games.");
+    $showInfoSnackbar({ message: "Cancelled manual games." });
     onClose();
   }
 </script>
@@ -108,15 +108,15 @@
             <SGDBLogo style="height: 12px; width: 16px;" />
           </div>
         </span>
-        <span slot="data">
+        <span slot="data" class="entries">
           {#each tempManualGames as game}
             <ManualGameEntry game={game} onRemove={removeHandler} />
           {/each}
         </span>
       </Table>
       <div class="buttons">
-        <Button label="Save Changes" on:click={saveChanges} width="47.5%" disabled={!canSave} />
-        <Button label="Cancel" on:click={cancel} width="47.5%" />
+        <Button on:click={cancel} width="47.5%">Cancel</Button>
+        <Button on:click={saveChanges} width="47.5%" disabled={!canSave}>Save Changes</Button>
       </div>
     </div>
     <div class="right">
@@ -141,6 +141,12 @@
   .border {
     margin-top: 7px;
     border-bottom: 1px solid var(--foreground);
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
 
   .content {
@@ -201,7 +207,6 @@
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
     justify-content: space-between;
