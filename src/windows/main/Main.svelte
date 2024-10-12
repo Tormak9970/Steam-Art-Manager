@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Footer, Games, Grids, Modals, Options } from "@components";
   import { AppController, DialogController, LogController } from "@controllers";
-  import { canSave, isOnline, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
+  import { canSave, isOnline } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
   import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
@@ -9,8 +9,6 @@
   import { SettingsManager } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
-  import ErrorSnackbar from "../../components/snackbars/ErrorSnackbar.svelte";
-  import InfoSnackbar from "../../components/snackbars/InfoSnackbar.svelte";
 
   let windowCloseUnsub: () => void;
 
@@ -105,8 +103,6 @@
 
 <main>
   <Modals />
-  <ErrorSnackbar bind:show={$showErrorSnackbar} />
-  <InfoSnackbar bind:show={$showInfoSnackbar} />
 	<div class="content">
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />

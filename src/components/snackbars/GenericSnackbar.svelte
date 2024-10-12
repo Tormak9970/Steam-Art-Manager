@@ -6,6 +6,10 @@
     message: string;
     timeout: number | null;
   };
+
+  let dialogElement: HTMLDialogElement;
+
+  $: if (dialogElement) dialogElement.showModal();
   
   export const show = ({ message, timeout = 4000 }: ShowSnackbarOptions) => {
     snackbar = { message, timeout };
@@ -30,7 +34,7 @@
 </script>
 
 {#if snackbar}
-  <dialog class="holder" open in:fly={{ y: 100, duration: 300 }} out:fly={{ y: 100, duration: 400 }}>
+  <dialog class="holder" in:fly={{ y: 0, duration: 300 }} out:fly={{ y: 100, duration: 400 }} bind:this={dialogElement}>
     <div class="m3-container" style:--background-color={backgroundColor} style:--text-color={textColor}>
       <p class="m3-font-body-medium">{snackbar.message}</p>
     </div>
@@ -49,19 +53,19 @@
   }
 
   .holder {
-    border: 0;
-    padding: 0;
-
     width: calc(100% - 2rem);
     max-width: 30rem;
 
+    border: 0;
+    padding: 0;
     padding-bottom: 0.7rem;
 
     position: absolute;
-    bottom: 0;
+
+    margin-top: auto;
+    margin-bottom: 0;
 
     background-color: transparent;
-    z-index: 3;
   }
   p {
     margin-right: auto;
