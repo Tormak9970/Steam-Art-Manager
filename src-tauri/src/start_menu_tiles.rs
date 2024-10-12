@@ -22,7 +22,7 @@ fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
 #[cfg(target_os = "linux")]
 // Gets the app tiles directory. (Linux)
 fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
-  let data_dir: PathBuf = app_handle.to_owned().path().expect("User's data directory should have existed.");
+  let data_dir: PathBuf = app_handle.to_owned().path().data_dir().expect("User's data directory should have existed.");
   let app_tiles_dir: PathBuf = data_dir.join("applications");
 
   return app_tiles_dir;
