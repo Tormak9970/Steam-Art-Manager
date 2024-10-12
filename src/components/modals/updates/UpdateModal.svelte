@@ -5,10 +5,11 @@
   
   import { showUpdateModal, updateManifest } from "@stores/Modals";
 
-  import { LogController, ToastController } from "@controllers";
+  import { LogController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { Button } from "@interactables";
   import { ProgressIndicator } from "@layout";
+  import { showErrorSnackbar } from "@stores/AppState";
   import type { DownloadEvent } from "@tauri-apps/plugin-updater";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
@@ -78,7 +79,7 @@
         }
       });
     } catch (e: any) {
-      ToastController.showWarningToast("Failed to download update!");
+      $showErrorSnackbar({ message: "Failed to download update!" });
     }
   }
 

@@ -22,6 +22,10 @@ export enum Theme {
   LIGHT
 }
 
+export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();
+export const showErrorSnackbar = writable<(data: ShowInfoOptions) => void>();
+
+
 export const requestTimeoutLength = writable(5000);
 
 // * Settings

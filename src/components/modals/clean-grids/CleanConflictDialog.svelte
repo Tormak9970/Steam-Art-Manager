@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { LogController, ToastController } from "@controllers";
+  import { LogController } from "@controllers";
   import { Button } from "@interactables";
   import * as fs from "@tauri-apps/plugin-fs";
   import { onMount } from "svelte";
   import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
     
+  import { showInfoSnackbar } from "@stores/AppState";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import { type CleanConflict } from "@types";
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
@@ -40,7 +41,7 @@
     if (!conflict) {
       $showCleanConflictDialog = false;
       $cleanConflicts = [];
-      ToastController.showSuccessToast("Finished cleaning!");
+      $showInfoSnackbar({ message: "Finished cleaning!" });
       LogController.log("Finished cleaning!");
     }
   }
@@ -56,7 +57,7 @@
     if (!conflict) {
       $showCleanConflictDialog = false;
       $cleanConflicts = [];
-      ToastController.showSuccessToast("Finished cleaning!");
+      $showInfoSnackbar({ message: "Finished cleaning!" });
       LogController.log("Finished cleaning!");
     }
   }

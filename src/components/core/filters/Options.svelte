@@ -117,6 +117,7 @@
     padding: 7px 0px;
   }
   .toggle-container {
+    margin-top: 4px;
     padding-left: 6px;
     display: flex;
     justify-content: space-between;

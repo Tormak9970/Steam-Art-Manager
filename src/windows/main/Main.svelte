@@ -1,15 +1,16 @@
 <script lang="ts">
   import { Footer, Games, Grids, Modals, Options } from "@components";
   import { AppController, DialogController, LogController } from "@controllers";
-  import { canSave, isOnline } from "@stores/AppState";
+  import { canSave, isOnline, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
   import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
   import { SettingsManager } from "@utils";
-  import { SvelteToast } from "@zerodevx/svelte-toast";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
+  import ErrorSnackbar from "../../components/snackbars/ErrorSnackbar.svelte";
+  import InfoSnackbar from "../../components/snackbars/InfoSnackbar.svelte";
 
   let windowCloseUnsub: () => void;
 
@@ -104,6 +105,8 @@
 
 <main>
   <Modals />
+  <ErrorSnackbar bind:show={$showErrorSnackbar} />
+  <InfoSnackbar bind:show={$showInfoSnackbar} />
 	<div class="content">
 		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
 			<Options />
@@ -115,9 +118,6 @@
 	</div>
 	<Footer />
 </main>
-<div class="core-toast">
-  <SvelteToast />
-</div>
 
 <style>
 	main {
@@ -133,14 +133,6 @@
 
 		transition: opacity 0.1s ease-in-out;
 	}
-
-  .core-toast {
-    font-size: 14px;
-    --toastBorderRadius: 2px;
-    --toastBarHeight: 3px;
-    --toastWidth: 13rem;
-    --toastMinHeight: 3rem;
-  }
 
 	.content {
 		width: 100%;

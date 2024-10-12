@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, LogController, ToastController } from "@controllers";
+  import { AppController, LogController } from "@controllers";
   import { Info, SGDBLogo, Steam } from "@icons";
   import { Button, DropDown } from "@interactables";
   import { Table } from "@layout";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, steamGames } from "@stores/AppState";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, showErrorSnackbar, showInfoSnackbar, steamGames } from "@stores/AppState";
   import { showManualGamesModal } from "@stores/Modals";
   import type { GameStruct } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -35,7 +35,7 @@
    */
   function addNewGame(game: GameStruct): void {
     if ($steamGames.find((sGame) => sGame.appid === game.appid) || tempManualGames.find((tGame) => tGame.appid === game.appid)) {
-      ToastController.showWarningToast("Game with that appid already exists! Can't have duplicates.");
+      $showErrorSnackbar({ message: "Game with that appid already exists! Can't have duplicates." });
     } else {
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
@@ -74,7 +74,7 @@
     appLibraryCache.set(structuredClone(appLibCache));
 
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
-    ToastController.showSuccessToast(`Saved ${tempManualGames.length} manually added games.`);
+    $showInfoSnackbar({ message: `Saved ${tempManualGames.length} manually added games.` });
 
     onClose();
   }
@@ -83,7 +83,7 @@
    * Cancels adding games.
    */
   function cancel() {
-    ToastController.showGenericToast("Cancelled manual games.");
+    $showInfoSnackbar({ message: "Cancelled manual games." });
     onClose();
   }
 </script>

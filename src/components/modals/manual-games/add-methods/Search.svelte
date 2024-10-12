@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { AppController, ToastController } from "@controllers";
+  import { AppController } from "@controllers";
   import { Button, SearchBar } from "@interactables";
   import { Table } from "@layout";
-  import { needsSGDBAPIKey } from "@stores/AppState";
+  import { needsSGDBAPIKey, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
   
@@ -42,13 +42,13 @@
     
     if (appid) {
       onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
-      ToastController.showSuccessToast(`Added ${selectedGame!.name}!`);
+      $showInfoSnackbar({ message: `Added ${selectedGame!.name}!` });
       selectedGame = null;
       results = [];
       searchQuery = "";
     } else {
       selectedGame = null;
-      ToastController.showWarningToast("No appid found for the selected game!");
+      $showErrorSnackbar({ message: "No appid found for the selected game!" });
     }
   }
 
@@ -56,7 +56,7 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast("Cleared selection.");
+    $showInfoSnackbar({ message: "Cleared selection." });
     selectedGame = null;
     results = [];
     searchQuery = "";

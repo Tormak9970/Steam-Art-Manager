@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { ToastController } from "@controllers";
   import { Button, NumberInput, TextInput } from "@interactables";
+  import { showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct } from "@types";
   
   export let onGameSave: (game: GameStruct) => void;
@@ -12,7 +12,7 @@
    * Wrapper function for saving the manual game.
    */
   function saveWrapper(): void {
-    ToastController.showSuccessToast(`Added ${gameName}!`);
+    $showInfoSnackbar({ message: `Added ${gameName}!` });
     onGameSave({ appid: appId, name: gameName });
     gameName = "";
     appId = 0;
@@ -22,7 +22,7 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast("Cleared info.");
+    $showInfoSnackbar({ message: "Cleared info." });
     gameName = "";
     appId = 0;
   }

@@ -2,11 +2,10 @@ import * as fs from "@tauri-apps/plugin-fs";
 import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
-import { ToastController } from "./utils/ToastController";
 
 import { path } from "@tauri-apps/api";
 import { exit } from "@tauri-apps/plugin-process";
@@ -87,7 +86,7 @@ export class SteamController {
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
-      ToastController.showWarningToast("You Steam profile is private");
+      get(showErrorSnackbar)({ message: "You Steam profile is private" });
       LogController.warn(`Error loading games from the user's Steam profile: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
       return [];
     }
@@ -118,7 +117,7 @@ export class SteamController {
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
-      ToastController.showWarningToast("Check your Steam API Key");
+      get(showErrorSnackbar)({ message: "Check your Steam API Key" });
       LogController.warn(`Error loading games from the Steam API: Status ${res.status}. Message: ${JSON.stringify(err)}. User should check their Steam API Key.`);
       return [];
     }
@@ -260,13 +259,13 @@ export class SteamController {
 
     if (manualGames.length !== originalManualGames.length) {
       manualSteamGames.set(structuredClone(manualGames));
-      ToastController.showWarningToast(`Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!`);
+      get(showErrorSnackbar)({ message: `Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!` });
     }
     
     if (games.length > 0 || structuredShortcuts.length > 0) {
-      ToastController.showSuccessToast("Games Loaded!");
+      get(showInfoSnackbar)({ message: "Games loaded" });
     } else {
-      ToastController.showWarningToast("Failed to load games!");
+      get(showErrorSnackbar)({ message: "Failed to load games" });
     }
   }
 }

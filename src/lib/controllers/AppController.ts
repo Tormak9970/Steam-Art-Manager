@@ -21,7 +21,7 @@ import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
@@ -29,7 +29,6 @@ import { DialogController } from "./utils/DialogController";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 import { SettingsController } from "./utils/SettingsController";
-import { ToastController } from "./utils/ToastController";
 
 /**
  * The main controller for the application.
@@ -122,7 +121,7 @@ export class AppController {
     const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons, logoPosStrings);
     
     if ((changedPaths as any).error !== undefined) {
-      ToastController.showSuccessToast("Changes failed.");
+      get(showErrorSnackbar)({ message: "Changes failed." });
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
@@ -147,7 +146,8 @@ export class AppController {
       const logoPos = Object.fromEntries(logoPosEntries);
       originalLogoPositions.set(structuredClone(logoPos));
       steamLogoPositions.set(structuredClone(logoPos));
-      ToastController.showSuccessToast("Changes saved!");
+      
+      get(showInfoSnackbar)({ message: "Changes saved" });
       LogController.log("Saved changes.");
     }
 
@@ -168,7 +168,7 @@ export class AppController {
     const originalPositions = get(originalLogoPositions);
     steamLogoPositions.set(structuredClone(originalPositions));
 
-    ToastController.showSuccessToast("Changes discarded!");
+    get(showInfoSnackbar)({ message: "Changes discarded" });
     LogController.log("Discarded changes.");
     
     canSave.set(false);
@@ -201,7 +201,7 @@ export class AppController {
     logoPositionCache[appId] = originalLogoCache[appId];
     steamLogoPositions.set(structuredClone(logoPositionCache));
 
-    ToastController.showSuccessToast("Discarded!");
+    get(showInfoSnackbar)({ message: "Changes discarded" });
     LogController.log(`Discarded changes for ${appId}.`);
     
     canSave.set(!((JSON.stringify(originalCache) === JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) === JSON.stringify(logoPositionCache))));
@@ -231,7 +231,7 @@ export class AppController {
     };
     appLibraryCache.set(structuredClone(appCache));
 
-    ToastController.showSuccessToast("Cleared!");
+    get(showInfoSnackbar)({ message: "Cleared grids" });
     LogController.log(`Cleared grids for ${appId}.`);
     
     canSave.set(true);
@@ -294,7 +294,7 @@ export class AppController {
     steamShortcuts.set(structuredClone(shortcuts));
     appLibraryCache.set(structuredClone(appCache));
 
-    ToastController.showSuccessToast("Cleared all grids!");
+    get(showInfoSnackbar)({ message: "Cleared all grids" });
     LogController.log("Cleared all grids.");
     
     canSave.set(true);
@@ -417,7 +417,6 @@ export class AppController {
    * ? Logging Complete.
    */
   static async batchApplyGrids(appIds: string[]): Promise<void> {
-    ToastController.showGenericToast("Starting Batch Apply...");
     LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
     await AppController.cacheController.batchApplyGrids(appIds);
   }
@@ -445,7 +444,7 @@ export class AppController {
         }
       }
 
-      ToastController.showSuccessToast("Import successful!");
+      get(showInfoSnackbar)({ message: "Import successful" });
       LogController.log("Successfully imported user's grids.");
       
       await AppController.saveChanges();
@@ -454,7 +453,6 @@ export class AppController {
       originalAppLibraryCache.set(filteredCache);
       appLibraryCache.set(filteredCache);
     } else {
-      ToastController.showWarningToast("Cancelled.");
       LogController.log("Import grids cancelled.");
     }
   }
@@ -479,10 +477,9 @@ export class AppController {
     const success = await RustInterop.exportGridsToZip(get(activeUserId).toString(), platformIdMap, shortcutNamesMap);
 
     if (success) {
-      ToastController.showSuccessToast("Export successful!");
+      get(showInfoSnackbar)({ message: "Export successful" });
       LogController.log("Successfully exported user's grids.");
     } else {
-      ToastController.showWarningToast("Cancelled.");
       LogController.log("Export grids cancelled.");
     }
   }
@@ -562,8 +559,8 @@ export class AppController {
       cleanConflicts.set(conflicts);
       showCleanConflictDialog.set(true);
     } else {
-      ToastController.showSuccessToast("Finished cleaning!");
-      LogController.log("Finished cleaning!");
+      get(showInfoSnackbar)({ message: "Finished cleaning" });
+      LogController.log("Finished cleaning");
     }
   }
 
@@ -603,10 +600,10 @@ export class AppController {
     LogController.log("Attempting to go online...");
     if (navigator.onLine) {
       isOnline.set(true);
-      ToastController.showSuccessToast("Now Online!");
-      LogController.log("Attempted succeeded. Now online.")
+      get(showInfoSnackbar)({ message: "Now Online" });
+      LogController.log("Attempted succeeded. Now online.");
     } else {
-      ToastController.showWarningToast("Can't go online.");
+      get(showErrorSnackbar)({ message: "Can't go online." });
       LogController.log("Attempt failed. Continuing in offline mode.");
     }
   }
@@ -677,11 +674,9 @@ export class AppController {
         SteamController.getUserApps().then(() => {
           loadingGames.set(false);
           LogController.log(`Switched user to ${user.AccountName} id: ${userId}.`);
-          ToastController.showSuccessToast("Switched User!");
         });
       } else {
         LogController.log(`Cancelled user switch to ${user.AccountName} id: ${userId}.`);
-        ToastController.showGenericToast("Cancelled.");
       }
     } else {
       LogController.log(`New user id ${userId} matched old id ${oldUserId}.`);

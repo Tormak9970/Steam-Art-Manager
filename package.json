@@ -32,7 +32,6 @@
     "@tauri-apps/plugin-process": "2.0.0-rc.0",
     "@tauri-apps/plugin-shell": "2.0.0-rc.0",
     "@tauri-apps/plugin-updater": "^2.0.0-rc.0",
-    "@zerodevx/svelte-toast": "^0.9.5",
     "fast-xml-parser": "^4.5.0",
     "markdown-it": "^13.0.2",
     "svelte-lazy": "^1.2.7",

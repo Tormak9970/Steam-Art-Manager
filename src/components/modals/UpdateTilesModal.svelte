@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { AppController, LogController, ToastController } from "@controllers";
+  import { AppController, LogController } from "@controllers";
   import { Button } from "@interactables";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "@stores/AppState";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, showErrorSnackbar, showInfoSnackbar, steamGames } from "@stores/AppState";
   import { showUpdateTilesModal } from "@stores/Modals";
   import type { GameStruct } from "@types";
   import { onMount } from "svelte";
@@ -36,10 +36,10 @@
 
     if (failedIds.length > 0) {
       LogController.error(`Failed to update ${failedIds.length} tiles. Ids that failed: ${JSON.stringify(failedIds)}.`);
-      ToastController.showWarningToast(`Failed to update ${failedIds.length} tiles!`)
+      $showErrorSnackbar({ message: `Failed to update ${failedIds.length} tiles!` });
     } else {
       LogController.log(`Updated ${selectedGameIds.length} tiles.`);
-      ToastController.showSuccessToast(`Updated ${selectedGameIds.length} tiles`);
+      $showInfoSnackbar({ message: `Updated ${selectedGameIds.length} tiles` });
       onClose();
     }
   }

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, ToastController } from "@controllers";
+  import { AppController } from "@controllers";
   import { Button } from "@interactables";
+  import { gridType, manualSteamGames, nonSteamGames, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import { showBatchApplyModal, showBatchApplyProgress } from "@stores/Modals";
   import { GridTypes } from "@types";
-  import { gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
@@ -32,7 +32,7 @@
    * Cancels batch applying grids.
    */
   function cancel(): void {
-    ToastController.showGenericToast("Cancelled Batch Apply.");
+    $showInfoSnackbar({ message: "Cancelled Batch Apply." });
     onClose();
   }
 </script>

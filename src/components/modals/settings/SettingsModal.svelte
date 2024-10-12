@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, DialogController, LogController, ToastController } from "@controllers";
+  import { AppController, DialogController, LogController } from "@controllers";
   import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -88,7 +88,7 @@
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
 
     LogController.log("Saved settings.");
-    ToastController.showSuccessToast("Settings saved!");
+    $showInfoSnackbar({ message: "Settings saved!" });
     canSave = false;
 
     onClose();

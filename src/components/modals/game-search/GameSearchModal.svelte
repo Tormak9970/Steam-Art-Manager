@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { AppController, LogController, ToastController } from "@controllers";
+  import { AppController, LogController } from "@controllers";
   import { isOverflowing, scrollShadow } from "@directives";
   import { Refresh } from "@icons";
   import { Button, IconButton, SearchBar } from "@interactables";
-  import { selectedGameName } from "@stores/AppState";
+  import { selectedGameName, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
   import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
   import type { SGDBGame } from "@types";
   import { onMount } from "svelte";
@@ -36,7 +36,7 @@
     canApply = false;
 
     LogController.log(`Applied game choice ${selectedGame!.name}`);
-    ToastController.showSuccessToast("Choice applied!");
+    $showInfoSnackbar({ message: "Choice applied!" });
 
     $gameSearchModalSelect(selectedGame!);
     onClose();
@@ -64,7 +64,7 @@
     } else {
       requestTimedOut = true;
       results = [];
-      ToastController.showWarningToast("Requst Timed Out!");
+      $showErrorSnackbar({ message: "Requst Timed Out!" });
     }
     
     loading = false;
