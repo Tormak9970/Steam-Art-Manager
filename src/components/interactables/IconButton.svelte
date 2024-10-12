@@ -1,29 +1,28 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
   import type { Placement } from "tippy.js";
-  import { AppController } from "../../lib/controllers/AppController";
 
   export let label: string;
   export let tooltipPosition: Placement = "top-end";
-  export let width = "22px";
-  export let height = "22px";
-  export let onClick: (e: MouseEvent) => void;
+  export let width = "auto";
+  export let height = "auto";
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
 </script>
 
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click={onClick} use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
+<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
   <slot />
 </button>
 
 <style>
   .button {
-    padding: 2px;
+    padding: 6px;
     min-width: 22px;
     min-height: 22px;
         
-    background-color: var(--foreground);
-    border: 1px solid transparent;
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     border-radius: 4px;
 
     display: flex;
@@ -40,7 +39,8 @@
   }
 
   .button:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 
   .button:focus {
@@ -49,7 +49,7 @@
 
   .disabled {
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.5;
   }
 
   .highlight { background-color: var(--save); }

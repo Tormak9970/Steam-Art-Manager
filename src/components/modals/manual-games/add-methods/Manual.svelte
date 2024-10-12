@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { ToastController } from "../../../../lib/controllers/ToastController";
-  import Button from "../../../interactables/Button.svelte";
-  import NumberInput from "../../../interactables/NumberInput.svelte";
-  import TextInput from "../../../interactables/TextInput.svelte";
-  import Spacer from "../../../layout/Spacer.svelte";
+  import { Button, NumberInput, TextInput } from "@interactables";
+  import { showInfoSnackbar } from "@stores/AppState";
+  import type { GameStruct } from "@types";
   
-  export let onGameSave: (game:GameStruct) => void;
+  export let onGameSave: (game: GameStruct) => void;
 
   let gameName: string = "";
   let appId: number = 0;
@@ -14,7 +12,7 @@
    * Wrapper function for saving the manual game.
    */
   function saveWrapper(): void {
-    ToastController.showSuccessToast(`Added ${gameName}!`);
+    $showInfoSnackbar({ message: `Added ${gameName}!` });
     onGameSave({ appid: appId, name: gameName });
     gameName = "";
     appId = 0;
@@ -24,26 +22,25 @@
    * Clears any user input.
    */
   function clear(): void {
-    ToastController.showGenericToast("Cleared info.");
+    $showInfoSnackbar({ message: "Cleared info." });
     gameName = "";
     appId = 0;
   }
 </script>
 
 <div class="manual-add">
-  <TextInput label={"Game Name"} placeholder={"The name of the game"} bind:value={gameName} onChange={() => {}} />
+  <TextInput placeholder={"Game Name"} bind:value={gameName} />
   <div class="description">
     The name of the game you're adding. Try to be as accurate as possible.
   </div>
-  <Spacer orientation="VERTICAL" />
-  <NumberInput label={"App Id"} bind:value={appId} onChange={() => {}} />
+  <NumberInput label={"App Id"} bind:value={appId} />
   <div class="description">
     The appid of the game. You can find this by going to the game's steam page, and looking at the number in the url, or looking up "what is the steam appid for GAME_NAME".
   </div>
 
   <div class="buttons">
-    <Button label="Add Game" onClick={saveWrapper} width="47.5%" disabled={gameName === "" || appId === 0} />
-    <Button label="Clear" onClick={clear} width="47.5%" />
+    <Button on:click={clear} width="48.5%">Clear</Button>
+    <Button on:click={saveWrapper} width="48.5%" disabled={gameName === "" || appId === 0}>Add Game</Button>
   </div>
 </div>
 
@@ -56,16 +53,20 @@
   }
 
   .description {
-    width: calc(100% - 20px);
+    width: calc(100% - 30px);
     margin-top: 7px;
-    margin-bottom: 14px;
+    margin-bottom: 21px;
 
     font-size: 14px;
+
+    background-color: var(--background-dark);
+    border-radius: 4px;
+
+    padding: 5px;
   }
 
   .buttons {
     margin-top: 14px;
-    margin-bottom: 7px;
     width: calc(100% - 20px);
     display: flex;
     justify-content: space-between;

@@ -1,92 +1,166 @@
 <script lang="ts">
+  import { relaunch } from "@tauri-apps/plugin-process";
+  import { open as openLink } from "@tauri-apps/plugin-shell";
   import MarkdownIt from "markdown-it";
-  import { open } from "@tauri-apps/api/shell";
-  import { installUpdate } from "@tauri-apps/api/updater"
-  import { relaunch } from "@tauri-apps/api/process"
   
-  import { showUpdateModal, updateManifest } from "../../../stores/Modals";
+  import { showUpdateModal, updateManifest } from "@stores/Modals";
 
-  import UpdateField from "./UpdateField.svelte";
+  import { LogController } from "@controllers";
+  import { scrollShadow } from "@directives";
+  import { Button } from "@interactables";
+  import { ProgressIndicator } from "@layout";
+  import { showErrorSnackbar } from "@stores/AppState";
+  import type { DownloadEvent } from "@tauri-apps/plugin-updater";
+  import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-  import Button from "../../interactables/Button.svelte";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-    import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
+  import UpdateField from "./UpdateField.svelte";
 
+  let open = true;
+  
   const mdIt = new MarkdownIt({
     html: true,
     linkify: true
   });
+  
+  let step: "changelog" | "download" | "restart" = "changelog";
+  let formattedDate = "No date provided";
 
-  const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+  $: title = step === "changelog" ? `Update v${$updateManifest?.version} is Available!` : (step === "download" ? `Downloading v${$updateManifest?.version}...` : "Download Complete!")
 
-  const dateParts = $updateManifest.date.split(" ");
-  const dateSegs = dateParts[0].split("-").map((seg) => parseInt(seg));
-  const cleanDate = `${months[dateSegs[1]-1]} ${dateSegs[2]}, ${dateSegs[0]}`
+  const stepHeight = {
+    changelog: 390,
+    download: 122,
+    restart: 125
+  }
+  
+  let contentLength = 0;
+  let downloaded = 0;
 
   /**
    * Handles click events to redirect to the browser.
    * @param e The click event.
    */
-  function clickListener(e: Event): void {
+  function linkClick(e: Event): void {
     const origin = (e.target as Element).closest("a");
   
     if (origin) {
       e.preventDefault();
       const href = origin.href;
-      open(href);
+      openLink(href);
     }
-  }
-
-  /**
-   * Applies the update
-   */
-  async function update(): Promise<void> {
-    LogController.log(`Installing update v${$updateManifest.version}, released on ${$updateManifest.date}.`);
-    ToastController.showGenericToast("Installing update...");
-
-    // Install the update. This will also restart the app on Windows!
-    await installUpdate();
-
-    // On macOS and Linux you will need to restart the app manually.
-    // You could use this step to display another confirmation dialog.
-    await relaunch();
   }
 
   /**
    * Ignores the update.
    */
   async function ignoreUpdate(): Promise<void> {
-    LogController.log(`Skipping update v${$updateManifest.version}.`);
-    $showUpdateModal = false;
+    LogController.log(`Skipping update v${$updateManifest!.version}.`);
+    open = false;
   }
+
+  function downloadUpdate() {
+    LogController.log(`Downloading update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`);
+
+    try {
+      $updateManifest!.download((event: DownloadEvent) => {
+        switch (event.event) {
+          case 'Started':
+            contentLength = event.data.contentLength!;
+            downloaded = 0;
+            step = "download";
+            break;
+          case 'Progress':
+            downloaded += event.data.chunkLength!;
+            break;
+          case 'Finished':
+            step = "restart";
+            break;
+        }
+      });
+    } catch (e: any) {
+      $showErrorSnackbar({ message: "Failed to download update!" });
+    }
+  }
+
+  async function installUpdate(): Promise<void> {
+    LogController.log(`Installing update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`);
+
+    // Install the update. This will also restart the app on Windows!
+    await $updateManifest!.install();
+
+    // On macOS and Linux you will need to restart the app manually.
+    // You could use this step to display another confirmation dialog.
+    await relaunch();
+  }
+
+  onMount(() => {
+    let dateString = $updateManifest?.date;
+
+    if (dateString) {
+      let date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        dateString = dateString.replace(/(\+|-)(\d{2}):(\d{2}):(\d{2})$/, '$1$2:$3');
+        date = new Date(dateString);
+      }
+
+      const lang = "en-US";
+      const formatter = new Intl.DateTimeFormat(lang, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      formattedDate = formatter.format(date);
+    }
+  });
 </script>
 
-<ModalBody title={`Update v${$updateManifest.version} is Available!`} canClose={false}>
-  <div class="content">
+<ModalBody title={title} open={open} on:close={() => open = false} on:closeEnd={() => $showUpdateModal = false } canClose={false}>
+  <div class="content" style:height="{stepHeight[step]}px">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
-      <UpdateField label="Your Version" value={APP_VERSION} />
-      <UpdateField label="Newest Version" value={$updateManifest.version} />
-      <UpdateField label="Release Date" value={cleanDate} />
+      <UpdateField label="Release Date" value={formattedDate} />
+      <UpdateField label="Current Version" value={$updateManifest?.currentVersion ?? "Not Found"} />
+      <UpdateField label="New Version" value={$updateManifest?.version ?? "Not Found"} />
     </div>
-    <div class="changelog">
-      <div class="header"><b>Changelog</b>:</div>
-      <div class="release-notes-container">
-        <PaddedScrollContainer height={"calc(100% - 10px)"} width={"calc(100% - 10px)"}  background={"transparent"} marginTop="0px" padding="5px">
+    {#if step === "changelog"}
+      <div class="changelog">
+        <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div class="release-notes" on:click={clickListener}>
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html mdIt.render($updateManifest.body)}
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="release-notes" on:click={linkClick}>
+            {@html mdIt.render($updateManifest?.body ?? "No update details found")}
           </div>
-        </PaddedScrollContainer>
+        </div>
       </div>
-    </div>
-    <div class="buttons">
-      <Button label="Update" onClick={update} width="47.5%" />
-      <Button label="Ignore" onClick={ignoreUpdate} width="47.5%" />
-    </div>
+    {:else if step === "download"}
+      <div class="download-container" in:fade={{ duration: 300 }}>
+        <ProgressIndicator percent={downloaded / (contentLength || 1) * 100} />
+      </div>
+    {:else}
+      <div class="complete-message" in:fade={{ duration: 300 }}>
+        Steam Art Manager needs to restart. Would you like to restart now?
+      </div>
+    {/if}
   </div>
+  <span slot="buttons" class="buttons">
+    <div class="side">
+      {#if step === "changelog"}
+        <Button on:click={ignoreUpdate} width="100%">Skip</Button>
+      {:else if step === "restart"}
+        <Button on:click={() => { open = false }} width="100%">No</Button>
+      {/if}
+    </div>
+    <div class="side">
+      {#if step === "changelog"}
+        <Button on:click={downloadUpdate} width="100%">Download</Button>
+      {:else if step === "restart"}
+        <Button on:click={installUpdate} width="100%">Yes</Button>
+      {/if}
+    </div>
+  </span>
 </ModalBody>
 
 <style>
@@ -95,27 +169,20 @@
   }
 
   .info {
-    width: calc(100% - 14px);
-    margin: 7px;
+    width: 100%;
+    margin: 7px 0px;
   }
 
   .changelog {
-    width: calc(100% - 14px);
-    margin: 7px;
-    margin-top: 0px;
+    width: 100%;
   }
 
-  .changelog > .header {
-    font-size: 14px;
-    margin-bottom: 5px;
-  }
-
-  .changelog > .release-notes-container {
+  .changelog {
     border-radius: 4px;
     background-color: var(--background-dark);
     overflow: hidden;
 
-    height: 60vh;
+    height: calc(100% - 70px);
   }
 
   :global(.changelog .release-notes p) {
@@ -133,12 +200,30 @@
     margin-bottom: 3px;
   }
 
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
+  }
+
+  .download-container {
+    margin-top: 2rem;
+    width: 100%;
+  }
+  .complete-message {
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
+  }
+
+  .buttons > .side {
+    width: 48%;
   }
 </style>

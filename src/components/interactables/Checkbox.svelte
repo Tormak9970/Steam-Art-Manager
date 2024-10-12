@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Check } from "@icons";
+
   export let value:boolean;
   export let onChange: (checked: boolean) => void = () => {};
 
@@ -12,14 +14,12 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="check-box-container" on:click={check}>
-  <input type="checkbox" id="" bind:checked={value}>
+  <input type="checkbox" id="" bind:checked={value} />
   <span class="check-box">
     {#if value}
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-        <!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
-        <path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
-      </svg>
+      <Check height="16px" />
     {/if}
   </span>
 </div>
@@ -30,8 +30,8 @@
     position: relative;
     cursor: pointer;
 
-    height: 16px;
-    width: 16px;
+    height: 20px;
+    width: 20px;
 
     border-radius: 4px;
     border: 1px solid transparent;
@@ -46,9 +46,10 @@
   }
 
   .check-box {
-    height: calc(100% - 4px);
-    width: calc(100% - 4px);
-    background-color: var(--background);
+    height: calc(100% - 6px);
+    width: calc(100% - 6px);
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
     padding: 2px;
     border-radius: 4px;
     display: flex;
@@ -61,15 +62,8 @@
     fill: var(--highlight);
   }
 
-  :global([data-theme="light"] .check-box) {
-    background-color: var(--foreground-light) !important;
-  }
-
   .check-box-container:hover input ~ .check-box {
-    background-color: var(--background-hover);
-  }
-
-  :global([data-theme="light"] .check-box-container:hover input ~ .check-box) {
-    background-color: var(--foreground-light-hover) !important;
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 </style>

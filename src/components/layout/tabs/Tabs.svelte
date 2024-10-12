@@ -27,6 +27,7 @@
   {#each labels as label}
     <li class:active={selected === label}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <span on:click={() => onClick(label)}>{label}</span>
     </li>
   {/each}

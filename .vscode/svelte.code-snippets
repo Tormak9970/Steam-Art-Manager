@@ -1,0 +1,35 @@
+{
+	// Place your Steam-Art-Manager workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"Icon Component": {
+		"scope": "svelte",
+		"prefix": "icon",
+		"body": [
+			"<script lang=\"ts\">",
+      "  import type { SVGAttributes } from \"svelte/elements\";",
+      "",
+      "  interface \\$\\$Props extends SVGAttributes<any> {};",
+      "</script>",
+      "",
+      "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 $1 512\" {...\\$\\$restProps}>",
+      "  <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->",
+      "  <path d=\"$2\"/>",
+      "</svg>"
+		],
+		"description": "Template for a new icon file"
+	}
+}

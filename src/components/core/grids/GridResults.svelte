@@ -1,14 +1,12 @@
 <script lang="ts">
-  import { AppController } from "../../../lib/controllers/AppController";
-  import type { SGDBImage } from "../../../lib/models/SGDB";
-  import { dbFilters, gridType, GridTypes, isOnline, needsSGDBAPIKey, selectedGameAppId, selectedGameName, steamGridDBKey, selectedSteamGridGameId, lastPageCache, hasMorePagesCache, loadingSettings, steamGridSearchCache } from "../../../stores/AppState";
-  import Grid from "./Grid.svelte";
-  import { debounce, filterGrids, getHasMorePages, getPageNumberForGame } from "../../../lib/utils/Utils";
-  import GridLoadingSkeleton from "../../layout/GridLoadingSkeleton.svelte";
-  import PaddedScrollContainer from "../../layout/PaddedScrollContainer.svelte";
-  import { SMALL_GRID_DIMENSIONS } from "../../../lib/utils/ImageConstants";
-  import InfiniteScroll from "../../layout/pagination/InfiniteScroll.svelte";
+  import { AppController } from "@controllers";
+  import { scrollShadow } from "@directives";
+  import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
+  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { GridTypes, type SGDBImage } from "@types";
+  import { debounce, filterGrids, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
+  import Grid from "./Grid.svelte";
   
   const padding = 20;
 
@@ -17,33 +15,19 @@
   let gridsContainer: HTMLDivElement;
 
   let isLoading = true;
-  let hasMorePages = getHasMorePages($selectedSteamGridGameId, $gridType);
   let grids: SGDBImage[] = [];
 
-  /**
-   * Filters the grids based when relevant state changes.
-   * @param resultsPage The results page to show.
-   */
-  async function filterGridsOnStateChange(resultsPage: number): Promise<void> {
-    const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, resultsPage, $selectedSteamGridGameId);
-    grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
-  }
+  $: hasMore = ($hasMorePagesCache && $hasMorePagesCache[$selectedSteamGridGameId]) ? $hasMorePagesCache[$selectedSteamGridGameId][$gridType] : true;
+
+  $: searchCache = $selectedGameAppId !== "" ? $steamGridSearchCache[$selectedGameAppId]! : [];
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
-    if ($isOnline && $steamGridDBKey !== "" && !!$selectedGameAppId) {
-      const lastPageLoaded = getPageNumberForGame($selectedSteamGridGameId, $gridType);
-      const oldGridsLength = grids.length;
-
-      await filterGridsOnStateChange(lastPageLoaded + 1);
-      if (oldGridsLength !== grids.length) {
-        lastPageCache[parseInt($selectedSteamGridGameId)][$gridType] = lastPageLoaded + 1;
-      } else {
-        hasMorePagesCache[parseInt($selectedSteamGridGameId)][$gridType] = false;
-        hasMorePages = false;
-      }
+    if ($isOnline && $steamGridDBKey !== "" && $selectedGameAppId !== "") {
+      const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId, false);
+      grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
     }
   }
 
@@ -55,7 +39,7 @@
   const debouncedResize = debounce(handleResize, 500);
 
   onMount(() => {
-    if ($selectedGameAppId) {
+    if ($selectedGameAppId !== "") {
       if ($selectedSteamGridGameId === "None") {
         AppController.chooseSteamGridGameId($selectedGameAppId, hasCustomName).then((sgdbGameId) => {
           $selectedSteamGridGameId = sgdbGameId;
@@ -69,11 +53,13 @@
   });
 </script>
 
-<PaddedScrollContainer height={"calc(100% - 7px)"} width={"100%"} background={"transparent"} loading={isLoading} marginTop="0px" onOverflowChange={debouncedResize}>
+<svelte:document on:resize={debouncedResize} />
+
+<div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
   {#if !$loadingSettings}
     {#if $isOnline}
       {#if !$needsSGDBAPIKey}
-        {#if !!$selectedGameAppId}
+        {#if $selectedGameAppId !== ""}
           {#if isLoading}
             <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
               {#each new Array(100) as _}
@@ -89,7 +75,7 @@
               </div>
             {:else}
               <div class="message">
-                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{$steamGridSearchCache[$selectedGameAppId].find((game) => game.id.toString() === $selectedSteamGridGameId).name}".
+                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{searchCache.find((game) => game.id.toString() === $selectedSteamGridGameId)?.name ?? "Unkown"}".
               </div>
             {/if}
           {/if}
@@ -114,11 +100,11 @@
     </div>
   {/if}
   <InfiniteScroll
-    hasMore={hasMorePages}
+    hasMore={hasMore}
     threshold={100}
     on:loadMore={handleLoadOnScroll}
   />
-</PaddedScrollContainer>
+</div>
 
 <style>
   .game-grid {
@@ -132,6 +118,13 @@
     grid-auto-rows: var(--img-height);
 
     justify-content: center;
+  }
+  
+  .scroll-container {
+    height: 100%;
+    width: 100%;
+
+    overflow: auto;
   }
 
   .message {

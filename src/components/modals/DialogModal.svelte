@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { Button } from "@interactables";
   import { dialogModalCancel, dialogModalCancelText, dialogModalConfirm, dialogModalConfirmText, dialogModalMessage, dialogModalTitle, dialogModalType, showDialogModal } from "../../stores/Modals";
-  import Button from "../interactables/Button.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
+
+  let open = true;
 
   /**
    * Function to run on confirmation.
@@ -20,7 +22,7 @@
   }
 </script>
 
-<ModalBody title={$dialogModalTitle} canClose={false}>
+<ModalBody title={$dialogModalTitle} open={open} on:close={() => open = false} canClose={false}>
   <div class="content">
     <div class="info">
       <div class="type-cont">
@@ -43,15 +45,15 @@
       </div>
       <div class="message">{$dialogModalMessage}</div>
     </div>
-    <div class="buttons">
-      {#if $dialogModalConfirmText !== ""}
-        <Button label={$dialogModalConfirmText} onClick={onConfirm} width={$dialogModalCancelText !== "" ? "47.5%" : "100%"} />
-      {/if}
-      {#if $dialogModalCancelText !== ""}
-        <Button label={$dialogModalCancelText} onClick={onCancel} width={$dialogModalConfirmText !== "" ? "47.5%" : "100%"} />
-      {/if}
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    {#if $dialogModalConfirmText !== ""}
+      <Button on:click={onConfirm} width={$dialogModalCancelText !== "" ? "47.5%" : "100%"}>{$dialogModalConfirmText}</Button>
+    {/if}
+    {#if $dialogModalCancelText !== ""}
+      <Button on:click={onCancel} width={$dialogModalConfirmText !== "" ? "47.5%" : "100%"}>{$dialogModalCancelText}</Button>
+    {/if}
+  </span>
 </ModalBody>
 
 <style>
@@ -73,13 +75,9 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    margin-left: 7px;
-    margin-right: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

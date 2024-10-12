@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Placement } from "tippy.js";
+  import { AppController } from "@controllers";
   import { afterUpdate } from "svelte";
-  import { AppController } from "../../lib/controllers/AppController";
+  import type { Placement } from "tippy.js";
 
   export let leftTooltip: string;
   export let rightTooltip: string;
@@ -24,10 +24,12 @@
 
 <div class="icon-toggle">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="side left" class:selected={!value} on:click={() => setValue(false)} use:AppController.tippy={{ content: leftTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
     <slot name="left" />
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="side right" class:selected={value} on:click={() => setValue(true)} use:AppController.tippy={{ content: rightTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
     <slot name="right" />
   </div>
@@ -38,10 +40,14 @@
     display: flex;
     align-items: center;
 		color: var(--font-color);
+
+    border-radius: 4px;
+    border: 1px solid var(--foreground);
+    overflow: hidden;
   }
 
   .side {
-    background-color: var(--foreground-light);
+    background-color: var(--background-hover);
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
@@ -57,29 +63,25 @@
     height: 1em;
   }
   :global(.side svg) {
-    fill: var(--background-dark);
+    fill: var(--font-color);
+    opacity: 0.5;
   }
   :global(.side.selected svg) {
-    fill: var(--background-dark);
-  }
-
-  .left {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-  }
-
-  .right {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    fill: var(--font-color);
+    opacity: 0.8;
   }
 
   .left:hover,
   .right:hover {
-    background-color: var(--foreground-light-hover);
+    background-color: var(--foreground);
+  }
+
+  .icon-toggle:hover {
+    border: 1px solid var(--foreground-hover);
   }
 
   .selected,
   .selected:hover {
-    background-color: var(--highlight);
+    background-color: var(--foreground);
   }
 </style>

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
-  import { scrollShadow } from "../../lib/directives/scrollShadow";
+    import { scrollShadow } from "@directives";
+    import { onMount, tick } from "svelte";
 
 	// * Component Props.
 	export let items: any[];
 	export let height = "100%";
   export let width = "100%";
-	export let itemHeight = undefined;
+	export let itemHeight: any = undefined;
   
   export let keyFunction = (entry: any) => entry.index;
 
@@ -18,13 +18,12 @@
 	let mounted: boolean;
 	let rows: HTMLCollectionOf<HTMLElement>;
 	let visible: any[];
-	let heightMap = [];
+	let heightMap: number[] = [];
 
 	let viewport: HTMLElement;
 	let viewportHeight = 0;
 
 	let contents: HTMLElement;
-  let overflowContainer: HTMLElement;
 
 	let top = 0;
 	let bottom = 0;
@@ -144,13 +143,14 @@
 	});
 </script>
 
-<div class="overflow-shadow-container" style="width: {width}; height: {height};" bind:this={overflowContainer}>
+<div style="width: {width}; height: {height};">
   <svelte-virtual-list-viewport
     style="height: {height};"
+    class="styled-scrollbar"
+    use:scrollShadow={{ background: "--background" }}
     on:scroll={handleScroll}
     bind:offsetHeight={viewportHeight}
     bind:this={viewport}
-    use:scrollShadow={{ target: contents, container: overflowContainer, heightBump: 0 }}
   >
     <svelte-virtual-list-contents
       style="padding-top: {top}px; padding-bottom: {bottom}px;"
@@ -169,15 +169,17 @@
 	svelte-virtual-list-viewport {
 		position: relative;
 		overflow-y: auto;
-		-webkit-overflow-scrolling:touch;
+    overflow-x: hidden;
 		display: block;
 	}
 
-	svelte-virtual-list-contents, svelte-virtual-list-row {
+	svelte-virtual-list-contents {
 		display: block;
 	}
 
 	svelte-virtual-list-row {
-		overflow: hidden;
+    margin-left: 10px;
+    margin-right: 10px;
+		display: flex;
 	}
 </style>

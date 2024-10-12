@@ -1,19 +1,16 @@
 <script lang="ts">
+  import { GridView, ListView } from "@icons";
+  import { IconToggle, SearchBar, Toggle } from "@interactables";
+  import { ListTabs } from "@layout";
+  import { Platforms, currentPlatform, gamesSize, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
+  import type { GameStruct } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import type { Unsubscriber } from "svelte/store";
-  import { Platforms, currentPlatform, gamesSize, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "../../../stores/AppState";
-  import SearchBar from "../../interactables/SearchBar.svelte";
-  import Toggle from "../../interactables/Toggle.svelte";
-  import SectionTitle from "../SectionTitle.svelte";
-  import ListTabs from "../../layout/tabs/ListTabs.svelte";
-  import GamesList from "./list-view/GamesList.svelte";
-  import GamesGrid from "./grid-view/GamesGrid.svelte";
   import Divider from "../Divider.svelte";
-  import IconToggle from "../../interactables/IconToggle.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
-  import ListViewIcon from "../../icons/ListViewIcon.svelte";
-  import GridViewIcon from "../../icons/GridViewIcon.svelte";
+  import SectionTitle from "../SectionTitle.svelte";
+  import GamesGrid from "./grid-view/GamesGrid.svelte";
+  import GamesList from "./list-view/GamesList.svelte";
 
   let steamGamesUnsub: Unsubscriber;
   let manualSteamGamesUnsub: Unsubscriber;
@@ -135,37 +132,37 @@
 <svelte:window on:keydown={overwriteCtrlF} />
 
 <Pane minSize={20} size={$gamesSize}>
-  <SectionTitle title="Games" />
+  <div class="inner">
+    <SectionTitle title="Games" />
 
-  <div class="content">
-    <div style="display: flex; justify-content: space-between;">
-      <div style="display: flex; align-items: center;">
-        <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
-          <span slot="left">
-            <GridViewIcon />
-          </span>
-          <span slot="right">
-            <ListViewIcon />
-          </span>
-        </IconToggle>
-        <Spacer orientation="HORIZONTAL" />
-        <Toggle label="Show hidden" bind:value={$showHidden}/>
+    <div class="content">
+      <div class="inputs">
+        <div class="controls">
+          <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
+            <span slot="left">
+              <GridView height="14px" />
+            </span>
+            <span slot="right">
+              <ListView height="14px" />
+            </span>
+          </IconToggle>
+          <Toggle label="Show hidden" bind:value={$showHidden}/>
+        </div>
+        <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
       </div>
-      <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
+      
+      <Divider marginTop={"7px"} />
     </div>
-    
-    <Divider marginTop={"7px"} />
-    <Spacer orientation="VERTICAL" />
-  </div>
 
-  <div class="content" style="height: calc(100% - 85px);">
-    <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
-      {#if $renderGamesInList}
-        <GamesList isLoading={isLoading || $loadingGames} games={games} />
-      {:else}
-        <GamesGrid isLoading={isLoading || $loadingGames} games={games} />
-      {/if}
-    </ListTabs>
+    <div class="content" style="height: calc(100% - 85px);">
+      <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
+        {#if $renderGamesInList}
+          <GamesList isLoading={isLoading || $loadingGames} games={games} />
+        {:else}
+          <GamesGrid isLoading={isLoading || $loadingGames} games={games} />
+        {/if}
+      </ListTabs>
+    </div>
   </div>
 </Pane>
 
@@ -178,5 +175,25 @@
   .content {
     padding: 0px 6px;
     max-height: calc(100% - 65px)
+  }
+
+  .inner {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .inputs {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
   }
 </style>

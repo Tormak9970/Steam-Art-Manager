@@ -1,15 +1,17 @@
 <script lang="ts">
   import MarkDownIt from "markdown-it";
-  import { open } from "@tauri-apps/api/shell";
 
+  import { AppController } from "@controllers";
+  import { Button } from "@interactables";
+  import { gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
+  import { gridModalInfo, showGridModal } from "@stores/Modals";
+  import { GridTypes } from "@types";
+  import { PREVIEW_GRID_DIMENSIONS } from "@utils";
   import Lazy from "svelte-lazy";
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "../../stores/AppState";
-  import Button from "../interactables/Button.svelte";
-  import { AppController } from "../../lib/controllers/AppController";
   import ModalBody from "./modal-utils/ModalBody.svelte";
-  import { gridModalInfo, showGridModal } from "../../stores/Modals";
-  import Spacer from "../layout/Spacer.svelte";
-  import { PREVIEW_GRID_DIMENSIONS } from "../../lib/utils/ImageConstants";
+
+  let modalOpen = true;
+  $: definedModalInfo = $gridModalInfo!;
 
   /**
    * The function to run when the modal closes.
@@ -30,7 +32,7 @@
    * Apply the grid being previewed.
    */
   function applyGrid(): void {
-    AppController.setSteamGridArt($gridModalInfo.id, $gridModalInfo.url);
+    AppController.setSteamGridArt(definedModalInfo.id.toString(), definedModalInfo.url);
   }
 
   /**
@@ -48,41 +50,41 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid === $selectedGameAppId)?.name} - ${$gridType} #${$gridModalInfo?.id}`} onClose={onClose}>
+<ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} #${$gridModalInfo?.id}`} open={modalOpen} on:close={() => modalOpen = false} on:closeEnd={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {$gridModalInfo.width}px; height: {$gridModalInfo.height}px;">
+    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {definedModalInfo.width}px; height: {definedModalInfo.height}px;">
       <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">
         <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
-          <img src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}" alt="{$gridModalInfo?.author?.name}'s {$gridType} image" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;" />
+          <img
+            src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
+            alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
+            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          />
         </Lazy>
       </div>
     </div>
     <div class="info">
-      <div class="info-cont">
+      <div>
         <div class="author">
           <div class="pfp">
             <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author?.name}'s profile picture" />
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
-        <Spacer orientation="VERTICAL" />
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
         <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
-        <Spacer orientation="VERTICAL" />
         {#if $gridModalInfo?.notes}
-          <Spacer orientation="VERTICAL" />
           <div class="label">Notes:</div>
           <div class="border" />
-          <Spacer orientation="VERTICAL" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
         {:else}
           <div class="border" />
         {/if}
       </div>
       <div class="buttons">
-        <Button label="Apply" onClick={applyGrid} width="100%" />
+        <Button on:click={applyGrid} width="100%">Apply</Button>
       </div>
     </div>
   </div>
@@ -99,11 +101,9 @@
     flex-direction: row;
     height: calc(100% - 38px);
   }
-  .capsule .info {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 4px;
-    margin-right: 10px;
+  .capsule .info, .icon .info {
+    margin: 10px;
+    margin-right: 0px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -111,17 +111,10 @@
     flex-direction: column;
     justify-content: space-between;
   }
-  .capsule .info > .info-cont {
-    min-width: 200px;
-
-    display: flex;
-    flex-direction: column;
-  }
 
   .wide-capsule .info, .hero .info, .logo .info {
     margin-bottom: 10px;
-    margin-left: 14px;
-    margin-right: 10px;
+    margin-top: 10px;
     min-width: 200px;
     min-height: calc(100% - 20px);
 
@@ -136,26 +129,14 @@
     height: calc(100% - 38px);
     max-width: 550px;
   }
-  .icon .info {
+
+  .img-cont {
     margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 4px;
-    margin-right: 10px;
-    min-width: 200px;
-    min-height: calc(100% - 20px);
-
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
   }
-  .icon .info > .info-cont {
-    min-width: 200px;
-
-    display: flex;
-    flex-direction: column;
-  }
-
-  .img-cont { padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
   .img-cont > .img {
     border-radius: 2px;
@@ -185,6 +166,7 @@
   .author {
     display: flex;
     align-items: center;
+    margin-bottom: 7px;
   }
 
   .author > .name {
@@ -200,11 +182,15 @@
   }
 
   .label {
+    margin-top: 7px;
     font-size: 16px;
   }
   .label-small { font-size: 14px; }
 
-  .notes { font-size: 14px; }
+  .notes {
+    margin-top: 7px;
+    font-size: 14px;
+  }
 
   .buttons {
     margin-top: 14px;

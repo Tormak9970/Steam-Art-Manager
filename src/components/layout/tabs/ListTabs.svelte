@@ -16,6 +16,7 @@
   {#each tabs as tab}
     <li class:active={selected === tab}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <span on:click={() => onClick(tab)}>{tab}</span>
     </li>
   {/each}

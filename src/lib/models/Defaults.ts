@@ -1,3 +1,5 @@
+import type { AppSettings } from "@types";
+
 export const DEFAULT_FILTERS = {
   "Capsule": {
     "styles": {

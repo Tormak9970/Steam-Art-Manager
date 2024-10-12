@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { steamInstallPath } from "../../stores/AppState";
-  import { steamPathModalClose } from "../../stores/Modals";
-  import { LogController } from "../../lib/controllers/LogController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import Button from "../interactables/Button.svelte";
+  import { LogController } from "@controllers";
+  import { Button } from "@interactables";
+  import { showInfoSnackbar, steamInstallPath } from "@stores/AppState";
+  import { steamPathModalClose } from "@stores/Modals";
+  import { validateSteamPath } from "@utils";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import FilePathEntry from "./settings/FilePathEntry.svelte";
-  import Spacer from "../layout/Spacer.svelte";
-  import { validateSteamPath } from "../../lib/utils/Utils";
 
+  let open = true;
   let canSave = false;
 
   let steamInstallLocation = $steamInstallPath;
@@ -25,7 +24,7 @@
 
     canSave = false;
 
-    ToastController.showSuccessToast("Steam Install Location saved!");
+    $showInfoSnackbar({ message: "Steam Install Location saved!" });
 
     await $steamPathModalClose();
   }
@@ -45,10 +44,8 @@
   }
 </script>
 
-<ModalBody title={"Choose Your Steam Install Path"} canClose={false}>
+<ModalBody title={"Choose Your Steam Install Path"} open={open} on:close={() => open = false} canClose={false}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <FilePathEntry
       label="Steam Install Path"
       description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
@@ -59,30 +56,27 @@
       validator={validateSteamPath}
       required
     />
-
-    <div class="buttons">
-      <Button label="Save Changes" onClick={saveInstallLocation} width="100%" disabled={!canSave} />
-    </div>
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button on:click={saveInstallLocation} width="100%" disabled={!canSave}>Save Changes</Button>
+  </span>
 </ModalBody>
 
 <style>
   .content {
 		width: 600px;
 		height: calc(100% - 60px);
+    padding-top: 14px;
 
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-
-    margin: 0px 7px;
 	}
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
-    width: calc(100% - 14px);
+    width: 100%;
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;

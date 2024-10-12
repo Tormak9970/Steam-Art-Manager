@@ -1,22 +1,26 @@
 <script lang="ts">
-  import { steamKey, steamGridDBKey, needsSteamKey, needsSGDBAPIKey, activeUserId, steamInstallPath, debugMode, loadingGames } from "../../../stores/AppState";
-  import { LogController } from "../../../lib/controllers/LogController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
-  import { SettingsManager } from "../../../lib/utils/SettingsManager";
-  import Button from "../../interactables/Button.svelte";
-  import ModalBody from "../modal-utils/ModalBody.svelte";
-  import TextFieldEntry from "./TextFieldEntry.svelte";
-  import FilePathEntry from "./FilePathEntry.svelte";
-  import { showSettingsModal } from "../../../stores/Modals";
-  import Spacer from "../../layout/Spacer.svelte";
-  import { validateSteamPath, validateSGDBAPIKey, validateSteamAPIKey } from "../../../lib/utils/Utils";
-  import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
-  import IconButton from "../../interactables/IconButton.svelte";
+  import { AppController, DialogController, LogController } from "@controllers";
+  import { isOverflowing } from "@directives";
+  import { Folder } from "@icons";
+  import { Button, IconButton } from "@interactables";
+  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
-  import { shell } from "@tauri-apps/api";
-  import { DialogController } from "../../../lib/controllers/DialogController";
-  import { AppController } from "../../../lib/controllers/AppController";
+  import * as shell from "@tauri-apps/plugin-shell";
+  import { SettingsManager, validateSGDBAPIKey, validateSteamAPIKey, validateSteamPath } from "@utils";
+  import { onDestroy, onMount } from "svelte";
+  import type { Unsubscriber } from "svelte/store";
+  import ModalBody from "../modal-utils/ModalBody.svelte";
+  import DropdownEntry from "./DropdownEntry.svelte";
+  import FilePathEntry from "./FilePathEntry.svelte";
+  import TextFieldEntry from "./TextFieldEntry.svelte";
+  import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
+  
+	let activeUserIdUnsub: Unsubscriber;
+	let usersUnsub: Unsubscriber;
 
+  let open = true;
+  let overflowing = false;
   let steamApiKeyChanged = false;
 
   /**
@@ -43,6 +47,14 @@
 
   let canSave = false;
 
+	let users = Object.values($steamUsers).map((user) => {
+		return {
+			"label": user.PersonaName,
+			"data": user.id32
+		}
+	});
+	let selectedUserId = $activeUserId.toString();
+  
   let steamGridKey = $steamGridDBKey;
   let steamAPIKey = $steamKey;
   let steamInstallLocation = $steamInstallPath;
@@ -73,8 +85,10 @@
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
 
+    if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
+
     LogController.log("Saved settings.");
-    ToastController.showSuccessToast("Settings saved!");
+    $showInfoSnackbar({ message: "Settings saved!" });
     canSave = false;
 
     onClose();
@@ -86,6 +100,7 @@
   function cancel(): void {
     LogController.log("Reverting settings...");
 
+    selectedUserId = $activeUserId.toString();
     steamGridKey = $steamGridDBKey;
     steamAPIKey = $steamKey;
     steamInstallLocation = $steamInstallPath;
@@ -95,7 +110,7 @@
     
     canSave = false;
 
-    onClose();
+    open = false;
   }
 
   /**
@@ -156,89 +171,110 @@
       canSave = false;
     }
   }
+
+  onMount(() => {
+    activeUserIdUnsub = activeUserId.subscribe((id) => {
+			selectedUserId = id.toString();
+		});
+		usersUnsub = steamUsers.subscribe((sUsers) => {
+			users = Object.values(sUsers).map((user) => {
+				return {
+					"label": user.PersonaName,
+					"data": user.id32
+				}
+			});
+			if (!selectedUserId) selectedUserId = $activeUserId.toString();
+		});
+  });
+
+  onDestroy(() => {
+    if (activeUserIdUnsub) activeUserIdUnsub();
+    if (usersUnsub) usersUnsub();
+  });
 </script>
 
-<ModalBody title={"Settings"} onClose={onClose}>
+<ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
-    <div class="settings-container">
-      <FilePathEntry
-        label="Steam Install Path"
-        description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/steam</b> on Linux. You must restart after changing this."}
-        value={steamInstallLocation}
-        onChange={onInstallLocationChange}
-        useValidator
-        validPathMessage={"Path is a valid Steam install"}
-        validator={validateSteamPath}
-        required
-      />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
-      <TextFieldEntry
-        label="SteamGrid Api Key"
-        description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
-        value={steamGridKey}
-        onChange={onGridKeyChange}
-        useValidator
-        validator={validateSGDBAPIKey}
-        required
-      />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
-      <TextFieldEntry
-        label="Steam Api key"
-        description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
-        notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
-        value={steamAPIKey}
-        canBeEmpty
-        onChange={onSteamKeyChange}
-        useValidator
-        validator={validateSteamAPIKey}
-      />
-      <Spacer orientation="VERTICAL" />
-      <Spacer orientation="VERTICAL" />
-      <ToggleFieldEntry
-        label="Debug Mode"
-        description={"Enables the inspect element window and automatically opens it on launch."}
-        value={debugModeSetting}
-        onChange={onDebugModeChange}
-      />
-    </div>
-
-    <div class="buttons">
-      <Button label="Save Changes" onClick={saveSettings} width="46.5%" disabled={!canSave} />
-      <Button label="Cancel" onClick={cancel} width="46.5%" />
-      <IconButton label="Open log directory" onClick={openLogDirectory}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 14px; width: 14px;">
-          <!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-          <path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"/>
-        </svg>
-      </IconButton>
+    <div class="scroll-container" use:isOverflowing={{ callback: (o) => overflowing = o }}>
+      <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+        <FilePathEntry
+          label="Steam Install Path"
+          description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
+          value={steamInstallLocation}
+          onChange={onInstallLocationChange}
+          useValidator
+          validPathMessage={"Path is a valid Steam install"}
+          validator={validateSteamPath}
+          required
+        />
+        <TextFieldEntry
+          label="SteamGrid Api Key"
+          description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
+          value={steamGridKey}
+          onChange={onGridKeyChange}
+          useValidator
+          validator={validateSGDBAPIKey}
+          required
+        />
+        <TextFieldEntry
+          label="Steam Api key"
+          description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
+          notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
+          value={steamAPIKey}
+          canBeEmpty
+          onChange={onSteamKeyChange}
+          useValidator
+          validator={validateSteamAPIKey}
+        />
+        <DropdownEntry
+          label="Steam User"
+          description="Determines which Steam account to edit grids for."
+          options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
+          value={(users && users.length > 0) ? selectedUserId : "placeholder"}
+          onChange={(id) => {selectedUserId = id; canSave = true;}}
+        />
+        <ToggleFieldEntry
+          label="Debug Mode"
+          description={"Enables the inspect element window and automatically opens it on launch."}
+          value={debugModeSetting}
+          onChange={onDebugModeChange}
+        />
+      </div>
     </div>
   </div>
+
+  <span slot="buttons" class="buttons">
+    <Button on:click={cancel} width="46.5%">Cancel</Button>
+    <Button on:click={saveSettings} width="46.5%" disabled={!canSave}>Save Changes</Button>
+    <IconButton label="Open log directory" on:click={openLogDirectory}>
+      <Folder style="height: 14px; width: 14px;" />
+    </IconButton>
+  </span>
 </ModalBody>
 
 <style>
   .content {
 		width: 600px;
-
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
+    padding-top: 14px;
+    
+		max-height: 73vh;
 	}
 
-  .settings-container {
-		max-height: 73vh;
+  .scroll-container {
+    max-height: calc(73vh - 14px);
+    width: 100%;
+
     overflow-y: scroll;
-    margin: 0px 7px;
+  }
+  
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 10px;
-    width: calc(100% - 28px);
+    width: 100%;
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;

@@ -5,15 +5,15 @@ use std::fs;
 use std::path::PathBuf;
 
 use serde_json::{Value, Map};
-use image::io::Reader as ImageReader;
+use image::ImageReader;
 
 
-use tauri::{AppHandle, api::path};
+use tauri::{AppHandle, Manager};
 
 #[cfg(target_os = "windows")]
 // Gets the app tiles directory. (Windows)
-fn get_app_tiles_dir() -> PathBuf {
-  let data_dir: PathBuf = path::data_dir().expect("User's data directory should have existed.");
+fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
+  let data_dir: PathBuf = app_handle.to_owned().path().data_dir().expect("User's data directory should have existed.");
   let app_tiles_dir: PathBuf = data_dir.join("Microsoft/Windows/Start Menu/Programs/Steam");
 
   return app_tiles_dir;
@@ -21,8 +21,8 @@ fn get_app_tiles_dir() -> PathBuf {
 
 #[cfg(target_os = "linux")]
 // Gets the app tiles directory. (Linux)
-fn get_app_tiles_dir() -> PathBuf {
-  let data_dir: PathBuf = path::data_dir().expect("User's data directory should have existed.");
+fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
+  let data_dir: PathBuf = app_handle.to_owned().path().data_dir().expect("User's data directory should have existed.");
   let app_tiles_dir: PathBuf = data_dir.join("applications");
 
   return app_tiles_dir;
@@ -96,7 +96,7 @@ fn get_appinfo_from_shortcut(filename_str: &str, shortcut_path: PathBuf) -> Opti
 pub fn get_apps_with_tiles(app_handle: AppHandle) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting app tiles...", 0);
 
-  let app_tiles_dir: PathBuf = get_app_tiles_dir();
+  let app_tiles_dir: PathBuf = get_app_tiles_dir(app_handle.clone());
 
   let mut app_tiles: Map<String, Value> = Map::new();
 

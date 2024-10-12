@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { AppController } from "../../../lib/controllers/AppController";
-  import { showCleanGridsModal } from "../../../stores/Modals";
+  import { AppController } from "@controllers";
+  import { Button, DropDown } from "@interactables";
   import { manualSteamGames, nonSteamGames, selectedCleanGridsPreset, steamGames } from "../../../stores/AppState";
-  import Button from "../../interactables/Button.svelte";
-  import DropDown from "../../interactables/DropDown.svelte";
-  import Spacer from "../../layout/Spacer.svelte";
+  import { showCleanGridsModal } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
   $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
 
+  let open = true;
   let presets = [
     { label: "Clean", data: "clean" },
     { label: "Custom", data: "custom" },
@@ -40,9 +39,8 @@
   }
 </script>
 
-<ModalBody title={"Clean Grids"} onClose={onClose}>
+<ModalBody title={"Clean Grids"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can tidy up your custom artwork.<br/>
       <ul>
@@ -50,23 +48,19 @@
         <li><b>Custom</b>: Allows you to customize which games you want to delete the grids for.</li>
       </ul>
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="options">
       <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="100px" showTooltip={false} />
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="view">
       {#if $selectedCleanGridsPreset === "custom"}
         <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} showFilters={false}/>
       {/if}
     </div>
-    <div class="buttons">
-      <Button label="Clean" onClick={cleanGrids} width="47.5%" />
-      <Button label="Cancel" onClick={cancel} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button on:click={cancel} width="48.5%">Cancel</Button>
+    <Button on:click={cleanGrids} width="48.5%">Clean</Button>
+  </span>
 </ModalBody>
 
 <style>
@@ -78,11 +72,14 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    gap: 7px;
 	}
 
   .description {
-    width: calc(100% - 14px);
+    width: 100%;
     font-size: 14px;
+    margin-top: 7px;
   }
 
   .description ul {
@@ -96,7 +93,7 @@
   }
 
   .options {
-    width: calc(100% - 14px);
+    width: 100%;
   }
 
   .view {
@@ -104,11 +101,9 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

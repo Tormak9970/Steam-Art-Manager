@@ -15,6 +15,7 @@
 
   .title {
     margin: 6px;
+    margin-bottom: 0px;
     border-bottom: 1px solid var(--foreground);
   }
 </style>

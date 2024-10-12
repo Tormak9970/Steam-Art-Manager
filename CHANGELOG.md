@@ -6,6 +6,57 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.0
+
+New Features
+* added .deb build target ([a632d01](https://github.com/Tormak9970/Steam-Art-Manager/commit/a632d01))
+* added chunking and parallelization to appinfo reading ([2599a15](https://github.com/Tormak9970/Steam-Art-Manager/commit/2599a15))
+* added download indicator to update modal ([8cff2f1](https://github.com/Tormak9970/Steam-Art-Manager/commit/8cff2f1))
+* added fade-in for modals ([78f825e](https://github.com/Tormak9970/Steam-Art-Manager/commit/78f825e))
+* added sgdb search for manual games ([290ab1b](https://github.com/Tormak9970/Steam-Art-Manager/commit/290ab1b))
+* added tools modal ([db79bb8](https://github.com/Tormak9970/Steam-Art-Manager/commit/db79bb8))
+* migrated to Tauri v2 ([ecca566](https://github.com/Tormak9970/Steam-Art-Manager/commit/ecca566))
+* overhauled input elements ([0a2905e](https://github.com/Tormak9970/Steam-Art-Manager/commit/0a2905e))
+
+Bug Fixes
+* added icon when a grid fails to load ([1cb14ac](https://github.com/Tormak9970/Steam-Art-Manager/commit/1cb14ac))
+* added support for new appinfo-vdf version ([8447fe1](https://github.com/Tormak9970/Steam-Art-Manager/commit/8447fe1))
+* app no longer freezes when loading animated grids ([cb10456](https://github.com/Tormak9970/Steam-Art-Manager/commit/cb10456))
+* changed toasts to snackbars ([f73c9b3](https://github.com/Tormak9970/Steam-Art-Manager/commit/f73c9b3))
+* cleaned up modal & table styling ([fb98da2](https://github.com/Tormak9970/Steam-Art-Manager/commit/fb98da2))
+* corrected scrollbar styles to have proper spacing ([0146978](https://github.com/Tormak9970/Steam-Art-Manager/commit/0146978))
+* descreased public profile game load times ([1850717](https://github.com/Tormak9970/Steam-Art-Manager/commit/1850717))
+* grids now get applied correctly for manual games ([e69f41a](https://github.com/Tormak9970/Steam-Art-Manager/commit/e69f41a))
+* manual games correctly display their grid status ([096717b](https://github.com/Tormak9970/Steam-Art-Manager/commit/096717b))
+* optimized load time related to reading grids cache ([d541d50](https://github.com/Tormak9970/Steam-Art-Manager/commit/d541d50))
+* overhauled list item styles ([2ea3164](https://github.com/Tormak9970/Steam-Art-Manager/commit/2ea3164))
+* selecting a grid no longer requires a double click ([7badecb](https://github.com/Tormak9970/Steam-Art-Manager/commit/7badecb))
+* significantly decreased cache load time ([4ca2ce2](https://github.com/Tormak9970/Steam-Art-Manager/commit/4ca2ce2))
+* simplified cache system to prevent a few known bugs ([b5d0992](https://github.com/Tormak9970/Steam-Art-Manager/commit/b5d0992))
+* strongly typed the entire app ([668960a](https://github.com/Tormak9970/Steam-Art-Manager/commit/668960a))
+* switched how deep copies are made to speed up load times ([d5ac0e8](https://github.com/Tormak9970/Steam-Art-Manager/commit/d5ac0e8))
+* switched to native titlebar and moved steam user dropdown to settings ([813cc01](https://github.com/Tormak9970/Steam-Art-Manager/commit/813cc01))
+* updated github action for tauri v2 ([34aa9d8](https://github.com/Tormak9970/Steam-Art-Manager/commit/34aa9d8))
+
+Build Pipeline Improvements
+* switched action to use bun ([c6b7621](https://github.com/Tormak9970/Steam-Art-Manager/commit/c6b7621))
+
+## v3.6.8
+
+Bug Fixes
+* path resolution on linux should now work correctly ([926ab1d](https://github.com/Tormak9970/Steam-Art-Manager/commit/926ab1d))
+
+## v3.6.6
+
+Bug Fixes
+* now loads first page for games ([9213bc1](https://github.com/Tormak9970/Steam-Art-Manager/commit/9213bc1))
+
+## v3.6.5
+
+Bug Fixes
+* added additional paths to allowlist to prevent sarm from not finding install paths ([27d87bc](https://github.com/Tormak9970/Steam-Art-Manager/commit/27d87bc))
+* grids now refresh properly when a custom name is set ([b6ba640](https://github.com/Tormak9970/Steam-Art-Manager/commit/b6ba640))
+
 ## v3.6.4
 
 Bug Fixes

@@ -1,14 +1,15 @@
 <script lang="ts">
-  import { GridTypes, gridType, manualSteamGames, nonSteamGames, steamGames } from "../../../stores/AppState";
-  import Button from "../../interactables/Button.svelte";
-  import { AppController } from "../../../lib/controllers/AppController";
-  import { ToastController } from "../../../lib/controllers/ToastController";
+  import { AppController } from "@controllers";
+  import { Button } from "@interactables";
+  import { gridType, manualSteamGames, nonSteamGames, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import { showBatchApplyModal, showBatchApplyProgress } from "@stores/Modals";
+  import { GridTypes } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
-  import { showBatchApplyModal, showBatchApplyProgress } from "../../../stores/Modals";
 
   $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
 
+  let open = true;
   let selectedGameIds: string[] = [];
 
   /**
@@ -31,38 +32,34 @@
    * Cancels batch applying grids.
    */
   function cancel(): void {
-    ToastController.showGenericToast("Cancelled Batch Apply.");
+    $showInfoSnackbar({ message: "Cancelled Batch Apply." });
     onClose();
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} onClose={onClose}>
+<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="info">
       Choose the games you would like to batch apply grids to.
     </div>
     <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
-    <div class="buttons">
-      <Button label="Apply" onClick={batchApply} width="47.5%" />
-      <Button label="Cancel" onClick={cancel} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button on:click={cancel} width="47.5%">Cancel</Button>
+    <Button on:click={batchApply} width="47.5%">Apply</Button>
+  </span>
 </ModalBody>
 
 <style>
   .info {
     margin-top: 7px;
-    margin-left: 7px;
-    margin-right: 7px;
     font-size: 14px;
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
   }
 </style>

@@ -1,17 +1,14 @@
 <script lang="ts">
-  import { showUpdateTilesModal } from "../../stores/Modals";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, steamGames } from "../../stores/AppState";
-
-  import { AppController } from "../../lib/controllers/AppController";
-  import { ToastController } from "../../lib/controllers/ToastController";
-  import { LogController } from "../../lib/controllers/LogController";
-
+  import { AppController, LogController } from "@controllers";
+  import { Button } from "@interactables";
+  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, showErrorSnackbar, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import { showUpdateTilesModal } from "@stores/Modals";
+  import type { GameStruct } from "@types";
   import { onMount } from "svelte";
-  import Button from "../interactables/Button.svelte";
-  import Spacer from "../layout/Spacer.svelte";
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import GameFilter from "./modal-utils/game-filter/GameFilter.svelte";
 
+  let open = true;
   let appsWithTilesIds: string[];
   let appsWithTiles: Record<string, string>;
   
@@ -39,10 +36,10 @@
 
     if (failedIds.length > 0) {
       LogController.error(`Failed to update ${failedIds.length} tiles. Ids that failed: ${JSON.stringify(failedIds)}.`);
-      ToastController.showWarningToast(`Failed to update ${failedIds.length} tiles!`)
+      $showErrorSnackbar({ message: `Failed to update ${failedIds.length} tiles!` });
     } else {
       LogController.log(`Updated ${selectedGameIds.length} tiles.`);
-      ToastController.showSuccessToast(`Updated ${selectedGameIds.length} tiles`);
+      $showInfoSnackbar({ message: `Updated ${selectedGameIds.length} tiles` });
       onClose();
     }
   }
@@ -66,9 +63,8 @@
   });
 </script>
 
-<ModalBody title={"Update Start Menu Tiles"} onClose={onClose}>
+<ModalBody title={"Update Start Menu Tiles"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
-    <Spacer orientation="VERTICAL" />
     <div class="description">
       Here you can batch update the game icons shown in your Operating System's start menu to match your custom icons shown in steam.
       <br/>
@@ -80,16 +76,14 @@
         <li>You have changed the icon for this game.</li>
       </ul>
     </div>
-    <Spacer orientation="VERTICAL" />
-    <Spacer orientation="VERTICAL" />
     <div class="view">
       <GameFilter steamGames={filteredSteamGames} bind:selectedGameIds={selectedGameIds} showPlatforms={false} showFilters={false} noGamesMessage={"No games with tiles/new icons were found."}/>
     </div>
-    <div class="buttons">
-      <Button label="Update" onClick={updateGameTiles} width="47.5%" disabled={selectedGameIds.length === 0} />
-      <Button label="Cancel" onClick={onClose} width="47.5%" />
-    </div>
   </div>
+  <span slot="buttons" class="buttons">
+    <Button on:click={onClose} width="48.5%">Cancel</Button>
+    <Button on:click={updateGameTiles} width="48.5%" disabled={selectedGameIds.length === 0}>Update</Button>
+  </span>
 </ModalBody>
 
 <style>
@@ -101,11 +95,14 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
+
+    gap: 7px;
 	}
 
   .description {
-    width: calc(100% - 14px);
+    width: 100%;
     font-size: 14px;
+    margin-top: 7px;
   }
 
   .description ul {
@@ -123,11 +120,10 @@
   }
 
   .buttons {
-    margin-top: 14px;
-    margin-bottom: 7px;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     justify-self: flex-end;
+    gap: 10px;
   }
 </style>

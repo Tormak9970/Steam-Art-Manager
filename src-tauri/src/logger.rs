@@ -6,12 +6,12 @@ use std::fs::{
   OpenOptions
 };
 
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use chrono::prelude::*;
 
 /// Gets the log file path for this app.
 pub fn get_core_log_path(app_handle: &AppHandle) -> PathBuf {
-  let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
+  let app_log_dir: PathBuf = app_handle.to_owned().path().app_log_dir().expect("Tried to resolve app log dir and failed.");
 
   if !app_log_dir.exists() {
     create_dir_all(&app_log_dir).expect("Failed to make directory");
@@ -22,7 +22,7 @@ pub fn get_core_log_path(app_handle: &AppHandle) -> PathBuf {
 
 /// Gets the log file path for this app.
 pub fn get_batch_apply_log_path(app_handle: &AppHandle) -> PathBuf {
-  let app_log_dir: PathBuf = app_handle.to_owned().path_resolver().app_log_dir().expect("Tried to resolve app log dir and failed.");
+  let app_log_dir: PathBuf = app_handle.to_owned().path().app_log_dir().expect("Tried to resolve app log dir and failed.");
 
   if !app_log_dir.exists() {
     create_dir_all(&app_log_dir).expect("Failed to make directory");

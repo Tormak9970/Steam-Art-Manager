@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { open } from "@tauri-apps/api/shell";
-  import Toggle from "../../interactables/Toggle.svelte";
+  import { Toggle } from "@interactables";
+  import { open } from "@tauri-apps/plugin-shell";
 
   export let label = "";
   export let description = "";
@@ -24,10 +24,11 @@
 
 <div class="setting">
   <div class="inputs">
-    <Toggle label={label} onChange={onChange} bind:value={value} />
+    <Toggle label={label} on:change={(e) => onChange(e.detail.value)} bind:value={value} />
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="description" on:click={clickListener}>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html description}<br/>
@@ -40,13 +41,12 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin: 0px 7px;
 
     background-color: var(--background-dark);
     padding: 6px;
     border-radius: 4px;
 
-    width: calc(100% - 28px);
+    width: calc(100% - 14px);
   }
 
   .description {
