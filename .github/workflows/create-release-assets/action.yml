@@ -159,8 +159,8 @@ runs:
             const latestContentsBuff = Buffer.from(await getReleaseAssetContents(latest.id));
 
             let latestContents = latestContentsBuff.toString();
-            latestContents = latestContents.replace(msiUpdater.name, GENERIC_NAMES["msiUpdater"]);
-            latestContents = latestContents.replace(appinfoUpdater.name, GENERIC_NAMES["appimageUpdater"]);
+            latestContents = latestContents.replace(msiUpdater.name, `steam-art-manager_${versionNoV}.msi.zip`);
+            latestContents = latestContents.replace(appinfoUpdater.name, `steam-art-manager_${versionNoV}.AppImage.tar.gz`);
 
             const latestContentsJson = JSON.parse(latestContents);
             latestContentsJson.notes = process.env.change_log;
