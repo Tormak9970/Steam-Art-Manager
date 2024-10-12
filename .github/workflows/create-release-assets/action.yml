@@ -95,7 +95,7 @@ runs:
           if (process.env.git_branch == "release") {
             const versionNoV = process.env.release_tag.substring(1);
 
-            const RENAME_CONFIG = [
+            const RENAME_CONFIGS = [
               // MSI
               {
                 extension: ".msi",
@@ -145,7 +145,10 @@ runs:
 
             for (const renameConfig of RENAME_CONFIGS) {
               const asset = assets.data.find((asset) => asset.name.endsWith(renameConfig.extension));
-              await setReleaseAssetName(asset.id, renameConfig.newName);
+              
+              if (asset) {
+                await setReleaseAssetName(asset.id, renameConfig.newName);
+              }
             }
             
             const msiUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
