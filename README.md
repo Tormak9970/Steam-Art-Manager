@@ -7,7 +7,7 @@
 # Steam Art Manager
 A tool for setting the artwork of your Steam library.
 
-![Steam Art Manager's Main UI](public/images/../progress-images/v3.3.0/final-ui_v3.3.0.png)
+![Steam Art Manager's Main UI](./public/progress-images/v3.10.0/final-ui_v3.10.0.png)
 
 <br/>
 
@@ -29,7 +29,7 @@ To get the most recent release, head to the [latest release](https://github.com/
     1. Download the `appimage-installer.sh` bash script.
     2. Right click it, go to permissions, and mark it as executable.
     3. Double click the script to install SARM.
-  - **Deb** - Coming Soon
+  - **Deb** - Download the `steam-art-manager.deb` file, and run it to install SARM.
   - **Flatpak** - Coming Soon
 
 ## How to use the app
