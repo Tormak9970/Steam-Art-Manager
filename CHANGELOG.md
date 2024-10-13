@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.1
+
+Bug Fixes
+* local images now load properly ([6db37e2](https://github.com/Tormak9970/Steam-Art-Manager/commit/6db37e2))
+
 ## v3.10.0
 
 New Features
