@@ -77,7 +77,11 @@ export class SettingsManager {
    * Gets the settings data and updates it if needed.
    */
   private static async loadSettingsFromSystem(): Promise<AppSettings> {
-    const currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
+    let currentSettings: any = {};
+
+    if (await fs.exists(SettingsManager.settingsPath)) {
+      currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
+    }
 
     let settings: AppSettings = { ...currentSettings };
     
