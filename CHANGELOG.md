@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.2
+
+Bug Fixes
+* settings correctly save on new installs ([e9fe68e](https://github.com/Tormak9970/Steam-Art-Manager/commit/e9fe68e))
+
 ## v3.10.1
 
 Bug Fixes
