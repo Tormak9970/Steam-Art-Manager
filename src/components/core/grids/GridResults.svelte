@@ -2,7 +2,7 @@
   import { AppController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
-  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey } from "@stores/AppState";
   import { GridTypes, type SGDBImage } from "@types";
   import { debounce, filterGrids, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
@@ -18,8 +18,6 @@
   let grids: SGDBImage[] = [];
 
   $: hasMore = ($hasMorePagesCache && $hasMorePagesCache[$selectedSteamGridGameId]) ? $hasMorePagesCache[$selectedSteamGridGameId][$gridType] : true;
-
-  $: searchCache = $selectedGameAppId !== "" ? $steamGridSearchCache[$selectedGameAppId]! : [];
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
@@ -75,7 +73,7 @@
               </div>
             {:else}
               <div class="message">
-                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s for "{searchCache.find((game) => game.id.toString() === $selectedSteamGridGameId)?.name ?? "Unkown"}".
+                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found with your filters.
               </div>
             {/if}
           {/if}
