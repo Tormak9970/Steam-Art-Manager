@@ -2,7 +2,7 @@
   import { AppController } from "@controllers";
   import { Edit, Position, Upload } from "@icons";
   import { DropDown, IconButton } from "@interactables";
-  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, Platforms, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import { showLogoPositionModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
@@ -80,7 +80,7 @@
    * @param selectedAppId The selected game's appid.
    */
   function setAvailableSgdbGamesOnStateChange(searchCache: { [appid: string]: SGDBGame[] }, selectedAppId: string): void {
-    if (($currentPlatform === Platforms.STEAM || $currentPlatform === Platforms.NON_STEAM) && $selectedGameName && searchCache[selectedAppId]) {
+    if ($selectedGameName && searchCache[selectedAppId]) {
       availableSteamGridGames = Object.values(searchCache[selectedAppId]).map((value) => {
         return {
           "label": value.name,
