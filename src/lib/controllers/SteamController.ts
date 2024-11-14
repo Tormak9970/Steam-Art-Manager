@@ -233,7 +233,7 @@ export class SteamController {
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
         "appid": shortcut.appid,
-        "name": shortcut.AppName ?? shortcut.appname
+        "name": shortcut.AppName ?? shortcut.appName ?? shortcut.appname
       };
     });
     nonSteamGames.set(structuredShortcuts);
