@@ -253,7 +253,7 @@ export async function validateSteamAPIKey(key: string, userId?: number): Promise
     signal: AbortSignal.timeout(timeout)
   });
 
-  return res.ok || key === "";
+  return res.ok;
 }
 
 /**

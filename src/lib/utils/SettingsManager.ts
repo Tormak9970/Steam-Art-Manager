@@ -41,7 +41,7 @@ export class SettingsManager {
    */
   private static async setSettingsPath(): Promise<void> {
     const appDir = await path.appConfigDir();
-    if (!(await fs.exists(appDir))) await fs.create(appDir);
+    if (!(await fs.exists(appDir))) await fs.mkdir(appDir);
 
     const setsPath = await path.join(appDir, "settings.json");
     if (!(await fs.exists(setsPath))) {
@@ -77,7 +77,11 @@ export class SettingsManager {
    * Gets the settings data and updates it if needed.
    */
   private static async loadSettingsFromSystem(): Promise<AppSettings> {
-    const currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
+    let currentSettings: any = {};
+
+    if (await fs.exists(SettingsManager.settingsPath)) {
+      currentSettings = JSON.parse(await fs.readTextFile(SettingsManager.settingsPath));
+    }
 
     let settings: AppSettings = { ...currentSettings };
     
