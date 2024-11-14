@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.4
+
+Bug Fixes
+* added handling for edge case in shortcut appname field casing ([363bc81](https://github.com/Tormak9970/Steam-Art-Manager/commit/363bc81))
+
 ## v3.10.3
 
 Bug Fixes
