@@ -119,7 +119,6 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
 }
 
 
-#[allow(unused)]
 /// Generates a Grids zip file export.
 fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, id_name_map: &Map<String, Value>) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
@@ -139,7 +138,6 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     let contents: Vec<u8> = read(entry.path()).expect("Should have been able to read file, but couldn't.");
     let filename = entry.file_name();
     let filename_str: &str = filename.to_str().unwrap();
-    let mut in_zip_filename: String = String::from(filename_str);
     let (id, grid_type) = get_id_from_grid_name(filename_str);
     
     if !platform_id_map.contains_key(&id) {
@@ -151,14 +149,14 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     let platform: &str = platform_value.as_str().expect("Should have been able to convert platform to string.");
 
     let modified_filename = construct_grid_export_name(filename_str, &id, &grid_type, platform, id_name_map);
-    in_zip_filename = modified_filename;
+    let in_zip_filename = modified_filename;
     
-    zip_writer.start_file(in_zip_filename, entry_options);
-    zip_writer.write(&contents);
+    let _ = zip_writer.start_file(in_zip_filename, entry_options);
+    let _ = zip_writer.write(&contents);
     logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
   }
 
-  zip_writer.finish();
+  let _ = zip_writer.finish();
   logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
   return true;
 }
@@ -241,10 +239,10 @@ pub async fn import_grids_from_zip(app_handle: AppHandle, steam_path: String, st
     .add_filter("zip", &["zip"])
     .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
 
-  let file_path = file_dialog.blocking_save_file();
+  let file_path = file_dialog.blocking_pick_file();
 
   if file_path.is_some() {
-    let zip_path = file_path.unwrap();
+    let zip_path = file_path.unwrap().path;
     logger::log_to_core_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
