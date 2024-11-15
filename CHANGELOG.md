@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.5
+
+Bug Fixes
+* grids import now works properly ([c4313fa](https://github.com/Tormak9970/Steam-Art-Manager/commit/c4313fa))
+
 ## v3.10.4
 
 Bug Fixes
