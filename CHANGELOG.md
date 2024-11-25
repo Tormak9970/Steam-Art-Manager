@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.6
+
+Bug Fixes
+* grids now properly display on load and after clear ([c854bf5](https://github.com/Tormak9970/Steam-Art-Manager/commit/c854bf5))
+
 ## v3.10.5
 
 Bug Fixes
