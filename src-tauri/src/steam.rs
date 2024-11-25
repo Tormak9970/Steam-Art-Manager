@@ -1,5 +1,7 @@
 
 use crate::logger;
+use crate::parsers::appinfo_vdf_parser::open_appinfo_vdf;
+use crate::parsers::shortcuts_vdf_parser::open_shortcuts_vdf;
 
 use std::fs::{self, create_dir_all};
 use std::path::{ PathBuf, Path };
@@ -241,4 +243,67 @@ pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), format!("Loaded {} steam users.", steam_users.len()).as_str(), 0);
 
   return serde_json::to_string(&steam_users).unwrap();
+}
+
+#[tauri::command]
+/// Reads the user's appinfo.vdf file.
+pub async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
+  let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(app_handle.to_owned(), steam_path));
+  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
+  return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
+}
+
+#[tauri::command]
+/// Reads the user's shortcuts.vdf file.
+pub async fn read_shortcuts_vdf(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
+  let shortcuts_path = PathBuf::from(get_shortcuts_path(app_handle.to_owned(), steam_path, steam_active_user_id));
+    
+  if shortcuts_path.as_path().exists() {
+    logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
+    let shortcuts_array = open_shortcuts_vdf(&shortcuts_path);
+    return serde_json::to_string(&shortcuts_array).expect("Should have been able to serialize Shortcuts vdf to string.");
+  } else {
+    logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf does not exist.", 0);
+    return "{}".to_owned();
+  }
+}
+
+#[tauri::command]
+/// Reads the user's localconfig.vdf file.
+pub async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, steam_active_user_id: String) -> String {
+  let localconfig_path = PathBuf::from(get_localconfig_path(app_handle.to_owned(), steam_path, steam_active_user_id));
+    
+  if localconfig_path.as_path().exists() {
+    logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf exists, reading...", 0);
+    let localconfig_contents: String = fs::read_to_string(localconfig_path).expect("localconfig.vdf should have existed.").parse().expect("File should have been a text file.");
+    
+    let mut appids: Vec<String> = Vec::new();
+    
+    let mut is_reading_appids: bool = false;
+
+    for line in localconfig_contents.split("\n") {
+      if line == "\t\t\t\t\"apps\"" {
+        is_reading_appids = true;
+        continue;
+      }
+
+      if is_reading_appids {
+        if line.starts_with("\t\t\t\t\t\"") {
+          let length = line.chars().count();
+          let appid_res = line.get(6..(length - 1));
+          let appid = appid_res.expect("appid_res should have been ok");
+          appids.push(appid.to_string());
+        }
+
+        if line == "\t\t\t\t}" {
+          break;
+        }
+      }
+    }
+
+    return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
+  } else {
+    logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
+    return "{}".to_owned();
+  }
 }

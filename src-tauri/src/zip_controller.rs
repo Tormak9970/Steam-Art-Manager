@@ -1,10 +1,13 @@
-use crate::logger;
+use crate::{logger, steam};
 
 use std::{path::PathBuf, io::{BufReader, self, Write}, fs::{File, read_dir, read}};
 
 use serde_json::{Map, Value};
 use tauri::AppHandle;
+use tauri_plugin_dialog::DialogExt;
 use zip;
+
+use home::home_dir;
 
 /// Gets the id for a grid from its name.
 pub fn get_id_from_grid_name(grid_name: &str) -> (String, String) {
@@ -115,9 +118,9 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
   }
 }
 
-#[allow(unused)]
+
 /// Generates a Grids zip file export.
-pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, id_name_map: &Map<String, Value>) -> bool {
+fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, platform_id_map: &Map<String, Value>, id_name_map: &Map<String, Value>) -> bool {
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file: File = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
   let mut zip_writer: zip::ZipWriter<File> = zip::ZipWriter::new(zip_file);
@@ -127,36 +130,39 @@ pub fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
   for dir_entry in grids_dir_contents {
     let entry = dir_entry.expect("Should have been able to get directory entry.");
 
-    if entry.file_type().unwrap().is_file() {
-      let contents: Vec<u8> = read(entry.path()).expect("Should have been able to read file, but couldn't.");
-      let filename = entry.file_name();
-      let filename_str: &str = filename.to_str().unwrap();
-      let mut in_zip_filename: String = String::from(filename_str);
-      let (id, grid_type) = get_id_from_grid_name(filename_str);
-      
-      if platform_id_map.contains_key(&id) {
-        let platform_value: &Value = platform_id_map.get(&id).expect("Platform map should have contained game/shortcut id.");
-        let platform: &str = platform_value.as_str().expect("Should have been able to convert platform to string.");
-
-        let modified_filename = construct_grid_export_name(filename_str, &id, &grid_type, platform, id_name_map);
-        in_zip_filename = modified_filename;
-      }
-
-      zip_writer.start_file(in_zip_filename, entry_options);
-      zip_writer.write(&contents);
-      logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
-    } else {
-      logger::log_to_core_file(app_handle.to_owned(), format!("Zip entry {} is a directory, skipping...", entry.file_name().to_str().unwrap()).as_str(), 1);
+    if !entry.file_type().unwrap().is_file() {
+      logger::log_to_core_file(app_handle.to_owned(), format!("Grid entry {} is a directory, skipping...", entry.file_name().to_str().unwrap()).as_str(), 1);
+      continue;
     }
+
+    let contents: Vec<u8> = read(entry.path()).expect("Should have been able to read file, but couldn't.");
+    let filename = entry.file_name();
+    let filename_str: &str = filename.to_str().unwrap();
+    let (id, grid_type) = get_id_from_grid_name(filename_str);
+    
+    if !platform_id_map.contains_key(&id) {
+      logger::log_to_core_file(app_handle.to_owned(), format!("Grid entry {} is not in appids list, skipping...", entry.file_name().to_str().unwrap()).as_str(), 1);
+      continue;
+    }
+
+    let platform_value: &Value = platform_id_map.get(&id).expect("Platform map should have contained game/shortcut id.");
+    let platform: &str = platform_value.as_str().expect("Should have been able to convert platform to string.");
+
+    let modified_filename = construct_grid_export_name(filename_str, &id, &grid_type, platform, id_name_map);
+    let in_zip_filename = modified_filename;
+    
+    let _ = zip_writer.start_file(in_zip_filename, entry_options);
+    let _ = zip_writer.write(&contents);
+    logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
   }
 
-  zip_writer.finish();
+  let _ = zip_writer.finish();
   logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
   return true;
 }
 
 /// Sets the users grids from a Grids zip file.
-pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, name_id_map: &Map<String, Value>) -> (bool, Map<String, Value>) {
+fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_path: PathBuf, name_id_map: &Map<String, Value>) -> (bool, Map<String, Value>) {
   let mut icon_map: Map<String, Value> = Map::new();
 
   let zip_file = File::open(zip_file_path).expect("File should have existed since user picked it.");
@@ -191,4 +197,66 @@ pub fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_f
   }
 
   return (true, icon_map);
+}
+
+
+#[tauri::command]
+/// Exports the users grids to a Grids zip file.
+pub async fn export_grids_to_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, platform_id_map: Map<String, Value>, id_name_map: Map<String, Value>) -> bool {
+  let file_dialog = app_handle.dialog().file()
+    .set_title("Save Grids Zip")
+    .set_file_name("Steam_Grids_Export.zip")
+    .add_filter("zip", &["zip"])
+    .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
+
+  let file_path = file_dialog.blocking_save_file();
+
+  if file_path.is_some() {
+    let zip_path = file_path.unwrap();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
+
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
+    let succeeded = generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &platform_id_map, &id_name_map);
+
+    if succeeded {
+      logger::log_to_core_file(app_handle.to_owned(), "Successfully saved the user's grids.", 0);
+      return true;
+    }
+    
+    logger::log_to_core_file(app_handle.to_owned(), "Failed to save the user's grids.", 0);
+    return false;
+  }
+  
+  logger::log_to_core_file(app_handle.to_owned(), "No save location was chosen.", 0);
+  return false;
+}
+
+#[tauri::command]
+/// Sets the users grids from a Grids zip file.
+pub async fn import_grids_from_zip(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, name_id_map: Map<String, Value>) -> (bool, Map<String, Value>) {
+  let file_dialog = app_handle.dialog().file()
+    .set_title("Pick a Grids Zip")
+    .add_filter("zip", &["zip"])
+    .set_directory(home_dir().expect("Should have been able to get home dir for zip."));
+
+  let file_path = file_dialog.blocking_pick_file();
+
+  if file_path.is_some() {
+    let zip_path = file_path.unwrap().path;
+    logger::log_to_core_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
+
+    let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
+    let (success, icon_map) = set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &name_id_map);
+
+    if success {
+      logger::log_to_core_file(app_handle.to_owned(), "Successfully set the user's grids.", 0);
+      return (success, icon_map);
+    }
+    
+    logger::log_to_core_file(app_handle.to_owned(), "Failed to set the user's grids.", 0);
+    return (success, icon_map);
+  }
+  
+  logger::log_to_core_file(app_handle.to_owned(), "No zip file was selected by user.", 0);
+  return (false, Map::new());
 }
