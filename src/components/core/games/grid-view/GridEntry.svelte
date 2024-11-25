@@ -20,7 +20,6 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="game" class:selected={$selectedGameAppId === game.appid.toString()} on:click={selectGame}>
   <div class="button-container">
     <div
