@@ -240,6 +240,7 @@ export class SteamController {
 
     
     const filteredCache = await SteamController.getCacheData(structuredShortcuts);
+    console.log("filteredCache:", JSON.parse(JSON.stringify(filteredCache)));
     const filteredKeys = Object.keys(filteredCache);
       
 

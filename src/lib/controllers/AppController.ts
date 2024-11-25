@@ -21,7 +21,7 @@ import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
@@ -43,7 +43,7 @@ export class AppController {
     duration: 100,
     theme: "sarm",
     arrow: true,
-    appendTo: 'parent'
+    appendTo: "parent"
   });
 
   static onTippyShow(instance: Instance<Props>): void {
@@ -93,6 +93,7 @@ export class AppController {
   static async saveChanges(): Promise<void> {
     LogController.log("Saving changes...");
 
+    const unfilteredCache = get(unfilteredLibraryCache);
     const originalCache = get(originalAppLibraryCache);
     const libraryCache = get(appLibraryCache);
     const shortcuts = get(steamShortcuts);
@@ -125,7 +126,8 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? "" : changedPath.targetPath;
+        const originalPath = unfilteredCache[changedPath.appId][changedPath.gridType] ?? "";
+        libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? originalPath : changedPath.targetPath;
         
         if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
           const shortcut = shortcuts.find((s) => s.appid.toString() === changedPath.appId)!;
@@ -139,7 +141,7 @@ export class AppController {
       steamShortcuts.set(shortcuts);
 
       let logoPosEntries = Object.entries(steamLogoPos);
-      logoPosEntries = logoPosEntries.filter(([ appid, logoPos ]) => {
+      logoPosEntries = logoPosEntries.filter(([ _, logoPos ]) => {
         return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE";
       });
 
@@ -450,7 +452,7 @@ export class AppController {
       await AppController.saveChanges();
 
       const filteredCache = await SteamController.getCacheData(get(nonSteamGames));
-      originalAppLibraryCache.set(filteredCache);
+      originalAppLibraryCache.set(structuredClone(filteredCache));
       appLibraryCache.set(filteredCache);
     } else {
       LogController.log("Import grids cancelled.");

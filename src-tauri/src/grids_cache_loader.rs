@@ -171,7 +171,9 @@ async fn filter_library_dir(app_handle: &AppHandle, steam_path: String, grid_cac
         }
 
         library_cache_entry.insert(type_key.to_owned(), Value::String(path_str.clone()));
-        grid_cache_entry.insert(type_key.to_owned(), Value::String(path_str));
+        if !grid_cache_entry.contains_key(type_key) {
+          grid_cache_entry.insert(type_key.to_owned(), Value::String(path_str));
+        }
 
         unfiltered_cache.insert(app_id.clone(), Value::Object(library_cache_entry));
         grid_cache_data.insert(app_id, Value::Object(grid_cache_entry));

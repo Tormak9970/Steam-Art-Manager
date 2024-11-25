@@ -78,8 +78,17 @@ export const hiddenGameIds = writable<number[]>([]);
 export const manualSteamGames = writable<GameStruct[]>([]);
 export const customGameNames = writable<{ [appid: string]: string }>({});
 
+/**
+ * The default library art provided by Steam.
+ */
 export const unfilteredLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+/**
+ * The user's library art including custom art.
+ */
 export const originalAppLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+/**
+ * The user's library art including custom art and changes made in this session.
+ */
 export const appLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
 
 
@@ -93,8 +102,8 @@ export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>
 export const dbFilters: Writable<DBFilters> = writable(DEFAULT_FILTERS);
 
 export const selectedGameName = derived(
-  [selectedGameAppId, steamGames, nonSteamGames, manualSteamGames, customGameNames],
-  ([$selectedGameAppId, $steamGames, $nonSteamGames, $manualSteamGames, $customGameNames]) => {
+  [ selectedGameAppId, steamGames, nonSteamGames, manualSteamGames, customGameNames ],
+  ([ $selectedGameAppId, $steamGames, $nonSteamGames, $manualSteamGames, $customGameNames ]) => {
     if ($selectedGameAppId === "") return "None";
 
     if ($customGameNames[$selectedGameAppId]) return $customGameNames[$selectedGameAppId];
