@@ -1,15 +1,15 @@
 {
-	"version": "3.10.4",
-	"notes": "Bug Fixes\n* added handling for edge case in shortcut appname field casing ([363bc81](https://github.com/Tormak9970/Steam-Art-Manager/commit/363bc81))",
-	"pub_date": "2024-11-14T18:26:57.109Z",
+	"version": "3.10.6",
+	"notes": "Bug Fixes\n* grids now properly display on load and after clear ([c854bf5](https://github.com/Tormak9970/Steam-Art-Manager/commit/c854bf5))",
+	"pub_date": "2024-11-25T19:40:34.042Z",
 	"platforms": {
-		"windows-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXVnUVdwTWl6YXlyK0pvMGk4a1BkSlQraVQ4cXhKUVNRWkVIemxiMnJTUTB1NDJ2WEx5aXQ3a2JaOHBiZGFzNm0vY011blpDb1J0Ky9LNHpyaWhPV0FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMxNjA4NjMyCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMC40X3g2NF9lbi1VUy5tc2kuemlwCkVmRHZYN0piczMwQ2p1UzlSL2pOZUpreWhmYWNzQXc2c29aeXE3bkc2bktTaDNIOUlQcUpkZFE0MGpEQ1JTYlIrTnJsbGJkL2N5djZ5WGFUbDRwdkJ3PT0K",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.10.4/steam-art-manager_3.10.4.msi.zip"
-		},
 		"linux-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWo5a0R0TlA2NUJVb09takJPWG43VFdTakowVmd5YitjaFA3UzRYSTJMZHRjaWFsdmNTd2VUMDB3SVJmUjJtVmcrcXBVd25BUVFGMWlpU0dRMjhjN3c0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMxNjA4ODExCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMC40X2FtZDY0LkFwcEltYWdlLnRhci5negpWMDhLczd1ZmdlMURRbWYyaTdlL0NYL3pCYmFOS0w4VDJSNHpVNVQ3aG0yT0xZa0RrL2tsbFF5SWFKZWVhU3BQU2czd2ZUcjFyMWc4bktYYkZtbUdCZz09Cg==",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.10.4/steam-art-manager_3.10.4.AppImage.tar.gz"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWlmVE9COHFzNm8vMmFiVVZBZno2d1BSc1h0UEdIRWo0b1hBbENaTTJVdzFrcEhEM1JKRm5LeHFJYmFQdDdPcURxTFZVcGQyRGtNbTRYclg4Zi9XOXdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMyNTYzNTYxCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMC42X2FtZDY0LkFwcEltYWdlLnRhci5negp2Qy9jN3lxc29yVkdxVkdDZjAvQW44V3d2WGMyTnc4TS8zMTcwVFJpdTRJbE1sZ0F5bHh1a05CeEJxQTUvM0RBQnFwa055c2lhZDdoZktNZ1VGbEFEUT09Cg==",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.10.6/steam-art-manager_3.10.6.AppImage.tar.gz"
+		},
+		"windows-x86_64": {
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXBqSm9nbFA2Q0pDTnBjcVBYaGxlazM1YWNxSzhmUWVrb1lrdHZzYk5GMWxHYU1Lc3RvQ2o5WHFKUXR5UVU1K1ErUEtXR0tMV1Rzb0cvelllRFNYQ1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMyNTYzNjI2CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMC42X3g2NF9lbi1VUy5tc2kuemlwCk8yeElTVTJ3UWtScm1ITWlLOXFnbWZIbEc4d3JGZmNPZGJPUWdZSitzVXF6RnhnVVJ0RGZLMFEzSVcvSzBXMlFsOTA1akdyczBYVzdQWURjRklFdkJ3PT0K",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.10.6/steam-art-manager_3.10.6.msi.zip"
 		}
 	}
 }
