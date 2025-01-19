@@ -11,15 +11,16 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 UPINFO="gh-releases-zsync|$(echo "$GITHUB_REPOSITORY" | tr '/' '|')|latest|*$ARCH.AppImage.zsync"
 APPIMAGETOOL="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
 LIB4BIN="https://raw.githubusercontent.com/VHSgunzo/sharun/refs/heads/main/lib4bin"
-SARM_URL=$(wget --retry-connrefused --tries=30 \
-	https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases -O - \
-	| sed 's/[()",{} ]/\n/g' | grep -oi "https.*amd64.deb$" | head -1)
 
 mkdir ./AppDir
 cd ./AppDir
 
 # Unpack the deb
-wget --retry-connrefused --tries=30 "$SARM_URL" -O ./sarm.deb
+if [ -z "$1" ]; then
+	echo "ERROR: Please give the path to the .deb file to turn into an AppImage"
+	exit 1
+fi
+cp -v "$1" ./sarm.deb
 ar vx sarm.deb
 tar -xvf data.tar.gz
 rm -f *.tar* sarm.deb debian-binary
