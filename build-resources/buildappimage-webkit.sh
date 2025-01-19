@@ -16,7 +16,7 @@ mkdir ./AppDir
 cd ./AppDir
 
 # Unpack the deb
-if [ -z "$1" ]; then
+if [ ! -f "$1" ]; then
 	echo "ERROR: Please give the path to the .deb file to turn into an AppImage"
 	exit 1
 fi
