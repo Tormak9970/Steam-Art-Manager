@@ -89,7 +89,6 @@ runs:
 
             const WORK_DIR_PATH = path.resolve(process.cwd(), "appimage-build-dir");
             const APPIMAGE_BUILD_SCRIPT_PATH = path.resolve(process.cwd(), "build-resources", "buildappimage-webkit.sh");
-            const APPIMAGE_OUTPUT_PATH = ""; // TODO: this needs to be set
             
             const DEB_PATH = path.resolve(WORK_DIR_PATH, "steam-art-manager.deb");
 
@@ -100,12 +99,14 @@ runs:
 
             fs.writeFileSync(DEB_PATH, contents);
 
-            await childProcess.exec(`${APPIMAGE_BUILD_SCRIPT_PATH} \"${DEB_PATH}\"`);
+            childProcess.execSync(`${APPIMAGE_BUILD_SCRIPT_PATH} \"${DEB_PATH}\"`, {
+              cwd: WORK_DIR_PATH
+            });
 
+            const APPIMAGE_OUTPUT_PATH = path.resolve(WORK_DIR_PATH, "Steam-Art-Manager-anylinux-x86_64.AppImage");
             const appimageContents = fs.readFileSync(APPIMAGE_OUTPUT_PATH);
             await uploadReleaseAsset(APPIMAGE_NAME, appimageContents);
 
-            // TODO: fs.rmSync(APPIMAGE_OUTPUT_PATH);
             fs.rmSync(WORK_DIR_PATH, { recursive: true });
           }
           
@@ -169,7 +170,6 @@ runs:
             }
             
             const msiUpdater = assets.data.find((asset) => asset.name.endsWith(".msi.zip"));
-            const appimageUpdater = assets.data.find((asset) => asset.name.endsWith(".AppImage.tar.gz"));
 
 
             const latest = assets.data.find((asset) => asset.name === "latest.json");
@@ -177,10 +177,16 @@ runs:
 
             let latestContents = latestContentsBuff.toString();
             latestContents = latestContents.replace(msiUpdater.name, `steam-art-manager_${versionNoV}.msi.zip`);
-            latestContents = latestContents.replace(appimageUpdater.name, `steam-art-manager_${versionNoV}.AppImage.tar.gz`);
 
             const latestContentsJson = JSON.parse(latestContents);
             latestContentsJson.notes = process.env.change_log;
+
+            // TODO: set appImage section
+            // latestContentsJson.platforms.linux-x86_64 = {
+            //   "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWlmVE9COHFzNm8vMmFiVVZBZno2d1BSc1h0UEdIRWo0b1hBbENaTTJVdzFrcEhEM1JKRm5LeHFJYmFQdDdPcURxTFZVcGQyRGtNbTRYclg4Zi9XOXdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMyNTYzNTYxCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMC42X2FtZDY0LkFwcEltYWdlLnRhci5negp2Qy9jN3lxc29yVkdxVkdDZjAvQW44V3d2WGMyTnc4TS8zMTcwVFJpdTRJbE1sZ0F5bHh1a05CeEJxQTUvM0RBQnFwa055c2lhZDdoZktNZ1VGbEFEUT09Cg==",
+            //   "url": `https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v${versionNoV}/steam-art-manager_${versionNoV}.AppImage.tar.gz``
+            // }
+
             latestContents = JSON.stringify(latestContentsJson, null, '\t');
 
             await deleteReleaseAsset(latest.id);
