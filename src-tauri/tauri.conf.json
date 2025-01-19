@@ -118,7 +118,6 @@
     "resources": [],
     "shortDescription": "A tool for setting the artwork of your Steam library.",
     "targets": [
-      "appimage",
       "msi",
       "deb"
     ],
