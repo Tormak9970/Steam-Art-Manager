@@ -33,6 +33,8 @@ runs:
         release_tag: ${{ inputs.release_tag }}
         git_branch: ${{ inputs.git_branch }}
         change_log: ${{ inputs.change_log }}
+        TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
       with:
         script: |
           const fs = require("fs");
@@ -86,6 +88,8 @@ runs:
 
           async function generateAppimageAssets() {
             const APPIMAGE_NAME = "steam-art-manager.AppImage";
+            const TAR_NAME = `steam-art-manager_${versionNoV}.AppImage.tar.gz`;
+            const TAR_SIG_NAME = `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`;
 
             const WORK_DIR_PATH = path.resolve(process.cwd(), "appimage-build-dir");
             const APPIMAGE_BUILD_SCRIPT_PATH = path.resolve(process.cwd(), "build-resources", "buildappimage-webkit.sh");
@@ -99,13 +103,22 @@ runs:
 
             fs.writeFileSync(DEB_PATH, contents);
 
-            childProcess.execSync(`${APPIMAGE_BUILD_SCRIPT_PATH} \"${DEB_PATH}\"`, {
-              cwd: WORK_DIR_PATH
-            });
 
+            childProcess.execSync(`${APPIMAGE_BUILD_SCRIPT_PATH} \"${DEB_PATH}\"`, { cwd: WORK_DIR_PATH });
             const APPIMAGE_OUTPUT_PATH = path.resolve(WORK_DIR_PATH, "Steam-Art-Manager-anylinux-x86_64.AppImage");
             const appimageContents = fs.readFileSync(APPIMAGE_OUTPUT_PATH);
             await uploadReleaseAsset(APPIMAGE_NAME, appimageContents);
+
+
+            childProcess.execSync(`tar -czvf ${TAR_NAME} ${APPIMAGE_OUTPUT_PATH}`, { cwd: WORK_DIR_PATH });
+            const TAR_PATH = path.resolve(WORK_DIR_PATH, TAR_NAME);
+            const tarContents = fs.readFileSync(TAR_PATH);
+            await uploadReleaseAsset(TAR_NAME, tarContents);
+
+
+            const TAR_SIG_PATH = path.resolve(WORK_DIR_PATH, TAR_SIG_NAME);
+            const tarSigContents = fs.readFileSync(TAR_SIG_PATH);
+            await uploadReleaseAsset(TAR_SIG_NAME, tarSigContents);
 
             fs.rmSync(WORK_DIR_PATH, { recursive: true });
           }
