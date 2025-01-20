@@ -37,7 +37,6 @@ runs:
         script: |
           const fs = require("fs");
           const path = require("path");
-          const childProcess = require("child_process");
 
           async function getReleaseAssetContents(id) {
             const contents = (
@@ -82,32 +81,6 @@ runs:
               name: newName
             });
           }
-
-
-          async function generateAppimageAssets() {
-            const APPIMAGE_NAME = "steam-art-manager.AppImage";
-
-            const WORK_DIR_PATH = path.resolve(process.cwd(), "appimage-build-dir");
-            const APPIMAGE_BUILD_SCRIPT_PATH = path.resolve(process.cwd(), "build-resources", "buildappimage-webkit.sh");
-            const APPIMAGE_OUTPUT_PATH = ""; // TODO: this needs to be set
-            
-            const DEB_PATH = path.resolve(WORK_DIR_PATH, "steam-art-manager.deb");
-
-            fs.mkdirSync(WORK_DIR_PATH);
-
-            const deb = assets.data.find((asset) => asset.name.endsWith(".deb"));
-            const contents = Buffer.from(await getReleaseAssetContents(deb.id));
-
-            fs.writeFileSync(DEB_PATH, contents);
-
-            await childProcess.exec(`${APPIMAGE_BUILD_SCRIPT_PATH} \"${DEB_PATH}\"`);
-
-            const appimageContents = fs.readFileSync(APPIMAGE_OUTPUT_PATH);
-            await uploadReleaseAsset(APPIMAGE_NAME, appimageContents);
-
-            // TODO: fs.rmSync(APPIMAGE_OUTPUT_PATH);
-            fs.rmSync(WORK_DIR_PATH, { recursive: true });
-          }
           
 
           const appimageInstallerPath = path.resolve(process.cwd(), "build-resources", "appimage-installer.sh");
@@ -117,9 +90,6 @@ runs:
           const modifiedContents = appimageInstallerContents.replace("VALUE_TO_SEARCH_FOR", process.env.release_tag);
           await uploadReleaseAsset("appimage-installer.sh", Buffer.from(modifiedContents));
           core.info("Uploaded appimage installer to release.");
-
-
-          // await generateAppimageAssets(); // TODO: this needs to be run
 
 
           if (process.env.git_branch == "release") {
@@ -138,6 +108,19 @@ runs:
               {
                 extension: ".msi.zip.sig",
                 newName: `steam-art-manager_${versionNoV}.msi.zip.sig`
+              },
+              // AppInfo
+              {
+                extension: ".AppImage",
+                newName: "steam-art-manager.AppImage"
+              },
+              {
+                extension: ".AppImage.tar.gz",
+                newName: `steam-art-manager_${versionNoV}.AppImage.tar.gz`
+              },
+              {
+                extension: ".AppImage.tar.gz.sig",
+                newName: `steam-art-manager_${versionNoV}.AppImage.tar.gz.sig`
               },
               // DEB
               {
