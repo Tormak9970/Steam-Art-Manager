@@ -39,6 +39,7 @@ chmod +x ./lib4bin
 	/usr/lib/x86_64-linux-gnu/dri/* \
 	/usr/lib/x86_64-linux-gnu/gstreamer-1.0/* \
 	/usr/lib/x86_64-linux-gnu/libpulsecommon* \
+	/usr/lib/x86_64-linux-gnu/libwebkit2gtk* \
 	/usr/lib/x86_64-linux-gnu/libnss_mdns*
 rm -rf ./usr
 
@@ -48,27 +49,6 @@ cp -vr /usr/lib/x86_64-linux-gnu/gstreamer1.0/*/* ./shared/bin
 	ln -s ../../../sharun ./gst-plugin-scanner
 	ln -s ../../../sharun ./gst-ptp-helper
 )
-
-# Bundle webkitgtk
-# We need to wrap the webkitgtk binaries with sharun, so they go in bin
-cp -vr /usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/* ./shared/bin
-
-# Now symlink them from their "typical" location
-mkdir -p ./shared/lib/webkit2gtk-4.1/injected-bundle
-( cd ./shared/lib/webkit2gtk-4.1
-	ln -s ../../../sharun ./WebKitWebProcess
-	ln -s ../../../sharun ./WebKitNetworkProcess
-	ln -s ../../../sharun ./MiniBrowser
-	cd ./injected-bundle
-	cp -v ../../../../shared/bin/injected-bundle/* ./
-)
-ln -s ./ ./shared/lib/x86_64-linux-gnu
-
-# Now we need to patch away the hardcoded path from the webkitgtk libraries
-# Ideally something like ld-preload-open should be used
-# but webkitgtk is so amazing that even that does not work
-find ./shared/lib -name 'libwebkit*' -exec sed -i 's|/usr|././|g' {} \;
-echo 'SHARUN_WORKING_DIR=${SHARUN_DIR}' > ./.env
 
 # Prepare sharun
 ln ./sharun ./AppRun
