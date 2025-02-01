@@ -6,6 +6,13 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.10.7
+
+Bug Fixes
+* addresses the webkit gtk 4.1 issue ([1500434](https://github.com/Tormak9970/Steam-Art-Manager/commit/1500434))
+* new steam librarycache structure is now handled properly ([f4a36cd](https://github.com/Tormak9970/Steam-Art-Manager/commit/f4a36cd))
+* removed validator causing sgdb and steam keys to not get added ([344c11d](https://github.com/Tormak9970/Steam-Art-Manager/commit/344c11d))
+
 ## v3.10.6
 
 Bug Fixes
