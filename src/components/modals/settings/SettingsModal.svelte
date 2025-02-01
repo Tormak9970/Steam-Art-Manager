@@ -7,7 +7,7 @@
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
-  import { SettingsManager, validateSGDBAPIKey, validateSteamAPIKey, validateSteamPath } from "@utils";
+  import { SettingsManager, validateSteamPath } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -212,8 +212,6 @@
           description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
           value={steamGridKey}
           onChange={onGridKeyChange}
-          useValidator
-          validator={validateSGDBAPIKey}
           required
         />
         <TextFieldEntry
@@ -223,8 +221,6 @@
           value={steamAPIKey}
           canBeEmpty
           onChange={onSteamKeyChange}
-          useValidator
-          validator={validateSteamAPIKey}
         />
         <DropdownEntry
           label="Steam User"

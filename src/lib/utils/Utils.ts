@@ -1,12 +1,9 @@
 import { DialogController, LogController, RustInterop } from "@controllers";
-import { SGDB } from "@models";
-import { activeUserId, requestTimeoutLength, steamInstallPath, type DBFilters } from "@stores/AppState";
+import { steamInstallPath, type DBFilters } from "@stores/AppState";
 import { showSteamPathModal, steamPathModalClose } from "@stores/Modals";
-import { fetch } from "@tauri-apps/plugin-http";
 import * as process from "@tauri-apps/plugin-process";
 import { exit } from "@tauri-apps/plugin-process";
 import { GridTypes, type SGDBImage } from "@types";
-import { get } from "svelte/store";
 
 /**
  * Debounces a function by the provided interval.
@@ -238,39 +235,39 @@ export async function validateSteamPath(steamPath: string): Promise<boolean> {
 }
 
 
-/**
- * Checks if the provided Steam api key is valid for the current user.
- * @param key The api key to test.
- * @param userId Optional property to specify the userId used to test.
- * @returns A promise resolving to true if the key is valid, false if not.
- */
-export async function validateSteamAPIKey(key: string, userId?: number): Promise<boolean> {
-  const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
-  const timeout = get(requestTimeoutLength)
+// /**
+//  * Checks if the provided Steam api key is valid for the current user.
+//  * @param key The api key to test.
+//  * @param userId Optional property to specify the userId used to test.
+//  * @returns A promise resolving to true if the key is valid, false if not.
+//  */
+// export async function validateSteamAPIKey(key: string, userId?: number): Promise<boolean> {
+//   const bUserId = BigInt(userId ?? get(activeUserId)) + 76561197960265728n;
+//   const timeout = get(requestTimeoutLength)
 
-  const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
-    method: "GET",
-    signal: AbortSignal.timeout(timeout)
-  });
+//   const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${key}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
+//     method: "GET",
+//     signal: AbortSignal.timeout(timeout)
+//   });
 
-  return res.ok;
-}
+//   return res.ok;
+// }
 
-/**
- * Checks if the provided SteamGridDB api key is valid.
- * @param key The api key to test.
- * @returns A promise resolving to true if the key is valid, false if not.
- */
-export async function validateSGDBAPIKey(key: string): Promise<boolean> {
-  if (key === "") return false;
+// /**
+//  * Checks if the provided SteamGridDB api key is valid.
+//  * @param key The api key to test.
+//  * @returns A promise resolving to true if the key is valid, false if not.
+//  */
+// export async function validateSGDBAPIKey(key: string): Promise<boolean> {
+//   if (key === "") return false;
   
-  const apiModel = new SGDB(key);
+//   const apiModel = new SGDB(key);
 
-  try {
-    const res = await apiModel.searchGame("s");
-    return res?.length > 0;
-  } catch (e: any) {
-    console.error(e);
-    return false;
-  }
-}
+//   try {
+//     const res = await apiModel.searchGame("s");
+//     return res?.length > 0;
+//   } catch (e: any) {
+//     console.error(e);
+//     return false;
+//   }
+// }

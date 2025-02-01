@@ -2,6 +2,8 @@ use crate::steam;
 use crate::logger;
 
 use std::fs;
+use std::fs::DirEntry;
+use std::path::PathBuf;
 
 use phf::phf_map;
 use serde::{Serialize, Deserialize};
@@ -52,6 +54,36 @@ fn get_info_from_gridname(grid_name: String) -> (String, String) {
   }
 }
 
+/// Adds a grid_cache file to the cache.
+fn add_grid_file_to_cache(entry: DirEntry, filename: &str, shortcut_ids: &Vec<String>, cache_data: &mut Map<String, Value>, logo_configs: &mut Vec<String>) {
+  if filename.ends_with(".json")  {
+    let file_path = entry.path();
+    let path_str = file_path.to_str().unwrap();
+    logo_configs.push(path_str.to_owned());
+    return;
+  }
+
+  let (app_id, grid_type) = get_info_from_gridname(filename.to_owned());
+
+  let grid_type_key = GRID_CACHE_TYPES.get(&grid_type);
+  if grid_type_key.is_some() && (!grid_type.eq_ignore_ascii_case("icon") || shortcut_ids.contains(&app_id)) {
+    let type_key = grid_type_key.unwrap().to_owned();
+    let mut cache_entry = Map::new();
+    
+    let file_path = entry.path();
+    let path_str = file_path.to_str().unwrap().to_owned();
+
+    if cache_data.contains_key(&app_id) {
+      let entry = cache_data.get_mut(&app_id).unwrap();
+      cache_entry = entry.as_object().unwrap().to_owned();
+    }
+
+    cache_entry.insert(type_key.to_owned(), Value::String(path_str));
+
+    cache_data.insert(app_id, Value::Object(cache_entry));
+  }
+}
+
 /// Filters the user's grids dir.
 async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: &Vec<String>) -> (Map<String, Value>, Vec<String>) {
   let mut cache_data: Map<String, Value> = Map::new();
@@ -71,47 +103,88 @@ async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_acti
 
   let contents = contents_res.unwrap();
 
-  // ! multi thread this
   for entry_res in contents {
     let entry = entry_res.unwrap();
 
     let file_type = entry.file_type().expect("Couldn't get grid cache dir entry's file type.");
-    let file_name = entry.file_name();
-    let file_name_str = file_name.to_str().unwrap();
+    let filename = entry.file_name().to_str().unwrap().to_string();
 
     if file_type.is_dir() {
       continue;
     }
 
-    if file_name_str.ends_with(".json")  {
-      let file_path = entry.path();
-      let path_str = file_path.to_str().unwrap();
-      logo_configs.push(path_str.to_owned());
-      continue;
-    }
-
-    let (app_id, grid_type) = get_info_from_gridname(file_name_str.to_owned());
-
-    let grid_type_key = GRID_CACHE_TYPES.get(&grid_type);
-    if grid_type_key.is_some() && (!grid_type.eq_ignore_ascii_case("icon") || shortcut_ids.contains(&app_id)) {
-      let type_key = grid_type_key.unwrap().to_owned();
-      let mut cache_entry = Map::new();
-      
-      let file_path = entry.path();
-      let path_str = file_path.to_str().unwrap().to_owned();
-
-      if cache_data.contains_key(&app_id) {
-        let entry = cache_data.get_mut(&app_id).unwrap();
-        cache_entry = entry.as_object().unwrap().to_owned();
-      }
-
-      cache_entry.insert(type_key.to_owned(), Value::String(path_str));
-
-      cache_data.insert(app_id, Value::Object(cache_entry));
-    }
+    add_grid_file_to_cache(
+      entry,
+      &filename,
+      shortcut_ids,
+      &mut cache_data,
+      &mut logo_configs
+    );
   }
 
   return (cache_data, logo_configs);
+}
+
+
+/// Adds a librarycache file to the cache.
+fn add_library_file_to_cache(entry: DirEntry, app_id: &str, grid_type: &str, grid_cache_data: &mut Map<String, Value>, unfiltered_cache: &mut Map<String, Value>) {
+  let grid_type_key = LIBRARY_CACHE_TYPES.get(&grid_type);
+  if grid_type_key.is_some() {
+    let type_key = grid_type_key.unwrap().to_owned();
+    let mut library_cache_entry = Map::new();
+    let mut grid_cache_entry = Map::new();
+    
+    let file_path = entry.path();
+    let path_str = file_path.to_str().expect("Couldn't convert logo_config path to str").to_owned();
+
+    if unfiltered_cache.contains_key(app_id) {
+      let entry = unfiltered_cache.get_mut(app_id).unwrap();
+      library_cache_entry = entry.as_object().unwrap().to_owned();
+    }
+    if grid_cache_data.contains_key(app_id) {
+      let entry = grid_cache_data.get_mut(app_id).unwrap();
+      grid_cache_entry = entry.as_object().unwrap().to_owned();
+    }
+
+    library_cache_entry.insert(type_key.to_owned(), Value::String(path_str.clone()));
+    if !grid_cache_entry.contains_key(type_key) {
+      grid_cache_entry.insert(type_key.to_owned(), Value::String(path_str));
+    }
+
+    unfiltered_cache.insert(app_id.to_string(), Value::Object(library_cache_entry));
+    grid_cache_data.insert(app_id.to_string(), Value::Object(grid_cache_entry));
+  }
+}
+
+/// Adds a librarycache folder to the cache.
+fn add_library_folder_to_cache(parent_path: PathBuf, entry: DirEntry, dirname: &str, grid_cache_data: &mut Map<String, Value>, unfiltered_cache: &mut Map<String, Value>) {
+  let app_id = dirname;
+
+  let contents_res = fs::read_dir(parent_path.join(entry.path()));
+  if contents_res.is_err() {
+    return;
+  }
+  let contents = contents_res.unwrap();
+
+  for entry_res in contents {
+    let grid_entry = entry_res.unwrap();
+
+    let file_type = grid_entry.file_type().expect("Couldn't get grid cache dir entry's file type.");
+    let grid_filename = grid_entry.file_name().to_str().unwrap().to_string();
+
+    if file_type.is_file() {
+      let dot_index = grid_filename.find(".").unwrap();
+      let grid_type = (&grid_filename[0..dot_index]).to_owned();
+
+      add_library_file_to_cache(
+        grid_entry,
+        &app_id,
+        &grid_type,
+        grid_cache_data,
+        unfiltered_cache
+      );
+    }
+  }
 }
 
 /// Filters the user's library cache dir.
@@ -120,7 +193,7 @@ async fn filter_library_dir(app_handle: &AppHandle, steam_path: String, grid_cac
 
   let library_dir = steam::get_library_cache_directory(app_handle.clone(), steam_path);
 
-  let contents_res = fs::read_dir(library_dir);
+  let contents_res = fs::read_dir(&library_dir);
   if contents_res.is_err() {
     let err = contents_res.err().unwrap();
     let message = format!("Error reading library directory. error: {}", err.to_string());
@@ -132,51 +205,36 @@ async fn filter_library_dir(app_handle: &AppHandle, steam_path: String, grid_cac
 
   let contents = contents_res.unwrap();
 
-  // ! multi thread this
   for entry_res in contents {
     let entry = entry_res.unwrap();
 
     let file_type = entry.file_type().expect("Couldn't get library cache dir entry's file type.");
-    let file_name = entry.file_name();
-    let file_name_str = file_name.to_str().unwrap();
+    let filename = entry.file_name().to_str().unwrap().to_string();
 
     if file_type.is_dir() {
-      continue;
-    }
+      add_library_folder_to_cache(
+        PathBuf::from(&library_dir),
+        entry,
+        &filename,
+        grid_cache_data,
+        &mut unfiltered_cache
+      );
+    } else {
+      let dot_index = filename.find(".").unwrap();
+      let underscore_index = filename.find("_");
+      
+      if underscore_index.is_some() {
+        let index = underscore_index.unwrap();
+        let app_id = (&filename[0..index]).to_owned();
+        let grid_type = (&filename[(index + 1)..dot_index]).to_owned();
 
-    let dot_index = file_name_str.find(".").unwrap();
-    let underscore_index = file_name_str.find("_");
-    
-    if underscore_index.is_some() {
-      let index = underscore_index.unwrap();
-      let app_id = (&file_name_str[0..index]).to_owned();
-      let grid_type = (&file_name_str[(index + 1)..dot_index]).to_owned();
-
-      let grid_type_key = LIBRARY_CACHE_TYPES.get(&grid_type);
-      if grid_type_key.is_some() {
-        let type_key = grid_type_key.unwrap().to_owned();
-        let mut library_cache_entry = Map::new();
-        let mut grid_cache_entry = Map::new();
-        
-        let file_path = entry.path();
-        let path_str = file_path.to_str().expect("Couldn't convert logo_config path to str").to_owned();
-
-        if unfiltered_cache.contains_key(&app_id) {
-          let entry = unfiltered_cache.get_mut(&app_id).unwrap();
-          library_cache_entry = entry.as_object().unwrap().to_owned();
-        }
-        if grid_cache_data.contains_key(&app_id) {
-          let entry = grid_cache_data.get_mut(&app_id).unwrap();
-          grid_cache_entry = entry.as_object().unwrap().to_owned();
-        }
-
-        library_cache_entry.insert(type_key.to_owned(), Value::String(path_str.clone()));
-        if !grid_cache_entry.contains_key(type_key) {
-          grid_cache_entry.insert(type_key.to_owned(), Value::String(path_str));
-        }
-
-        unfiltered_cache.insert(app_id.clone(), Value::Object(library_cache_entry));
-        grid_cache_data.insert(app_id, Value::Object(grid_cache_entry));
+        add_library_file_to_cache(
+          entry,
+          &app_id,
+          &grid_type,
+          grid_cache_data,
+          &mut unfiltered_cache
+        );
       }
     }
   }
