@@ -5,7 +5,7 @@ use std::{path::PathBuf, io::{BufReader, self, Write}, fs::{File, read_dir, read
 use serde_json::{Map, Value};
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
-use zip;
+use zip::{self, write::SimpleFileOptions};
 
 use home::home_dir;
 
@@ -124,8 +124,9 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file: File = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
   let mut zip_writer: zip::ZipWriter<File> = zip::ZipWriter::new(zip_file);
+  let _ = zip_writer.set_flush_on_finish_file(true);
   
-  let entry_options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+  let entry_options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
   
   for dir_entry in grids_dir_contents {
     let entry = dir_entry.expect("Should have been able to get directory entry.");
@@ -153,11 +154,14 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     
     let _ = zip_writer.start_file(in_zip_filename, entry_options);
     let _ = zip_writer.write(&contents);
+
     logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
   }
 
   let _ = zip_writer.finish();
+
   logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
+
   return true;
 }
 

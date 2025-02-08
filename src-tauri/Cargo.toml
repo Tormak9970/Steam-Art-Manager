@@ -32,7 +32,7 @@ chrono = "0.4.34"
 image = "0.25.1"
 
 home = "0.5.9"
-zip = "0.6.6"
+zip = "2.2.2"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"
