@@ -18,7 +18,7 @@
 import { activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "@stores/AppState";
 import { exit } from "@tauri-apps/plugin-process";
 import { GridTypes, type CleanGridsPreset, type GameStruct, type MainWindowPanels, type ManageManualGamesMethod, type SteamUser } from "@types";
-import { SettingsManager, findSteamPath, restartApp, validateSGDBAPIKey, validateSteamAPIKey } from "@utils";
+import { SettingsManager, findSteamPath, restartApp } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
 import "tippy.js/dist/tippy.css";
 import { DialogController } from "./DialogController";
@@ -257,13 +257,8 @@ export class SettingsController {
    */
   private async loadApiKeySettings(activeUserId: string): Promise<void> {
     const sgdbKeySetting = SettingsManager.getSetting<string>("steamGridDbApiKey");
-    const isValidSgdbKey = await validateSGDBAPIKey(sgdbKeySetting);
 
-    if (!isValidSgdbKey) {
-      LogController.warn("The SteamGridDB API key found in settings is no longer valid.");
-    }
-
-    if (sgdbKeySetting !== "" && isValidSgdbKey) {
+    if (sgdbKeySetting !== "") {
       steamGridDBKey.set(sgdbKeySetting);
       needsSGDBAPIKey.set(false);
     }
@@ -271,14 +266,8 @@ export class SettingsController {
 
     const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
     if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
-      const isValidSteamKey = await validateSteamAPIKey(steamApiKeyMapSetting[activeUserId], parseInt(activeUserId));
-
-      if (isValidSteamKey) {
-        steamKey.set(steamApiKeyMapSetting[activeUserId]);
-        needsSteamKey.set(false);
-      } else {
-        LogController.warn("The Steam API key found in settings is no longer valid.");
-      }
+      steamKey.set(steamApiKeyMapSetting[activeUserId]);
+      needsSteamKey.set(false);
     }
   }
 
