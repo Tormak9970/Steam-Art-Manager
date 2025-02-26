@@ -60,12 +60,40 @@ export class SteamController {
   }
 
   /**
+   * Gets the current user's steam games by reading the appinfo.vdf.
+   * @returns A promise resolving to a list of steam games.
+   * ? Logging complete.
+   */
+  private static async getGamesFromAppinfo(ids: string[]): Promise<GameStruct[]> {
+    // LogController.log("Loading games from appinfo.vdf...");
+
+    const vdf = await RustInterop.readAppinfoVdf();
+    console.log("vdf.entries:", vdf.entries)
+
+    return vdf.entries.filter((entry: any) => ids.includes(entry.appid)).map((entry: any) => {
+      const libraryAssets = entry.common.library_assets_full;
+      
+      return {
+        appid: entry.appid,
+        name: typeof entry.common.name === "string" ? entry.common.name.replace(/[^\x00-\x7F]/g, "") : entry.common.name.toString(),
+        gridInfo: {
+          icon: entry.common.icon ?? "",
+          capsule: libraryAssets?.library_capsule?.image.english ?? "",
+          wideCapsule: libraryAssets?.library_header?.image.english ?? "",
+          hero: libraryAssets?.library_hero?.image.english ?? "",
+          logo: libraryAssets?.library_logo?.image.english ?? "",
+        }
+      };
+    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+  }
+
+  /**
    * Gets the current user's steam games from their community profile.
    * @param bUserId The u64 id of the current user.
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<GameStruct[]> {
+  private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<string[]> {
     const requestTimeout = get(requestTimeoutLength);
     // LogController.log("Loading games from Steam Community page...");
 
@@ -75,14 +103,9 @@ export class SteamController {
     });
     
     if (res.ok) {
-      const games = SteamController.xmlParser.parse(await res.text());
+      const profileGames = SteamController.xmlParser.parse(await res.text());
 
-      return games.gamesList.games.game.map((game: any) => {
-        return {
-          "appid": parseInt(game.appID),
-          "name": game.name
-        }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+      return profileGames.gamesList.games.game.filter((game: any) => !game.name.toLowerCase().includes("soundtrack")).map((game: any) => game.appID);
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
@@ -98,22 +121,15 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamAPI(bUserId: bigint): Promise<GameStruct[]> {
+  private static async getGamesFromSteamAPI(bUserId: bigint): Promise<string[]> {
     const requestTimeout = get(requestTimeoutLength);
-    // LogController.log("Loading games from Steam API...");
-
     const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
       method: "GET",
       signal: AbortSignal.timeout(requestTimeout)
     });
 
     if (res.ok) {
-      return (await res.json()).response.games.map((game: any) => {
-        return {
-          "appid": game.appid,
-          "name": game.name
-        }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+      return (await res.json()).response.games.map((game: any) => game.appid);
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
@@ -124,35 +140,13 @@ export class SteamController {
   }
 
   /**
-   * Gets the current user's steam games by reading the appinfo.vdf.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
-    // LogController.log("Loading games from appinfo.vdf...");
-
-    const vdf = await RustInterop.readAppinfoVdf();
-
-    return vdf.entries.map((game: any) => {
-      return {
-        appid: game.appid,
-        name: typeof game.common.name === "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
-      };
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-  }
-
-  /**
    * Gets the current user's steam games by reading the localconfig.vdf.
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
-    // LogController.log("Loading games from localconfig.vdf...");
-
+  private static async filterByLocalConfig(): Promise<string[]> {
     const userId = get(activeUserId);
-    const appInfoGames = await SteamController.getGamesFromAppinfo();
-    const localConfigAppIds: string[] = await RustInterop.readLocalconfigVdf(userId.toString());
-    return appInfoGames.filter((game) => localConfigAppIds.includes(game.appid.toString()));
+    return await RustInterop.readLocalconfigVdf(userId.toString());
   }
 
   /**
@@ -167,25 +161,25 @@ export class SteamController {
     const userId = get(activeUserId);
     const bUserId = BigInt(userId) + 76561197960265728n;
 
-    let games: GameStruct[] = [];
+    let ids: string[] = [];
     
     // * Try loading games from the Steam API
     if (online && !needsSteamAPIKey) {
-      games = await this.getGamesFromSteamAPI(bUserId);
+      ids = await this.getGamesFromSteamAPI(bUserId);
       
-      if (games.length > 0) {
-        LogController.log(`Loaded ${games.length} games from Steam API.`);
+      if (ids.length > 0) {
+        LogController.log(`Loaded ${ids.length} games from Steam API.`);
       }
     }
     
     // * Try loading games using the user's Steam Profile.
-    if (games.length === 0 && online) {
+    if (ids.length === 0 && online) {
       try {
         DialogController.showProgressModal("Fetching games", "Loading games listed on your public steam profile...");
-        games = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => !entry.name.toLowerCase().includes("soundtrack"));
+        ids = (await this.getGamesFromSteamCommunity(bUserId));
         
-        if (games.length > 0) {
-          LogController.log(`Loaded ${games.length} games from Steam Community page.`);
+        if (ids.length > 0) {
+          LogController.log(`Loaded ${ids.length} games from Steam Community page.`);
         }
       } catch (e: any) {
         LogController.error(e.message);
@@ -195,16 +189,18 @@ export class SteamController {
     }
     
     // * Try loading games from the file system
-    if (games.length === 0) {
+    if (ids.length === 0) {
       DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
-      games = await this.getGamesFromLocalconfig();
+      ids = await this.filterByLocalConfig();
       
-      if (games.length > 0) {
-        LogController.log(`Loaded ${games.length} games from localconfig.vdf.`);
+      if (ids.length > 0) {
+        LogController.log(`Loaded ${ids.length} games from localconfig.vdf.`);
       }
       
       DialogController.hideProgressModal();
     }
+    
+    const games = await SteamController.getGamesFromAppinfo(ids);
 
     return games;
   }
@@ -240,7 +236,6 @@ export class SteamController {
 
     
     const filteredCache = await SteamController.getCacheData(structuredShortcuts);
-    console.log("filteredCache:", JSON.parse(JSON.stringify(filteredCache)));
     const filteredKeys = Object.keys(filteredCache);
       
 
