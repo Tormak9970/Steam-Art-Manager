@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -149,10 +149,11 @@ export class RustInterop {
    * Gets the user's cache data..
    * @param activeUserId The id of the active user.
    * @param shortcutIds The list of shortcut ids.
+   * @param steamApps The loaded steamApps
    * @returns A promise resolving to the user's cache data.
    */
-  static async getCacheData(activeUserId: string, shortcutIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]> {
-    return await invoke<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds: shortcutIds });;
+  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]> {
+    return await invoke<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps });;
   }
 
   /**

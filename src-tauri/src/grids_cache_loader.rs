@@ -11,9 +11,21 @@ use serde_json::{Value, Map};
 use tauri::AppHandle;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct GameStruct {
+#[allow(non_snake_case)]
+struct GridInfo {
+  pub icon: String,
+  pub capsule: String,
+  pub wideCapsule: String,
+  pub hero: String,
+  pub logo: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[allow(non_snake_case)]
+pub struct GameStruct {
   pub appid: u64,
   pub name: String,
+  pub gridInfo: Option<GridInfo>,
 }
 
 
@@ -246,7 +258,7 @@ async fn filter_library_dir(app_handle: &AppHandle, steam_path: String, grid_cac
 
 #[tauri::command]
 /// Gets the cache data for the user's grids.
-pub async fn get_cache_data(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: Vec<String>) -> (Map<String, Value>, Map<String, Value>, Vec<String>) {
+pub async fn get_cache_data(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: Vec<String>, steam_apps: Vec<GameStruct>) -> (Map<String, Value>, Map<String, Value>, Vec<String>) {
   logger::log_to_core_file(app_handle.to_owned(), "Loading Grids Cache...", 0);
 
   let (mut grid_cache_data, logo_configs) = filter_grids_dir(&app_handle, steam_path.clone(), steam_active_user_id, &shortcut_ids).await;

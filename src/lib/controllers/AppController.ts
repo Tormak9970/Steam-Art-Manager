@@ -451,7 +451,7 @@ export class AppController {
       
       await AppController.saveChanges();
 
-      const filteredCache = await SteamController.getCacheData(get(nonSteamGames));
+      const filteredCache = await SteamController.getCacheData(get(nonSteamGames), get(steamGames));
       originalAppLibraryCache.set(structuredClone(filteredCache));
       appLibraryCache.set(filteredCache);
     } else {

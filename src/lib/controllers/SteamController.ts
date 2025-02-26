@@ -46,9 +46,9 @@ export class SteamController {
    * @param shortcuts The list of non steam games.
    * @returns A promise resolving to the Steam grid cache data.
    */
-  static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
+  static async getCacheData(steamApps: GameStruct[], shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds);
+    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds, steamApps);
 
     unfilteredLibraryCache.set(unfilteredCache);
     originalAppLibraryCache.set(structuredClone(filteredCache));
@@ -68,7 +68,6 @@ export class SteamController {
     // LogController.log("Loading games from appinfo.vdf...");
 
     const vdf = await RustInterop.readAppinfoVdf();
-    console.log("vdf.entries:", vdf.entries)
 
     return vdf.entries.filter((entry: any) => ids.includes(entry.appid)).map((entry: any) => {
       const libraryAssets = entry.common.library_assets_full;
@@ -235,7 +234,7 @@ export class SteamController {
     nonSteamGames.set(structuredShortcuts);
 
     
-    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
+    const filteredCache = await SteamController.getCacheData(steamApps, structuredShortcuts);
     const filteredKeys = Object.keys(filteredCache);
       
 
