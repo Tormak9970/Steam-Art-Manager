@@ -28,7 +28,9 @@ static GRID_CACHE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
 
 static LIBRARY_CACHE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
   "library_600x900" => "Capsule",
+  // ! "header" is depreciated
   "header" => "Wide Capsule",
+  "library_header" => "Wide Capsule",
   "library_hero" => "Hero",
   "logo" => "Logo",
   "icon" => "Icon",
