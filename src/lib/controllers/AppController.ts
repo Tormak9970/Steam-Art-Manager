@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage } from "@types";
+import { GridTypes, type ChangedPath, type SGDBGame, type SGDBImage } from "@types";
 import { SettingsManager, restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
@@ -105,21 +105,7 @@ export class AppController {
     const originalIconEntries = get(originalSteamShortcuts).map((shortcut) => [ shortcut.appid, shortcut.icon ]);
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
-    const originalLogoPos = get(originalLogoPositions);
-    const steamLogoPos = get(steamLogoPositions);
-    const logoPosStrings: Record<string, string> = {};
-
-    for (const [ appid, steamLogo ] of Object.entries(steamLogoPos)) {
-      const originalPos = originalLogoPos[appid]?.logoPosition;
-      const logoPos = steamLogo.logoPosition;
-
-      if (!logoPos) continue;
-      if (logoPos.nHeightPct !== originalPos?.nHeightPct || logoPos.nWidthPct !== originalPos?.nWidthPct || logoPos.pinnedPosition !== originalPos?.pinnedPosition) {
-        logoPosStrings[appid] = logoPos.pinnedPosition === "REMOVE" ? "REMOVE" : JSON.stringify(steamLogo);
-      }
-    }
-
-    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons, logoPosStrings);
+    const changedPaths = await RustInterop.saveChanges(get(activeUserId).toString(), libraryCache, originalCache, shortcuts, shortcutIcons, originalShortcutIcons);
     
     if ((changedPaths as any).error !== undefined) {
       get(showErrorSnackbar)({ message: "Changes failed." });
@@ -139,15 +125,6 @@ export class AppController {
       
       originalSteamShortcuts.set(structuredClone(shortcuts));
       steamShortcuts.set(shortcuts);
-
-      let logoPosEntries = Object.entries(steamLogoPos);
-      logoPosEntries = logoPosEntries.filter(([ _, logoPos ]) => {
-        return logoPos.logoPosition && logoPos.logoPosition.pinnedPosition !== "REMOVE";
-      });
-
-      const logoPos = Object.fromEntries(logoPosEntries);
-      originalLogoPositions.set(structuredClone(logoPos));
-      steamLogoPositions.set(structuredClone(logoPos));
       
       get(showInfoSnackbar)({ message: "Changes saved" });
       LogController.log("Saved changes.");
@@ -167,9 +144,6 @@ export class AppController {
     const originalShortcuts = get(originalSteamShortcuts);
     steamShortcuts.set(structuredClone(originalShortcuts));
 
-    const originalPositions = get(originalLogoPositions);
-    steamLogoPositions.set(structuredClone(originalPositions));
-
     get(showInfoSnackbar)({ message: "Changes discarded" });
     LogController.log("Discarded changes.");
     
@@ -182,11 +156,9 @@ export class AppController {
    */
   static discardChangesForGame(appId: string): void {
     const originalCache = get(originalAppLibraryCache);
-    const originalLogoCache = get(originalLogoPositions);
     const originalShortcuts = get(originalSteamShortcuts);
 
     const appCache = get(appLibraryCache);
-    const logoPositionCache = get(steamLogoPositions);
     const shortcuts = get(steamShortcuts);
     const platform = get(currentPlatform);
 
@@ -199,14 +171,11 @@ export class AppController {
     
     appCache[appId] = originalCache[appId];
     appLibraryCache.set(structuredClone(appCache));
-    
-    logoPositionCache[appId] = originalLogoCache[appId];
-    steamLogoPositions.set(structuredClone(logoPositionCache));
 
     get(showInfoSnackbar)({ message: "Changes discarded" });
     LogController.log(`Discarded changes for ${appId}.`);
     
-    canSave.set(!((JSON.stringify(originalCache) === JSON.stringify(appCache)) && (JSON.stringify(originalLogoCache) === JSON.stringify(logoPositionCache))));
+    canSave.set(JSON.stringify(originalCache) !== JSON.stringify(appCache));
   }
 
   /**
@@ -248,21 +217,6 @@ export class AppController {
     delete customNames[appId];
     customGameNames.set(customNames);
     LogController.log(`Cleared custom name for ${appId}`);
-  }
-
-  /**
-   * Clears the logo position for a given app.
-   * @param appid The id of the app to clear the logo position of.
-   */
-  static clearLogoPosition(appid: string): void {
-    const logoPositionCache = get(steamLogoPositions);
-
-    logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
-    steamLogoPositions.set(structuredClone(logoPositionCache));
-
-    LogController.log(`Cleared logo position for ${appid}`);
-
-    canSave.set(true);
   }
 
   /**
@@ -383,34 +337,6 @@ export class AppController {
     } else {
       LogController.log(`Failed to set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
     }
-  }
-
-  /**
-   * Sets the logo position for the provided game.
-   * @param appId The id of the app to save the logo position for.
-   * @param pinPosition The position of the logo.
-   * @param heightPct The height percentage.
-   * @param widthPct The width percentage.
-   * ? Logging complete.
-   */
-  static setLogoPosition(appId: string, pinPosition: LogoPinPositions, heightPct: number, widthPct: number): void {
-    const logoPositions = get(steamLogoPositions);
-
-    const currentPos = logoPositions[appId];
-    logoPositions[appId] = {
-      nVersion: currentPos?.nVersion ?? 1,
-      logoPosition: {
-        pinnedPosition: pinPosition,
-        nHeightPct: heightPct,
-        nWidthPct: widthPct
-      }
-    }
-
-    steamLogoPositions.set(logoPositions);
-
-    canSave.set(true);
-
-    LogController.log(`Updated logo position for game ${appId}`);
   }
 
   /**

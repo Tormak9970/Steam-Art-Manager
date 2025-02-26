@@ -1,6 +1,6 @@
 <script lang="ts">
   import { showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showProgressModal, showSettingsModal, showSteamPathModal, showToolsModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
+  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showManualGamesModal, showProgressModal, showSettingsModal, showSteamPathModal, showToolsModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
   import ErrorSnackbar from "../snackbars/ErrorSnackbar.svelte";
   import InfoSnackbar from "../snackbars/InfoSnackbar.svelte";
   import BatchApplyModal from "./batch-apply/BatchApplyModal.svelte";
@@ -12,7 +12,6 @@
   import GameSearchModal from "./game-search/GameSearchModal.svelte";
   import GridPreviewModal from "./GridPreviewModal.svelte";
   import InfoModal from "./info-modal/InfoModal.svelte";
-  import LogoPositionModal from "./LogoPositionModal.svelte";
   import ManualGamesModal from "./manual-games/ManualGamesModal.svelte";
   import ProgressModal from "./ProgressModal.svelte";
   import SettingsModal from "./settings/SettingsModal.svelte";
@@ -20,7 +19,6 @@
   import ToolsModal from "./ToolsModal.svelte";
   import UpdateModal from "./updates/UpdateModal.svelte";
   import UpdateTilesModal from "./UpdateTilesModal.svelte";
-
 </script>
 
 
@@ -48,9 +46,6 @@
   {/if}
   {#if $showBatchApplyModal}
     <BatchApplyModal />
-  {/if}
-  {#if $showLogoPositionModal}
-    <LogoPositionModal />
   {/if}
   {#if $showManualGamesModal}
     <ManualGamesModal />

@@ -1,16 +1,3 @@
-export type LogoPinPositions = "BottomLeft" | "CenterCenter" | "UpperCenter" | "BottomCenter" | "REMOVE";
-
-export type LogoPosition = {
-  pinnedPosition: LogoPinPositions,
-  nWidthPct: number,
-  nHeightPct: number,
-};
-
-export type SteamLogoConfig = {
-  nVersion: number,
-  logoPosition: LogoPosition,
-}
-
 export type SteamRegistryApp = {
   appid: string,
   name: string
