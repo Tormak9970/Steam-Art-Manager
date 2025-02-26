@@ -3,7 +3,7 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { convertFileSrc } from "@tauri-apps/api/core";
-  import type { GameStruct, GridTypes, LibraryCacheEntry } from "@types";
+  import { GridTypes, type GameStruct, type LibraryCacheEntry } from "@types";
   import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, renderGamesInList, selectedGameAppId, unfilteredLibraryCache } from "../../../stores/AppState";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
   import GridEntry from "./grid-view/GridEntry.svelte";
@@ -27,6 +27,8 @@
     (!!$appLibraryCache[game.appid] && !$originalAppLibraryCache[game.appid]) || ($appLibraryCache[game.appid][$gridType] !== $originalAppLibraryCache[game.appid][$gridType]) :
     false;
   $: canDiscard = gridChanged;
+
+  $: disabled = $gridType === GridTypes.ICON && iconPath === "";
 
   /**
    * Selects this game.
@@ -127,6 +129,7 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {:else}
   <GridEntry
@@ -142,5 +145,6 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {/if}
