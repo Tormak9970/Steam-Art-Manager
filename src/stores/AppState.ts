@@ -76,7 +76,7 @@ export const steamGames = writable<GameStruct[]>([]);
 export const nonSteamGames = writable<GameStruct[]>([]);
 export const hiddenGameIds = writable<number[]>([]);
 export const manualSteamGames = writable<GameStruct[]>([]);
-export const customGameNames = writable<{ [appid: string]: string }>({});
+export const customGameNames = writable<Record<string, string>>({});
 
 /**
  * The default library art provided by Steam.

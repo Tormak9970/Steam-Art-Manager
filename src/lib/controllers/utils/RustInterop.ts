@@ -152,16 +152,16 @@ export class RustInterop {
    * @param steamApps The loaded steamApps
    * @returns A promise resolving to the user's cache data.
    */
-  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }]> {
+  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]> {
     const appsMap = Object.fromEntries(steamApps.map((app) => [app.appid, app.gridInfo]));
-    return await invoke<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });;
+    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });;
   }
 
   /**
    * Gets a list of steam users on this computer.
    * @returns A promise resolving to the list of steam users on this computer.
    */
-  static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
+  static async getSteamUsers(): Promise<Record<string, SteamUser>> {
     return JSON.parse(await invoke<string>("get_steam_users", { steamPath: RustInterop.steamPath }));
   }
 
@@ -172,8 +172,13 @@ export class RustInterop {
    * @param idNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
+  static async exportGridsToZip(activeUserId: string, platformIdMap: Record<string, string>, idNameMap: Record<string, string>): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", {
+      steamPath: RustInterop.steamPath,
+      steamActiveUserId: activeUserId,
+      platformIdMap: platformIdMap,
+      idNameMap: idNameMap
+    });
   }
 
   /**
@@ -182,8 +187,13 @@ export class RustInterop {
    * @param nameIdMap A map of shortcut names to their id.
    * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
-  static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
-    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
+  static async importGridsFromZip(activeUserId: string, nameIdMap: Record<string, string>): Promise<[boolean, Record<string, string>]> {
+    const res = await invoke<[boolean, Record<string, string>]>("import_grids_from_zip", {
+      steamPath: RustInterop.steamPath,
+      steamActiveUserId: activeUserId,
+      nameIdMap: nameIdMap
+    });
+
     return res;
   }
 

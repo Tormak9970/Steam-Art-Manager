@@ -1,6 +1,6 @@
 use crate::{logger, steam};
 
-use std::{path::PathBuf, io::{BufReader, self, Write}, fs::{File, read_dir, read}};
+use std::{fs::{read, read_dir, File}, io::{self, BufReader, Write}, path::PathBuf};
 
 use serde_json::{Map, Value};
 use tauri::AppHandle;
@@ -96,8 +96,8 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
         file_grid_type = "";
       },
       _ => {
-        logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);
-        panic!("Unexpected grid type: {}", grid_type);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 1);
+        return ("".to_string(), "".to_string(), "".to_string());
       }
     }
 
@@ -184,6 +184,10 @@ fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     if zip_file.is_file() {
       let mangled_name: PathBuf = zip_file.mangled_name();
       let (platform, appid, adjusted_file_name) = get_import_grid_name(app_handle, mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
+
+      if platform == "".to_string() && appid == "".to_string() {
+        continue;
+      }
       
       let dest_path = grids_dir_path.join(PathBuf::from(&adjusted_file_name));
 

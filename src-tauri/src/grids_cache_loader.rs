@@ -1,52 +1,16 @@
 use crate::steam;
 use crate::logger;
+use crate::types::GridInfo;
+use crate::types::GRID_CACHE_TYPES;
+use crate::types::LIBRARY_CACHE_TYPES;
 
 use std::collections::HashMap;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::PathBuf;
 
-use phf::phf_map;
-use serde::{Serialize, Deserialize};
 use serde_json::{Value, Map};
 use tauri::AppHandle;
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-#[allow(non_snake_case)]
-pub struct GridInfo {
-  pub icon: String,
-  pub capsule: String,
-  pub wideCapsule: String,
-  pub hero: String,
-  pub logo: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-#[allow(non_snake_case)]
-pub struct GameStruct {
-  pub appid: u64,
-  pub name: String,
-}
-
-
-
-static GRID_CACHE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
-  "capsule" => "Capsule",
-  "wide_capsule" => "Wide Capsule",
-  "hero" => "Hero",
-  "logo" => "Logo",
-  "icon" => "Icon",
-};
-
-static LIBRARY_CACHE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
-  "library_600x900" => "Capsule",
-  // ! "header" is depreciated
-  "header" => "Wide Capsule",
-  "library_header" => "Wide Capsule",
-  "library_hero" => "Hero",
-  "logo" => "Logo",
-  "icon" => "Icon",
-};
 
 /// Gets the id and grid_type from a grid's filename.
 fn get_info_from_gridname(grid_name: String) -> (String, String) {
