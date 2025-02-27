@@ -6,6 +6,19 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.11.0
+
+New Features
+* removed logo position editing ([11ad80e](https://github.com/Tormak9970/Steam-Art-Manager/commit/11ad80e))
+
+Bug Fixes
+* added message for games without existing icons ([30e9ad0](https://github.com/Tormak9970/Steam-Art-Manager/commit/30e9ad0))
+* adjusted grids to load based on valve's new folder structure ([62121be](https://github.com/Tormak9970/Steam-Art-Manager/commit/62121be))
+* appinfo libraryCache data now always loaded ([6ba175b](https://github.com/Tormak9970/Steam-Art-Manager/commit/6ba175b))
+* everything is finalized for new steam structure ([290b9ed](https://github.com/Tormak9970/Steam-Art-Manager/commit/290b9ed))
+* wide capsules with new name scheme are now loaded ([a882a2c](https://github.com/Tormak9970/Steam-Art-Manager/commit/a882a2c))
+* zip entries are now streamed to output to prevent crashes ([a9a6c8e](https://github.com/Tormak9970/Steam-Art-Manager/commit/a9a6c8e))
+
 ## v3.10.7
 
 Bug Fixes
