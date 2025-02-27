@@ -8,6 +8,7 @@ mod zip_controller;
 mod start_menu_tiles;
 mod grids_cache_loader;
 mod clean_grids;
+mod types;
 
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_fs::FsExt;

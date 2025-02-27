@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -149,17 +149,19 @@ export class RustInterop {
    * Gets the user's cache data..
    * @param activeUserId The id of the active user.
    * @param shortcutIds The list of shortcut ids.
+   * @param steamApps The loaded steamApps
    * @returns A promise resolving to the user's cache data.
    */
-  static async getCacheData(activeUserId: string, shortcutIds: string[]): Promise<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]> {
-    return await invoke<[{ [appid: string]: LibraryCacheEntry }, { [appid: string]: LibraryCacheEntry }, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds: shortcutIds });;
+  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]> {
+    const appsMap = Object.fromEntries(steamApps.map((app) => [app.appid, app.gridInfo]));
+    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });;
   }
 
   /**
    * Gets a list of steam users on this computer.
    * @returns A promise resolving to the list of steam users on this computer.
    */
-  static async getSteamUsers(): Promise<{ [id: string]: SteamUser }> {
+  static async getSteamUsers(): Promise<Record<string, SteamUser>> {
     return JSON.parse(await invoke<string>("get_steam_users", { steamPath: RustInterop.steamPath }));
   }
 
@@ -170,8 +172,13 @@ export class RustInterop {
    * @param idNameMap A map of shortcut ids to their name.
    * @returns A promise resolving to true if the operation suceeded, false if it was cancelled.
    */
-  static async exportGridsToZip(activeUserId: string, platformIdMap: { [id: string]: string }, idNameMap: { [id: string]: string }): Promise<boolean> {
-    return await invoke<boolean>("export_grids_to_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, platformIdMap: platformIdMap, idNameMap: idNameMap });
+  static async exportGridsToZip(activeUserId: string, platformIdMap: Record<string, string>, idNameMap: Record<string, string>): Promise<boolean> {
+    return await invoke<boolean>("export_grids_to_zip", {
+      steamPath: RustInterop.steamPath,
+      steamActiveUserId: activeUserId,
+      platformIdMap: platformIdMap,
+      idNameMap: idNameMap
+    });
   }
 
   /**
@@ -180,8 +187,13 @@ export class RustInterop {
    * @param nameIdMap A map of shortcut names to their id.
    * @returns A promise resolving to a tuple of (success, map of shortcut icons that need to be written).
    */
-  static async importGridsFromZip(activeUserId: string, nameIdMap: { [id: string]: string }): Promise<[boolean, { [appid: string]: string}]> {
-    const res = await invoke<[boolean, { [appid: string]: string}]>("import_grids_from_zip", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, nameIdMap: nameIdMap });
+  static async importGridsFromZip(activeUserId: string, nameIdMap: Record<string, string>): Promise<[boolean, Record<string, string>]> {
+    const res = await invoke<[boolean, Record<string, string>]>("import_grids_from_zip", {
+      steamPath: RustInterop.steamPath,
+      steamActiveUserId: activeUserId,
+      nameIdMap: nameIdMap
+    });
+
     return res;
   }
 
@@ -219,14 +231,13 @@ export class RustInterop {
    * @param shortcuts The list of shortcuts.
    * @param shortcutIcons The map of shortcutIds to updated icons.
    * @param originalShortcutIcons The map of shortcutIds to original icons.
-   * @param changedLogoPositions The changed logo positions.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>, changedLogoPositions: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
       "shortcuts": { ...shortcuts }
     }
-    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
+    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
     return JSON.parse(res);
   }
 

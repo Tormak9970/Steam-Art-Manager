@@ -1,11 +1,11 @@
 use crate::{logger, steam};
 
-use std::{path::PathBuf, io::{BufReader, self, Write}, fs::{File, read_dir, read}};
+use std::{fs::{read, read_dir, File}, io::{self, BufReader, Write}, path::PathBuf};
 
 use serde_json::{Map, Value};
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
-use zip;
+use zip::{self, write::SimpleFileOptions};
 
 use home::home_dir;
 
@@ -96,8 +96,8 @@ fn get_import_grid_name(app_handle: &AppHandle, filename: &str, name_id_map: &Ma
         file_grid_type = "";
       },
       _ => {
-        logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 2);
-        panic!("Unexpected grid type: {}", grid_type);
+        logger::log_to_core_file(app_handle.to_owned(), format!("Unexpected grid type: {}", grid_type).as_str(), 1);
+        return ("".to_string(), "".to_string(), "".to_string());
       }
     }
 
@@ -124,8 +124,9 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
   let grids_dir_contents = read_dir(grids_dir_path).unwrap();
   let zip_file: File = File::create(zip_file_path).expect("File's directory should have existed since user picked it.");
   let mut zip_writer: zip::ZipWriter<File> = zip::ZipWriter::new(zip_file);
+  let _ = zip_writer.set_flush_on_finish_file(true);
   
-  let entry_options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+  let entry_options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
   
   for dir_entry in grids_dir_contents {
     let entry = dir_entry.expect("Should have been able to get directory entry.");
@@ -153,11 +154,14 @@ fn generate_grids_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     
     let _ = zip_writer.start_file(in_zip_filename, entry_options);
     let _ = zip_writer.write(&contents);
+
     logger::log_to_core_file(app_handle.to_owned(), format!("Wrote entry {} to zip.", entry.file_name().to_str().unwrap()).as_str(), 0);
   }
 
   let _ = zip_writer.finish();
+
   logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
+
   return true;
 }
 
@@ -180,6 +184,10 @@ fn set_grids_from_zip(app_handle: &AppHandle, grids_dir_path: PathBuf, zip_file_
     if zip_file.is_file() {
       let mangled_name: PathBuf = zip_file.mangled_name();
       let (platform, appid, adjusted_file_name) = get_import_grid_name(app_handle, mangled_name.to_str().expect("Should have been able to convert pathbuf to string."), name_id_map);
+
+      if platform == "".to_string() && appid == "".to_string() {
+        continue;
+      }
       
       let dest_path = grids_dir_path.join(PathBuf::from(&adjusted_file_name));
 

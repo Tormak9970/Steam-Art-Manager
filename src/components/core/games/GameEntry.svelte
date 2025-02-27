@@ -3,8 +3,8 @@
   import type { Unsubscriber } from "svelte/store";
 
   import { convertFileSrc } from "@tauri-apps/api/core";
-  import type { GameStruct, GridTypes, LibraryCacheEntry } from "@types";
-  import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, renderGamesInList, selectedGameAppId, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
+  import { GridTypes, type GameStruct, type LibraryCacheEntry } from "@types";
+  import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, renderGamesInList, selectedGameAppId, unfilteredLibraryCache } from "../../../stores/AppState";
   import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
   import GridEntry from "./grid-view/GridEntry.svelte";
   import ListEntry from "./list-view/ListEntry.svelte";
@@ -19,8 +19,6 @@
   let showIcon = true;
   let iconPath = "";
   $: isHidden = $hiddenGameIds.includes(game.appid);
-  $: originalLogoPos = $originalLogoPositions[game.appid]?.logoPosition;
-  $: steamLogoPos = $steamLogoPositions[game.appid]?.logoPosition;
   
   $: hasCustomArt = ($currentPlatform === Platforms.STEAM && $unfilteredLibraryCache[game.appid]) ? $appLibraryCache[game.appid][$gridType] !== $unfilteredLibraryCache[game.appid][$gridType] : false;
   $: hasCustomName = !!$customGameNames[game.appid];
@@ -28,8 +26,9 @@
   $: gridChanged = ($currentPlatform === Platforms.STEAM && $appLibraryCache[game.appid]) ?
     (!!$appLibraryCache[game.appid] && !$originalAppLibraryCache[game.appid]) || ($appLibraryCache[game.appid][$gridType] !== $originalAppLibraryCache[game.appid][$gridType]) :
     false;
-  $: logoPosChanged = steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false;
-  $: canDiscard = gridChanged || logoPosChanged;
+  $: canDiscard = gridChanged;
+
+  $: disabled = $gridType === GridTypes.ICON && iconPath === "";
 
   /**
    * Selects this game.
@@ -130,6 +129,7 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {:else}
   <GridEntry
@@ -145,5 +145,6 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {/if}

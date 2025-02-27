@@ -11,13 +11,12 @@ use super::vdf_reader::read_entry_map;
 /// Opens the appinfo.vdf file and returns the values as JSON.
 pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
   let mut file = fs::File::open(path).expect("Path should have existed.");
+  let metadata = fs::metadata(path).expect("Unable to read metadata.");
 
-  let metadata = fs::metadata(path).expect("unable to read metadata");
-  let mut buffer = vec![0; metadata.len() as usize];
-  file.read(&mut buffer).expect("buffer overflow");
+  let mut buffer = Vec::with_capacity(metadata.len() as usize);
+  file.read_to_end(&mut buffer).expect("Buffer overflow.");
   
-  let buf_slice = buffer.as_slice();
-  let mut reader = Reader::new(buf_slice);
+  let mut reader = Reader::new(&buffer);
 
   return read(&mut reader);
 }
@@ -28,7 +27,6 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
   let _universe = reader.read_uint32(true); //always 1
 
   let entries: Vec<Value>;
-  let mut strings: Vec<String> = vec![];
 
   if magic == 0x07564429 {
     let string_table_offset = reader.read_int64(true);
@@ -36,19 +34,18 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
     
     reader.seek(string_table_offset.try_into().expect("String table offset couldn't be converted to usize"), 0);
 
-    let string_count = reader.read_uint32(true);
+    let string_count = reader.read_uint32(true) as usize;
+    let mut strings = Vec::with_capacity(string_count);
     
-    for _i in 0..string_count {
-      let string = reader.read_string(None);
-
-      strings.push(string);
+    for _ in 0..string_count {
+      strings.push(reader.read_string(None));
     }
     
     reader.seek(data_offset, 0);
     
-    entries = read_app_sections(reader, string_table_offset, Some(magic), &Some(&mut strings));
+    entries = read_app_sections(reader, Some(string_table_offset), Some(magic), &Some(&mut strings));
   } else if magic == 0x07564428 {
-    entries = read_app_sections(reader, i64::MAX, None, &None);
+    entries = read_app_sections(reader, None, None, &None);
   } else {
     panic!("Magic header is unknown. Expected 0x07564428 or 0x07564429 but got {magic}");
   }
@@ -65,34 +62,26 @@ struct AppInfoChunk {
 }
 
 /// Reads the appinfo.vdf app sections to a JSON array.
-fn read_app_sections(reader: &mut Reader, string_table_offset: i64, magic: Option<u32>, strings: &Option<&mut Vec<String>>) -> Vec<Value> {
-  let mut id: u32 = reader.read_uint32(true);
+fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magic: Option<u32>, strings: &Option<&mut Vec<String>>) -> Vec<Value> {
+  let mut id = reader.read_uint32(true);
+  let eof = string_table_offset.unwrap_or(i64::MAX) as usize - 4;
 
-  let eof: usize = (string_table_offset - 4).try_into().unwrap();
+  let mut chunks = Vec::new();
 
-  let mut chunks: Vec<AppInfoChunk> = vec![];
-
-  while id != 0x00000000 && reader.get_offset() < eof {
+  while id != 0 && reader.get_offset() < eof {
     let chunk_size = reader.read_uint32(true);
     let offset = reader.get_offset();
-
     let chunk_length: usize = chunk_size.try_into().unwrap();
-    
+
     chunks.push(AppInfoChunk { offset, length: chunk_length });
 
     reader.seek(offset + chunk_length, 0);
     id = reader.read_uint32(true);
   }
 
+
   let entries: Vec<Value> = chunks.par_iter().filter_map(| chunk | {
     let mut chunk_reader = reader.slice(chunk.offset, chunk.length);
-
-    // let _state = chunk_reader.read_uint32(true);
-    // let _last_updated = chunk_reader.read_uint32(true);
-    // let _access_token = chunk_reader.read_uint64(true);
-    // chunk_reader.seek(20, 1);
-    // let _version_number = chunk_reader.read_uint32(true);
-    // chunk_reader.seek(20, 1);
     chunk_reader.seek(60, 1);
 
     let mut entry: Map<String, Value> = read_entry_map(&mut chunk_reader, magic, strings);

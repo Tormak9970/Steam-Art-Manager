@@ -51,7 +51,6 @@ fn adjust_path(app_handle: &AppHandle, appid: &str, path: &str, grid_type: &str)
 /// Filters the grid paths based on which have change.
 fn filter_paths(app_handle: &AppHandle, steam_path: String, steam_active_user_id: String, current_paths: &GridImageCache, original_paths: &GridImageCache, shortcut_icons: &Map<String, Value>) -> Vec<ChangedPath> {
   let grids_dir = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_path.to_owned(), steam_active_user_id));
-  let lib_cache_dir = PathBuf::from(steam::get_library_cache_directory(app_handle.to_owned(), steam_path.to_owned()));
   let mut res:Vec<ChangedPath> = Vec::new();
 
   for (appid, grids_map) in current_paths.into_iter() {
@@ -71,7 +70,7 @@ fn filter_paths(app_handle: &AppHandle, steam_path: String, steam_active_user_id
         if source_path != "REMOVE" {
           let adjusted_path = adjust_path(app_handle, appid.as_str(), source_path_owned.as_str(), grid_type.as_str()).replace("\\", "/");
           if grid_type == "Icon" && !is_appid_shortcut(&appid, shortcut_icons) {
-            target_path = String::from(lib_cache_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
+            target_path = String::from(grid_path).replace("\\", "/");
           } else {
             target_path = String::from(grids_dir.join(adjusted_path).to_str().unwrap()).replace("\\", "/");
           }
@@ -107,7 +106,7 @@ fn filter_paths(app_handle: &AppHandle, steam_path: String, steam_active_user_id
 fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shortcut_icons: &Map<String, Value>) -> bool {
   for (shortcut_id, icon) in shortcut_icons.to_owned().into_iter() {
     let icon: &str = icon.as_str().expect("Should have been able to convert icon to &str.");
-    let original_icon: &str = original_shortcut_icons.get(&shortcut_id).expect("Original hortcut should have had an icon.").as_str().expect("Should have been able to convert original icon to &str.");
+    let original_icon: &str = original_shortcut_icons.get(&shortcut_id).expect("Original shortcut should have had an icon.").as_str().expect("Should have been able to convert original icon to &str.");
 
     if icon != original_icon {
       return true;
@@ -121,7 +120,7 @@ fn check_for_shortcut_changes(shortcut_icons: &Map<String, Value>, original_shor
 
 #[tauri::command]
 /// Applies the changes the user has made.
-pub async fn save_changes(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>, changed_logo_positions: Map<String, Value>) -> String {
+pub async fn save_changes(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, current_art: String, original_art: String, shortcuts_str: String, shortcut_icons: Map<String, Value>, original_shortcut_icons: Map<String, Value>) -> String {
   let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
   let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
@@ -166,33 +165,7 @@ pub async fn save_changes(app_handle: AppHandle, steam_path: String, steam_activ
       logger::log_to_core_file(app_handle.to_owned(), format!("Copied {} to {}.", source, target).as_str(), 0);
     }
   }
-
-  let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(app_handle.to_owned(), steam_path.to_owned(), steam_active_user_id.clone()));
-  for (appid, steam_logo_str_val) in changed_logo_positions.into_iter() {
-    let steam_logo_str: &str = steam_logo_str_val.as_str().expect("Should have been able to convert steamLogo pos into str.");
-    let logo_config_path: PathBuf = grids_directory.join(format!("{}.json", appid));
-
-    if steam_logo_str == "REMOVE" {
-      let remove_res = fs::remove_file(logo_config_path);
-      if remove_res.is_err() {
-        let err = remove_res.err().unwrap();
-        return format!("{{ \"error\": \"{}\"}}", err.to_string());
-      }
-
-      logger::log_to_core_file(app_handle.to_owned(), format!("Removed logo position config for {}.", appid).as_str(), 0);
-    } else {
-      let write_res = fs::write(&logo_config_path, steam_logo_str);
   
-      if write_res.is_err() {
-        logger::log_to_core_file(app_handle.to_owned(), format!("Failed to write logo pos to config for {}.", appid).as_str(), 2);
-        let err = write_res.err().unwrap();
-        return format!("{{ \"error\": \"{}\"}}", err.to_string());
-      }
-      
-      logger::log_to_core_file(app_handle.to_owned(), format!("Wrote logo pos to config for {}.", appid).as_str(), 0);
-    }
-  }
-
   let should_change_shortcuts: bool = check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
   
   if should_change_shortcuts {
