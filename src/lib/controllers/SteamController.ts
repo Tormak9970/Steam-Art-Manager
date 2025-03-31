@@ -48,10 +48,10 @@ export class SteamController {
         name: typeof entry.common.name === "string" ? entry.common.name.replace(/[^\x00-\x7F]/g, "") : entry.common.name.toString(),
         gridInfo: {
           icon: entry.common.icon ? (entry.common.icon + ".jpg") : "",
-          capsule: libraryAssets?.library_capsule?.image.english ?? "",
-          wideCapsule: libraryAssets?.library_header?.image.english ?? entry.common?.header_image?.english ?? "",
-          hero: libraryAssets?.library_hero?.image.english ?? "",
-          logo: libraryAssets?.library_logo?.image.english ?? "",
+          capsule: libraryAssets?.library_capsule?.image?.english ?? "",
+          wideCapsule: libraryAssets?.library_header?.image?.english ?? entry.common?.header_image?.english ?? "",
+          hero: libraryAssets?.library_hero?.image?.english ?? "",
+          logo: libraryAssets?.library_logo?.image?.english ?? "",
         }
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));

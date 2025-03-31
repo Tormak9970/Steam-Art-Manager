@@ -112,7 +112,7 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        const originalPath = unfilteredCache[changedPath.appId][changedPath.gridType] ?? "";
+        const originalPath = unfilteredCache[changedPath.appId]?.[changedPath.gridType] ?? "";
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? originalPath : changedPath.targetPath;
         
         if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
