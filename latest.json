@@ -1,15 +1,15 @@
 {
-	"version": "3.11.0",
-	"notes": "New Features\n* removed logo position editing ([11ad80e](https://github.com/Tormak9970/Steam-Art-Manager/commit/11ad80e))\n\nBug Fixes\n* added message for games without existing icons ([30e9ad0](https://github.com/Tormak9970/Steam-Art-Manager/commit/30e9ad0))\n* adjusted grids to load based on valve's new folder structure ([62121be](https://github.com/Tormak9970/Steam-Art-Manager/commit/62121be))\n* appinfo libraryCache data now always loaded ([6ba175b](https://github.com/Tormak9970/Steam-Art-Manager/commit/6ba175b))\n* everything is finalized for new steam structure ([290b9ed](https://github.com/Tormak9970/Steam-Art-Manager/commit/290b9ed))\n* wide capsules with new name scheme are now loaded ([a882a2c](https://github.com/Tormak9970/Steam-Art-Manager/commit/a882a2c))\n* zip entries are now streamed to output to prevent crashes ([a9a6c8e](https://github.com/Tormak9970/Steam-Art-Manager/commit/a9a6c8e))",
-	"pub_date": "2025-02-27T16:04:23.674Z",
+	"version": "3.11.1",
+	"notes": "Bug Fixes\n* added missing optional chain causing infinite loads ([469a9c3](https://github.com/Tormak9970/Steam-Art-Manager/commit/469a9c3))\n* changes are now saved for non-steam games ([32f4128](https://github.com/Tormak9970/Steam-Art-Manager/commit/32f4128))",
+	"pub_date": "2025-03-31T14:11:45.327Z",
 	"platforms": {
 		"linux-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZW0zMnFiS2NjVndkMno0eVJ4U2RBMno5R1RLWXdndThxenAzdE5lVTN4V2J6d1JRZElPNjFYWVdoWCtaSG01YnJVR3Q0b0d0YitUdDZ0VkNVb2l6VXdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQwNjcyMjIzCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMS4wX2FtZDY0LkFwcEltYWdlLnRhci5negp4MTE0OHlFWjlWbU9qUnltMHZpUnpMUVJPQkFONFNXTS82QytzT2VpZ0ZxaEhyTTBrWHNWckU1aTd0M1Npb3FMSGpJS3VMK2hLWGFOaVNwS1U2eGtCQT09Cg==",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.11.0/steam-art-manager_3.11.0.AppImage.tar.gz"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZW5KUWNvOFJZTXNjU21pNWZLYk1xSTB0NlU3Mm5pTkVRbUFjNmNsQmprdGRqKzl1MDRQcEVrQm5jOGpqR1d0SGE4eGQwcHJtMFgyWHBaNlN1ODlRbkFvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQzNDMwMDg0CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMS4xX2FtZDY0LkFwcEltYWdlLnRhci5negp1REJleW01cmljV3l5ZjcwZzl3ZnRjUW5tYWV0RXJtckdPS1dYZ0dIeVV4elc1dFlvYi9rM0x6cHJvWThHcEYyMVgzS2o1VTg0UGg0c0xOUmpnUmJDdz09Cg==",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.11.1/steam-art-manager_3.11.1.AppImage.tar.gz"
 		},
 		"windows-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWc2TEsrKzFOYW9yZU1JY3JzVS9SandFZjIxTHpIdDJGdkZjSFpmaml6NzRBdXVONXgvcmozTEhjM0JORjR0MWU3U3Zqd05QSHlwZEl3M0U1UDlhaGdZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQwNjcyMjUzCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMS4wX3g2NF9lbi1VUy5tc2kuemlwCnhlU1pIM2REMGM5RUo5ak5sR0FtK0YrdkpqWExQYkhoWXJSMkhtT2c3TUhVVlg3QTU4dVFoT1dpMGpiTDRPcGUzZVJYZmVBL0c0RHBHL2xzOSt5NkR3PT0K",
-			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.11.0/steam-art-manager_3.11.0.msi.zip"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXFGd0kybjF6c2t3QTA0R2dMem5HRUF6aHlhcEFWR0dKUHpWVm40bTZzS2pLaFA2Q3lXSTNXS1hwcjZNRXJPR3lKZVdFTGlrem1NZGl2RTVYUFFlTEFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQzNDMwMjk0CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4xMS4xX3g2NF9lbi1VUy5tc2kuemlwCkx0N1NxTWxWZmhOODNUMGlaWEVXN1MvaHFHb2dLV0hpcFVTY1pPS2hQRzFBbkFGWHNQeWNlTFVReU9BUWx4M1hxWU5qN2VBaWZQYVJUUm1hM2x4Y0JRPT0K",
+			"url": "https://github.com/Tormak9970/Steam-Art-Manager/releases/download/v3.11.1/steam-art-manager_3.11.1.msi.zip"
 		}
 	}
 }
