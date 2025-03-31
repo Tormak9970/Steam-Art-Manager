@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.11.1
+
+Bug Fixes
+* added missing optional chain causing infinite loads ([469a9c3](https://github.com/Tormak9970/Steam-Art-Manager/commit/469a9c3))
+* changes are now saved for non-steam games ([32f4128](https://github.com/Tormak9970/Steam-Art-Manager/commit/32f4128))
+
 ## v3.11.0
 
 New Features
