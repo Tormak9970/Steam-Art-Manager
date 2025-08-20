@@ -1,5 +1,5 @@
 [package]
-name = "app"
+name = "steam-art-manager"
 version = "0.0.0"
 description = "The backend of the app"
 authors = ["you"]
