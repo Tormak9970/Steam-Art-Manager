@@ -125,6 +125,8 @@ Other resources / references I used:
 
 ## Licensing
  - This program is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/#GPL) <br/>
+ - The parsers in `src-tauri/src/parsers` are licensed under the [GNU Lesser General Public License Version 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) <br/>
+   - This means you may use them in projects that use other licenses, but I request that you provide attribution for code usage
  - The SARM Icon is based of the Fontawesome bucket icon, which is licensed under the [Fontawesome Commercial License 2023](https://fontawesome.com/license) <br/>
  - Additionally, if you use SARM for any projects, add it to a package manager, etc, please let me know! <br/>
  - Lastly, please provide appropriate credit for code usage
