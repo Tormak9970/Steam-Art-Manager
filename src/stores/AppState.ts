@@ -78,6 +78,8 @@ export const hiddenGameIds = writable<number[]>([]);
 export const manualSteamGames = writable<GameStruct[]>([]);
 export const customGameNames = writable<Record<string, string>>({});
 
+export const cacheSelectedGrids = writable(false);
+
 /**
  * The default library art provided by Steam.
  */

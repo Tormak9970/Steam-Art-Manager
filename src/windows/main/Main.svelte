@@ -1,12 +1,11 @@
 <script lang="ts">
   import { Footer, Games, Grids, Modals, Options } from "@components";
-  import { AppController, DialogController, LogController } from "@controllers";
+  import { AppController, DialogController, LogController, SettingsController } from "@controllers";
   import { canSave, isOnline } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
   import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
-  import { SettingsManager } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 
@@ -31,7 +30,7 @@
    */
   async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
     if (event.detail) {
-      await SettingsManager.updateSetting("windowSettings.main.panels", {
+      await SettingsController.set("windowSettings.main.panels", {
         "options": event.detail[0].size,
         "games": event.detail[1].size,
         "grids": event.detail[2].size

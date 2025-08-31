@@ -25,6 +25,7 @@
 <div class="setting">
   <div class="inputs">
     <Toggle label={label} on:change={(e) => onChange(e.detail.value)} bind:value={value} />
+    <slot />
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -57,7 +58,9 @@
 
   
   .inputs {
+    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 </style>

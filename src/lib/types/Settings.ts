@@ -1,6 +1,6 @@
 import type { CleanGridsPreset, GameStruct, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
 
-export type AppSettings = {
+export type Settings = {
   version: string,
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
@@ -9,6 +9,8 @@ export type AppSettings = {
   hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
   customGameNames: Record<string, string>,
+
+  cacheSelectedGrids: boolean,
   
   theme: number,
   showHiddenGames: boolean,

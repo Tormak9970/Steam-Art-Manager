@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { GridTypes, type ChangedPath, type SGDBGame, type SGDBImage } from "@types";
-import { SettingsManager, restartApp } from "@utils";
+import { restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
@@ -34,7 +34,6 @@ import { SettingsController } from "./utils/SettingsController";
  * The main controller for the application.
  */
 export class AppController {
-  private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController;
   private static tippyInstance: Instance<Props>;
 
@@ -61,9 +60,7 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
 
-    await SettingsManager.init();
-    await AppController.settingsController.loadSettings();
-    await AppController.settingsController.subscribeToSettingChanges();
+    await SettingsController.init();
 
     LogController.log("App setup complete.");
   }
@@ -134,7 +131,7 @@ export class AppController {
   }
 
   /**
-   * Discards the current changes
+   * Discards the current changes.
    * ? Logging complete.
    */
   static discardChanges(): void {
@@ -148,6 +145,18 @@ export class AppController {
     LogController.log("Discarded changes.");
     
     canSave.set(false);
+  }
+
+  /**
+   * Clears the cached grids.
+   * ! Logging incomplete.
+   */
+  static async clearCachedGrids(): Promise<void> {
+    const choice = await DialogController.ask("This Action can't be Undone!", "WARNING", "Clearing your cache will permanently delete these images. Are you sure?", "Yes", "No");
+
+    if (choice) {
+      
+    }
   }
 
   /**
@@ -516,7 +525,7 @@ export class AppController {
    */
   static async destroy(): Promise<void> {
     await AppController.cacheController.destroy();
-    AppController.settingsController.destroy();
+    SettingsController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -584,7 +593,7 @@ export class AppController {
 
         activeUserId.set(parseInt(userId));
 
-        const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+        const steamApiKeyMapSetting = SettingsController.get<Record<string, string>>("steamApiKeyMap");
         if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
           steamKey.set(steamApiKeyMapSetting[userId]);
         } else {
