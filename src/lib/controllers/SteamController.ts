@@ -1,7 +1,7 @@
 import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
@@ -228,9 +228,7 @@ export class SteamController {
       get(showErrorSnackbar)({ message: `Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!` });
     }
     
-    if (games.length > 0 || structuredShortcuts.length > 0) {
-      get(showInfoSnackbar)({ message: "Games loaded" });
-    } else {
+    if (games.length === 0 && structuredShortcuts.length === 0) {
       get(showErrorSnackbar)({ message: "Failed to load games" });
     }
   }

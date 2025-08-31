@@ -40,14 +40,15 @@ static settingsPath = "";
    * Initializes the SettingsController.
    */
   static async init() {
+    loadingSettings.set(true);
     await SettingsController.setSettingsPath();
     SettingsController.settings = await SettingsController.loadSettingsFromSystem();
 
     LogController.log("Finished loading settings.");
 
-    await SettingsController.setStores();
-    
-    loadingSettings.set(true);
+    SettingsController.setStores().then(() => {
+      loadingSettings.set(false);
+    });
   }
 
   /**
