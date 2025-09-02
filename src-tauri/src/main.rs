@@ -65,7 +65,9 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 #[tauri::command]
 /// Downloads a file from a url.
 async fn copy_grid_to_selected(app_handle: AppHandle, source_path: String, dest_path: String) -> bool {
-  let copy_res = fs::copy(source_path.clone(), dest_path);
+  let path_dest = PathBuf::from(dest_path);
+  let _ = fs::create_dir_all(path_dest.parent().expect("Dest Path should have a parent directory."));
+  let copy_res = fs::copy(source_path.clone(), path_dest);
   
   if copy_res.is_err() {
     let err = copy_res.err().expect("Request failed, error should have existed.");

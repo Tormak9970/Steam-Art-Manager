@@ -181,7 +181,7 @@ export class CacheController {
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
 
       if (get(cacheSelectedGrids)) {
-        const destPath = await path.join(this.gridCacheDirPath, appId, type, fileName);
+        const destPath = await path.join(this.selectedGridCacheDirPath, appId, type, fileName);
         await RustInterop.copyCachedGrid(localImagePath, destPath);
 
         selectedGrids[appId] = selectedGrids[appId] ?? {}

@@ -205,12 +205,10 @@ static settingsPath = "";
 
     return async (value: T) => {
       if (!SettingsController.oldValues[key] || JSON.stringify(SettingsController.oldValues[key]) !== JSON.stringify(value)) {
-        const settings = structuredClone(SettingsController.settings);
-
         parentObject[lastKey] = value;
         SettingsController.oldValues[key] = value;
         
-        await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(settings));
+        await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(SettingsController.settings));
         
         LogController.log(`Updated setting ${key} to ${JSON.stringify(value)}.`);
       }
