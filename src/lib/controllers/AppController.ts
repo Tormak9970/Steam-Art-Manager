@@ -155,7 +155,8 @@ export class AppController {
     const choice = await DialogController.ask("This Action can't be Undone!", "WARNING", "Clearing your cache will permanently delete these images. Are you sure?", "Yes", "No");
 
     if (choice) {
-      
+      await this.cacheController.invalidateSelectedCache();
+      get(showInfoSnackbar)({ message: "Selected cache cleared" });
     }
   }
 

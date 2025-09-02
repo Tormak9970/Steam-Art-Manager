@@ -159,6 +159,7 @@ export const DEFAULT_SETTINGS: Settings = {
         "games": 42,
         "grids": 42
       },
+      "showCached": false,
       "gameViewType": 0,
       "type": "Capsule",
     },

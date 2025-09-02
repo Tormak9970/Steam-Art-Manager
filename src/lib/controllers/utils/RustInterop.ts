@@ -142,6 +142,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
+    console.log(RustInterop.steamPath)
     return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
   }
   
@@ -270,6 +271,16 @@ export class RustInterop {
     const status = await invoke<string>("download_grid", { gridUrl: gridUrl, destPath: destPath, timeout: timeout });
 
     return timedOut ? "timedOut" : status;
+  }
+
+  /**
+   * Copies a file to the provided destination from a given source.
+   * @param sourcePath The path to copy from.
+   * @param destPath The path to write the file to.
+   * @returns A promise resolving to true if the file was successfully copied.
+   */
+  static async copyCachedGrid(sourcePath: string, destPath: string): Promise<boolean> {
+    return await invoke<boolean>("copy_grid_to_selected", { sourcePath, destPath });
   }
 
   /**

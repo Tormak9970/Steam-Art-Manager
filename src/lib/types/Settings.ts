@@ -39,6 +39,7 @@ export type Settings = {
       filters: any,
       panels: MainWindowPanels,
       gameViewType: number,
+      showCached: boolean,
       type: string
     },
     cleanGrids: {

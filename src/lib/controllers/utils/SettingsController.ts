@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme } from "@stores/AppState";
+import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -46,9 +46,8 @@ static settingsPath = "";
 
     LogController.log("Finished loading settings.");
 
-    SettingsController.setStores().then(() => {
-      loadingSettings.set(false);
-    });
+    await SettingsController.setStores();
+    loadingSettings.set(false);
   }
 
   /**
@@ -335,6 +334,10 @@ static settingsPath = "";
       const gridTypeSetting = SettingsController.settings.windowSettings.main.type as GridTypes;
       SettingsController.oldValues["windowSettings.main.type"] = gridTypeSetting;
       gridType.set(gridTypeSetting);
+      
+      const showCachedSetting = SettingsController.settings.windowSettings.main.showCached;
+      SettingsController.oldValues["windowSettings.main.showCached"] = showCachedSetting;
+      showCachedGrids.set(showCachedSetting);
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
@@ -399,6 +402,7 @@ static settingsPath = "";
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),
       gridType.subscribe(SettingsController.setOnChange("windowSettings.main.type")),
+      showCachedGrids.subscribe(SettingsController.setOnChange("windowSettings.main.showCached")),
   
       selectedManualGamesAddMethod.subscribe(SettingsController.setOnChange("windowSettings.manageManualGames.method")),
       selectedCleanGridsPreset.subscribe(SettingsController.setOnChange("windowSettings.cleanGrids.preset")),

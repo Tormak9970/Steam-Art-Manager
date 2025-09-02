@@ -63,6 +63,21 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
 }
 
 #[tauri::command]
+/// Downloads a file from a url.
+async fn copy_grid_to_selected(app_handle: AppHandle, source_path: String, dest_path: String) -> bool {
+  let copy_res = fs::copy(source_path.clone(), dest_path);
+  
+  if copy_res.is_err() {
+    let err = copy_res.err().expect("Request failed, error should have existed.");
+    logger::log_to_core_file(app_handle.to_owned(), format!("Cache of {} failed with {}.", source_path, err.to_string()).as_str(), 0);
+    return false;
+  }
+
+  return true;
+}
+
+
+#[tauri::command]
 // Validates the steam install path
 async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool {
   let steam_path: PathBuf = PathBuf::from(&target_path);
@@ -183,6 +198,7 @@ fn main() {
       handle_changes::save_changes,
       handle_changes::write_shortcuts,
       download_grid,
+      copy_grid_to_selected,
       clean_grids::clean_grids,
       validate_steam_path
     ])
