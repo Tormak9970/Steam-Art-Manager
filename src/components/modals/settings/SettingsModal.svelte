@@ -85,6 +85,8 @@
     if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
+    
+    if (cacheSelectedGridsSetting !== $cacheSelectedGrids) $cacheSelectedGrids = cacheSelectedGridsSetting;
 
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
 
@@ -158,6 +160,7 @@
    */
   function onCacheSelectedGridsChange(value: boolean): void {
     cacheSelectedGridsSetting = value;
+    console.log("cacheSelectedGridsSetting:", cacheSelectedGridsSetting)
     canSave = true;
   }
 

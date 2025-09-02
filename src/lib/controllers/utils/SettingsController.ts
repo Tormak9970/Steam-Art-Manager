@@ -48,6 +48,8 @@ static settingsPath = "";
 
     await SettingsController.setStores();
     loadingSettings.set(false);
+
+    SettingsController.registerSubs();
   }
 
   /**
@@ -368,9 +370,10 @@ static settingsPath = "";
     SettingsController.subscriptions = [
       steamInstallPath.subscribe(async (newPath) => {
         if (newPath !== SettingsController.oldValues["steamInstallPath"]) {
+          const oldValueDefined = !!SettingsController.oldValues["steamInstallPath"]
           SettingsController.set("steamInstallPath", newPath);
   
-          if (SettingsController.oldValues["steamInstallPath"] !== "") {
+          if (oldValueDefined && SettingsController.oldValues["steamInstallPath"] !== "") {
             const shouldReloadGames = await DialogController.ask(
               "Steam Install Path Changed",
               "WARNING",
