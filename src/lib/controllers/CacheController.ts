@@ -502,11 +502,20 @@ export class CacheController {
   }
 
   /**
+   * Loads the user's previously selected grids.
+   */
+  async loadSelectedCache(): Promise<void> {
+    const cache = await RustInterop.getSelectedGridsCacheData(this.selectedGridCacheDirPath);
+    userSelectedGrids.set(cache);
+  }
+
+  /**
    * Empties the selected grids cache.
    * ? Logging complete.
    */
   async invalidateSelectedCache(): Promise<void> {
     await fs.remove(this.selectedGridCacheDirPath, { recursive: true });
+    userSelectedGrids.set({});
     LogController.log("Cleared selected grids cache.");
   }
   

@@ -9,6 +9,7 @@ mod start_menu_tiles;
 mod grids_cache_loader;
 mod clean_grids;
 mod types;
+mod selected_cache;
 
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_fs::FsExt;
@@ -202,7 +203,8 @@ fn main() {
       download_grid,
       copy_grid_to_selected,
       clean_grids::clean_grids,
-      validate_steam_path
+      validate_steam_path,
+      selected_cache::load_selected_cache
     ])
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_http::init())

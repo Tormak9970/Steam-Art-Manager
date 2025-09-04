@@ -62,6 +62,8 @@ export class AppController {
 
     await SettingsController.init();
 
+    await AppController.cacheController.loadSelectedCache();
+
     LogController.log("App setup complete.");
   }
 

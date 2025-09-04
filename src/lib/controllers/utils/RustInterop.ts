@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, GridTypesMap, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -147,6 +147,15 @@ export class RustInterop {
   }
   
   /**
+   * Gets the user's previously selected grids.
+   * @param cacheDir The directory where the selected grids are stored.
+   * @returns The selected grids map.
+   */
+  static async getSelectedGridsCacheData(cacheDir: string): Promise<Record<string, GridTypesMap<string[]>>> {
+    return await invoke<Record<string, GridTypesMap<string[]>>>("load_selected_cache", { cacheDir });
+  }
+  
+  /**
    * Gets the user's cache data..
    * @param activeUserId The id of the active user.
    * @param shortcutIds The list of shortcut ids.
@@ -155,7 +164,7 @@ export class RustInterop {
    */
   static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]> {
     const appsMap = Object.fromEntries(steamApps.map((app) => [app.appid, app.gridInfo]));
-    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });;
+    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });
   }
 
   /**
