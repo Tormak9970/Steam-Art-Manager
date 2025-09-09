@@ -19,7 +19,7 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, cacheSelectedGrids, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
 import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
@@ -161,14 +161,13 @@ export class CacheController {
 
   /**
    * Gets a image from steamGrid's cdn.
-   * @param appid The id of the app whose grid is being fetched.
+   * @param gridId The id of the grid that's being fetched.
    * @param imageURL The url of the image to get.
    * @param useCoreFile Whether or not to log to the core log file.
    * ? Logging complete.
    */
-  async getGridImage(appId: string, imageURL: string, useCoreFile = true): Promise<string> {
+  async getGridImage(gridId: string, imageURL: string, useCoreFile = true): Promise<string> {
     const type = get(gridType)
-    const selectedGrids = get(userSelectedGrids);
     const requestTimeout = get(requestTimeoutLength);
     // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
@@ -177,19 +176,8 @@ export class CacheController {
     if (!(await fs.exists(localImagePath))) {
       logToFile("Fetching image from API.", useCoreFile);
 
-      dowloadingGridId.set(appId);
+      dowloadingGridId.set(gridId);
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
-
-      if (get(cacheSelectedGrids)) {
-        const destPath = await path.join(this.selectedGridCacheDirPath, appId, type, fileName);
-        await RustInterop.copyCachedGrid(localImagePath, destPath);
-
-        selectedGrids[appId] = selectedGrids[appId] ?? {}
-        selectedGrids[appId][type] = selectedGrids[appId][type] ?? []
-        selectedGrids[appId][type].push(destPath);
-
-        userSelectedGrids.set({ ...selectedGrids });
-      }
 
       dowloadingGridId.set("");
 
@@ -211,6 +199,22 @@ export class CacheController {
     }
     
     return localImagePath;
+  }
+
+  async cacheSelectedGrid(appId: string, image: SGDBImage, localPath: string): Promise<void> {
+    const type = get(gridType)
+    const selectedGrids = get(userSelectedGrids);
+    const imageURL = image.url.toString();
+    const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
+
+    const destPath = await path.join(this.selectedGridCacheDirPath, appId, type, fileName);
+    await RustInterop.copyCachedGrid(localPath, destPath);
+
+    selectedGrids[appId] = selectedGrids[appId] ?? {}
+    selectedGrids[appId][type] = selectedGrids[appId][type] ?? []
+    selectedGrids[appId][type].push(structuredClone(image));
+
+    userSelectedGrids.set({ ...selectedGrids });
   }
 
   /**
@@ -499,14 +503,6 @@ export class CacheController {
     // LogController.log("Clearing cache...");
     await fs.remove(this.gridCacheDirPath, { recursive: true });
     LogController.log("Cleared cache.");
-  }
-
-  /**
-   * Loads the user's previously selected grids.
-   */
-  async loadSelectedCache(): Promise<void> {
-    const cache = await RustInterop.getSelectedGridsCacheData(this.selectedGridCacheDirPath);
-    userSelectedGrids.set(cache);
   }
 
   /**

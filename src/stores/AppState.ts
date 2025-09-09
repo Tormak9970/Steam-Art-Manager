@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SteamShortcut, type SteamUser } from "@types";
+import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilter = {
@@ -96,7 +96,7 @@ export const appLibraryCache = writable<Record<string, LibraryCacheEntry>>({});
 
 export const steamGridSearchCache = writable<Record<string, SGDBGame[]>>({});
 export const hasMorePagesCache = writable<Record<string, GridTypesOptionalMap<boolean>>>({});
-export const userSelectedGrids = writable<Record<string, GridTypesOptionalMap<string[]>>>({});
+export const userSelectedGrids = writable<Record<string, GridTypesOptionalMap<SGDBImage[]>>>({});
 
 
 export const dbFilters: Writable<DBFilters> = writable(DEFAULT_FILTERS);

@@ -21,7 +21,7 @@ import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, cacheSelectedGrids, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
@@ -61,8 +61,6 @@ export class AppController {
     AppController.cacheController = new CacheController();
 
     await SettingsController.init();
-
-    await AppController.cacheController.loadSelectedCache();
 
     LogController.log("App setup complete.");
   }
@@ -311,11 +309,13 @@ export class AppController {
 
   /**
    * Sets the image for a game to the provided image.
-   * @param appId The id of the grid.
-   * @param url The url of the SteamGridDB image.
+   * @param image The grid to set.
    * ? Logging complete.
    */
-  static async setSteamGridArt(appId: string, url: URL): Promise<void> {
+  static async setSteamGridArt(image: SGDBImage): Promise<void> {
+    const id = image.id.toString();
+    const url = image.url;
+
     let imgUrl = url.toString();
     if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
     
@@ -324,9 +324,12 @@ export class AppController {
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
 
-    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
+    const localPath = await AppController.cacheController.getGridImage(id, imgUrl);
     
     if (localPath) {
+      if (get(cacheSelectedGrids)) {
+        await AppController.cacheController.cacheSelectedGrid(get(selectedGameAppId), image, localPath);
+      }
 
       if (!gameImages[selectedGameId]) {
         // @ts-ignore

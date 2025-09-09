@@ -1,4 +1,5 @@
-import type { CleanGridsPreset, GameStruct, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
+import type { CleanGridsPreset, GameStruct, GridTypesOptionalMap, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
+import type { SGDBImage } from "./SGDB";
 
 export type Settings = {
   version: string,
@@ -11,6 +12,7 @@ export type Settings = {
   customGameNames: Record<string, string>,
 
   cacheSelectedGrids: boolean,
+  userSelectedGrids: Record<string, GridTypesOptionalMap<SGDBImage[]>>,
   
   theme: number,
   showHiddenGames: boolean,

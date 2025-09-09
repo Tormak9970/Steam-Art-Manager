@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme } from "@stores/AppState";
+import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -317,6 +317,10 @@ static settingsPath = "";
       const cacheSelectedGridsSetting = SettingsController.settings.cacheSelectedGrids;
       SettingsController.oldValues["cacheSelectedGrids"] = cacheSelectedGridsSetting;
       cacheSelectedGrids.set(cacheSelectedGridsSetting);
+  
+      const userSelectedGridsSetting = SettingsController.settings.userSelectedGrids;
+      SettingsController.oldValues["userSelectedGrids"] = userSelectedGridsSetting;
+      userSelectedGrids.set(userSelectedGridsSetting);
 
 
       const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
@@ -397,6 +401,7 @@ static settingsPath = "";
       debugMode.subscribe(SettingsController.setOnChange("debugMode")),
       showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
       cacheSelectedGrids.subscribe(SettingsController.setOnChange("cacheSelectedGrids")),
+      userSelectedGrids.subscribe(SettingsController.setOnChange("userSelectedGrids")),
   
       dbFilters.subscribe(SettingsController.setOnChange("windowSettings.main.filters")),
   

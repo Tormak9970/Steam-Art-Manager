@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, GameStruct, GridTypesMap, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -144,15 +144,6 @@ export class RustInterop {
   static async getLibraryCacheDirectory(): Promise<string> {
     console.log(RustInterop.steamPath)
     return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
-  }
-  
-  /**
-   * Gets the user's previously selected grids.
-   * @param cacheDir The directory where the selected grids are stored.
-   * @returns The selected grids map.
-   */
-  static async getSelectedGridsCacheData(cacheDir: string): Promise<Record<string, GridTypesMap<string[]>>> {
-    return await invoke<Record<string, GridTypesMap<string[]>>>("load_selected_cache", { cacheDir });
   }
   
   /**

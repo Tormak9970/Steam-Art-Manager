@@ -32,7 +32,7 @@
    * Apply the grid being previewed.
    */
   function applyGrid(): void {
-    AppController.setSteamGridArt(definedModalInfo.id.toString(), definedModalInfo.url);
+    AppController.setSteamGridArt(definedModalInfo);
   }
 
   /**
