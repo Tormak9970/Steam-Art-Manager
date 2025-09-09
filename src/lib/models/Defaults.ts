@@ -145,6 +145,7 @@ export const DEFAULT_SETTINGS: Settings = {
   "customGameNames": {},
 
   "cacheSelectedGrids": false,
+  "userSelectedGrids": {},
   
   "theme": 0,
   "showHiddenGames": false,
