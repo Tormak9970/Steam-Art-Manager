@@ -74,7 +74,7 @@
   .container {
     width: 100%;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
     
     margin-bottom: 7px;
     margin-right: 7px;
@@ -86,7 +86,7 @@
     width: 100%;
     height: 100%;
     
-    border-radius: 4px;
+    border-radius: 0.25rem;
     overflow: hidden;
 
     position: absolute;
@@ -99,7 +99,7 @@
   .list-entry {
     background-color: var(--foreground);
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     font-size: 14px;
 
@@ -136,7 +136,7 @@
 
   .icon-container {
     margin-right: 7px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     height: 32px;
     width: 32px;
@@ -156,7 +156,7 @@
   }
 
   .status {
-    height: 28px;
+    height: 20.5rem;
     min-width: 5px;
 
     display: flex;

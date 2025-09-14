@@ -32,7 +32,7 @@
     background-color: var(--background-hover);
     border: 1px solid var(--foreground);
     outline: none;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     padding: 5px;
 
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;

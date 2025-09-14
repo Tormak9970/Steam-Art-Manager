@@ -26,7 +26,7 @@
     </InfoModalSection>
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
-      <div style="margin-left: 8px; text-align: center;">© Travis Lane {new Date().getFullYear()}</div>
+      <div style="margin-left: 0.5rem; text-align: center;">© Travis Lane {new Date().getFullYear()}</div>
     </div>
   </div>
 </ModalBody>

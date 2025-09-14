@@ -17,7 +17,7 @@
     padding: 3px 7px;
     margin-bottom: 7px;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     display: flex;
     align-items: center;
@@ -42,7 +42,7 @@
 
     background-color: var(--foreground-hover);
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .shine {

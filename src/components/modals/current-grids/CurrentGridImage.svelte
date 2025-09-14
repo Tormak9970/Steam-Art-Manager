@@ -22,7 +22,7 @@
 <style>
   .label {
     padding-left: 10px;
-    font-size: 18px;
+    font-size: 10.5rem;
   }
 
   .img-cont {
@@ -43,7 +43,7 @@
   }
 
   .logo-background {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
     width: 100%;

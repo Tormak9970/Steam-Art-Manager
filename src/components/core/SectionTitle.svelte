@@ -1,6 +1,6 @@
 <script lang="ts">
   export let title: string;
-  export let fontSize = "20px";
+  export let fontSize = "1.25rem";
 </script>
 
 <div class="section-title">
@@ -14,8 +14,8 @@
   }
 
   .title {
-    margin: 6px;
-    margin-bottom: 0px;
+    margin: 0.375rem;
+    margin-bottom: 0;
     border-bottom: 1px solid var(--foreground);
   }
 </style>

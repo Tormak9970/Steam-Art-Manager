@@ -112,7 +112,7 @@
   }
 
   .description li {
-    margin-top: 4px;
+    margin-top: 0.25rem;
   }
 
   .view {

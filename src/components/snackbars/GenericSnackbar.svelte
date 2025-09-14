@@ -46,7 +46,7 @@
     --m3-snackbar-shape: 0.25rem;
 
     --m3-util-elevation-3: 0px 5px 5px -3px rgb(var(--m3-scheme-shadow) / 0.2),
-    0px 8px 10px 1px rgb(var(--m3-scheme-shadow) / 0.14),
+    0px 0.5rem 10px 1px rgb(var(--m3-scheme-shadow) / 0.14),
     0px 3px 14px 2px rgb(var(--m3-scheme-shadow) / 0.12);
   }
 

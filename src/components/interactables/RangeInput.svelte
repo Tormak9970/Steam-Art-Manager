@@ -109,10 +109,10 @@
    * ? Verified this is working properly.
    */
   function calculateNewValue(clientX: number) {
-    // Find distance between cursor and element's left cord (17px / 2 ~= 8px) - Center of thumb
+    // Find distance between cursor and element's left cord (17px / 2 ~= 0.5rem) - Center of thumb
     let delta = clientX - (elementX + 8);
 
-    // Use width of the container minus (8px * 2 sides) offset for percent calc
+    // Use width of the container minus (0.5rem * 2 sides) offset for percent calc
     let percent = (delta * 100) / (container.clientWidth); //(container.clientWidth - 16)
 
     // Limit percent 0 -> 100
@@ -242,9 +242,9 @@
   }
 
   .range__track {
-    height: 8px;
+    height: 0.5rem;
     background-color: var(--track-bgcolor, #d0d0d0);
-    border-radius: 8px;
+    border-radius: 0.5rem;
   }
 
   .range__track--highlighted {
@@ -254,9 +254,9 @@
       linear-gradient(90deg, #6185ff, #9c65ff)
     );
     width: 0;
-    height: 8px;
+    height: 0.5rem;
     position: absolute;
-    border-radius: 8px;
+    border-radius: 0.5rem;
   }
 
   .range__thumb {
@@ -290,9 +290,9 @@
     position: absolute;
     top: -33px;
     color: var(--tooltip-text, white);
-    width: 38px;
-    padding: 4px 0;
-    border-radius: 4px;
+    width: 30.5rem;
+    padding: 0.25rem 0;
+    border-radius: 0.25rem;
     text-align: center;
     background-color: var(--tooltip-bgcolor, #6185ff);
     background: var(--tooltip-bg, linear-gradient(45deg, #6185ff, #9c65ff));

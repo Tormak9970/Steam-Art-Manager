@@ -33,7 +33,7 @@
     height: 20px;
     width: 20px;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
     border: 1px solid transparent;
   }
 
@@ -51,7 +51,7 @@
     background-color: var(--background-hover);
     border: 1px solid var(--foreground);
     padding: 2px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;

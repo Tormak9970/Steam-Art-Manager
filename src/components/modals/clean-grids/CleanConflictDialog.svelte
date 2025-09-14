@@ -157,13 +157,13 @@
   .capsule {
     display: flex;
     flex-direction: row;
-    height: calc(100% - 38px);
+    height: calc(100% - 30.5rem);
   }
 
   .icon {
     display: flex;
     flex-direction: row;
-    height: calc(100% - 38px);
+    height: calc(100% - 30.5rem);
     max-width: 550px;
   }
 
@@ -178,7 +178,7 @@
 
   
   .logo-background {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
     width: 100%;

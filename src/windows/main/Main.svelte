@@ -131,7 +131,7 @@
 
 	.content {
 		width: 100%;
-		height: calc(100% - 30px);
+		height: calc(100% - 2rem);
 
 		display: flex;
 		flex-direction: column;

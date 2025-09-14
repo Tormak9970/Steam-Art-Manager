@@ -24,7 +24,7 @@
 
     background-color: var(--foreground);
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .search-entry:hover {

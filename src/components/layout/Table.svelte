@@ -24,7 +24,7 @@
     
     padding: 7px;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     font-size: 14px;
 

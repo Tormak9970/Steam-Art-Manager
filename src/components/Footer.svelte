@@ -10,7 +10,7 @@
 <div class="footer">
   <div class="info">
     <!-- svelte-ignore missing-declaration -->
-    <div style="margin-left: 8px; text-align: center;">v{APP_VERSION}</div>
+    <div style="margin-left: 0.5rem; text-align: center;">v{APP_VERSION}</div>
   </div>
   <div class="btns">
     {#if $canSave}
@@ -22,26 +22,26 @@
     {/if}
     
     <IconButton label="Info" on:click={() => $showInfoModal = true}>
-      <Info height="1rem" style="height: 12px; width: 12px;" />
+      <Info style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton label="View on GitHub" on:click={() => open("https://github.com/Tormak9970/Steam-Art-Manager")} tooltipPosition="auto">
-      <GitHub style="height: 12px; width: 12px;" />
+      <GitHub style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton label="Reload SARM" on:click={AppController.reload}>
-      <Refresh style="height: 12px; width: 12px;" />
+      <Refresh style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton label="Tools" on:click={() => $showToolsModal = true}>
-      <Wrench style="height: 12px; width: 12px;" />
+      <Wrench style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton label="Settings" on:click={() => { $showSettingsModal = true; }}>
-      <Cog style="height: 12px; width: 12px;" />
+      <Cog style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
   </div>
 </div>
 
 <style>
   .footer {
-    height: 30px;
+    height: 2rem;
     width: 100%;
 
     background: var(--background);
@@ -49,19 +49,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 14px;
   }
   .info {
     display: flex;
     align-items: center;
-    font-size: 12px;
+    font-size: 0.75rem;
     opacity: 0.5;
   }
   .btns {
-    height: 22px;
     display: flex;
-    padding-right: 7px;
+    padding-right: 0.25rem;
 
-    gap: 7px;
+    gap: 0.25rem;
   }
 </style>

@@ -45,13 +45,13 @@
 
     background-color: var(--background-dark);
     padding: 6px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     width: calc(100% - 14px);
   }
 
   .description {
-    line-height: 18px;
+    line-height: 10.5rem;
     font-size: 14px;
     margin: 7px 0px;
   }

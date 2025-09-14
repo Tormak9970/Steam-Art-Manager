@@ -61,7 +61,7 @@
     background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     font-size: 14px;
 
@@ -104,7 +104,7 @@
 
     width: 100%;
     height: 100%;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     background-color: rgba(0, 0, 0, 0.7);
 

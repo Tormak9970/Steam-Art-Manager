@@ -66,7 +66,7 @@
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
-    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow }} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 0.5rem); min-width: calc({width} - 0.5rem);" on:click={toggleDropdown} use:AppController.tippy={{ content: internalValue, placement: active ? entryTooltipPosition : tooltipPosition, onShow: AppController.onTippyShow }} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -85,7 +85,7 @@
       </div>
     </div>
   {:else}
-    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 8px); min-width: calc({width} - 8px);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
+    <div class="custom-select" class:disabled={disabled} style="width: calc({width} - 0.5rem); min-width: calc({width} - 0.5rem);" on:click={toggleDropdown} bind:this={customSelectElemWrapper}>
       <select>
         <option value="default">{internalValue}</option>
         {#each options as opt}
@@ -123,7 +123,7 @@
     user-select: none;
     position: relative;
     padding: 5px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     border: 1px solid var(--foreground);
 
     background-color: var(--background-hover);
@@ -175,7 +175,7 @@
     overflow: hidden;
   }
   .select-items > div {
-    padding: 4px 5px;
+    padding: 0.25rem 5px;
     padding-top: 5px;
     
     transition: background-color 0.15s ease-in-out;
@@ -188,7 +188,7 @@
     right: 0;
     z-index: 99;
     margin-top: 1px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     border: 1px solid var(--foreground-hover);
     box-shadow: 3px 6px 12px -2px var(--shadow);
     overflow: hidden;
