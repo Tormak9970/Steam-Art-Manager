@@ -20,7 +20,7 @@ vdf-parser = "0.1.0"
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Lesser General Public License v2.1 - see the [LICENSE](LICENSE) file for details.
 
 ## Copyright
 

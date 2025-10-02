@@ -5,8 +5,12 @@ edition = "2021"
 rust-version = "1.79"
 authors = ["Travis Lane"]
 description = "A parser for Steam's VDF file formats including appinfo.vdf and shortcuts.vdf"
-license = "GPL-3.0"
+license = "LGPL-2.1"
 repository = "https://github.com/Tormak9970/Steam-Art-Manager"
+homepage = "https://github.com/Tormak9970/Steam-Art-Manager"
+readme = "README.md"
+keywords = ["keyvalues", "vdf", "steam", "parser", "valve"]
+categories = ["parser-implementations", "encoding"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
