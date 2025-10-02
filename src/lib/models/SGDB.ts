@@ -68,7 +68,7 @@ export class SGDB {
    * @param options The query's options.
    * @returns The built query.
    */
-  private buildQuery(options: any): { [key: string]: string; } {
+  private buildQuery(options: any): Record<string, string> {
     const multiParams = ["styles", "dimensions", "mimes", "types", "platformdata"];
     const singleParams = ["nsfw", "humor", "epilepsy", "oneoftag", "page"];
     const params: any = {};
@@ -97,7 +97,7 @@ export class SGDB {
    * @param usePublic Whether to use the public api or v2.
    * @returns A promise resolving to the request's result.
    */
-  async handleRequest(method: "GET", url: string, params: { [key: string]: string; } = {}, formData = null, usePublic = false): Promise<any> {
+  async handleRequest(method: "GET", url: string, params: Record<string, string> = {}, formData = null, usePublic = false): Promise<any> {
     const requestTimeout = get(requestTimeoutLength);
     let strParams: string;
 

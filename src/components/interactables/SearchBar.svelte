@@ -5,7 +5,7 @@
 
   export let label: string;
   export let value = "";
-  export let width = "200px";
+  export let width = "12.5rem";
   export let interval = 300;
   export let reversed = false;
   export let updateOnInput = true;
@@ -49,10 +49,10 @@
 </script>
 
 <div class="search-bar" style="width: {width}; flex-direction: {reversed ? "row-reverse" : "row"};">
-  <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 7px;" class:showing={searching}>
-    <LoadingSpinner width="20px" height="20px" />
+  <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 0.5rem;" class:showing={searching}>
+    <LoadingSpinner width="1.25rem" height="1.25rem" />
   </div>
-  <input style="width: calc(100% - 6px);" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
+  <input style="width: calc(100% - 0.375rem);" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
 </div>
 
 <style>
@@ -64,10 +64,12 @@
     background-color: var(--background-hover);
     border: 1px solid var(--foreground);
     color: var(--font-color);
-    border-radius: 4px;
-    padding: 5px;
+    border-radius: 0.25rem;
+    padding: 0.375rem;
     
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    height: 0.875rem;
   }
   input:hover,
   input:focus {

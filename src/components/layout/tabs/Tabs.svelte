@@ -68,7 +68,7 @@
   span {
     border: 1px solid transparent;
     display: block;
-    padding: 4px 6px;
+    padding: 0.25rem 6px;
     cursor: pointer;
 
     background-color: var(--foreground);

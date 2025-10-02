@@ -66,7 +66,7 @@
     flex-direction: column;
     justify-content: center;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
     overflow: hidden;
   }
 </style>

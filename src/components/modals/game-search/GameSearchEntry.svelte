@@ -22,7 +22,7 @@
     
     padding: 3px 7px;
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     display: flex;
     align-items: center;

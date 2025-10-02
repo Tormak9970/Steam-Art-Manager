@@ -7,6 +7,7 @@ mod zip_controller;
 mod start_menu_tiles;
 mod grids_cache_loader;
 mod clean_grids;
+mod types;
 
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_fs::FsExt;
@@ -59,6 +60,23 @@ async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: Strin
     return String::from("failed");
   }
 }
+
+#[tauri::command]
+/// Downloads a file from a url.
+async fn copy_grid_to_selected(app_handle: AppHandle, source_path: String, dest_path: String) -> bool {
+  let path_dest = PathBuf::from(dest_path);
+  let _ = fs::create_dir_all(path_dest.parent().expect("Dest Path should have a parent directory."));
+  let copy_res = fs::copy(source_path.clone(), path_dest);
+  
+  if copy_res.is_err() {
+    let err = copy_res.err().expect("Request failed, error should have existed.");
+    logger::log_to_core_file(app_handle.to_owned(), format!("Cache of {} failed with {}.", source_path, err.to_string()).as_str(), 0);
+    return false;
+  }
+
+  return true;
+}
+
 
 #[tauri::command]
 // Validates the steam install path
@@ -181,6 +199,7 @@ fn main() {
       handle_changes::save_changes,
       handle_changes::write_shortcuts,
       download_grid,
+      copy_grid_to_selected,
       clean_grids::clean_grids,
       validate_steam_path
     ])

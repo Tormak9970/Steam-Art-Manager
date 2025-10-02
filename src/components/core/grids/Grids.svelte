@@ -1,9 +1,8 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Edit, Position, Upload } from "@icons";
+  import { Edit, Upload } from "@icons";
   import { DropDown, IconButton } from "@interactables";
-  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
-  import { showLogoPositionModal } from "@stores/Modals";
+  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
   import { debounce } from "@utils";
@@ -155,7 +154,7 @@
             <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
           {/if}
           <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""}>
-            <Edit style="height: 14px; width: 14px;" />
+            <Edit style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
         </div>
 
@@ -166,17 +165,13 @@
         {/if}
 
         <div class="buttons-cont">
-          <IconButton label="Set Logo Position" on:click={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
-            <Position style="height: 14px; width: 14px;" />
-          </IconButton>
-
           <IconButton label="Upload Local Art" on:click={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
-            <Upload style="height: 12px; width: 12px;" />
+            <Upload style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
         </div>
       </div>
       
-      <Divider marginTop={"6px"} />
+      <Divider />
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
@@ -189,16 +184,14 @@
 
 <style>
   .inner {
-    margin-right: 1px;
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .content {
-    padding: 0px 6px;
-    max-height: calc(100% - 65px);
+    padding: 0px 0.375rem;
   }
 
   .inputs {
@@ -208,11 +201,11 @@
 
   .controls {
     display: flex;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .buttons-cont {
     display: flex;
-    gap: 7px;
+    gap: 0.5rem;
   }
 </style>

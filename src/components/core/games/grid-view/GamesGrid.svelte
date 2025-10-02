@@ -33,7 +33,7 @@
 
 <style>
   .games-grid {
-    height: calc(100% - 7px);
+    height: calc(100% - 0.5rem);
     overflow: hidden;
   }
 
@@ -42,8 +42,8 @@
     display: grid;
     
     grid-template-columns: repeat(auto-fit, var(--img-width));
-    row-gap: 15px;
-    column-gap: 15px;
+    row-gap: 1rem;
+    column-gap: 1rem;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
 
@@ -54,6 +54,6 @@
     width: 100%;
     text-align: center;
     opacity: 0.5;
-    padding-top: 40px;
+    padding-top: 2.5rem;
   }
 </style>

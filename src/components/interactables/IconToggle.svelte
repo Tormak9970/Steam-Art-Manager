@@ -41,7 +41,7 @@
     align-items: center;
 		color: var(--font-color);
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
     border: 1px solid var(--foreground);
     overflow: hidden;
   }
@@ -51,16 +51,16 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
-    width: 1em;
-    height: 1em;
-    padding: 3px;
+    width: 1rem;
+    height: 1rem;
+    padding: 0.25rem;
 
     display: flex;
     justify-content: center;
     align-items: center;
   }
   :global(.side > span) {
-    height: 1em;
+    height: 1rem;
   }
   :global(.side svg) {
     fill: var(--font-color);

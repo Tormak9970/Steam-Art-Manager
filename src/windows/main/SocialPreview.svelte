@@ -3,7 +3,7 @@
   <div class="content">
     <div class="icon-container">
       <!-- svelte-ignore a11y-missing-attribute -->
-      <img src="/logo.png" width="160px" />
+      <img src="/logo.png" width="10rem" />
     </div>
     <div class="text-container">
       <div class="name">Steam Art Manager</div>
@@ -42,19 +42,19 @@
   }
 
   .text-container {
-    margin-left: 7px;
+    margin-left: 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
   .name {
-    font-size: 80px;
+    font-size: 5rem;
     font-weight: bold;
     white-space: nowrap;
   }
 
   .description {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 </style>

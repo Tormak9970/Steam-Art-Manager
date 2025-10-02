@@ -92,7 +92,7 @@
 <style>
   :root {
     --m3-scheme-scrim: 6 6 6;
-    --m3-dialog-shape: 4px;
+    --m3-dialog-shape: 0.25rem;
   }
   dialog {
     background-color: var(--background);

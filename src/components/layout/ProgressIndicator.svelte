@@ -10,7 +10,7 @@
 
 <style>
   :root {
-    --m3-linear-progress-shape: 4px;
+    --m3-linear-progress-shape: 0.25rem;
   }
   .m3-container {
     display: inline-flex;

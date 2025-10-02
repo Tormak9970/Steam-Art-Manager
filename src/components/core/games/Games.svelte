@@ -140,10 +140,10 @@
         <div class="controls">
           <IconToggle leftTooltip="Grid View" rightTooltip="List View" bind:value={$renderGamesInList}>
             <span slot="left">
-              <GridView height="14px" />
+              <GridView />
             </span>
             <span slot="right">
-              <ListView height="14px" />
+              <ListView />
             </span>
           </IconToggle>
           <Toggle label="Show hidden" bind:value={$showHidden}/>
@@ -151,11 +151,11 @@
         <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
       </div>
       
-      <Divider marginTop={"7px"} />
+      <Divider />
     </div>
 
-    <div class="content" style="height: calc(100% - 85px);">
-      <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 45px)" bind:selected={$currentPlatform}>
+    <div class="content" style="height: calc(100% - 5.375rem);">
+      <ListTabs tabs={Object.values(Platforms)} height="calc(100% - 2.875rem)" bind:selected={$currentPlatform}>
         {#if $renderGamesInList}
           <GamesList isLoading={isLoading || $loadingGames} games={games} />
         {:else}
@@ -168,13 +168,12 @@
 
 <style>
   :root {
-    --img-width: 100px;
-    --img-height: 150px;
+    --img-width: 6.25rem;
+    --img-height: 9.375rem;
   }
   
   .content {
-    padding: 0px 6px;
-    max-height: calc(100% - 65px)
+    padding: 0 0.375rem;
   }
 
   .inner {
@@ -183,7 +182,7 @@
 
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .inputs {
@@ -194,6 +193,6 @@
   .controls {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 0.5rem;
   }
 </style>
