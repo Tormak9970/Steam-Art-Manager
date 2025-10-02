@@ -1,7 +1,7 @@
 
 use crate::logger;
-use crate::parsers::appinfo_vdf_parser::open_appinfo_vdf;
-use crate::parsers::shortcuts_vdf_parser::open_shortcuts_vdf;
+use vdf_parser::appinfo_vdf_parser::open_appinfo_vdf;
+use vdf_parser::shortcuts_vdf_parser::open_shortcuts_vdf;
 
 use std::fs::{self, create_dir_all};
 use std::path::{ PathBuf, Path };

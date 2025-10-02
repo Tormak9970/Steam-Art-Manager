@@ -1,7 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod utils;
-mod parsers;
 mod handle_changes;
 mod steam;
 mod zip_controller;
@@ -21,7 +20,7 @@ use panic_message::get_panic_info_message;
 use tauri::{self, AppHandle, Manager};
 use tauri::Emitter;
 
-use utils::{logger, reader, writer};
+use utils::logger;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {

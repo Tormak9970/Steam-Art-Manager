@@ -106,6 +106,7 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-single-instance",
  "tauri-plugin-updater",
+ "vdf-parser",
  "winreg 0.11.0",
  "zip 0.6.6",
 ]
@@ -5284,6 +5285,15 @@ name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
+
+[[package]]
+name = "vdf-parser"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "version-compare"
