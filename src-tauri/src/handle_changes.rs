@@ -1,6 +1,6 @@
 use std::{path::PathBuf, collections::HashMap, fs};
 
-use vdf_parser::shortcuts_vdf_parser::write_shortcuts_vdf;
+use new_vdf_parser::shortcuts_vdf_parser::write_shortcuts_vdf;
 use serde_json::{Map, Value};
 
 use serde;

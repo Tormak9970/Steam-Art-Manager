@@ -31,10 +31,11 @@ import { RustInterop } from "./RustInterop";
  * The main controller for the application.
  */
 export class SettingsController {
-static settingsPath = "";
+  static settingsPath = "";
   private static settings: Settings;
   private static subscriptions: Unsubscriber[] = [];
   private static oldValues: Record<string, any> = {};
+  private static decoder = new TextDecoder();
 
   /**
    * Initializes the SettingsController.
@@ -96,7 +97,9 @@ static settingsPath = "";
     let currentSettings: any = {};
 
     if (await fs.exists(SettingsController.settingsPath)) {
-      currentSettings = JSON.parse(await fs.readTextFile(SettingsController.settingsPath));
+      const fileRes = await fs.readFile(SettingsController.settingsPath);
+      const settings = SettingsController.decoder.decode(fileRes);
+      currentSettings = JSON.parse(settings);
     }
 
     let settings: Settings = { ...currentSettings };

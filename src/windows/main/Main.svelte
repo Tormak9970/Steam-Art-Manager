@@ -54,15 +54,15 @@
     }
   }
 
-	onMount(async () => {
+	onMount(() => {
     window.addEventListener("error", onError);
     
     // * This is actually async but isn't typed properly.
-    Window.getByLabel("main")!.then((appWindow) => {
-      appWindow!.onCloseRequested(async (event) => {
+    Window.getByLabel("main")!.then(async (appWindow) => {
+      windowCloseUnsub = await appWindow!.onCloseRequested(async (event) => {
         event.preventDefault();
         await onCloseListener();
-      }).then((listener) => windowCloseUnsub = listener);
+      });
     });
 
 		let i = 0;
@@ -71,25 +71,21 @@
 			if (navigator.onLine) $isOnline = true;
 		}
 
-    try {
-      const update = await checkUpdate();
-
+    checkUpdate().then(async (update) => {
       if (update && update.available) {
         $updateManifest = update;
         $showUpdateModal = true;
       }
-    } catch (error) {
-      console.error(error);
-    }
 
-		await AppController.setup();
+      await AppController.setup();
 
-    if (!$isOnline) {
-      const wantsToContinue = await AppController.promptOffline();
-      if (!wantsToContinue) exit(0);
-    }
+      if (!$isOnline) {
+        const wantsToContinue = await AppController.promptOffline();
+        if (!wantsToContinue) exit(0);
+      }
 
-    AppController.init();
+      AppController.init();
+    })
 	});
 
 	onDestroy(async () => {

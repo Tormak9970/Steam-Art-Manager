@@ -9,7 +9,7 @@ mod grids_cache_loader;
 mod clean_grids;
 mod types;
 
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_fs::FsExt;
 use tauri_plugin_http::reqwest::Client;
 
@@ -118,7 +118,7 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
   let fs_scope = app_handle.fs_scope();
   let asset_scope = app_handle.asset_protocol_scope();
 
-  fs_scope.allow_directory(&path_as_buf, true);
+  let _ = fs_scope.allow_directory(&path_as_buf, true);
   let asset_res = asset_scope.allow_directory(&path_as_buf, true);
 
   if asset_res.is_ok() {
@@ -250,7 +250,7 @@ fn main() {
         let dialog = app_handle.dialog()
           .message("Check your log file for more information, and please open an issue at https://github.com/Tormak9970/Steam-Art-Manager/issues")
           .title("Panic!")
-          .ok_button_label("Ok");
+          .buttons(MessageDialogButtons::Ok);
 
         let hit_ok = dialog.blocking_show();
 

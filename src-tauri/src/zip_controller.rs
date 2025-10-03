@@ -221,10 +221,11 @@ pub async fn export_grids_to_zip(app_handle: AppHandle, steam_path: String, stea
 
   if file_path.is_some() {
     let zip_path = file_path.unwrap();
-    logger::log_to_core_file(app_handle.to_owned(), format!("Got save path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
+    let zip_path_str = zip_path.to_string();
+    logger::log_to_core_file(app_handle.to_owned(), format!("Got save path: {}", &zip_path_str).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
-    let succeeded = generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &platform_id_map, &id_name_map);
+    let succeeded = generate_grids_zip(&app_handle, PathBuf::from(grids_dir_path), PathBuf::from(zip_path_str), &platform_id_map, &id_name_map);
 
     if succeeded {
       logger::log_to_core_file(app_handle.to_owned(), "Successfully saved the user's grids.", 0);
@@ -250,11 +251,12 @@ pub async fn import_grids_from_zip(app_handle: AppHandle, steam_path: String, st
   let file_path = file_dialog.blocking_pick_file();
 
   if file_path.is_some() {
-    let zip_path = file_path.unwrap().path;
+    let zip_file_path = file_path.unwrap();
+    let zip_path = zip_file_path.as_path().unwrap();
     logger::log_to_core_file(app_handle.to_owned(), format!("Got file path: {}", zip_path.to_str().expect("Should have been able to convert path to string.")).as_str(), 0);
 
     let grids_dir_path = steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
-    let (success, icon_map) = set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path, &name_id_map);
+    let (success, icon_map) = set_grids_from_zip(&app_handle, PathBuf::from(grids_dir_path), zip_path.to_path_buf(), &name_id_map);
 
     if success {
       logger::log_to_core_file(app_handle.to_owned(), "Successfully set the user's grids.", 0);
