@@ -6,7 +6,7 @@ use serde_json::{Value, Map};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::reader::Reader;
-use super::vdf_reader::read_entry_map;
+use crate::vdf_reader::read_entry_map;
 
 /// Opens the appinfo.vdf file and returns the values as JSON.
 pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {

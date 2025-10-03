@@ -206,7 +206,7 @@ impl Writer<'_> {
   pub fn get_offset(&self) -> usize { return self.offset; }
 
   /// Creates a new Writer from the provided buffer.
-  pub fn new(buf: &mut Vec<u8>) -> Writer { return Writer { data: buf, offset: 0 }; }
+  pub fn new(buf: &mut Vec<u8>) -> Writer<'_> { return Writer { data: buf, offset: 0 }; }
 
   /// Seek to a new offset, from 0 (start), 1 (current), or 2 (end) of the buffer.
   pub fn seek(&mut self, offset: usize, position: u8) {
