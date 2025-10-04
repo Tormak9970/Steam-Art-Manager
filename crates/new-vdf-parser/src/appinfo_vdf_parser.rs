@@ -93,19 +93,8 @@ fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magi
       entry = appinfo.clone();
     }
 
-    if entry.contains_key("common") {
-      let common_val: &Value = entry.get("common").expect("Should have been able to get \"common\".");
-      let common = common_val.as_object().expect("Common should have been an object.");
-      
-      let type_val: &Value = common.get("type").expect("Should have been able to get \"common\".\"type\".");
-      let type_str: &str = type_val.as_str().expect("Should have been able to convert type to str");
+    return Some(Value::Object(entry));
 
-      if type_str == "Game" || type_str == "game" {
-        return Some(Value::Object(entry));
-      }
-    }
-
-    return None;
   }).collect();
 
   return entries;
