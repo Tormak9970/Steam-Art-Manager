@@ -40,7 +40,7 @@ export class SteamController {
 
     const vdf = await RustInterop.readAppinfoVdf();
 
-    return vdf.entries.filter((entry: any) => ids.includes(entry.appid) && entry.common.type.toLowerCase() == "game").map((entry: any) => {
+    return vdf.entries.filter((entry: any) => ids.includes(entry.appid)).map((entry: any) => {
       const libraryAssets = entry.common.library_assets_full;
       
       return {
