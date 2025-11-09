@@ -1,18 +1,45 @@
 import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
-import { type GameStruct, type LibraryCacheEntry } from "@types";
+import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
 
 export class SteamController {
   private static xmlParser = new XMLParser();
+
+  /**
+   * Caches the steam game logo configs.
+   * @param logoConfigPaths The list of logoConfig paths.
+   * ? Logging complete.
+   */
+  private static async cacheLogoConfigs(logoConfigPaths: string[]): Promise<void> {
+    const configs: Record<string, SteamLogoConfig> = {};
+
+    for (const configPath of logoConfigPaths) {
+      const fileName = await path.basename(configPath);
+      const id = parseInt(fileName.substring(0, fileName.lastIndexOf(".")));
+
+      if (!isNaN(id)) {
+        const contents = await fs.readTextFile(configPath);
+        const jsonContents = JSON.parse(contents);
+        if (jsonContents.logoPosition) configs[id.toString()] = jsonContents;
+      }
+    }
+
+    originalLogoPositions.set(structuredClone(configs));
+    steamLogoPositions.set(structuredClone(configs));
+
+    LogController.log(`Cached logo positions for ${Object.entries(configs).length} games.`);
+  }
 
   /**
    * Gets the Steam grid cache data.
@@ -21,11 +48,13 @@ export class SteamController {
    */
   static async getCacheData(steamApps: GameStruct[], shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ unfilteredCache, filteredCache ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds, steamApps);
+    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds, steamApps);
 
     unfilteredLibraryCache.set(unfilteredCache);
     originalAppLibraryCache.set(structuredClone(filteredCache));
     appLibraryCache.set(filteredCache);
+
+    await SteamController.cacheLogoConfigs(logoConfigPaths);
 
     return filteredCache;
   }

@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamShortcut, type SteamUser } from "@types";
+import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilter = {
@@ -93,6 +93,9 @@ export const originalAppLibraryCache = writable<Record<string, LibraryCacheEntry
  * The user's library art including custom art and changes made in this session.
  */
 export const appLibraryCache = writable<Record<string, LibraryCacheEntry>>({});
+
+export const originalLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
+export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
 
 export const steamGridSearchCache = writable<Record<string, SGDBGame[]>>({});
 export const hasMorePagesCache = writable<Record<string, GridTypesOptionalMap<boolean>>>({});

@@ -153,9 +153,9 @@ export class RustInterop {
    * @param steamApps The loaded steamApps
    * @returns A promise resolving to the user's cache data.
    */
-  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]> {
+  static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>, string[]]> {
     const appsMap = Object.fromEntries(steamApps.map((app) => [app.appid, app.gridInfo]));
-    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });
+    return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });
   }
 
   /**
@@ -231,14 +231,15 @@ export class RustInterop {
    * @param originalArt The original art dictionary.
    * @param shortcuts The list of shortcuts.
    * @param shortcutIcons The map of shortcutIds to updated icons.
+   * @param changedLogoPositions The changed logo positions.
    * @param originalShortcutIcons The map of shortcutIds to original icons.
    * @returns A promise resolving to a string of serialized changed tuples.
    */
-  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
+  static async saveChanges(activeUserId: string, currentArt: Record<string, LibraryCacheEntry>, originalArt: Record<string, LibraryCacheEntry>, shortcuts: SteamShortcut[], shortcutIcons: Record<string, string>, originalShortcutIcons: Record<string, string>, changedLogoPositions: Record<string, string>): Promise<ChangedPath[] | { error: string }> {
     const shortcutsObj = {
       "shortcuts": { ...shortcuts }
     }
-    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons });
+    const res = await invoke<string>("save_changes", { steamPath: RustInterop.steamPath, currentArt: JSON.stringify(currentArt), originalArt: JSON.stringify(originalArt), shortcutsStr: JSON.stringify(shortcutsObj), steamActiveUserId: activeUserId, shortcutIcons: shortcutIcons, originalShortcutIcons: originalShortcutIcons, changedLogoPositions: changedLogoPositions });
     return JSON.parse(res);
   }
 

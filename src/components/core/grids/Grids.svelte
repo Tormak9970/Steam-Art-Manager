@@ -1,8 +1,9 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Edit, Upload } from "@icons";
+  import { Edit, Position, Upload } from "@icons";
   import { DropDown, IconButton } from "@interactables";
-  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { showLogoPositionModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
   import { debounce } from "@utils";
@@ -165,6 +166,9 @@
         {/if}
 
         <div class="buttons-cont">
+          <IconButton label="Set Logo Position" on:click={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
+            <Position style="height: 14px; width: 14px;" />
+          </IconButton>
           <IconButton label="Upload Local Art" on:click={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
             <Upload style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
