@@ -74,7 +74,7 @@
       selectedGames = allGames.filter((game) => !hiddenIds.includes(game.appid));
     }
 
-    return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery));
+    return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }
 
   /**
