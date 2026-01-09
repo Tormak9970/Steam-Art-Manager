@@ -22,11 +22,11 @@
 
   .title {
     margin-top: 0px;
-    font-size: 10.5rem;
+    font-size: 1.5rem;
   }
 
   .content {
-    line-height: 10.5rem;
+    line-height: 1.5rem;
     font-size: 14px;
     margin: 7px 0px;
   }

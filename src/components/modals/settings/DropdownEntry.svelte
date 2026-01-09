@@ -61,7 +61,7 @@
   }
 
   .description {
-    line-height: 10.5rem;
+    line-height: 1.5rem;
     font-size: 14px;
     margin: 7px 0px;
   }

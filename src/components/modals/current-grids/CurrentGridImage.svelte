@@ -22,7 +22,7 @@
 <style>
   .label {
     padding-left: 10px;
-    font-size: 10.5rem;
+    font-size: 1.5rem;
   }
 
   .img-cont {

@@ -29,7 +29,6 @@
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="description" on:click={clickListener}>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html description}<br/>
@@ -51,7 +50,7 @@
   }
 
   .description {
-    line-height: 10.5rem;
+    line-height: 1.5rem;
     font-size: 14px;
     margin: 7px 0px;
   }

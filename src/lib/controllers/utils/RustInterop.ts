@@ -154,7 +154,7 @@ export class RustInterop {
    * @returns A promise resolving to the user's cache data.
    */
   static async getCacheData(activeUserId: string, shortcutIds: string[], steamApps: GameStruct[]): Promise<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>, string[]]> {
-    const appsMap = Object.fromEntries(steamApps.map((app) => [app.appid, app.gridInfo]));
+    const appsMap = Object.fromEntries(steamApps.map((app) => [ app.appid, app.gridInfo ]));
     return await invoke<[Record<string, LibraryCacheEntry>, Record<string, LibraryCacheEntry>, string[]]>("get_cache_data", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId, shortcutIds, steamApps: appsMap });
   }
 

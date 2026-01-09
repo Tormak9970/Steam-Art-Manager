@@ -69,11 +69,12 @@ export class SteamController {
 
     const vdf = await RustInterop.readAppinfoVdf();
 
-    return vdf.entries.filter((entry: any) => ids.includes(entry.appid)).map((entry: any) => {
+    return vdf.entries.filter((entry: any) => ids.includes(entry.appid.toString())).map((entry: any) => {
       const libraryAssets = entry.common.library_assets_full;
       
       return {
         appid: entry.appid,
+        // eslint-disable-next-line no-control-regex
         name: typeof entry.common.name === "string" ? entry.common.name.replace(/[^\x00-\x7F]/g, "") : entry.common.name.toString(),
         gridInfo: {
           icon: entry.common.icon ? (entry.common.icon + ".jpg") : "",
@@ -84,34 +85,6 @@ export class SteamController {
         }
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-  }
-
-  /**
-   * Gets the current user's steam games from their community profile.
-   * @param bUserId The u64 id of the current user.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<string[]> {
-    const requestTimeout = get(requestTimeoutLength);
-    // LogController.log("Loading games from Steam Community page...");
-
-    const res = await fetch(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
-      method: "GET",
-      signal: AbortSignal.timeout(requestTimeout)
-    });
-    
-    if (res.ok) {
-      const profileGames = SteamController.xmlParser.parse(await res.text());
-
-      return profileGames.gamesList.games.game.filter((game: any) => !game.name.toLowerCase().includes("soundtrack")).map((game: any) => game.appID);
-    } else {
-      const err = SteamController.xmlParser.parse(await res.text());
-
-      get(showErrorSnackbar)({ message: "You Steam profile is private" });
-      LogController.warn(`Error loading games from the user's Steam profile: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
-      return [];
-    }
   }
 
   /**
@@ -128,6 +101,7 @@ export class SteamController {
     });
 
     if (res.ok) {
+      console.log((await res.json()))
       return (await res.json()).response.games.map((game: any) => game.appid);
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
@@ -169,22 +143,6 @@ export class SteamController {
       if (ids.length > 0) {
         LogController.log(`Loaded ${ids.length} games from Steam API.`);
       }
-    }
-    
-    // * Try loading games using the user's Steam Profile.
-    if (ids.length === 0 && online) {
-      try {
-        DialogController.showProgressModal("Fetching games", "Loading games listed on your public steam profile...");
-        ids = (await this.getGamesFromSteamCommunity(bUserId));
-        
-        if (ids.length > 0) {
-          LogController.log(`Loaded ${ids.length} games from Steam Community page.`);
-        }
-      } catch (e: any) {
-        LogController.error(e.message);
-      }
-
-      DialogController.hideProgressModal();
     }
     
     // * Try loading games from the file system

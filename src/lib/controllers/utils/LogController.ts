@@ -1,19 +1,3 @@
-/**
- * Copyright (C) 2024 Travis Lane (Tormak)
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>
- */
 import { LogLevel, RustInterop } from "./RustInterop";
 
 /**
@@ -72,10 +56,27 @@ export class LogController {
    * @param message Message to log.
    */
   static async error(message:string): Promise<void> {
+    const captureErr = new Error();
+    Error.captureStackTrace(captureErr, LogController.error);
+    const stackLines = captureErr.stack?.split("\n") ?? [];
+    const callerLine = stackLines[1];
+  
+    // Regex to match file path, line, and column
+    const regex = /([^\/\\]+?)(?:\?.*?)?:(\d+):(\d+)/;
+    const match = callerLine.match(regex);
+  
+    if (!match) {
+      console.log(message);
+      return;
+    }
+  
+    const [, file, line, column] = match;
+
     console.error(
-      `%c ${LogController.APP_NAME} %c ERROR %c`,
+      `%c ${LogController.APP_NAME} %c ERROR %c [${file}:${line}:${column}] %c`,
       `background: ${LogController.APP_THEME_COLOR}; color: black;`,
       `background: ${LogController.APP_ERROR_COLOR}; color: black;`,
+      "background: transparent;",
       "background: transparent;",
       message
     );

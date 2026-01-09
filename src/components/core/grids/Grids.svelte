@@ -71,7 +71,7 @@
       ],
       multiple: false
     });
-    if (file && file.path && file.path !== "") AppController.setCustomArt(file.path as string);
+    if (file && file !== "") AppController.setCustomArt(file);
   }
   
   /**
