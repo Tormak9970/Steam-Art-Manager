@@ -2,7 +2,7 @@
   import { AppController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
-  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGridDBKey } from "@stores/AppState";
+  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGridDBKey, userSelectedGrids } from "@stores/AppState";
   import { GridTypes, type SGDBImage } from "@types";
   import { debounce, filterGrids, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
@@ -16,6 +16,8 @@
 
   let isLoading = true;
   let grids: SGDBImage[] = [];
+
+  $: selectedGameGrids = $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [];
 
   $: hasMore = ($hasMorePagesCache && $hasMorePagesCache[$selectedSteamGridGameId]) ? $hasMorePagesCache[$selectedSteamGridGameId][$gridType] : true;
 
@@ -65,16 +67,30 @@
               {/each}
             </div>
           {:else}
-            {#if grids.length > 0}
-              <div bind:this={gridsContainer} class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
-                {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                  <Grid grid={grid} />
-                {/each}
-              </div>
+            {#if $showCachedGrids}
+              {#if selectedGameGrids.length > 0}
+                <div bind:this={gridsContainer} class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+                  {#each selectedGameGrids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                    <Grid grid={grid} />
+                  {/each}
+                </div>
+              {:else}
+                <div class="message">
+                  No previously selected {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found.
+                </div>
+              {/if}
             {:else}
-              <div class="message">
-                No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found with your filters.
-              </div>
+              {#if grids.length > 0}
+                <div bind:this={gridsContainer} class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+                  {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+                    <Grid grid={grid} />
+                  {/each}
+                </div>
+              {:else}
+                <div class="message">
+                  No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found with your filters.
+                </div>
+              {/if}
             {/if}
           {/if}
         {:else}

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Edit, Position, Upload } from "@icons";
-  import { DropDown, IconButton } from "@interactables";
-  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { Check, Edit, Options, Position, Upload } from "@icons";
+  import { DropDown, IconButton, Menu } from "@interactables";
+  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import { showLogoPositionModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
@@ -27,6 +27,12 @@
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let hasCustomName = $selectedGameAppId !== "" ? !!$customGameNames[$selectedGameAppId] : false;
   $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
+
+  $: menuOptions = [
+      { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
+      { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
+      { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
+    ]
 
   /**
    * Handles when the user changes the custom game name
@@ -166,12 +172,9 @@
         {/if}
 
         <div class="buttons-cont">
-          <IconButton label="Set Logo Position" on:click={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
-            <Position style="height: 14px; width: 14px;" />
-          </IconButton>
-          <IconButton label="Upload Local Art" on:click={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
-            <Upload style="height: 0.875rem; width: 0.875rem;" />
-          </IconButton>
+          <Menu label="Grid Options" options={menuOptions} disabled={$selectedGameAppId === ""}>
+            <Options style="height: 1rem; width: 1rem;" />
+          </Menu>
         </div>
       </div>
       
