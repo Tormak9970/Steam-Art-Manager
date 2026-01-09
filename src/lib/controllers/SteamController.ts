@@ -101,8 +101,7 @@ export class SteamController {
     });
 
     if (res.ok) {
-      console.log((await res.json()))
-      return (await res.json()).response.games.map((game: any) => game.appid);
+      return (await res.json()).response.games.map((game: any) => game.appid.toString());
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
