@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Image } from "@icons";
   import { GridTypes } from "@types";
   import { CURRENT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
@@ -10,11 +11,17 @@
 <div class="grid-image">
   <div class="label">{gridType}</div>
   <div class="img-cont" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
-    <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
-      <Lazy height="{CURRENT_GRID_DIMENSIONS.heights[gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
-        <img src="{src}" alt="{gridType} image." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px; width: auto; height: auto;" />
-      </Lazy>
-    </div>
+    {#if src && src !== ""}
+      <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
+        <Lazy height="{CURRENT_GRID_DIMENSIONS.heights[gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+          <img src="{src}" alt="{gridType} image." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px; width: auto; height: auto;" />
+        </Lazy>
+      </div>
+    {:else}
+      <div class="logo-background" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
+        <Image style="width: 2rem; height: 2rem; fill: var(--font-color)" />
+      </div>
+    {/if}
   </div>
 </div>
 

@@ -17,6 +17,7 @@ export { default as GameTiles } from "./GameTiles.svelte";
 export { default as GitHub } from "./GitHub.svelte";
 export { default as GridView } from "./GridView.svelte";
 export { default as Hide } from "./Hide.svelte";
+export { default as Image } from "./Image.svelte";
 export { default as Import } from "./Import.svelte";
 export { default as Info } from "./Info.svelte";
 export { default as ListView } from "./ListView.svelte";
