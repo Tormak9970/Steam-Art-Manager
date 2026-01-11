@@ -5,7 +5,7 @@
 <!-- [![Translations](https://img.shields.io/badge/translations-help%20out-brightgreen?style=flat-square)](#translations) -->
 
 # Steam Art Manager
-A tool for setting the artwork of your Steam library.
+A tool for managing the artwork of your Steam library.
 
 ![Steam Art Manager's Main UI](./public/progress-images/v3.10.0/final-ui_v3.10.0.png)
 
