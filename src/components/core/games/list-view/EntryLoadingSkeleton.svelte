@@ -13,8 +13,8 @@
 <style>
   .list-entry-skeleton {
     background-color: var(--foreground);
-    padding: 6px 10px;
-    border-radius: 4px;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.25rem;
 
     display: flex;
     flex-direction: row;
@@ -25,8 +25,8 @@
 
     transition: background-color 0.2s ease-in-out;
 
-    margin-bottom: 7px;
-    margin-right: 7px;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
     
     position: relative;
 
@@ -41,11 +41,11 @@
   }
 
   .icon-container-skeleton {
-    margin-right: 7px;
-    border-radius: 4px;
+    margin-right: 0.5rem;
+    border-radius: 0.25rem;
 
-    height: 32px;
-    width: 32px;
+    height: 2rem;
+    width: 2rem;
 
     overflow: hidden;
 
@@ -53,11 +53,11 @@
   }
 
   .name-skeleton {
-    height: 23px;
-    line-height: 23px;
+    height: 1.5rem;
+    line-height: 1.5rem;
 
-    width: 200px;
-    border-radius: 4px;
+    width: 12.5rem;
+    border-radius: 0.25rem;
 
     overflow: hidden;
 

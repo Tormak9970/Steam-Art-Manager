@@ -1,6 +1,7 @@
-import type { CleanGridsPreset, GameStruct, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
+import type { CleanGridsPreset, GameStruct, GridTypesOptionalMap, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
+import type { SGDBImage } from "./SGDB";
 
-export type AppSettings = {
+export type Settings = {
   version: string,
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
@@ -9,6 +10,9 @@ export type AppSettings = {
   hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
   customGameNames: Record<string, string>,
+
+  cacheSelectedGrids: boolean,
+  userSelectedGrids: Record<string, GridTypesOptionalMap<SGDBImage[]>>,
   
   theme: number,
   showHiddenGames: boolean,
@@ -37,6 +41,7 @@ export type AppSettings = {
       filters: any,
       panels: MainWindowPanels,
       gameViewType: number,
+      showCached: boolean,
       type: string
     },
     cleanGrids: {

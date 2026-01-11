@@ -76,7 +76,7 @@
   <div class="content">
     {#each toolsList as tool}
       <IconButton label={tool.name} on:click={tool.onClick} height="auto" width="auto" tooltipPosition="bottom">
-        <svelte:component this={tool.icon} style="height: 18px; width: 18px; padding: 28px;" />
+        <svelte:component this={tool.icon} style="height: 10.5rem; width: 10.5rem; padding: 20.5rem;" />
       </IconButton>
     {/each}
   </div>

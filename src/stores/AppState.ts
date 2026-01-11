@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SteamShortcut, type SteamUser } from "@types";
+import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilter = {
@@ -78,22 +78,28 @@ export const hiddenGameIds = writable<number[]>([]);
 export const manualSteamGames = writable<GameStruct[]>([]);
 export const customGameNames = writable<Record<string, string>>({});
 
+export const cacheSelectedGrids = writable(false);
+export const showCachedGrids = writable(false);
+
 /**
  * The default library art provided by Steam.
  */
-export const unfilteredLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+export const unfilteredLibraryCache = writable<Record<string, LibraryCacheEntry>>({});
 /**
  * The user's library art including custom art.
  */
-export const originalAppLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+export const originalAppLibraryCache = writable<Record<string, LibraryCacheEntry>>({});
 /**
  * The user's library art including custom art and changes made in this session.
  */
-export const appLibraryCache = writable<{ [appid: string]: LibraryCacheEntry }>({});
+export const appLibraryCache = writable<Record<string, LibraryCacheEntry>>({});
 
+export const originalLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
+export const steamLogoPositions = writable<{ [appid: string]: SteamLogoConfig }>({});
 
-export const steamGridSearchCache: Writable<{ [appid: string]: SGDBGame[] }> = writable({});
-export const hasMorePagesCache = writable<{ [steamGridId: string]: GridTypesOptionalMap<boolean> }>({});
+export const steamGridSearchCache = writable<Record<string, SGDBGame[]>>({});
+export const hasMorePagesCache = writable<Record<string, GridTypesOptionalMap<boolean>>>({});
+export const userSelectedGrids = writable<Record<string, GridTypesOptionalMap<SGDBImage[]>>>({});
 
 
 export const dbFilters: Writable<DBFilters> = writable(DEFAULT_FILTERS);

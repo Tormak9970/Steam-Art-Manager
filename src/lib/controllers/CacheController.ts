@@ -19,7 +19,7 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
 import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
@@ -76,6 +76,8 @@ export class CacheController {
   private appCacheDirPath: string;
   // @ts-expect-error This will always be defined eventually.
   private gridCacheDirPath: string;
+  // @ts-expect-error This will always be defined eventually.
+  private selectedGridCacheDirPath: string;
 
   private steamGridSteamAppIdMap: Record<string, number> = {};
 
@@ -125,6 +127,9 @@ export class CacheController {
 
     this.gridCacheDirPath = await path.join(this.appCacheDirPath, "grids");
     await this.createDirIfNotExists(this.gridCacheDirPath, "grids cache");
+
+    this.selectedGridCacheDirPath = await path.join(this.appCacheDirPath, "selected-grids");
+    await this.createDirIfNotExists(this.selectedGridCacheDirPath, "selected grids cache");
     
     const capsuleCacheDir = await path.join(this.gridCacheDirPath, GridTypes.CAPSULE);
     await this.createDirIfNotExists(capsuleCacheDir, "Capsule cache");
@@ -156,21 +161,22 @@ export class CacheController {
 
   /**
    * Gets a image from steamGrid's cdn.
-   * @param appid The id of the app whose grid is being fetched.
+   * @param gridId The id of the grid that's being fetched.
    * @param imageURL The url of the image to get.
    * @param useCoreFile Whether or not to log to the core log file.
    * ? Logging complete.
    */
-  async getGridImage(appId: string, imageURL: string, useCoreFile = true): Promise<string> {
+  async getGridImage(gridId: string, imageURL: string, useCoreFile = true): Promise<string> {
+    const type = get(gridType)
     const requestTimeout = get(requestTimeoutLength);
     // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
-    const localImagePath = await path.join(this.gridCacheDirPath, get(gridType), fileName);
+    const localImagePath = await path.join(this.gridCacheDirPath, type, fileName);
 
     if (!(await fs.exists(localImagePath))) {
       logToFile("Fetching image from API.", useCoreFile);
 
-      dowloadingGridId.set(appId);
+      dowloadingGridId.set(gridId);
       const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
 
       dowloadingGridId.set("");
@@ -190,6 +196,53 @@ export class CacheController {
       }
     } else {
       logToFile("Cache found. Fetching image from local file system.", useCoreFile);
+    }
+    
+    return localImagePath;
+  }
+
+  async cacheSelectedGrid(appId: string, image: SGDBImage, localPath: string): Promise<void> {
+    const type = get(gridType)
+    const selectedGrids = get(userSelectedGrids);
+    const imageURL = image.url.toString();
+    const fileName = imageURL.substring(imageURL.lastIndexOf("/") + 1);
+
+    const destPath = await path.join(this.selectedGridCacheDirPath, appId, type, fileName);
+    await RustInterop.copyCachedGrid(localPath, destPath);
+
+    selectedGrids[appId] = selectedGrids[appId] ?? {}
+    selectedGrids[appId][type] = selectedGrids[appId][type] ?? []
+    selectedGrids[appId][type].push(structuredClone(image));
+
+    userSelectedGrids.set({ ...selectedGrids });
+  }
+
+  async cacheOriginalAsset(appid: string, imageURL: string, type: string): Promise<string> {
+    const requestTimeout = get(requestTimeoutLength);
+    // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
+    const fileName = appid + "-original-" + imageURL.substring(imageURL.lastIndexOf("/") + 1);
+    const localImagePath = await path.join(this.gridCacheDirPath, type, fileName);
+
+    if (!(await fs.exists(localImagePath))) {
+      logToFile("Fetching image from API.", true);
+
+      const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
+
+      switch (status) {
+        case "success":
+          LogController.log(`Request for ${imageURL} succeeded.`);
+          break;
+        case "timedOut":
+          get(showErrorSnackbar)({ message: "Grid requested timed out" });
+          logWarnToFile(`Request for ${imageURL} timed out after ${requestTimeout / 1000} seconds.`, true);
+          return "";
+        case "failed":
+          get(showErrorSnackbar)({ message: "Failed to set grid." });
+          logWarnToFile(`Request for ${imageURL} failed.`, true);
+          return "";
+      }
+    } else {
+      logToFile("Cache found. Fetching image from local file system.", true);
     }
     
     return localImagePath;
@@ -481,6 +534,16 @@ export class CacheController {
     // LogController.log("Clearing cache...");
     await fs.remove(this.gridCacheDirPath, { recursive: true });
     LogController.log("Cleared cache.");
+  }
+
+  /**
+   * Empties the selected grids cache.
+   * ? Logging complete.
+   */
+  async invalidateSelectedCache(): Promise<void> {
+    await fs.remove(this.selectedGridCacheDirPath, { recursive: true });
+    userSelectedGrids.set({});
+    LogController.log("Cleared selected grids cache.");
   }
   
   /**

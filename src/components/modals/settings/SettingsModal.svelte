@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { AppController, DialogController, LogController } from "@controllers";
+  import { AppController, DialogController, LogController, SettingsController } from "@controllers";
   import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { activeUserId, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { activeUserId, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
-  import { SettingsManager, validateSteamPath } from "@utils";
+  import { validateSteamPath } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -59,6 +59,7 @@
   let steamAPIKey = $steamKey;
   let steamInstallLocation = $steamInstallPath;
   let debugModeSetting = $debugMode;
+  let cacheSelectedGridsSetting = $cacheSelectedGrids;
 
   /**
    * Saves the changed settings.
@@ -69,21 +70,23 @@
     $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
     if ($steamGridDBKey !== "" && $needsSGDBAPIKey) $needsSGDBAPIKey = false;
 
-    await SettingsManager.updateSetting("steamGridDbApiKey", steamGridKey);
+    await SettingsController.set("steamGridDbApiKey", steamGridKey);
     
     if ($steamKey !== steamAPIKey) steamApiKeyChanged = true;
 
     $steamKey = steamAPIKey;
     $needsSteamKey = $steamKey === "";
 
-    const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+    const steamApiKeyMapSetting = SettingsController.get<Record<string, string>>("steamApiKeyMap");
     steamApiKeyMapSetting[$activeUserId] = steamAPIKey;
-    await SettingsManager.updateSetting("steamApiKeyMap", steamApiKeyMapSetting);
+    await SettingsController.set("steamApiKeyMap", steamApiKeyMapSetting);
 
     
     if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
+    
+    if (cacheSelectedGridsSetting !== $cacheSelectedGrids) $cacheSelectedGrids = cacheSelectedGridsSetting;
 
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
 
@@ -105,6 +108,7 @@
     steamAPIKey = $steamKey;
     steamInstallLocation = $steamInstallPath;
     debugModeSetting = $debugMode;
+    cacheSelectedGridsSetting = $cacheSelectedGrids
     
     LogController.log("Reverted settings.");
     
@@ -147,6 +151,16 @@
    */
   function onDebugModeChange(value: boolean): void {
     debugModeSetting = value;
+    canSave = true;
+  }
+
+  /**
+   * Function to run on cache selected grids change.
+   * @param value The updated value.
+   */
+  function onCacheSelectedGridsChange(value: boolean): void {
+    cacheSelectedGridsSetting = value;
+    console.log("cacheSelectedGridsSetting:", cacheSelectedGridsSetting)
     canSave = true;
   }
 
@@ -222,6 +236,14 @@
           canBeEmpty
           onChange={onSteamKeyChange}
         />
+        <ToggleFieldEntry
+          label="Cache Selected Grids"
+          description={"Enables saving previously selected grids."}
+          value={cacheSelectedGridsSetting}
+          onChange={onCacheSelectedGridsChange}
+        >
+          <Button on:click={AppController.clearCachedGrids}>Clear Cache</Button>
+        </ToggleFieldEntry>
         <DropdownEntry
           label="Steam User"
           description="Determines which Steam account to edit grids for."

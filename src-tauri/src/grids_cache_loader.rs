@@ -33,8 +33,11 @@ fn get_info_from_gridname(grid_name: String) -> (String, String) {
 }
 
 /// Adds a grid_cache file to the cache.
-fn add_grid_file_to_cache(entry: DirEntry, filename: &str, shortcut_ids: &Vec<String>, cache_data: &mut Map<String, Value>) {
+fn add_grid_file_to_cache(entry: DirEntry, filename: &str, shortcut_ids: &Vec<String>, cache_data: &mut Map<String, Value>, logo_configs: &mut Vec<String>) {
   if filename.ends_with(".json")  {
+    let file_path = entry.path();
+    let path_str = file_path.to_str().unwrap();
+    logo_configs.push(path_str.to_owned());
     return;
   }
 
@@ -60,8 +63,9 @@ fn add_grid_file_to_cache(entry: DirEntry, filename: &str, shortcut_ids: &Vec<St
 }
 
 /// Filters the user's grids dir.
-async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: &Vec<String>) -> Map<String, Value> {
+async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: &Vec<String>) -> (Map<String, Value>, Vec<String>) {
   let mut cache_data: Map<String, Value> = Map::new();
+  let mut logo_configs: Vec<String> = vec![];
 
   let grids_dir = steam::get_grids_directory(app_handle.clone(), steam_path, steam_active_user_id);
 
@@ -72,7 +76,7 @@ async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_acti
 
     logger::log_to_core_file(app_handle.to_owned(), &message, 2);
 
-    return cache_data;
+    return (cache_data, logo_configs);
   }
 
   let contents = contents_res.unwrap();
@@ -91,11 +95,12 @@ async fn filter_grids_dir(app_handle: &AppHandle, steam_path: String, steam_acti
       entry,
       &filename,
       shortcut_ids,
-      &mut cache_data
+      &mut cache_data,
+      &mut logo_configs
     );
   }
 
-  return cache_data;
+  return (cache_data, logo_configs);
 }
 
 
@@ -232,10 +237,10 @@ async fn filter_library_dir(app_handle: &AppHandle, steam_path: String, steam_ap
 
 #[tauri::command]
 /// Gets the cache data for the user's grids.
-pub async fn get_cache_data(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: Vec<String>, steam_apps: HashMap<String, Option<GridInfo>>) -> (Map<String, Value>, Map<String, Value>) {
+pub async fn get_cache_data(app_handle: AppHandle, steam_path: String, steam_active_user_id: String, shortcut_ids: Vec<String>, steam_apps: HashMap<String, Option<GridInfo>>) -> (Map<String, Value>, Map<String, Value>, Vec<String>) {
   logger::log_to_core_file(app_handle.to_owned(), "Loading Grids Cache...", 0);
 
-  let mut grid_cache_data = filter_grids_dir(&app_handle, steam_path.clone(), steam_active_user_id, &shortcut_ids).await;
+  let (mut grid_cache_data, logo_configs) = filter_grids_dir(&app_handle, steam_path.clone(), steam_active_user_id, &shortcut_ids).await;
 
   let unfiltered_cache = filter_library_dir(&app_handle, steam_path, &steam_apps, &mut grid_cache_data).await;
 
@@ -246,5 +251,5 @@ pub async fn get_cache_data(app_handle: AppHandle, steam_path: String, steam_act
   
   logger::log_to_core_file(app_handle.to_owned(), format!("Loaded grids for {} apps.", grid_cache_data.len()).as_str(), 0);
 
-  return (unfiltered_cache, grid_cache_data);
+  return (unfiltered_cache, grid_cache_data, logo_configs);
 }

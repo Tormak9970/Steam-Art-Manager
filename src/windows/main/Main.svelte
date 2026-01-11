@@ -1,12 +1,11 @@
 <script lang="ts">
   import { Footer, Games, Grids, Modals, Options } from "@components";
-  import { AppController, DialogController, LogController } from "@controllers";
+  import { AppController, DialogController, LogController, SettingsController } from "@controllers";
   import { canSave, isOnline } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
   import { Window } from "@tauri-apps/api/window";
   import { exit } from "@tauri-apps/plugin-process";
   import { check as checkUpdate } from "@tauri-apps/plugin-updater";
-  import { SettingsManager } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 
@@ -31,7 +30,7 @@
    */
   async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
     if (event.detail) {
-      await SettingsManager.updateSetting("windowSettings.main.panels", {
+      await SettingsController.set("windowSettings.main.panels", {
         "options": event.detail[0].size,
         "games": event.detail[1].size,
         "grids": event.detail[2].size
@@ -55,15 +54,15 @@
     }
   }
 
-	onMount(async () => {
+	onMount(() => {
     window.addEventListener("error", onError);
     
     // * This is actually async but isn't typed properly.
-    Window.getByLabel("main")!.then((appWindow) => {
-      appWindow!.onCloseRequested(async (event) => {
+    Window.getByLabel("main")!.then(async (appWindow) => {
+      windowCloseUnsub = await appWindow!.onCloseRequested(async (event) => {
         event.preventDefault();
         await onCloseListener();
-      }).then((listener) => windowCloseUnsub = listener);
+      });
     });
 
 		let i = 0;
@@ -72,25 +71,21 @@
 			if (navigator.onLine) $isOnline = true;
 		}
 
-    try {
-      const update = await checkUpdate();
-
+    checkUpdate().then(async (update) => {
       if (update && update.available) {
         $updateManifest = update;
         $showUpdateModal = true;
       }
-    } catch (error) {
-      console.error(error);
-    }
 
-		await AppController.setup();
+      await AppController.setup();
 
-    if (!$isOnline) {
-      const wantsToContinue = await AppController.promptOffline();
-      if (!wantsToContinue) exit(0);
-    }
+      if (!$isOnline) {
+        const wantsToContinue = await AppController.promptOffline();
+        if (!wantsToContinue) exit(0);
+      }
 
-    AppController.init();
+      AppController.init();
+    })
 	});
 
 	onDestroy(async () => {
@@ -132,7 +127,7 @@
 
 	.content {
 		width: 100%;
-		height: calc(100% - 30px);
+		height: calc(100% - 2rem);
 
 		display: flex;
 		flex-direction: column;

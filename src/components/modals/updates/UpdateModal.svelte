@@ -178,7 +178,7 @@
   }
 
   .changelog {
-    border-radius: 4px;
+    border-radius: 0.25rem;
     background-color: var(--background-dark);
     overflow: hidden;
 
@@ -192,7 +192,7 @@
   }
 
   :global(.changelog .release-notes ul) {
-    margin-top: 4px;
+    margin-top: 0.25rem;
     font-size: 14px;
   }
 

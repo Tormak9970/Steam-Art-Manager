@@ -33,7 +33,6 @@
 <style>
   .accordion {
     color: var(--font-color);
-    /* width: calc(100% - 7px); */
     width: 100%;
 
     user-select: none;
@@ -47,7 +46,7 @@
 
     align-items: center;
     
-    font-size: 14px;
+    font-size: 0.875rem;
     cursor: pointer;
 
     margin: 0;
@@ -59,21 +58,21 @@
 
     transition: background-color 0.15s ease-in-out;
 
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 0.25rem 0.25rem 0 0;
   }
   .all-corners {
-    border-radius: 4px;
+    border-radius: 0.25rem;
     transition: border-radius 0.15s ease-in-out 0.15s;
   }
   button:hover { background-color: var(--background-hover); }
 
   .content {
-    padding: 0px 6px;
-    width: calc(100% - 12px);
+    padding: 0 0.375rem;
+    width: calc(100% - 0.75rem);
     background-color: var(--background);
-    border-radius: 0px 0px 4px 4px;
+    border-radius: 0 0 0.25rem 0.25rem;
   }
 
-	svg { transition: transform 0.2s ease-in; margin-right: 3px; }
+	svg { transition: transform 0.2s ease-in; margin-right: 0.25rem; }
 	[aria-expanded=true] svg { transform: rotate(0.25turn); }
 </style>

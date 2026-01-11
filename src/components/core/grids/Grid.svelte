@@ -11,7 +11,7 @@
   export let grid: SGDBImage;
 
   let imagePath = grid.thumb.toString();
-  const onSelect = throttle(() => { AppController.setSteamGridArt(grid.id.toString(), grid.url); }, 500, true);
+  const onSelect = throttle(() => { AppController.setSteamGridArt(grid); }, 500, true);
 
   /**
    * Sets this grid to be the current grid for the selected game.
@@ -61,7 +61,7 @@
     background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     font-size: 14px;
 
@@ -104,7 +104,7 @@
 
     width: 100%;
     height: 100%;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     background-color: rgba(0, 0, 0, 0.7);
 

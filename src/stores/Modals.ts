@@ -53,3 +53,7 @@ export const showCurrentGridsModal = writable(false);
 export const currentGridsAppid = writable("");
 
 export const showUpdateTilesModal = writable(false);
+
+export const showLogoPositionModal = writable(false);
+
+export const showOriginalGridsModal = writable(false);

@@ -6,10 +6,10 @@ use serde_json::{Value, Map};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::reader::Reader;
-use super::vdf_reader::read_entry_map;
+use crate::vdf_reader::read_entry_map;
 
 /// Opens the appinfo.vdf file and returns the values as JSON.
-pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
+pub fn open_appinfo_vdf(path: &PathBuf, filter: Option<bool>) -> Map<String, Value> {
   let mut file = fs::File::open(path).expect("Path should have existed.");
   let metadata = fs::metadata(path).expect("Unable to read metadata.");
 
@@ -18,11 +18,11 @@ pub fn open_appinfo_vdf(path: &PathBuf) -> Map<String, Value> {
   
   let mut reader = Reader::new(&buffer);
 
-  return read(&mut reader);
+  return read(&mut reader, filter);
 }
 
 /// Reads the appinfo.vdf file and returns the values as JSON.
-fn read(reader: &mut Reader) -> Map<String, Value> {
+fn read(reader: &mut Reader, filter: Option<bool>) -> Map<String, Value> {
   let magic = reader.read_uint32(true);
   let _universe = reader.read_uint32(true); //always 1
 
@@ -43,9 +43,9 @@ fn read(reader: &mut Reader) -> Map<String, Value> {
     
     reader.seek(data_offset, 0);
     
-    entries = read_app_sections(reader, Some(string_table_offset), Some(magic), &Some(&mut strings));
+    entries = read_app_sections(reader, Some(string_table_offset), Some(magic), &Some(&mut strings), filter);
   } else if magic == 0x07564428 {
-    entries = read_app_sections(reader, None, None, &None);
+    entries = read_app_sections(reader, None, None, &None, filter);
   } else {
     panic!("Magic header is unknown. Expected 0x07564428 or 0x07564429 but got {magic}");
   }
@@ -62,10 +62,11 @@ struct AppInfoChunk {
 }
 
 /// Reads the appinfo.vdf app sections to a JSON array.
-fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magic: Option<u32>, strings: &Option<&mut Vec<String>>) -> Vec<Value> {
+fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magic: Option<u32>, strings: &Option<&mut Vec<String>>, filter: Option<bool>) -> Vec<Value> {
   let mut id = reader.read_uint32(true);
   let eof = string_table_offset.unwrap_or(i64::MAX) as usize - 4;
 
+  let filter_only_games = filter.unwrap_or(true);
   let mut chunks = Vec::new();
 
   while id != 0 && reader.get_offset() < eof {
@@ -93,7 +94,7 @@ fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magi
       entry = appinfo.clone();
     }
 
-    if entry.contains_key("common") {
+    if filter_only_games && entry.contains_key("common") {
       let common_val: &Value = entry.get("common").expect("Should have been able to get \"common\".");
       let common = common_val.as_object().expect("Common should have been an object.");
       
@@ -103,6 +104,10 @@ fn read_app_sections(reader: &mut Reader, string_table_offset: Option<i64>, magi
       if type_str == "Game" || type_str == "game" {
         return Some(Value::Object(entry));
       }
+    }
+
+    if !filter_only_games {
+      return Some(Value::Object(entry));
     }
 
     return None;

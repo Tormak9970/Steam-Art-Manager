@@ -5,7 +5,7 @@ use serde_json::{ Value, Map };
 
 use crate::reader::Reader;
 use crate::writer::Writer;
-use super::vdf_reader::read_entry_map;
+use crate::vdf_reader::read_entry_map;
 
 /// Opens the shortcuts.vdf file and returns the values as JSON.
 pub fn open_shortcuts_vdf(path: &PathBuf) -> Value {

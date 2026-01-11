@@ -56,7 +56,7 @@
     color: var(--font-color);
     background-color: var(--background-hover);
     border: 1px solid var(--foreground);
-    border-radius: 4px;
+    border-radius: 0.25rem;
     outline: none;
     padding: 5px;
     max-width: 140px;

@@ -1,12 +1,12 @@
 [package]
-name = "app"
+name = "steam-art-manager"
 version = "0.0.0"
-description = "The backend of the app"
+description = "The backend of sarm"
 authors = ["you"]
 license = ""
 repository = ""
-edition = "2021"
-rust-version = "1.79"
+edition = "2024"
+rust-version = "1.90"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,23 +16,23 @@ tauri-build = { version = "2.0.0-rc.6", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.0.0-rc.6", features = [ "protocol-asset", "devtools" ] }
-tauri-plugin-fs = "2.0.0-rc.0"
-tauri-plugin-http = "2.0.0-rc.0"
-tauri-plugin-dialog = "2.0.0-rc.2"
-tauri-plugin-process = "2.0.0-rc.0"
-tauri-plugin-shell = "2.0.0-rc.2"
-tauri-plugin-single-instance = "2.0.0-rc.0"
-tauri-plugin-updater = "2.0.0-rc.1"
+tauri = { version = "2.8.5", features = ["protocol-asset", "devtools"] }
+tauri-plugin-fs = "2.0.0"
+tauri-plugin-http = "2.0.0"
+tauri-plugin-dialog = "2.0.0"
+tauri-plugin-process = "2.0.0"
+tauri-plugin-shell = "2.0.0"
+tauri-plugin-single-instance = "2.0.0"
+tauri-plugin-updater = "2.0.0"
 
 panic-message = "0.3.0"
-rayon = "1.10.0"
 phf = { version = "0.11", features = ["macros"] }
 chrono = "0.4.34"
 image = "0.25.1"
 
 home = "0.5.9"
 zip = "2.2.2"
+new-vdf-parser = { path = "../crates/new-vdf-parser" }
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

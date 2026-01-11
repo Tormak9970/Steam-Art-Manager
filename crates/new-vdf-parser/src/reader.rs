@@ -109,10 +109,10 @@ impl Reader<'_> {
   pub fn get_length(&self) -> u64 { return self.length; }
 
   /// Creates a new Reader from the provided buffer.
-  pub fn new(buf: &[u8]) -> Reader { return Reader { data: buf, offset: 0, length: buf.len() as u64 }; }
+  pub fn new(buf: &[u8]) -> Reader<'_> { return Reader { data: buf, offset: 0, length: buf.len() as u64 }; }
 
   /// Slices the Reader's buffer and returns a new Reader for the slice.
-  pub fn slice(&self, offset: usize, length: usize) -> Reader {
+  pub fn slice(&self, offset: usize, length: usize) -> Reader<'_> {
     let sliced = &self.data[offset..(offset+length)];
     return Reader { data: sliced, offset: 0, length: length as u64 };
   }
