@@ -6,6 +6,22 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.12.0
+
+New Features
+* added ability to apply original assets ([e290096](https://github.com/Tormak9970/Steam-Art-Manager/commit/e290096))
+* added ability to view original assets ([7294afe](https://github.com/Tormak9970/Steam-Art-Manager/commit/7294afe))
+* added logo position editing back ([c225e56](https://github.com/Tormak9970/Steam-Art-Manager/commit/c225e56))
+* added the ability to show previously selected grids ([20d44ab](https://github.com/Tormak9970/Steam-Art-Manager/commit/20d44ab))
+
+Bug Fixes
+* corrected issues loading appinfo games and uploading local grids ([a6f8baf](https://github.com/Tormak9970/Steam-Art-Manager/commit/a6f8baf))
+* current grids now appear for non-steam games ([e02852e](https://github.com/Tormak9970/Steam-Art-Manager/commit/e02852e))
+* searching now works as expected ([5d725fe](https://github.com/Tormak9970/Steam-Art-Manager/commit/5d725fe))
+* snackbars are no longer blocking ([8073561](https://github.com/Tormak9970/Steam-Art-Manager/commit/8073561))
+* specified a non-generic package name for the backend ([23ff9fb](https://github.com/Tormak9970/Steam-Art-Manager/commit/23ff9fb))
+* steam api games now load properly ([f80840c](https://github.com/Tormak9970/Steam-Art-Manager/commit/f80840c))
+
 ## v3.11.1
 
 Bug Fixes
