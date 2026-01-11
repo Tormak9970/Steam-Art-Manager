@@ -217,6 +217,37 @@ export class CacheController {
     userSelectedGrids.set({ ...selectedGrids });
   }
 
+  async cacheOriginalAsset(appid: string, imageURL: string, type: string): Promise<string> {
+    const requestTimeout = get(requestTimeoutLength);
+    // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
+    const fileName = appid + "-original-" + imageURL.substring(imageURL.lastIndexOf("/") + 1);
+    const localImagePath = await path.join(this.gridCacheDirPath, type, fileName);
+
+    if (!(await fs.exists(localImagePath))) {
+      logToFile("Fetching image from API.", true);
+
+      const status = await RustInterop.downloadGrid(imageURL, localImagePath, requestTimeout);
+
+      switch (status) {
+        case "success":
+          LogController.log(`Request for ${imageURL} succeeded.`);
+          break;
+        case "timedOut":
+          get(showErrorSnackbar)({ message: "Grid requested timed out" });
+          logWarnToFile(`Request for ${imageURL} timed out after ${requestTimeout / 1000} seconds.`, true);
+          return "";
+        case "failed":
+          get(showErrorSnackbar)({ message: "Failed to set grid." });
+          logWarnToFile(`Request for ${imageURL} failed.`, true);
+          return "";
+      }
+    } else {
+      logToFile("Cache found. Fetching image from local file system.", true);
+    }
+    
+    return localImagePath;
+  }
+
   /**
    * Gets the grids for a non steam game.
    * @param steamGridAppId The sgdb appId of the app to get.

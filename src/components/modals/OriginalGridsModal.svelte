@@ -1,7 +1,8 @@
 <script lang="ts">
   import { AppController } from "@controllers";
+  import { Plus } from "@icons";
   import { CurrentGridImage } from "@layout";
-  import { currentPlatform, Platforms, selectedGameAppId, selectedSteamGridGameId } from "@stores/AppState";
+  import { currentPlatform, Platforms, selectedGameAppId, selectedSteamGridGameId, showInfoSnackbar } from "@stores/AppState";
   import { showOriginalGridsModal } from "@stores/Modals";
   import { GridTypes } from "@types";
   import { onMount } from "svelte";
@@ -29,12 +30,23 @@
     "Logo": "",
   }
 
-  let loading = true
-  let failed = false;
+  let loadingType = ""
+  let failed = false
+
+  async function setOriginalAsset(type: keyof typeof imageSources) {
+    loadingType = type;
+    
+    AppController.cacheOriginalAsset($selectedGameAppId, imageSources[type], type).then((localPath) => {
+      if (localPath !== "") {
+        AppController.setCustomArt(localPath);
+        $showInfoSnackbar({ message: "Asset applied!" });
+        loadingType= "";
+      }
+    });
+  }
 
   async function load() {
     let appid: string | null = $selectedGameAppId
-    // TODO: check if non-steam
 
     if ($currentPlatform === Platforms.NON_STEAM) {
       appid = await AppController.getAppidForSGDBGame({
@@ -48,7 +60,6 @@
 
     if (!appid) {
       failed = true
-      loading = false
       return
     }
 
@@ -58,8 +69,6 @@
       "Hero": `https://steamcdn-a.akamaihd.net/steam/apps/${appid}/${STEAM_API_FILES.Hero}`,
       "Logo": `https://steamcdn-a.akamaihd.net/steam/apps/${appid}/${STEAM_API_FILES.Logo}`,
     }
-    
-    loading = false
   }
 
   onMount(() => {
@@ -67,20 +76,48 @@
   });
 </script>
 
-<ModalBody title='Original Grids' open={true} on:close={() => open = false} on:closeEnd={onClose}>
+<ModalBody title='Original Steam Assets' open={true} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="other-grids-container">
       <div class="left-col">
-        <CurrentGridImage gridType={GridTypes.CAPSULE} src={imageSources[GridTypes.CAPSULE]} />
+        <div class="set-container">
+          <CurrentGridImage gridType={GridTypes.CAPSULE} src={imageSources[GridTypes.CAPSULE]} selected={loadingType === GridTypes.CAPSULE} />
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="image-control" on:click|stopPropagation={() => setOriginalAsset(GridTypes.CAPSULE)} use:AppController.tippy={{ content: "Apply", placement: "right", onShow: AppController.onTippyShow }}>
+            <Plus style="width: 1.125rem; height: 1.125rem" />
+          </div>
+        </div>
         <!-- <CurrentGridImage gridType={GridTypes.ICON} src={imageSources[GridTypes.ICON]} /> -->
       </div>
       <div class="right-col">
-        <CurrentGridImage gridType={GridTypes.WIDE_CAPSULE} src={imageSources[GridTypes.WIDE_CAPSULE]} />
-        <CurrentGridImage gridType={GridTypes.LOGO} src={imageSources[GridTypes.LOGO]} />
+        <div class="set-container">
+          <CurrentGridImage gridType={GridTypes.WIDE_CAPSULE} src={imageSources[GridTypes.WIDE_CAPSULE]} selected={loadingType === GridTypes.WIDE_CAPSULE} />
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="image-control" on:click|stopPropagation={() => setOriginalAsset(GridTypes.WIDE_CAPSULE)} use:AppController.tippy={{ content: "Apply", placement: "right", onShow: AppController.onTippyShow }}>
+            <Plus style="width: 1.125rem; height: 1.125rem" />
+          </div>
+        </div>
+        <div class="set-container">
+          <CurrentGridImage gridType={GridTypes.LOGO} src={imageSources[GridTypes.LOGO]} selected={loadingType === GridTypes.LOGO} />
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="image-control" on:click|stopPropagation={() => setOriginalAsset(GridTypes.LOGO)} use:AppController.tippy={{ content: "Apply", placement: "right", onShow: AppController.onTippyShow }}>
+            <Plus style="width: 1.125rem; height: 1.125rem" />
+          </div>
+        </div>
       </div>
     </div>
     <div class="hero-container">
-      <CurrentGridImage gridType={GridTypes.HERO} src={imageSources[GridTypes.HERO]} />
+      <div class="set-container">
+        <CurrentGridImage gridType={GridTypes.HERO} src={imageSources[GridTypes.HERO]} selected={loadingType === GridTypes.HERO} />
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="image-control" on:click|stopPropagation={() => setOriginalAsset(GridTypes.HERO)} use:AppController.tippy={{ content: "Apply", placement: "right", onShow: AppController.onTippyShow }}>
+            <Plus style="width: 1.125rem; height: 1.125rem" />
+          </div>
+      </div>
     </div>
   </div>
 </ModalBody>
@@ -92,5 +129,36 @@
 
   .other-grids-container {
     display: flex;
+  }
+
+  .set-container {
+    position: relative;
+  }
+  
+  .image-control {
+    border-radius: 6px;
+
+    height: 1.25rem;
+    width: 1.25rem;
+
+    padding: 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    fill: var(--font-color);
+
+    background-color: var(--background);
+
+    opacity: 0.8;
+
+    position: absolute;
+    right: 14px;
+    bottom: 6px;
+  }
+  .image-control:hover {
+    cursor: pointer;
+    opacity: 1;
   }
 </style>

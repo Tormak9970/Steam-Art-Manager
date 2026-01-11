@@ -1,14 +1,19 @@
 <script lang="ts">
   import { Image } from "@icons";
+  import { LoadingSpinner } from "@layout";
   import { GridTypes } from "@types";
   import { CURRENT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
   
   export let gridType: GridTypes;
   export let src: string;
+  export let selected = false;
 </script>
 
 <div class="grid-image">
+  <div class="loading-overlay" class:selected={selected}>
+    <LoadingSpinner width="40px" height="40px" />
+  </div>
   <div class="label">{gridType}</div>
   <div class="img-cont" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
     {#if src && src !== ""}
@@ -26,6 +31,10 @@
 </div>
 
 <style>
+  .grid-image {
+    position: relative;
+  }
+  
   .label {
     padding-left: 10px;
     font-size: 1.5rem;
@@ -56,5 +65,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  
+  .loading-overlay {
+    display: none;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    border-radius: 0.25rem;
+
+    background-color: rgba(0, 0, 0, 0.7);
+
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .selected {
+    display: flex;
   }
 </style>

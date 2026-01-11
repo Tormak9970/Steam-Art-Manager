@@ -713,4 +713,15 @@ export class AppController {
   static sgdbClientInitialized(): boolean {
     return !!AppController.cacheController?.client;
   }
+
+  /**
+   * Caches a game's original steam asset so it can be applied to the game.
+   * @param appid The appid of the original asset to cache.
+   * @param imageURL The image url.
+   * @param type The image type.
+   * @returns The local file path.
+   */
+  static async cacheOriginalAsset(appid: string, imageURL: string, type: string) {
+    return await AppController.cacheController.cacheOriginalAsset(appid, imageURL, type);
+  }
 }
