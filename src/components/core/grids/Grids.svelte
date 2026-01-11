@@ -1,9 +1,9 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Edit, Position, Upload } from "@icons";
-  import { DropDown, IconButton } from "@interactables";
-  import { appLibraryCache, currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
-  import { showLogoPositionModal } from "@stores/Modals";
+  import { Check, Edit, Options, Position, Steam, Upload } from "@icons";
+  import { DropDown, IconButton, Menu } from "@interactables";
+  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { showLogoPositionModal, showOriginalGridsModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
   import { debounce } from "@utils";
@@ -27,6 +27,13 @@
   let steamGridTypes = Object.values(GridTypes).map((gridType) => { return { label: gridType, data: gridType }});
   let hasCustomName = $selectedGameAppId !== "" ? !!$customGameNames[$selectedGameAppId] : false;
   $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
+
+  $: menuOptions = [
+      { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
+      { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
+      { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
+      { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
+    ]
 
   /**
    * Handles when the user changes the custom game name
@@ -71,7 +78,7 @@
       ],
       multiple: false
     });
-    if (file && file.path && file.path !== "") AppController.setCustomArt(file.path as string);
+    if (file && file !== "") AppController.setCustomArt(file);
   }
   
   /**
@@ -155,7 +162,7 @@
             <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
           {/if}
           <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""}>
-            <Edit style="height: 14px; width: 14px;" />
+            <Edit style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
         </div>
 
@@ -166,17 +173,13 @@
         {/if}
 
         <div class="buttons-cont">
-          <IconButton label="Set Logo Position" on:click={() => { $showLogoPositionModal = true; }} width="auto" disabled={$selectedGameAppId === "" || !$appLibraryCache[$selectedGameAppId]?.Logo}>
-            <Position style="height: 14px; width: 14px;" />
-          </IconButton>
-
-          <IconButton label="Upload Local Art" on:click={prompUserForArt} width="auto" disabled={$selectedGameAppId === ""}>
-            <Upload style="height: 12px; width: 12px;" />
-          </IconButton>
+          <Menu label="Grid Options" options={menuOptions} disabled={$selectedGameAppId === ""}>
+            <Options style="height: 1rem; width: 1rem;" />
+          </Menu>
         </div>
       </div>
       
-      <Divider marginTop={"6px"} />
+      <Divider />
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
@@ -189,16 +192,14 @@
 
 <style>
   .inner {
-    margin-right: 1px;
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .content {
-    padding: 0px 6px;
-    max-height: calc(100% - 65px);
+    padding: 0px 0.375rem;
   }
 
   .inputs {
@@ -208,11 +209,11 @@
 
   .controls {
     display: flex;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .buttons-cont {
     display: flex;
-    gap: 7px;
+    gap: 0.5rem;
   }
 </style>

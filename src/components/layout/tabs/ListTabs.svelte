@@ -34,7 +34,7 @@
     
     background-color: var(--background);
 
-    border-radius: 0px 0px 4px 4px;
+    border-radius: 0px 0px 0.25rem 0.25rem;
 	}
 
   ul {
@@ -56,9 +56,9 @@
     overflow: hidden;
   }
   li:first-child {
-    border-top-left-radius: 4px;
+    border-top-left-radius: 0.25rem;
   }
-  li:last-child { border-right: none; border-top-right-radius: 4px; }
+  li:last-child { border-right: none; border-top-right-radius: 0.25rem; }
 
   span {
     display: block;

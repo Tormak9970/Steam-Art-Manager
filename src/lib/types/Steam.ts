@@ -11,6 +11,7 @@ export type SteamLogoConfig = {
   logoPosition: LogoPosition,
 }
 
+
 export type SteamRegistryApp = {
   appid: string,
   name: string

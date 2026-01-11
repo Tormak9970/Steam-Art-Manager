@@ -65,9 +65,9 @@
       <Divider />
     </div>
 
-    <div class="content" style="height: calc(100% - 85px);">
+    <div class="content" style="height: calc(100% - 5.375rem);">
       <div class="scroll-container" use:scrollShadow={{ background: "red"}} use:isOverflowing={{ callback: (o) => overflowing = o }}>
-        <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+        <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
           {#each Object.keys($dbFilters[$gridType]) as section}
             <Accordion
               label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
@@ -92,37 +92,35 @@
 
 <style>
   .inner {
-    margin-left: 1px;
     height: 100%;
     width: 100%;
 
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
   .content {
-    padding: 0px 6px;
-    max-height: calc(100% - 65px)
+    padding: 0 0.375rem;
   }
   .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
   .accordion-body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 7px;
-    padding: 7px 0px;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
   }
   .toggle-container {
-    margin-top: 4px;
-    padding-left: 6px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.125rem;
+    padding-left: 0.375rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 20px;
   }
   .scroll-container {
     height: 100%;

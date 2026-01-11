@@ -6,6 +6,41 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.12.0
+
+New Features
+* added ability to apply original assets ([e290096](https://github.com/Tormak9970/Steam-Art-Manager/commit/e290096))
+* added ability to view original assets ([7294afe](https://github.com/Tormak9970/Steam-Art-Manager/commit/7294afe))
+* added logo position editing back ([c225e56](https://github.com/Tormak9970/Steam-Art-Manager/commit/c225e56))
+* added the ability to show previously selected grids ([20d44ab](https://github.com/Tormak9970/Steam-Art-Manager/commit/20d44ab))
+
+Bug Fixes
+* corrected issues loading appinfo games and uploading local grids ([a6f8baf](https://github.com/Tormak9970/Steam-Art-Manager/commit/a6f8baf))
+* current grids now appear for non-steam games ([e02852e](https://github.com/Tormak9970/Steam-Art-Manager/commit/e02852e))
+* searching now works as expected ([5d725fe](https://github.com/Tormak9970/Steam-Art-Manager/commit/5d725fe))
+* snackbars are no longer blocking ([8073561](https://github.com/Tormak9970/Steam-Art-Manager/commit/8073561))
+* specified a non-generic package name for the backend ([23ff9fb](https://github.com/Tormak9970/Steam-Art-Manager/commit/23ff9fb))
+* steam api games now load properly ([f80840c](https://github.com/Tormak9970/Steam-Art-Manager/commit/f80840c))
+
+## v3.11.1
+
+Bug Fixes
+* added missing optional chain causing infinite loads ([469a9c3](https://github.com/Tormak9970/Steam-Art-Manager/commit/469a9c3))
+* changes are now saved for non-steam games ([32f4128](https://github.com/Tormak9970/Steam-Art-Manager/commit/32f4128))
+
+## v3.11.0
+
+New Features
+* removed logo position editing ([11ad80e](https://github.com/Tormak9970/Steam-Art-Manager/commit/11ad80e))
+
+Bug Fixes
+* added message for games without existing icons ([30e9ad0](https://github.com/Tormak9970/Steam-Art-Manager/commit/30e9ad0))
+* adjusted grids to load based on valve's new folder structure ([62121be](https://github.com/Tormak9970/Steam-Art-Manager/commit/62121be))
+* appinfo libraryCache data now always loaded ([6ba175b](https://github.com/Tormak9970/Steam-Art-Manager/commit/6ba175b))
+* everything is finalized for new steam structure ([290b9ed](https://github.com/Tormak9970/Steam-Art-Manager/commit/290b9ed))
+* wide capsules with new name scheme are now loaded ([a882a2c](https://github.com/Tormak9970/Steam-Art-Manager/commit/a882a2c))
+* zip entries are now streamed to output to prevent crashes ([a9a6c8e](https://github.com/Tormak9970/Steam-Art-Manager/commit/a9a6c8e))
+
 ## v3.10.7
 
 Bug Fixes

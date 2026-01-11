@@ -104,7 +104,7 @@
           <div class="exist-art-icon" use:AppController.tippy={{ content: "Has official art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
             <Steam style="height: 12px; width: 12px;" />
           </div>
-          <div class="exist-art-icon" style="margin-left: 18px; margin-right: 34px;" use:AppController.tippy={{ content: "Has custom art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
+          <div class="exist-art-icon" style="margin-left: 10.5rem; margin-right: 34px;" use:AppController.tippy={{ content: "Has custom art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
             <SGDBLogo style="height: 12px; width: 16px;" />
           </div>
         </span>
@@ -201,7 +201,7 @@
   }
 
   .section-label {
-    margin-top: 8px;
+    margin-top: 0.5rem;
     font-size: 20px;
   }
 

@@ -15,3 +15,5 @@ export { default as Table } from "./Table.svelte";
 export { default as VirtualGrid } from "./VirtualGrid.svelte";
 export { default as VirtualList } from "./VirtualList.svelte";
 
+export { default as CurrentGridImage } from "./CurrentGridImage.svelte";
+

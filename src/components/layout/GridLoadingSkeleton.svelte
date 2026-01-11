@@ -9,7 +9,7 @@
     height: 100%;
     width: 100%;
     
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     background-color: var(--foreground);
 
@@ -33,7 +33,7 @@
 
     background-color: var(--foreground-hover);
 
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .title-placeholder {
@@ -43,7 +43,7 @@
     margin: 5px 0px;
 
     background-color: var(--foreground-hover);
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .shine {

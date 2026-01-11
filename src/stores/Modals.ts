@@ -7,8 +7,6 @@ export const showToolsModal = writable(false);
 export const showGridModal = writable(false);
 export const gridModalInfo = writable<SGDBImage | null>(null);
 
-export const showLogoPositionModal = writable(false);
-
 export const showBatchApplyModal = writable(false);
 
 export const batchApplyWasCancelled = writable(false);
@@ -55,3 +53,7 @@ export const showCurrentGridsModal = writable(false);
 export const currentGridsAppid = writable("");
 
 export const showUpdateTilesModal = writable(false);
+
+export const showLogoPositionModal = writable(false);
+
+export const showOriginalGridsModal = writable(false);

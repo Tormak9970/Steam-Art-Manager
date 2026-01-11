@@ -2,10 +2,10 @@
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
 
+  import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, renderGamesInList, selectedGameAppId, steamLogoPositions, unfilteredLibraryCache } from "@stores/AppState";
+  import { currentGridsAppid, showCurrentGridsModal } from "@stores/Modals";
   import { convertFileSrc } from "@tauri-apps/api/core";
-  import type { GameStruct, GridTypes, LibraryCacheEntry } from "@types";
-  import { Platforms, appLibraryCache, currentPlatform, customGameNames, gridType, hiddenGameIds, originalAppLibraryCache, originalLogoPositions, renderGamesInList, selectedGameAppId, steamLogoPositions, unfilteredLibraryCache } from "../../../stores/AppState";
-  import { currentGridsAppid, showCurrentGridsModal } from "../../../stores/Modals";
+  import { GridTypes, type GameStruct, type LibraryCacheEntry } from "@types";
   import GridEntry from "./grid-view/GridEntry.svelte";
   import ListEntry from "./list-view/ListEntry.svelte";
 
@@ -30,6 +30,8 @@
     false;
   $: logoPosChanged = steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false;
   $: canDiscard = gridChanged || logoPosChanged;
+
+  $: disabled = $gridType === GridTypes.ICON && iconPath === "";
 
   /**
    * Selects this game.
@@ -130,6 +132,7 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {:else}
   <GridEntry
@@ -145,5 +148,6 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
+    disabled={disabled}
   />
 {/if}

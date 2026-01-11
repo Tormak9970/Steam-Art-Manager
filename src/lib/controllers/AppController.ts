@@ -16,12 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage } from "@types";
-import { SettingsManager, restartApp } from "@utils";
+import { restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
+import { Platforms, activeUserId, appLibraryCache, cacheSelectedGrids, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
 import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
@@ -34,7 +34,6 @@ import { SettingsController } from "./utils/SettingsController";
  * The main controller for the application.
  */
 export class AppController {
-  private static settingsController: SettingsController = new SettingsController();
   private static cacheController: CacheController;
   private static tippyInstance: Instance<Props>;
 
@@ -61,9 +60,7 @@ export class AppController {
   static async setup(): Promise<void> {
     AppController.cacheController = new CacheController();
 
-    await SettingsManager.init();
-    await AppController.settingsController.loadSettings();
-    await AppController.settingsController.subscribeToSettingChanges();
+    await SettingsController.init();
 
     LogController.log("App setup complete.");
   }
@@ -126,7 +123,7 @@ export class AppController {
       LogController.log("Changes failed.");
     } else {
       for (const changedPath of (changedPaths as ChangedPath[])) {
-        const originalPath = unfilteredCache[changedPath.appId][changedPath.gridType] ?? "";
+        const originalPath = unfilteredCache[changedPath.appId]?.[changedPath.gridType] ?? "";
         libraryCache[changedPath.appId][changedPath.gridType] = changedPath.targetPath === "REMOVE" ? originalPath : changedPath.targetPath;
         
         if (changedPath.gridType === GridTypes.ICON && shortcutIds.includes(changedPath.appId)) {
@@ -157,7 +154,7 @@ export class AppController {
   }
 
   /**
-   * Discards the current changes
+   * Discards the current changes.
    * ? Logging complete.
    */
   static discardChanges(): void {
@@ -167,13 +164,26 @@ export class AppController {
     const originalShortcuts = get(originalSteamShortcuts);
     steamShortcuts.set(structuredClone(originalShortcuts));
 
-    const originalPositions = get(originalLogoPositions);
-    steamLogoPositions.set(structuredClone(originalPositions));
+    const originalLogoCache = get(originalLogoPositions);
+    steamLogoPositions.set(structuredClone(originalLogoCache));
 
     get(showInfoSnackbar)({ message: "Changes discarded" });
     LogController.log("Discarded changes.");
     
     canSave.set(false);
+  }
+
+  /**
+   * Clears the cached grids.
+   * ! Logging incomplete.
+   */
+  static async clearCachedGrids(): Promise<void> {
+    const choice = await DialogController.ask("This Action can't be Undone!", "WARNING", "Clearing your cache will permanently delete these images. Are you sure?", "Yes", "No");
+
+    if (choice) {
+      await this.cacheController.invalidateSelectedCache();
+      get(showInfoSnackbar)({ message: "Selected cache cleared" });
+    }
   }
 
   /**
@@ -186,8 +196,8 @@ export class AppController {
     const originalShortcuts = get(originalSteamShortcuts);
 
     const appCache = get(appLibraryCache);
-    const logoPositionCache = get(steamLogoPositions);
     const shortcuts = get(steamShortcuts);
+    const logoPositionCache = get(steamLogoPositions);
     const platform = get(currentPlatform);
 
     if (platform === Platforms.NON_STEAM) {
@@ -199,7 +209,7 @@ export class AppController {
     
     appCache[appId] = originalCache[appId];
     appLibraryCache.set(structuredClone(appCache));
-    
+
     logoPositionCache[appId] = originalLogoCache[appId];
     steamLogoPositions.set(structuredClone(logoPositionCache));
 
@@ -248,21 +258,6 @@ export class AppController {
     delete customNames[appId];
     customGameNames.set(customNames);
     LogController.log(`Cleared custom name for ${appId}`);
-  }
-
-  /**
-   * Clears the logo position for a given app.
-   * @param appid The id of the app to clear the logo position of.
-   */
-  static clearLogoPosition(appid: string): void {
-    const logoPositionCache = get(steamLogoPositions);
-
-    logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
-    steamLogoPositions.set(structuredClone(logoPositionCache));
-
-    LogController.log(`Cleared logo position for ${appid}`);
-
-    canSave.set(true);
   }
 
   /**
@@ -345,11 +340,13 @@ export class AppController {
 
   /**
    * Sets the image for a game to the provided image.
-   * @param appId The id of the grid.
-   * @param url The url of the SteamGridDB image.
+   * @param image The grid to set.
    * ? Logging complete.
    */
-  static async setSteamGridArt(appId: string, url: URL): Promise<void> {
+  static async setSteamGridArt(image: SGDBImage): Promise<void> {
+    const id = image.id.toString();
+    const url = image.url;
+
     let imgUrl = url.toString();
     if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
     
@@ -358,9 +355,12 @@ export class AppController {
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
 
-    const localPath = await AppController.cacheController.getGridImage(appId, imgUrl);
+    const localPath = await AppController.cacheController.getGridImage(id, imgUrl);
     
     if (localPath) {
+      if (get(cacheSelectedGrids)) {
+        await AppController.cacheController.cacheSelectedGrid(get(selectedGameAppId), image, localPath);
+      }
 
       if (!gameImages[selectedGameId]) {
         // @ts-ignore
@@ -386,6 +386,30 @@ export class AppController {
   }
 
   /**
+   * Batch applies grids to the provided games.
+   * @param appIds The list of game ids.
+   * ? Logging Complete.
+   */
+  static async batchApplyGrids(appIds: string[]): Promise<void> {
+    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
+    await AppController.cacheController.batchApplyGrids(appIds);
+  }
+
+  /**
+   * Clears the logo position for a given app.
+   * @param appid The id of the app to clear the logo position of.
+   */
+  static clearLogoPosition(appid: string): void {
+    const logoPositionCache = get(steamLogoPositions);
+    logoPositionCache[appid].logoPosition.pinnedPosition = "REMOVE";
+    steamLogoPositions.set(structuredClone(logoPositionCache));
+
+    LogController.log(`Cleared logo position for ${appid}`);
+
+    canSave.set(true);
+  }
+
+  /**
    * Sets the logo position for the provided game.
    * @param appId The id of the app to save the logo position for.
    * @param pinPosition The position of the logo.
@@ -407,20 +431,9 @@ export class AppController {
     }
 
     steamLogoPositions.set(logoPositions);
-
     canSave.set(true);
 
     LogController.log(`Updated logo position for game ${appId}`);
-  }
-
-  /**
-   * Batch applies grids to the provided games.
-   * @param appIds The list of game ids.
-   * ? Logging Complete.
-   */
-  static async batchApplyGrids(appIds: string[]): Promise<void> {
-    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
-    await AppController.cacheController.batchApplyGrids(appIds);
   }
 
   /**
@@ -451,7 +464,7 @@ export class AppController {
       
       await AppController.saveChanges();
 
-      const filteredCache = await SteamController.getCacheData(get(nonSteamGames));
+      const filteredCache = await SteamController.getCacheData(get(nonSteamGames), get(steamGames));
       originalAppLibraryCache.set(structuredClone(filteredCache));
       appLibraryCache.set(filteredCache);
     } else {
@@ -590,7 +603,7 @@ export class AppController {
    */
   static async destroy(): Promise<void> {
     await AppController.cacheController.destroy();
-    AppController.settingsController.destroy();
+    SettingsController.destroy();
     LogController.log("App destroyed.");
   }
 
@@ -658,7 +671,7 @@ export class AppController {
 
         activeUserId.set(parseInt(userId));
 
-        const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
+        const steamApiKeyMapSetting = SettingsController.get<Record<string, string>>("steamApiKeyMap");
         if (steamApiKeyMapSetting[userId] && steamApiKeyMapSetting[userId] !== "") {
           steamKey.set(steamApiKeyMapSetting[userId]);
         } else {
@@ -699,5 +712,16 @@ export class AppController {
    */
   static sgdbClientInitialized(): boolean {
     return !!AppController.cacheController?.client;
+  }
+
+  /**
+   * Caches a game's original steam asset so it can be applied to the game.
+   * @param appid The appid of the original asset to cache.
+   * @param imageURL The image url.
+   * @param type The image type.
+   * @returns The local file path.
+   */
+  static async cacheOriginalAsset(appid: string, imageURL: string, type: string) {
+    return await AppController.cacheController.cacheOriginalAsset(appid, imageURL, type);
   }
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.tormak.steam_art_manager</id>
+  
+  <name>Steam Art Manager</name>
+  <summary>Simple and elegant Steam library customization</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  
+  <description>
+    <p>
+      A modern, easy to use tool for customizing the art of your Steam library
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">steam-art-manager.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/Tormak9970/Steam-Art-Manager/blob/main/public/progress-images/v3.10.0/final-ui_v3.10.0.png</image>
+    </screenshot>
+  </screenshots>
+</component>

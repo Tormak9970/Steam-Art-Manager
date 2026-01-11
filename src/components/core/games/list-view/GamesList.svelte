@@ -33,7 +33,7 @@
 
 <style>
   .games-list {
-    height: calc(100% - 7px);
+    height: calc(100% - 0.5rem);
     overflow: hidden;
   }
 
@@ -48,6 +48,6 @@
     width: 100%;
     text-align: center;
     opacity: 0.5;
-    padding-top: 40px;
+    padding-top: 2.5rem;
   }
 </style>

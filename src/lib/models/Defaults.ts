@@ -1,4 +1,4 @@
-import type { AppSettings } from "@types";
+import type { Settings } from "@types";
 
 export const DEFAULT_FILTERS = {
   "Capsule": {
@@ -134,7 +134,7 @@ export const DEFAULT_FILTERS = {
   }
 };
 
-export const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_SETTINGS: Settings = {
   "version": "",
   "steamInstallPath": "",
   "shownShortcutPrompt": false,
@@ -143,6 +143,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   "hiddenGameIds": [],
   "manualSteamGames": [],
   "customGameNames": {},
+
+  "cacheSelectedGrids": false,
+  "userSelectedGrids": {},
   
   "theme": 0,
   "showHiddenGames": false,
@@ -157,6 +160,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
         "games": 42,
         "grids": 42
       },
+      "showCached": false,
       "gameViewType": 0,
       "type": "Capsule",
     },

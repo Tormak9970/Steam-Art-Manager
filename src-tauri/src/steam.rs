@@ -1,7 +1,7 @@
 
 use crate::logger;
-use crate::parsers::appinfo_vdf_parser::open_appinfo_vdf;
-use crate::parsers::shortcuts_vdf_parser::open_shortcuts_vdf;
+use new_vdf_parser::appinfo_vdf_parser::open_appinfo_vdf;
+use new_vdf_parser::shortcuts_vdf_parser::open_shortcuts_vdf;
 
 use std::fs::{self, create_dir_all};
 use std::path::{ PathBuf, Path };
@@ -249,7 +249,7 @@ pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
 /// Reads the user's appinfo.vdf file.
 pub async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
   let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(app_handle.to_owned(), steam_path));
-  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
+  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path, None);
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 }
 

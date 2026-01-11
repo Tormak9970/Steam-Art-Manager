@@ -104,7 +104,7 @@
 
     background-color: var(--background-dark);
     padding: 6px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .field-header {
@@ -120,7 +120,7 @@
 
   .label {
     margin-top: 0px;
-    font-size: 18px;
+    font-size: 1.5rem;
   }
 
   .inputs {
@@ -135,7 +135,7 @@
   }
 
   .description {
-    line-height: 18px;
+    line-height: 1.5rem;
     font-size: 14px;
     margin: 7px 0px;
 

@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { activeUserId, customGameNames, dbFilters, debugMode, gamesSize, gridType, gridsSize, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, type DBFilters } from "@stores/AppState";
+import { DEFAULT_SETTINGS } from "@models";
+import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
-import { GridTypes, type CleanGridsPreset, type GameStruct, type MainWindowPanels, type ManageManualGamesMethod, type SteamUser } from "@types";
-import { SettingsManager, findSteamPath, restartApp } from "@utils";
+import type { GridTypes, Settings, SteamUser } from "@types";
+import { findSteamPath, restartApp } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
-import "tippy.js/dist/tippy.css";
 import { DialogController } from "./DialogController";
 import { LogController } from "./LogController";
 import { RustInterop } from "./RustInterop";
@@ -29,185 +31,198 @@ import { RustInterop } from "./RustInterop";
  * The main controller for the application.
  */
 export class SettingsController {
-  private oldSteamInstallPath = "";
-  private steamInstallPathSub?: Unsubscriber;
-
-  private oldHiddenGameIds: number[] = [];
-  private hiddenGameIdsSub?: Unsubscriber;
-
-  private oldManualSteamGames: GameStruct[] = [];
-  private manualSteamGamesSub?: Unsubscriber;
-
-  private oldCustomGameNames?: Record<string, string>;
-  private customGameNamesSub?: Unsubscriber;
-
-
-  private oldTheme = 0;
-  private themeSub?: Unsubscriber;
-
-  private oldDebugMode?: boolean;
-  private debugModeSub?: Unsubscriber;
-
-  private oldShowHiddenGames = false;
-  private showHiddenGamesSub?: Unsubscriber;
-
-  private oldDbFilters?: DBFilters;
-  private dbFiltersSub?: Unsubscriber;
-
-  private oldGameViewType = false;
-  private gameViewTypeSub?: Unsubscriber;
-
-  private oldGridType = GridTypes.CAPSULE;
-  private gridTypeSub?: Unsubscriber;
-
-  private oldManualGamesAddMethod: ManageManualGamesMethod = "manual";
-  private manualGamesAddMethodSub?: Unsubscriber;
-
-
-  private oldCleanGridsPreset: CleanGridsPreset = "clean";
-  private cleanGridsPresetSub?: Unsubscriber;
+  static settingsPath = "";
+  private static settings: Settings;
+  private static subscriptions: Unsubscriber[] = [];
+  private static oldValues: Record<string, any> = {};
+  private static decoder = new TextDecoder();
 
   /**
-   * Register subscriptions for setting changes.
+   * Initializes the SettingsController.
    */
-  async subscribeToSettingChanges() {
-    this.steamInstallPathSub = steamInstallPath.subscribe(async (newPath) => {
-      if (newPath !== this.oldSteamInstallPath) {
-        SettingsManager.updateSetting("steamInstallPath", newPath);
+  static async init() {
+    loadingSettings.set(true);
+    await SettingsController.setSettingsPath();
+    SettingsController.settings = await SettingsController.loadSettingsFromSystem();
 
-        if (this.oldSteamInstallPath !== "") {
-          const shouldReloadGames = await DialogController.ask(
-            "Steam Install Path Changed",
-            "WARNING",
-            "A change to your Steam install path was detected, would you like to reload your games?",
-            "Yes",
-            "No"
-          );
+    LogController.log("Finished loading settings.");
 
-          if (shouldReloadGames) {
-            await restartApp();
-          }
-        }
+    await SettingsController.setStores();
+    loadingSettings.set(false);
+
+    SettingsController.registerSubs();
+  }
+
+  /**
+   * Sets `settingsPath` and copies default settings if necessary.
+   */
+  private static async setSettingsPath(): Promise<void> {
+    const appDir = await path.appConfigDir();
+    if (!(await fs.exists(appDir))) await fs.mkdir(appDir);
+
+    const setsPath = await path.join(appDir, "settings.json");
+    if (!(await fs.exists(setsPath))) {
+      await fs.writeTextFile(setsPath, JSON.stringify(DEFAULT_SETTINGS, null, "\t"));
+    }
+
+    SettingsController.settingsPath = setsPath;
+  }
+
+  /**
+   * Migrate the settings structure to account for changes in the structure.
+   */
+  private static migrateSettingsStructure(oldSettings: Settings): Settings {
+    if (oldSettings?.filters) {
+      oldSettings.windowSettings.main.filters = oldSettings.filters ?? DEFAULT_SETTINGS.windowSettings.main.filters;
+      delete oldSettings.filters;
+    }
+
+    if (oldSettings?.panels) {
+      oldSettings.windowSettings.main.panels = oldSettings.panels ?? DEFAULT_SETTINGS.windowSettings.main.panels;
+      delete oldSettings.panels;
+    }
+
+    if (oldSettings?.gameViewType) {
+      oldSettings.windowSettings.main.gameViewType = oldSettings.gameViewType ?? DEFAULT_SETTINGS.windowSettings.main.gameViewType;
+      delete oldSettings.gameViewType;
+    }
+
+    return oldSettings;
+  }
+
+  /**
+   * Gets the settings data and updates it if needed.
+   */
+  private static async loadSettingsFromSystem(): Promise<Settings> {
+    let currentSettings: any = {};
+
+    if (await fs.exists(SettingsController.settingsPath)) {
+      const fileRes = await fs.readFile(SettingsController.settingsPath);
+      const settings = SettingsController.decoder.decode(fileRes);
+      currentSettings = JSON.parse(settings);
+    }
+
+    let settings: Settings = { ...currentSettings };
+    
+    const defaultSettings = structuredClone(DEFAULT_SETTINGS);
+
+    const curKeys = Object.keys(currentSettings);
+    const defEntries = Object.entries(defaultSettings);
+    const defKeys = Object.keys(defaultSettings);
+
+    for (const [ key, val ] of defEntries) {
+      if (!curKeys.includes(key)) {
+        // @ts-expect-error This will always be fine.
+        settings[key] = val;
+      }
+    }
+
+    for (const key in currentSettings) {
+      if (!defKeys.includes(key)) {
+        // @ts-expect-error This will always be fine.
+        delete settings[key];
+      }
+    }
+    
+    settings = SettingsController.migrateSettingsStructure(settings);
+
+    settings.version = APP_VERSION;
+
+    await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(settings));
+
+    LogController.log("Finished checking settings for new app version and/or migration.");
+
+    return settings;
+  }
+
+
+  /**
+   * Gets the default value for the given settings field.
+   * @param field The settings property to get.
+   * @returns The default value for the field.
+   */
+  static getDefault<T>(field: string): T {
+    const settings = structuredClone(DEFAULT_SETTINGS);
+    const fieldPath = field.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < fieldPath. length - 1; i++) {
+      // @ts-expect-error This will always be fine.
+      parentObject = parentObject[fieldPath[i]];
+    }
+
+    // @ts-expect-error This will always be fine.
+    return parentObject[fieldPath[fieldPath.length - 1]];
+  }
+
+  /**
+   * Gets a setting.
+   * @param field The key of the setting to get.
+   */
+  static get<T>(field: string): T {
+    const settings = structuredClone(SettingsController.settings);
+    const fieldPath = field.split(".");
+    let parentObject = settings;
+
+    for (let i = 0; i < fieldPath. length - 1; i++) {
+      const key = fieldPath[i];
+      
+      if (Object.keys(parentObject).includes(key)) {
+        // @ts-expect-error This will always be fine.
+        parentObject = parentObject[key];
+      } else {
+        const defaultValue = SettingsController.getDefault<T>(field);
+        LogController.log(`Field ${field} didn't exist. Returning default value ${defaultValue}.`);
+        return defaultValue;
+      }
+    }
+
+    const finalKey = fieldPath[fieldPath.length - 1];
+    if (Object.keys(parentObject).includes(finalKey)) {
+      // @ts-expect-error This will always be fine.
+      return parentObject[finalKey];
+    } else {
+      const defaultValue = SettingsController.getDefault<T>(field);
+      LogController.log(`Field ${field} didn't exist. Returning default value ${defaultValue}.`);
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Sets a setting's value.
+   * @param key The key of the setting to set.
+   * @param value The setting's value
+   */
+  static async set<T>(key: string, value: T) {
+    SettingsController.setOnChange(key)(value);
+  }
+
+  private static setOnChange<T>(key: string): (value: T) => Promise<void> {
+    const keys = key.split(".");
+    const lastKey = keys[keys.length - 1];
+
+    let parentObject = SettingsController.settings as any;
+    for (let i = 0; i < keys.length - 1; i++) {
+      parentObject = parentObject[keys[i]];
+    }
+
+    return async (value: T) => {
+      if (!SettingsController.oldValues[key] || JSON.stringify(SettingsController.oldValues[key]) !== JSON.stringify(value)) {
+        parentObject[lastKey] = value;
+        SettingsController.oldValues[key] = value;
         
-        this.oldSteamInstallPath = newPath;
+        await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(SettingsController.settings));
+        
+        LogController.log(`Updated setting ${key} to ${JSON.stringify(value)}.`);
       }
-    });
-
-    // * See src/components/modals/settings/SettingsModal.svelte for `sgdbApiKey` and `steamApiKeyMap` handling.
-
-    this.hiddenGameIdsSub = hiddenGameIds.subscribe((newIds) => {
-      if (JSON.stringify(newIds) !== JSON.stringify(this.oldHiddenGameIds)) {
-        SettingsManager.updateSetting("hiddenGameIds", newIds);
-        this.oldHiddenGameIds = structuredClone(newIds);
-      }
-    });
-
-    this.manualSteamGamesSub = manualSteamGames.subscribe((newGames) => {
-      if (JSON.stringify(newGames) !== JSON.stringify(this.oldManualSteamGames)) {
-        SettingsManager.updateSetting("manualSteamGames", newGames);
-        this.oldManualSteamGames = structuredClone(newGames);
-      }
-    });
-    
-    this.customGameNamesSub = customGameNames.subscribe((newGameNames) => {
-      if (JSON.stringify(newGameNames) !== JSON.stringify(this.oldCustomGameNames)) {
-        SettingsManager.updateSetting("customGameNames", newGameNames);
-        this.oldCustomGameNames = structuredClone(newGameNames);
-      }
-    });
-
-
-    this.themeSub = theme.subscribe((newTheme) => {
-      if (newTheme !== this.oldTheme) {
-        SettingsManager.updateSetting("theme", newTheme);
-        this.oldTheme = newTheme;
-      }
-    });
-
-    this.debugModeSub = debugMode.subscribe((newDebugMode) => {
-      if (newDebugMode !== this.oldDebugMode) {
-        SettingsManager.updateSetting("debugMode", newDebugMode);
-        RustInterop.toggleDevTools(newDebugMode);
-        this.oldDebugMode = newDebugMode;
-      }
-    });
-
-    this.showHiddenGamesSub = showHidden.subscribe((show) => {
-      if (show !== this.oldShowHiddenGames) {
-        SettingsManager.updateSetting("showHiddenGames", show);
-        this.oldShowHiddenGames = show;
-      }
-    });
-
-
-    this.dbFiltersSub = dbFilters.subscribe((newFilters) => {
-      if (JSON.stringify(newFilters) !== JSON.stringify(this.oldDbFilters)) {
-        SettingsManager.updateSetting("windowSettings.main.filters", newFilters);
-        this.oldDbFilters = structuredClone(newFilters);
-      }
-    });
-
-    // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
-
-    this.gameViewTypeSub = renderGamesInList.subscribe((newGameViewType) => {
-      if (newGameViewType !== this.oldGameViewType) {
-        SettingsManager.updateSetting("windowSettings.main.gameViewType", newGameViewType ? 1 : 0);
-        this.oldGameViewType = newGameViewType;
-      }
-    });
-
-    this.gridTypeSub = gridType.subscribe((newType) => {
-      if (newType !== this.oldGridType) {
-        SettingsManager.updateSetting("windowSettings.main.type", newType);
-        this.oldGridType = newType;
-      }
-    });
-
-
-    this.manualGamesAddMethodSub = selectedManualGamesAddMethod.subscribe((newAddMethod) => {
-      if (newAddMethod !== this.oldManualGamesAddMethod) {
-        SettingsManager.updateSetting("windowSettings.manageManualGames.method", newAddMethod);
-        this.oldManualGamesAddMethod = newAddMethod;
-      }
-    });
-
-
-    this.cleanGridsPresetSub = selectedCleanGridsPreset.subscribe((newPreset) => {
-      if (newPreset !== this.oldCleanGridsPreset) {
-        SettingsManager.updateSetting("windowSettings.cleanGrids.preset", newPreset);
-        this.oldCleanGridsPreset = newPreset;
-      }
-    });
+    }
   }
-
-  /**
-   * Destroy all settings subscriptions.
-   */
-  destroy() {
-    if (this.steamInstallPathSub) this.steamInstallPathSub();
-    if (this.hiddenGameIdsSub) this.hiddenGameIdsSub();
-    if (this.manualSteamGamesSub) this.manualSteamGamesSub();
-    if (this.customGameNamesSub) this.customGameNamesSub();
-
-    if (this.themeSub) this.themeSub();
-    if (this.debugModeSub) this.debugModeSub();
-    if (this.showHiddenGamesSub) this.showHiddenGamesSub();
-
-    if (this.dbFiltersSub) this.dbFiltersSub();
-    if (this.gameViewTypeSub) this.gameViewTypeSub();
-    if (this.gridTypeSub) this.gridTypeSub();
-    
-    if (this.manualGamesAddMethodSub) this.manualGamesAddMethodSub();
-
-    if (this.cleanGridsPresetSub) this.cleanGridsPresetSub();
-  }
-
 
   /**
    * Loads the settings associated with the current Steam user.
    * @returns The userId of the active user.
    */
-  private async loadUserSettings(): Promise<string> {
+  private static async loadUserSettings(): Promise<string> {
     const users = await RustInterop.getSteamUsers();
     const cleanedUsers: { [id: string]: SteamUser } = {};
 
@@ -251,116 +266,164 @@ export class SettingsController {
     return activeUser.id32;
   }
 
-  /**
-   * Loads the api key settings.
-   * @param activeUserId The id of the active Steam user.
-   */
-  private async loadApiKeySettings(activeUserId: string): Promise<void> {
-    const sgdbKeySetting = SettingsManager.getSetting<string>("steamGridDbApiKey");
-
-    if (sgdbKeySetting !== "") {
-      steamGridDBKey.set(sgdbKeySetting);
-      needsSGDBAPIKey.set(false);
-    }
-
-
-    const steamApiKeyMapSetting = SettingsManager.getSetting<Record<string, string>>("steamApiKeyMap");
-    if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
-      steamKey.set(steamApiKeyMapSetting[activeUserId]);
-      needsSteamKey.set(false);
-    }
-  }
-
-  /**
-   * Load the settings most users don't use.
-   */
-  private loadNicheSettings(): void {
-    const manualSteamGamesSetting = SettingsManager.getSetting<GameStruct[]>("manualSteamGames");
-    this.oldManualSteamGames = structuredClone(manualSteamGamesSetting);
-    if (manualSteamGamesSetting.length > 0) {
-      manualSteamGames.set(manualSteamGamesSetting);
-      LogController.log(`Loaded ${manualSteamGamesSetting.length} manually added games.`);
-    }
-
-    const customGameNamesSetting = SettingsManager.getSetting<Record<string, string>>("customGameNames");
-    this.oldCustomGameNames = structuredClone(customGameNamesSetting);
-    customGameNames.set(customGameNamesSetting);
-    LogController.log(`Loaded ${Object.keys(customGameNamesSetting).length} custom game names.`);
-
-    const hiddenGameIdsSetting = SettingsManager.getSetting<number[]>("hiddenGameIds");
-    this.oldHiddenGameIds = structuredClone(hiddenGameIdsSetting);
-    hiddenGameIds.set(hiddenGameIdsSetting);
-  }
-
-  /**
-   * Load the settings associated with options in the UI.
-   */
-  private loadUISettings(): void {
-    const gameViewTypeSetting = SettingsManager.getSetting<number>("windowSettings.main.gameViewType");
-    this.oldGameViewType = gameViewTypeSetting === 1;
-    renderGamesInList.set(gameViewTypeSetting === 1);
-
-    const showHiddenGamesSetting = SettingsManager.getSetting<boolean>("showHiddenGames");
-    this.oldShowHiddenGames = showHiddenGamesSetting;
-    showHidden.set(showHiddenGamesSetting);
-    
-    const dbFiltersSetting = SettingsManager.getSetting<DBFilters>("windowSettings.main.filters");
-    this.oldDbFilters = structuredClone(dbFiltersSetting);
-    dbFilters.set(dbFiltersSetting);
-    
-    const gridTypeSetting = SettingsManager.getSetting<string>("windowSettings.main.type") as GridTypes;
-    this.oldGridType = gridTypeSetting;
-    gridType.set(gridTypeSetting);
-
-    
-    const panelSizeSetting = SettingsManager.getSetting<MainWindowPanels>("windowSettings.main.panels");
-    optionsSize.set(panelSizeSetting.options);
-    gamesSize.set(panelSizeSetting.games);
-    gridsSize.set(panelSizeSetting.grids);
-
-
-    const cleanGridsPresetSetting = SettingsManager.getSetting<CleanGridsPreset>("windowSettings.cleanGrids.preset");
-    this.oldCleanGridsPreset = cleanGridsPresetSetting;
-    selectedCleanGridsPreset.set(cleanGridsPresetSetting);
-
-    const manageManualGamesMethodSetting = SettingsManager.getSetting<ManageManualGamesMethod>("windowSettings.manageManualGames.method");
-    this.oldManualGamesAddMethod = manageManualGamesMethodSetting;
-    selectedManualGamesAddMethod.set(manageManualGamesMethodSetting);
-  }
-
-  /**
-   * Loads the app's settings.
-   */
-  async loadSettings(): Promise<void> {
-    const themeSetting = SettingsManager.getSetting<number>("theme");
-    this.oldTheme = themeSetting;
+  private static async setStores(): Promise<void> {
+    const themeSetting = SettingsController.settings.theme;
+    SettingsController.oldValues["theme"] = themeSetting;
     theme.set(themeSetting);
     document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : "light");
 
-    const debugModeSetting = SettingsManager.getSetting<boolean>("debugMode");
+    const debugModeSetting = SettingsController.settings.debugMode;
+    SettingsController.oldValues["debugMode"] = debugModeSetting;
     debugMode.set(debugModeSetting);
-
     if (debugModeSetting) await RustInterop.toggleDevTools(true);
 
-    const steamInstallPathSetting = SettingsManager.getSetting<string>("steamInstallPath");
+    const steamInstallPathSetting = SettingsController.settings.steamInstallPath;
     await findSteamPath(steamInstallPathSetting);
 
-
-    const activeUserId = await this.loadUserSettings();
-
+    const activeUserId = await SettingsController.loadUserSettings();
     if (activeUserId === "0") {
       get(showInfoSnackbar)({ message: "User id was 0, try opening steam then restart the SARM" });
       LogController.error("User id was 0, try opening steam then restart the SARM");
     } else {
-      await this.loadApiKeySettings(activeUserId);
-    
-      this.loadNicheSettings();
+      const sgdbKeySetting = SettingsController.settings.steamGridDbApiKey;
+      SettingsController.oldValues["steamGridDbApiKey"] = sgdbKeySetting;
+      
+      if (sgdbKeySetting !== "") {
+        steamGridDBKey.set(sgdbKeySetting);
+        needsSGDBAPIKey.set(false);
+      }
+  
+      const steamApiKeyMapSetting = SettingsController.settings.steamApiKeyMap;
+      SettingsController.oldValues["steamApiKeyMap"] = steamApiKeyMapSetting
+      if (steamApiKeyMapSetting[activeUserId] && steamApiKeyMapSetting[activeUserId] !== "") {
+        steamKey.set(steamApiKeyMapSetting[activeUserId]);
+        needsSteamKey.set(false);
+      }
 
-      this.loadUISettings();
+      
+      const manualSteamGamesSetting = SettingsController.settings.manualSteamGames;
+      SettingsController.oldValues["manualSteamGames"] = structuredClone(manualSteamGamesSetting);
+      if (manualSteamGamesSetting.length > 0) {
+        manualSteamGames.set(manualSteamGamesSetting);
+        LogController.log(`Loaded ${manualSteamGamesSetting.length} manually added games.`);
+      }
+  
+      const customGameNamesSetting = SettingsController.settings.customGameNames;
+      SettingsController.oldValues["customGameNames"] = structuredClone(customGameNamesSetting);
+      customGameNames.set(customGameNamesSetting);
+      LogController.log(`Loaded ${Object.keys(customGameNamesSetting).length} custom game names.`);
+  
+      const hiddenGameIdsSetting = SettingsController.settings.hiddenGameIds;
+      SettingsController.oldValues["hiddenGameIds"] = structuredClone(hiddenGameIdsSetting);
+      hiddenGameIds.set(hiddenGameIdsSetting);
+  
+      const cacheSelectedGridsSetting = SettingsController.settings.cacheSelectedGrids;
+      SettingsController.oldValues["cacheSelectedGrids"] = cacheSelectedGridsSetting;
+      cacheSelectedGrids.set(cacheSelectedGridsSetting);
+  
+      const userSelectedGridsSetting = SettingsController.settings.userSelectedGrids;
+      SettingsController.oldValues["userSelectedGrids"] = userSelectedGridsSetting;
+      userSelectedGrids.set(userSelectedGridsSetting);
 
+
+      const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
+      SettingsController.oldValues["windowSettings.main.gameViewType"] = gameViewTypeSetting;
+      renderGamesInList.set(gameViewTypeSetting === 1);
+  
+      const showHiddenGamesSetting = SettingsController.settings.showHiddenGames;
+      SettingsController.oldValues["showHiddenGames"] = showHiddenGamesSetting;
+      showHidden.set(showHiddenGamesSetting);
+      
+      const dbFiltersSetting = SettingsController.settings.windowSettings.main.filters;
+      SettingsController.oldValues["windowSettings.main.filters"] = dbFiltersSetting;
+      dbFilters.set(dbFiltersSetting);
+      
+      const gridTypeSetting = SettingsController.settings.windowSettings.main.type as GridTypes;
+      SettingsController.oldValues["windowSettings.main.type"] = gridTypeSetting;
+      gridType.set(gridTypeSetting);
+      
+      const showCachedSetting = SettingsController.settings.windowSettings.main.showCached;
+      SettingsController.oldValues["windowSettings.main.showCached"] = showCachedSetting;
+      showCachedGrids.set(showCachedSetting);
+  
+      
+      const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
+      SettingsController.oldValues["windowSettings.main.panels"] = panelSizeSetting;
+      optionsSize.set(panelSizeSetting.options);
+      gamesSize.set(panelSizeSetting.games);
+      gridsSize.set(panelSizeSetting.grids);
+  
+  
+      const cleanGridsPresetSetting = SettingsController.settings.windowSettings.cleanGrids.preset;
+      SettingsController.oldValues["windowSettings.cleanGrids.preset"] = cleanGridsPresetSetting;
+      selectedCleanGridsPreset.set(cleanGridsPresetSetting);
+  
+      const manageManualGamesMethodSetting = SettingsController.settings.windowSettings.manageManualGames.method;
+      SettingsController.oldValues["windowSettings.manageManualGames.method"] = manageManualGamesMethodSetting;
+      selectedManualGamesAddMethod.set(manageManualGamesMethodSetting);
+      
       
       LogController.log("Finished loading app settings.");
       loadingSettings.set(false);
+    }
+  }
+
+  /**
+   * Registers the store listeners responsible for automatically updating the settings.
+   */
+  static registerSubs() {
+    SettingsController.subscriptions = [
+      steamInstallPath.subscribe(async (newPath) => {
+        if (newPath !== SettingsController.oldValues["steamInstallPath"]) {
+          const oldValueDefined = !!SettingsController.oldValues["steamInstallPath"]
+          SettingsController.set("steamInstallPath", newPath);
+  
+          if (oldValueDefined && SettingsController.oldValues["steamInstallPath"] !== "") {
+            const shouldReloadGames = await DialogController.ask(
+              "Steam Install Path Changed",
+              "WARNING",
+              "A change to your Steam install path was detected, would you like to reload your games?",
+              "Yes",
+              "No"
+            );
+  
+            if (shouldReloadGames) {
+              await restartApp();
+            }
+          }
+          
+          SettingsController.oldValues["steamInstallPath"] = newPath;
+        }
+      }),
+      // * See src/components/modals/settings/SettingsModal.svelte for `sgdbApiKey` and `steamApiKeyMap` handling.
+      hiddenGameIds.subscribe(SettingsController.setOnChange("hiddenGameIds")),
+      manualSteamGames.subscribe(SettingsController.setOnChange("manualSteamGames")),
+      customGameNames.subscribe(SettingsController.setOnChange("customGameNames")),
+  
+      theme.subscribe(SettingsController.setOnChange("theme")),
+      debugMode.subscribe(SettingsController.setOnChange("debugMode")),
+      showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
+      cacheSelectedGrids.subscribe(SettingsController.setOnChange("cacheSelectedGrids")),
+      userSelectedGrids.subscribe(SettingsController.setOnChange("userSelectedGrids")),
+  
+      dbFilters.subscribe(SettingsController.setOnChange("windowSettings.main.filters")),
+  
+      // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
+      renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),
+      gridType.subscribe(SettingsController.setOnChange("windowSettings.main.type")),
+      showCachedGrids.subscribe(SettingsController.setOnChange("windowSettings.main.showCached")),
+  
+      selectedManualGamesAddMethod.subscribe(SettingsController.setOnChange("windowSettings.manageManualGames.method")),
+      selectedCleanGridsPreset.subscribe(SettingsController.setOnChange("windowSettings.cleanGrids.preset")),
+    ];
+  }
+
+  /**
+   * Handles destroying the settings.
+   */
+  static destroy() {
+    for (const unsub of SettingsController.subscriptions) {
+      unsub();
     }
   }
 }

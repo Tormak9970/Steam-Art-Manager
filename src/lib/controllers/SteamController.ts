@@ -1,13 +1,13 @@
-import * as fs from "@tauri-apps/plugin-fs";
 import { fetch } from "@tauri-apps/plugin-http";
 import { get } from "svelte/store";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
 
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
 import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
 import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
@@ -15,7 +15,7 @@ import { DialogController } from "./utils/DialogController";
 
 export class SteamController {
   private static xmlParser = new XMLParser();
-  
+
   /**
    * Caches the steam game logo configs.
    * @param logoConfigPaths The list of logoConfig paths.
@@ -46,50 +46,45 @@ export class SteamController {
    * @param shortcuts The list of non steam games.
    * @returns A promise resolving to the Steam grid cache data.
    */
-  static async getCacheData(shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
+  static async getCacheData(steamApps: GameStruct[], shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
-    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds);
+    const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds, steamApps);
 
     unfilteredLibraryCache.set(unfilteredCache);
     originalAppLibraryCache.set(structuredClone(filteredCache));
     appLibraryCache.set(filteredCache);
-    
+
     await SteamController.cacheLogoConfigs(logoConfigPaths);
 
     return filteredCache;
   }
 
   /**
-   * Gets the current user's steam games from their community profile.
-   * @param bUserId The u64 id of the current user.
+   * Gets the current user's steam games by reading the appinfo.vdf.
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamCommunity(bUserId: bigint): Promise<GameStruct[]> {
-    const requestTimeout = get(requestTimeoutLength);
-    // LogController.log("Loading games from Steam Community page...");
+  private static async getGamesFromAppinfo(ids: string[]): Promise<GameStruct[]> {
+    // LogController.log("Loading games from appinfo.vdf...");
 
-    const res = await fetch(`https://steamcommunity.com/profiles/${bUserId}/games?xml=1`, {
-      method: "GET",
-      signal: AbortSignal.timeout(requestTimeout)
-    });
-    
-    if (res.ok) {
-      const games = SteamController.xmlParser.parse(await res.text());
+    const vdf = await RustInterop.readAppinfoVdf();
 
-      return games.gamesList.games.game.map((game: any) => {
-        return {
-          "appid": parseInt(game.appID),
-          "name": game.name
+    return vdf.entries.filter((entry: any) => ids.includes(entry.appid.toString())).map((entry: any) => {
+      const libraryAssets = entry.common.library_assets_full;
+      
+      return {
+        appid: entry.appid,
+        // eslint-disable-next-line no-control-regex
+        name: typeof entry.common.name === "string" ? entry.common.name.replace(/[^\x00-\x7F]/g, "") : entry.common.name.toString(),
+        gridInfo: {
+          icon: entry.common.icon ? (entry.common.icon + ".jpg") : "",
+          capsule: libraryAssets?.library_capsule?.image?.english ?? "",
+          wideCapsule: libraryAssets?.library_header?.image?.english ?? entry.common?.header_image?.english ?? "",
+          hero: libraryAssets?.library_hero?.image?.english ?? "",
+          logo: libraryAssets?.library_logo?.image?.english ?? "",
         }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-    } else {
-      const err = SteamController.xmlParser.parse(await res.text());
-
-      get(showErrorSnackbar)({ message: "You Steam profile is private" });
-      LogController.warn(`Error loading games from the user's Steam profile: Status ${res.status}. Message: ${JSON.stringify(err)}.`);
-      return [];
-    }
+      };
+    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
 
   /**
@@ -98,22 +93,15 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromSteamAPI(bUserId: bigint): Promise<GameStruct[]> {
+  private static async getGamesFromSteamAPI(bUserId: bigint): Promise<string[]> {
     const requestTimeout = get(requestTimeoutLength);
-    // LogController.log("Loading games from Steam API...");
-
     const res = await fetch(`http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${get(steamKey)}&steamid=${bUserId}&format=json&include_appinfo=true&include_played_free_games=true`, {
       method: "GET",
       signal: AbortSignal.timeout(requestTimeout)
     });
 
     if (res.ok) {
-      return (await res.json()).response.games.map((game: any) => {
-        return {
-          "appid": game.appid,
-          "name": game.name
-        }
-      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+      return (await res.json()).response.games.map((game: any) => game.appid.toString());
     } else {
       const err = SteamController.xmlParser.parse(await res.text());
 
@@ -124,35 +112,13 @@ export class SteamController {
   }
 
   /**
-   * Gets the current user's steam games by reading the appinfo.vdf.
-   * @returns A promise resolving to a list of steam games.
-   * ? Logging complete.
-   */
-  private static async getGamesFromAppinfo(): Promise<GameStruct[]> {
-    // LogController.log("Loading games from appinfo.vdf...");
-
-    const vdf = await RustInterop.readAppinfoVdf();
-
-    return vdf.entries.map((game: any) => {
-      return {
-        appid: game.appid,
-        name: typeof game.common.name === "string" ? game.common.name.replace(/[^\x00-\x7F]/g, "") : game.common.name.toString()
-      };
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
-  }
-
-  /**
    * Gets the current user's steam games by reading the localconfig.vdf.
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromLocalconfig(): Promise<GameStruct[]> {
-    // LogController.log("Loading games from localconfig.vdf...");
-
+  private static async filterByLocalConfig(): Promise<string[]> {
     const userId = get(activeUserId);
-    const appInfoGames = await SteamController.getGamesFromAppinfo();
-    const localConfigAppIds: string[] = await RustInterop.readLocalconfigVdf(userId.toString());
-    return appInfoGames.filter((game) => localConfigAppIds.includes(game.appid.toString()));
+    return await RustInterop.readLocalconfigVdf(userId.toString());
   }
 
   /**
@@ -167,44 +133,30 @@ export class SteamController {
     const userId = get(activeUserId);
     const bUserId = BigInt(userId) + 76561197960265728n;
 
-    let games: GameStruct[] = [];
+    let ids: string[] = [];
     
     // * Try loading games from the Steam API
     if (online && !needsSteamAPIKey) {
-      games = await this.getGamesFromSteamAPI(bUserId);
+      ids = await this.getGamesFromSteamAPI(bUserId);
       
-      if (games.length > 0) {
-        LogController.log(`Loaded ${games.length} games from Steam API.`);
+      if (ids.length > 0) {
+        LogController.log(`Loaded ${ids.length} games from Steam API.`);
       }
-    }
-    
-    // * Try loading games using the user's Steam Profile.
-    if (games.length === 0 && online) {
-      try {
-        DialogController.showProgressModal("Fetching games", "Loading games listed on your public steam profile...");
-        games = (await this.getGamesFromSteamCommunity(bUserId)).filter((entry: GameStruct) => !entry.name.toLowerCase().includes("soundtrack"));
-        
-        if (games.length > 0) {
-          LogController.log(`Loaded ${games.length} games from Steam Community page.`);
-        }
-      } catch (e: any) {
-        LogController.error(e.message);
-      }
-
-      DialogController.hideProgressModal();
     }
     
     // * Try loading games from the file system
-    if (games.length === 0) {
+    if (ids.length === 0) {
       DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
-      games = await this.getGamesFromLocalconfig();
+      ids = await this.filterByLocalConfig();
       
-      if (games.length > 0) {
-        LogController.log(`Loaded ${games.length} games from localconfig.vdf.`);
+      if (ids.length > 0) {
+        LogController.log(`Loaded ${ids.length} games from localconfig.vdf.`);
       }
       
       DialogController.hideProgressModal();
     }
+    
+    const games = await SteamController.getGamesFromAppinfo(ids);
 
     return games;
   }
@@ -239,8 +191,7 @@ export class SteamController {
     nonSteamGames.set(structuredShortcuts);
 
     
-    const filteredCache = await SteamController.getCacheData(structuredShortcuts);
-    console.log("filteredCache:", JSON.parse(JSON.stringify(filteredCache)));
+    const filteredCache = await SteamController.getCacheData(steamApps, structuredShortcuts);
     const filteredKeys = Object.keys(filteredCache);
       
 
@@ -263,9 +214,7 @@ export class SteamController {
       get(showErrorSnackbar)({ message: `Removed ${Math.abs(manualGames.length - originalManualGames.length)} duplicate manual games!` });
     }
     
-    if (games.length > 0 || structuredShortcuts.length > 0) {
-      get(showInfoSnackbar)({ message: "Games loaded" });
-    } else {
+    if (games.length === 0 && structuredShortcuts.length === 0) {
       get(showErrorSnackbar)({ message: "Failed to load games" });
     }
   }

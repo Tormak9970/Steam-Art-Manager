@@ -13,6 +13,7 @@
   export let hasCustomName: boolean;
   export let hasCustomArt: boolean;
   export let canDiscard: boolean;
+  export let disabled: boolean;
 
   export let selectGame: () => void;
   export let toggleHidden: (isHidden: boolean) => void;
@@ -20,64 +21,88 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="game" class:selected={$selectedGameAppId === game.appid.toString()} on:click={selectGame}>
-  <div class="button-container">
-    <div
-      class="image-control"
-      on:click|stopPropagation={() => showAllGrids(game.appid)}
-      use:AppController.tippy={{ content: "Grids", placement: "right", onShow: AppController.onTippyShow }}
-    >
-      <AllGrids />
-    </div>
-    <div
-      class="image-control"
-      on:click|stopPropagation={() => toggleHidden(!isHidden)}
-      use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}
-    >
-      {#if isHidden}
-        <Show />
-      {:else}
-        <Hide />
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="container">
+  {#if disabled}
+    <div class="disabled-tooltip" use:AppController.tippy={{ content: "Icons can't be applied to games without them right now", placement: "top", onShow: AppController.onTippyShow }}></div>
+  {/if}
+  <div class="game" class:disabled class:selected={$selectedGameAppId === game.appid.toString()} on:click={selectGame}>
+    <div class="button-container">
+      <div
+        class="image-control"
+        on:click|stopPropagation={() => showAllGrids(game.appid)}
+        use:AppController.tippy={{ content: "Grids", placement: "right", onShow: AppController.onTippyShow }}
+      >
+        <AllGrids />
+      </div>
+      <div
+        class="image-control"
+        on:click|stopPropagation={() => toggleHidden(!isHidden)}
+        use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}
+      >
+        {#if isHidden}
+          <Show />
+        {:else}
+          <Hide />
+        {/if}
+      </div>
+      {#if hasCustomName}
+        <div
+          class="image-control"
+          on:click|stopPropagation={() => { AppController.clearCustomNameForGame(game.appid.toString()); }}
+          use:AppController.tippy={{ content: "Clear Name", placement: "right", onShow: AppController.onTippyShow }}
+        >
+          <Tag height="1em" />
+        </div>
+      {/if}
+      {#if hasCustomArt}
+        <div
+          class="image-control"
+          on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid.toString()); }}
+          use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow }}
+        >
+          <Ban />
+        </div>
+      {/if}
+      {#if canDiscard}
+        <div
+          class="image-control"
+          on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid.toString()); }}
+          use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow }}
+        >
+          <Recycle />
+        </div>
       {/if}
     </div>
-    {#if hasCustomName}
-      <div
-        class="image-control"
-        on:click|stopPropagation={() => { AppController.clearCustomNameForGame(game.appid.toString()); }}
-        use:AppController.tippy={{ content: "Clear Name", placement: "right", onShow: AppController.onTippyShow }}
-      >
-        <Tag height="1em" />
-      </div>
-    {/if}
-    {#if hasCustomArt}
-      <div
-        class="image-control"
-        on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid.toString()); }}
-        use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow }}
-      >
-        <Ban />
-      </div>
-    {/if}
-    {#if canDiscard}
-      <div
-        class="image-control"
-        on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid.toString()); }}
-        use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow }}
-      >
-        <Recycle />
-      </div>
-    {/if}
+    <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="Missing {$gridType}" />
+    <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
   </div>
-  <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="Missing {$gridType}" />
-  <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
 </div>
 
 <style>
+  .container {
+    position: relative;
+  }
+
+  .disabled-tooltip {
+    width: 100%;
+    height: 100%;
+    
+    border-radius: 0.25rem;
+    overflow: hidden;
+
+    position: absolute;
+
+    z-index: 1;
+
+    backdrop-filter: brightness(0.8);
+  }
+
   .game {
     background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     font-size: 14px;
 

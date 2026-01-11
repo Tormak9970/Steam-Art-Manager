@@ -47,12 +47,12 @@
     align-items: center;
 
     background-color: var(--foreground);
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 
   .remove-cont {
     margin-left: 2px;
-    margin-right: 4px;
+    margin-right: 0.25rem;
     width: auto;
     height: 100%;
 
