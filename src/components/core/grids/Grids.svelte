@@ -1,9 +1,9 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Check, Edit, Options, Position, Upload } from "@icons";
+  import { Check, Edit, Options, Position, Steam, Upload } from "@icons";
   import { DropDown, IconButton, Menu } from "@interactables";
   import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
-  import { showLogoPositionModal } from "@stores/Modals";
+  import { showLogoPositionModal, showOriginalGridsModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
   import { debounce } from "@utils";
@@ -29,6 +29,7 @@
   $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
 
   $: menuOptions = [
+      { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
       { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
       { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
       { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }

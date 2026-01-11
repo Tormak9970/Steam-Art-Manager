@@ -3,7 +3,6 @@
   import { CURRENT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
   
-  export let gameTitle: string;
   export let gridType: GridTypes;
   export let src: string;
 </script>
@@ -13,7 +12,7 @@
   <div class="img-cont" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
     <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
       <Lazy height="{CURRENT_GRID_DIMENSIONS.heights[gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
-        <img src="{src}" alt="{gridType} image for {gameTitle}." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px; width: auto; height: auto;" />
+        <img src="{src}" alt="{gridType} image." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px; width: auto; height: auto;" />
       </Lazy>
     </div>
   </div>
