@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.12.1
+
+Bug Fixes
+* corrected styling issue with tools modal ([d7f8661](https://github.com/Tormak9970/Steam-Art-Manager/commit/d7f8661))
+
 ## v3.12.0
 
 New Features
