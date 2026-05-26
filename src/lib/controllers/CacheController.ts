@@ -19,10 +19,9 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids, type DBFilters } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
 import { GridTypes, type GameStruct, type GridResults, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
-import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
@@ -239,17 +238,53 @@ export class CacheController {
    * @param steamGridAppId The sgdb appId of the app to get.
    * @param type The selected grid type.
    * @param page The page of grids to fetch.
+   * @param filters The DB Filters to use.
    * @param useCoreFile Whether or not to use the core log file.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  static async fetchGridsForGame(steamGridAppId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<GridResults> {
+  static async fetchGridsForGame(steamGridAppId: number, type: GridTypes, page: number, filters: DBFilters, useCoreFile: boolean): Promise<GridResults> {
     try {
       logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
 
-      // @ts-expect-error This will always be a function on this.client
-      const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
+      const targetFilters = filters[type];
+      const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
+      const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
+      const mimes = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
+      const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
+      const humor = targetFilters.oneoftag.humor;
+      const epilepsy = targetFilters.oneoftag.epilepsy;
+      const nsfw = targetFilters.oneoftag.nsfw;
+      const untagged = targetFilters.oneoftag.untagged;
 
+      // @ts-expect-error This will always be a function on this.client
+      const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](
+        steamGridAppId,
+        gridStyles,
+        dimensions,
+        mimes,
+        animationTypes,
+        !untagged && nsfw ? "true" : !nsfw ? "false" : "any",
+        !untagged && humor ? "true" : !humor ? "false" : "any",
+        !untagged && epilepsy ? "true" : !epilepsy ? "false" : "any",
+        page
+      );
+      
+      const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for SGDB ${steamGridAppId}"`;
+      if (gridResults.images.length > 0) {
+        if (useCoreFile) {
+          LogController.log(`Query: ${query}. Result: ${gridResults.images.length} grids.`);
+        } else {
+          LogController.batchApplyLog(`Query: ${query}. Result: ${gridResults.images.length} grids.`);
+        }
+      } else {
+        if (useCoreFile) {
+          LogController.log(`Query: ${query}. Result: no grids.`);
+        } else {
+          LogController.batchApplyLog(`Query: ${query}. Result: no grids.`);
+        }
+      }
+      
       return gridResults;
     } catch (e: any) {
       logErrorToFile(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`, useCoreFile);
@@ -330,14 +365,15 @@ export class CacheController {
    * @param useCoreFile Whether or not to use the core log file.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
    * @param page The page of grids to fetch.
+   * @param filters The DB Filters to use.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  static async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, page: number): Promise<GridResults> {
+  static async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, page: number, filters: DBFilters): Promise<GridResults> {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
     const type = get(gridType);
 
-    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, useCoreFile);
+    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, filters, useCoreFile);
   }
 
   /**
@@ -424,8 +460,8 @@ export class CacheController {
         }
 
         const sgdbGameId = await this.chooseSteamGridGameId(appid, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
-        const grids = await this.fetchGrids(appid, false, sgdbGameId, 0);
-        const filtered = filterGrids(grids.images, selectedGridType, filters, gameName, false);
+        const grids = await this.fetchGrids(appid, false, sgdbGameId, 0, filters);
+        const filtered = grids.images;
         
         if (filtered.length > 0) {
           const grid = filtered[0];

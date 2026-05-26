@@ -95,7 +95,7 @@
       {#each gamesToFilter as game, i (`${game.appid}|${i}`)}
         <SelectedGameEntry game={game} platform={selectedPlatform !== "All" ? selectedPlatform : (steamGames.some((steamGame) => steamGame.appid === game.appid) ? Platforms.STEAM : Platforms.NON_STEAM)} isChecked={!!selectedGames[game.appid]} onChange={onEntryChange} />
       {:else}
-          <div>{noGamesMessage}</div>
+        <div>{noGamesMessage}</div>
       {/each}
     </span>
   </Table>
