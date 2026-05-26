@@ -2,7 +2,7 @@
   import { AppController, CacheController } from "@controllers";
   import { Check, Edit, Options, Position, Steam, Upload } from "@icons";
   import { DropDown, IconButton, Menu } from "@interactables";
-  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, loadingSettings, manualSteamGames, needsSGDBAPIKey, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import { showLogoPositionModal, showOriginalGridsModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
@@ -183,9 +183,33 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
-      {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters)}|${$selectedGameName}`}
-        <GridResults hasCustomName={hasCustomName} />
-      {/key}
+      {#if !$loadingSettings}
+        {#if $isOnline}
+          {#if !$needsSGDBAPIKey}
+            {#if $selectedGameAppId !== ""}
+              {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters)}|${$selectedGameName}`}
+                <GridResults hasCustomName={hasCustomName} />
+              {/key}
+            {:else}
+              <div class="message">
+                Select a game to start managing your art!
+              </div>
+            {/if}
+          {:else}
+            <div class="message">
+              Please set your API key to use SteamGridDB.
+            </div>
+          {/if}
+        {:else}
+          <div class="message">
+            You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
+          </div>
+        {/if}
+      {:else}
+        <div class="message">
+          Initializing...
+        </div>
+      {/if}
     </div>
   </div>
 </Pane>
@@ -215,5 +239,12 @@
   .buttons-cont {
     display: flex;
     gap: 0.5rem;
+  }
+
+  .message {
+    width: 100%;
+    text-align: center;
+    opacity: 0.5;
+    padding-top: 40px;
   }
 </style>
