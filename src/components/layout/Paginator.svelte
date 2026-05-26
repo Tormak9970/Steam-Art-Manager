@@ -6,6 +6,7 @@
   export let currentPage:number
   export let resultsPerPage: number
   export let totalResults: number
+  export let disabled: boolean = false
 
   $: resultsStart = currentPage * resultsPerPage
   $: resultsEnd = Math.min(resultsStart + resultsPerPage, totalResults)
@@ -20,7 +21,7 @@
   $: currentPageRange = makeWindow(currentPage, 0, finalPage)
 </script>
 
-<div class="container">
+<div class="container" class:disabled={disabled}>
   <div class="button-container">
     <div class="viewing-message">Showing {resultsStart + 1} to {resultsEnd + 1} of {totalResults + 1}</div>
     <IconButton label="First Page" on:click={() => currentPage = 0} padding={"0.25rem"}>
@@ -91,5 +92,9 @@
 
     position: absolute;
     top: calc(100% + 0.5rem);
+  }
+
+  .disabled {
+    visibility: hidden;
   }
 </style>

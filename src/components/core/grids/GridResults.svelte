@@ -20,6 +20,8 @@
 
   $: selectedGameGrids = $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [];
 
+  console.log(selectedGameGrids)
+
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
@@ -83,7 +85,7 @@
       {/if}
     </div>
   </div>
-  <Paginator bind:currentPage={$currentPage} totalResults={totalGrids} resultsPerPage={CacheController.SGDB_GRID_RESULT_LIMIT} />
+  <Paginator bind:currentPage={$currentPage} totalResults={totalGrids} resultsPerPage={CacheController.SGDB_GRID_RESULT_LIMIT} disabled={$showCachedGrids} />
 </div>
 
 <style>
