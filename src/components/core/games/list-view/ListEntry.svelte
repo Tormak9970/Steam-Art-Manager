@@ -101,6 +101,8 @@
     padding: 6px 10px;
     border-radius: 0.25rem;
 
+    height: 47px;
+
     font-size: 14px;
 
     display: flex;
