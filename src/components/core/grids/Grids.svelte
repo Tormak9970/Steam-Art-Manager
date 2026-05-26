@@ -29,11 +29,11 @@
   $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
 
   $: menuOptions = [
-      { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
-      { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
-      { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
-      { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
-    ]
+    { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
+    { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
+    { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
+    { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
+  ]
 
   /**
    * Handles when the user changes the custom game name
