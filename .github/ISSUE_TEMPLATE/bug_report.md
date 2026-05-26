@@ -26,10 +26,10 @@ If applicable, add screenshots to help explain your problem.
 **Logs:**
 Please upload/paste the contents of your log file (you should remove any sensitive information like keys).
 **PRE v2.2.0**:
-For Windows, check: `C:\Users\USER\AppData\Roaming\dev.tormak.steam-art-manager\logs\steam-art-manager.log`
+For Windows, check: `C:\Users\USER\AppData\Local\dev.tormak.steam-art-manager\logs\steam-art-manager.log`
 For Linux, check: `/home/USER/.config/dev.tormak.steam-art-manager/logs/steam-art-manager.log`
 **NEWER VERSIONS**:
-For Windows, check: `C:\Users\USER\AppData\Roaming\dev.tormak.steam-art-manager\logs\core.log`
+For Windows, check: `C:\Users\USER\AppData\Local\dev.tormak.steam-art-manager\logs\core.log`
 For Linux, check: `/home/USER/.config/dev.tormak.steam-art-manager/logs/core.log`
 
 
