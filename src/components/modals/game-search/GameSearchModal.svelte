@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppController, LogController } from "@controllers";
+  import { CacheController, LogController } from "@controllers";
   import { isOverflowing, scrollShadow } from "@directives";
   import { Refresh } from "@icons";
   import { Button, IconButton, SearchBar } from "@interactables";
@@ -57,7 +57,7 @@
   async function makeRequest(query: string): Promise<void> {
     loading = true;
     requestTimedOut = false;
-    const res = await AppController.searchSGDBForGame(query);
+    const res = await CacheController.searchForGame(query);
 
     if (res) {
       results = res as SGDBGame[];

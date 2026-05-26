@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { AppController, CacheController } from "@controllers";
   import { Check, Edit, Options, Position, Steam, Upload } from "@icons";
   import { DropDown, IconButton, Menu } from "@interactables";
   import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
@@ -133,7 +133,7 @@
       resetGridStores();
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
-      if (key === "" || !AppController.sgdbClientInitialized()) resetGridStores();
+      if (key === "" || !CacheController?.client) resetGridStores();
     });
   });
 
@@ -183,7 +183,7 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
-      {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters[$gridType])}|${$selectedGameName}`}
+      {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters)}|${$selectedGameName}`}
         <GridResults hasCustomName={hasCustomName} />
       {/key}
     </div>

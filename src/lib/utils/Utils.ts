@@ -100,6 +100,7 @@ export function onlyOnKey(key: string, listener: (e?: KeyboardEvent) => void): (
  * @returns The list of filtered grids.
  */
 export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBFilters, gameName: string, useCoreFile = true): SGDBImage[] {
+  console.log('allGrids:', allGrids)
   const targetFilters = filters[type];
   const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
   const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
@@ -108,16 +109,22 @@ export function filterGrids(allGrids: SGDBImage[], type: GridTypes, filters: DBF
   const humorAllowed = targetFilters.oneoftag.humor;
   const epilepsyAllowed = targetFilters.oneoftag.epilepsy;
   const nsfwAllowed = targetFilters.oneoftag.nsfw;
+  const untaggedAllowed = targetFilters.oneoftag.untagged;
+
+  console.log('dimensions:', dimensions)
 
   const resGrids = allGrids.filter((grid: SGDBImage) => {
     return gridStyles.includes(grid.style)
-      && (dimensions.includes(`${grid.width}x${grid.height}`) || type === GridTypes.LOGO || type === GridTypes.ICON)
-      && imageFormats.includes(grid.mime)
-      && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
+      // && (dimensions.includes(`${grid.width}x${grid.height}`) || type === GridTypes.LOGO || type === GridTypes.ICON)
+      // && imageFormats.includes(grid.mime)
+      // && (grid.isAnimated ? animationTypes.includes("animated") : animationTypes.includes("static"))
       && (grid.humor ? humorAllowed : true)
       && (grid.epilepsy ? epilepsyAllowed : true)
-      && (grid.nsfw ? nsfwAllowed : true);
+      && (grid.nsfw ? nsfwAllowed : true)
+      && (!grid.nsfw && !grid.humor && !grid.epilepsy ? untaggedAllowed : true);
   });
+
+  console.log('Res Grids:', resGrids)
 
   const query = `"${type === GridTypes.HERO ? "Heroe" : type}s for ${gameName}"`;
   if (resGrids.length > 0) {

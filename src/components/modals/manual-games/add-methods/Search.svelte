@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { CacheController } from "@controllers";
   import { Button, SearchBar } from "@interactables";
   import { Table } from "@layout";
   import { needsSGDBAPIKey, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
@@ -28,7 +28,7 @@
     if (query === "") {
       results = [];
     } else {
-      const searchRes = await AppController.searchSGDBForGame(query);
+      const searchRes = await CacheController.searchForGame(query);
       const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
       results = steamGames;
     }
@@ -38,7 +38,7 @@
    * Wrapper function for saving the users selection.
    */
   async function saveWrapper(): Promise<void> {
-    const appid = await AppController.getAppidForSGDBGame(selectedGame!);
+    const appid = await CacheController.getAppidForSGDBGame(selectedGame!);
     
     if (appid) {
       onGameSave({ appid: parseInt(appid), name: selectedGame!.name });

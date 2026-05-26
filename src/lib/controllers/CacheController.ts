@@ -19,9 +19,9 @@ import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 
 import { RequestError, SGDB } from "@models";
-import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, hasMorePagesCache, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
+import { appLibraryCache, canSave, dbFilters, dowloadingGridId, gridType, manualSteamGames, nonSteamGames, Platforms, requestTimeoutLength, showErrorSnackbar, showInfoSnackbar, steamGames, steamGridDBKey, steamGridSearchCache, steamShortcuts, userSelectedGrids } from "@stores/AppState";
 import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
-import { GridTypes, type GameStruct, type GridResults, type GridTypesOptionalMap, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
+import { GridTypes, type GameStruct, type GridResults, type SGDBGame, type SGDBImage, type SteamShortcut } from "@types";
 import { filterGrids } from "@utils";
 import { get, type Unsubscriber } from "svelte/store";
 import { LogController } from "./utils/LogController";
@@ -71,37 +71,23 @@ function logErrorToFile(message: string, useCoreFile: boolean): void {
  * Controller class for handling caching of requests.
  */
 export class CacheController {
-  private readonly SGDB_GRID_RESULT_LIMIT = 50;
-  // @ts-expect-error This will always be defined eventually.
-  private appCacheDirPath: string;
-  // @ts-expect-error This will always be defined eventually.
-  private gridCacheDirPath: string;
-  // @ts-expect-error This will always be defined eventually.
-  private selectedGridCacheDirPath: string;
+  static readonly SGDB_GRID_RESULT_LIMIT = 50;
+  private static appCacheDirPath: string;
+  private static gridCacheDirPath: string;
+  private static selectedGridCacheDirPath: string;
 
-  private steamGridSteamAppIdMap: Record<string, number> = {};
+  private static steamGridSteamAppIdMap: Record<string, number> = {};
 
-  private gridsCache: { [steamGridId: number]: GridTypesOptionalMap<SGDBImage[]> } = {};
-  private currentGridCountCache: { [steamGridId: number]: GridTypesOptionalMap<number> } = {};
-  private totalGridCountCache: { [steamGridId: number]: GridTypesOptionalMap<number> } = {};
-
-  apiKeyUnsub: Unsubscriber | undefined;
-  client?: SGDB;
-  key?: string;
-
-  /**
-   * Creates a new CacheController.
-   */
-  constructor() {
-    this.init();
-  }
+  static apiKeyUnsub: Unsubscriber | undefined;
+  static client?: SGDB;
+  static key?: string;
 
   /**
    * Creates a directory if it does not exist.
    * @param path The path to check.
    * @param dirName The name to output in the logging statements.
    */
-  private async createDirIfNotExists(path: string, dirName: string): Promise<void> {
+  private static async createDirIfNotExists(path: string, dirName: string): Promise<void> {
     try {
       if (!(await fs.exists(path))) {
         await fs.mkdir(path, { recursive: true });
@@ -119,7 +105,7 @@ export class CacheController {
    * Initializes the CacheController.
    * ? Logging complete.
    */
-  private async init(): Promise<void> {
+  static async init(): Promise<void> {
     // LogController.log("Initializing CacheController...");
     
     this.appCacheDirPath = await path.appCacheDir();
@@ -166,7 +152,7 @@ export class CacheController {
    * @param useCoreFile Whether or not to log to the core log file.
    * ? Logging complete.
    */
-  async getGridImage(gridId: string, imageURL: string, useCoreFile = true): Promise<string> {
+  static async getGridImage(gridId: string, imageURL: string, useCoreFile = true): Promise<string> {
     const type = get(gridType)
     const requestTimeout = get(requestTimeoutLength);
     // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
@@ -201,7 +187,7 @@ export class CacheController {
     return localImagePath;
   }
 
-  async cacheSelectedGrid(appId: string, image: SGDBImage, localPath: string): Promise<void> {
+  static async cacheSelectedGrid(appId: string, image: SGDBImage, localPath: string): Promise<void> {
     const type = get(gridType)
     const selectedGrids = get(userSelectedGrids);
     const imageURL = image.url.toString();
@@ -217,7 +203,7 @@ export class CacheController {
     userSelectedGrids.set({ ...selectedGrids });
   }
 
-  async cacheOriginalAsset(appid: string, imageURL: string, type: string): Promise<string> {
+  static async cacheOriginalAsset(appid: string, imageURL: string, type: string): Promise<string> {
     const requestTimeout = get(requestTimeoutLength);
     // logToFile(`Fetching image ${imageURL}...`, useCoreFile);
     const fileName = appid + "-original-" + imageURL.substring(imageURL.lastIndexOf("/") + 1);
@@ -252,56 +238,27 @@ export class CacheController {
    * Gets the grids for a non steam game.
    * @param steamGridAppId The sgdb appId of the app to get.
    * @param type The selected grid type.
-   * @param useFirstPage Whether to only get just the first page's results.
+   * @param page The page of grids to fetch.
    * @param useCoreFile Whether or not to use the core log file.
    * @returns A promise resolving to a list of grids.
    * ? Logging complete.
    */
-  private async fetchGridsForGame(steamGridAppId: number, type: GridTypes, useFirstPage: boolean, useCoreFile: boolean): Promise<SGDBImage[]> {
-    if (!this.gridsCache[steamGridAppId]) this.gridsCache[steamGridAppId] = {};
-    const gridsCacheEntry = this.gridsCache[steamGridAppId];
-
-    if (!this.currentGridCountCache[steamGridAppId]) this.currentGridCountCache[steamGridAppId] = {};
-    const currentCountEntry = this.currentGridCountCache[steamGridAppId];
-    
-    if (!this.totalGridCountCache[steamGridAppId]) this.totalGridCountCache[steamGridAppId] = {};
-    const totalCountEntry = this.totalGridCountCache[steamGridAppId];
-    
-    const morePagesCache = get(hasMorePagesCache);
-    if (!morePagesCache[steamGridAppId.toString()]) morePagesCache[steamGridAppId.toString()] = {};
-    const morePagesEntry = morePagesCache[steamGridAppId];
-
-    if (!Object.keys(morePagesEntry).includes(type)) morePagesEntry[type] = true;
-
-    if ((!morePagesEntry[type] || useFirstPage) && gridsCacheEntry[type]) return gridsCacheEntry[type];
-
-    let page = 0;
-
-    // * checking undefined here because 0 is falsy.
-    if (!useFirstPage && currentCountEntry[type] !== undefined && totalCountEntry[type] !== undefined) {
-      page = Math.max(Math.floor(currentCountEntry[type] / this.SGDB_GRID_RESULT_LIMIT), 0);
-    }
-
+  static async fetchGridsForGame(steamGridAppId: number, type: GridTypes, page: number, useCoreFile: boolean): Promise<GridResults> {
     try {
-      if (!gridsCacheEntry[type]) gridsCacheEntry[type] = [];
-      
       logToFile(`Need to fetch page ${page} of ${type} for ${steamGridAppId}.`, useCoreFile);
 
       // @ts-expect-error This will always be a function on this.client
       const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](steamGridAppId, undefined, undefined, undefined, [ "static", "animated" ], "any", "any", "any", page);
-      
-      gridsCacheEntry[type] = gridsCacheEntry[type].concat(gridResults.images);
-      currentCountEntry[type] = gridsCacheEntry[type].length;
-      totalCountEntry[type] = gridResults.total;
-      morePagesEntry[type] = currentCountEntry[type] !== totalCountEntry[type];
 
-      hasMorePagesCache.set(morePagesCache);
-
-      return gridsCacheEntry[type];
+      return gridResults;
     } catch (e: any) {
       logErrorToFile(`Error fetching grids for game: ${steamGridAppId}. Error: ${e.message}.`, useCoreFile);
       get(showErrorSnackbar)({ message: "Error fetching grids for game." });
-      return [];
+      return {
+        images: [],
+        page: 0,
+        total: 0,
+      };
     }
   }
 
@@ -315,7 +272,7 @@ export class CacheController {
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async chooseSteamGridGameId(appId: string, gameName: string, selectedPlatform: Platforms, useCoreFile: boolean, isCustomName?: boolean): Promise<string> {
+  static async chooseSteamGridGameId(appId: string, gameName: string, selectedPlatform: Platforms, useCoreFile: boolean, isCustomName?: boolean): Promise<string> {
     logToFile(`Finding SGDB game for ${appId}...`, useCoreFile);
 
     const type = get(gridType);
@@ -372,15 +329,15 @@ export class CacheController {
    * @param appId The id of the app to fetch.
    * @param useCoreFile Whether or not to use the core log file.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
-   * @param useFirstPage Whether to only get just the first page's results.
+   * @param page The page of grids to fetch.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, useFirstPage: boolean): Promise<SGDBImage[]> {
+  static async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, page: number): Promise<GridResults> {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
     const type = get(gridType);
 
-    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, useFirstPage, useCoreFile);
+    return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, useCoreFile);
   }
 
   /**
@@ -388,7 +345,7 @@ export class CacheController {
    * @param query The search query to use.
    * @returns A promise resolving to the results array, or null if the request timed out.
    */
-  async searchForGame(query: string): Promise<SGDBGame[]> {
+  static async searchForGame(query: string): Promise<SGDBGame[]> {
     try {
       return await this.client!.searchGame(query);
     } catch (e: any) {
@@ -403,7 +360,7 @@ export class CacheController {
    * @param game The game to use.
    * @returns A promise resolving to the appid, or null if not found.
    */
-  async getAppidForSGDBGame(game: SGDBGame): Promise<string | null> {
+  static async getAppidForSGDBGame(game: SGDBGame): Promise<string | null> {
     try {
       const res = await this.client!.getGameById(game.id, { platformdata: [ "steam" ] });
       
@@ -426,7 +383,8 @@ export class CacheController {
    * @param appIds The list of ids.
    * ? Logging Complete.
    */
-  async batchApplyGrids(appIds: string[]): Promise<void> {
+  static async batchApplyGrids(appIds: string[]): Promise<void> {
+    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
     LogController.batchApplyLog("\n");
     
     const steamGameList = get(steamGames);
@@ -466,8 +424,8 @@ export class CacheController {
         }
 
         const sgdbGameId = await this.chooseSteamGridGameId(appid, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
-        const grids = await this.fetchGrids(appid, false, sgdbGameId, true);
-        const filtered = filterGrids(grids, selectedGridType, filters, gameName, false);
+        const grids = await this.fetchGrids(appid, false, sgdbGameId, 0);
+        const filtered = filterGrids(grids.images, selectedGridType, filters, gameName, false);
         
         if (filtered.length > 0) {
           const grid = filtered[0];
@@ -530,7 +488,7 @@ export class CacheController {
    * Empties the grids cache.
    * ? Logging complete.
    */
-  private async invalidateCache(): Promise<void> {
+  private static async invalidateCache(): Promise<void> {
     // LogController.log("Clearing cache...");
     await fs.remove(this.gridCacheDirPath, { recursive: true });
     LogController.log("Cleared cache.");
@@ -540,7 +498,7 @@ export class CacheController {
    * Empties the selected grids cache.
    * ? Logging complete.
    */
-  async invalidateSelectedCache(): Promise<void> {
+  static async invalidateSelectedCache(): Promise<void> {
     await fs.remove(this.selectedGridCacheDirPath, { recursive: true });
     userSelectedGrids.set({});
     LogController.log("Cleared selected grids cache.");
@@ -550,7 +508,7 @@ export class CacheController {
    * Function to run when the app closes.
    * ? Logging complete.
    */
-  async destroy() {
+  static async destroy() {
     // LogController.log("Destroying CacheController...");
     if (this.apiKeyUnsub) this.apiKeyUnsub();
     await this.invalidateCache();

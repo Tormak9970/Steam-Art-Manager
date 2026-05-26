@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { CacheController } from "@controllers";
   import { Button } from "@interactables";
   import { gridType, manualSteamGames, nonSteamGames, showInfoSnackbar, steamGames } from "@stores/AppState";
   import { showBatchApplyModal, showBatchApplyProgress } from "@stores/Modals";
@@ -23,7 +23,7 @@
    * Batch applies grids to all games.
    */
   function batchApply(): void {
-    AppController.batchApplyGrids(selectedGameIds);
+    CacheController.batchApplyGrids(selectedGameIds);
     $showBatchApplyProgress = true;
     onClose();
   }

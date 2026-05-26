@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { CacheController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, InfiniteScroll } from "@layout";
-  import { dbFilters, gridType, hasMorePagesCache, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGridDBKey, userSelectedGrids } from "@stores/AppState";
+  import { currentPlatform, dbFilters, gridType, isOnline, loadingSettings, needsSGDBAPIKey, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGridDBKey, userSelectedGrids } from "@stores/AppState";
   import { GridTypes, type SGDBImage } from "@types";
   import { debounce, filterGrids, SMALL_GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
@@ -15,19 +15,23 @@
   let gridsContainer: HTMLDivElement;
 
   let isLoading = true;
+  let totalGrids: number = 0;
+  let currentPage: number = 0;
   let grids: SGDBImage[] = [];
 
   $: selectedGameGrids = $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [];
 
-  $: hasMore = ($hasMorePagesCache && $hasMorePagesCache[$selectedSteamGridGameId]) ? $hasMorePagesCache[$selectedSteamGridGameId][$gridType] : true;
+  $: hasMore = totalGrids <= currentPage * CacheController.SGDB_GRID_RESULT_LIMIT;
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
   async function handleLoadOnScroll() {
     if ($isOnline && $steamGridDBKey !== "" && $selectedGameAppId !== "") {
-      const unfilteredGrids = await AppController.getSteamGridArt($selectedGameAppId, $selectedSteamGridGameId, false);
-      grids = filterGrids(unfilteredGrids, $gridType, $dbFilters, $selectedGameName);
+      const unfilteredGrids = await CacheController.fetchGrids($selectedGameAppId, true, $selectedSteamGridGameId, currentPage);
+      totalGrids = unfilteredGrids.total;
+
+      grids = filterGrids(unfilteredGrids.images, $gridType, $dbFilters, $selectedGameName);
     }
   }
 
@@ -41,7 +45,7 @@
   onMount(() => {
     if ($selectedGameAppId !== "") {
       if ($selectedSteamGridGameId === "None") {
-        AppController.chooseSteamGridGameId($selectedGameAppId, hasCustomName).then((sgdbGameId) => {
+        CacheController.chooseSteamGridGameId($selectedGameAppId, $selectedGameName, $currentPlatform, true, hasCustomName).then((sgdbGameId) => {
           $selectedSteamGridGameId = sgdbGameId;
         });
       } else {
