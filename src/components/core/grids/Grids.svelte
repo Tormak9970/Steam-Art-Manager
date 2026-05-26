@@ -157,11 +157,11 @@
       <div class="inputs">
         <div class="controls">
           {#if !windowWidth || windowWidth >= 1265}
-            <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} />
+            <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {:else}
-            <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
+            <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {/if}
-          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""}>
+          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === "" || $needsSGDBAPIKey}>
             <Edit style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
         </div>
