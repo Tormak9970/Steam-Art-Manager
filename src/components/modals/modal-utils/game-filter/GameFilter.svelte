@@ -48,7 +48,7 @@
   function onStateChange(platform: string, gameFilter: string, showHidden: boolean): void {
     gamesToFilter = (platform === "All" ? allGames : (platform === Platforms.STEAM ? steamGames : nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
     const selectedGameEntries = gamesToFilter.map((game) => {
-      return [ game.appid, gameFilter === "All" ? true : (!$appLibraryCache[game.appid][$gridType]) ];
+      return [ game.appid, gameFilter === "All" ? true : (!$appLibraryCache[game.appid]?.[$gridType]) ];
     });
 
     selectedGames = Object.fromEntries(selectedGameEntries);
