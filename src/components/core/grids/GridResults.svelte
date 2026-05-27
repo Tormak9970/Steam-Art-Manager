@@ -106,8 +106,8 @@
     display: grid;
     
     grid-template-columns: repeat(auto-fit, var(--img-width));
-    row-gap: 15px;
-    column-gap: 15px;
+    row-gap: 1rem;
+    column-gap: 1rem;
     grid-auto-flow: row;
     grid-auto-rows: var(--img-height);
 
@@ -125,6 +125,6 @@
     width: 100%;
     text-align: center;
     opacity: 0.5;
-    padding-top: 40px;
+    padding-top: 3.25rem;
   }
 </style>

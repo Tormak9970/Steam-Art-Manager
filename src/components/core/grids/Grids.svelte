@@ -157,9 +157,9 @@
       <div class="inputs">
         <div class="controls">
           {#if !windowWidth || windowWidth >= 1265}
-            <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
+            <DropDown label="Browsing" options={availableSteamGridGames} width={"8.125rem"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {:else}
-            <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
+            <DropDown options={availableSteamGridGames} width={"12.5rem"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {/if}
           <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === "" || $needsSGDBAPIKey}>
             <Edit style="height: 0.875rem; width: 0.875rem;" />
@@ -167,9 +167,9 @@
         </div>
 
         {#if !windowWidth || windowWidth >= 1265}
-          <DropDown label="Type" options={steamGridTypes} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown label="Type" options={steamGridTypes} width={"8.125rem"} showTooltip={false} bind:value={$gridType} />
         {:else}
-          <DropDown options={steamGridTypes} width={"130px"} showTooltip={false} bind:value={$gridType} />
+          <DropDown options={steamGridTypes} width={"8.125rem"} showTooltip={false} bind:value={$gridType} />
         {/if}
 
         <div class="buttons-cont">
@@ -182,7 +182,7 @@
       <Divider />
     </div>
 
-    <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
+    <div class="content" style="height: calc(100% - 5.25rem); position: relative; z-index: 1;">
       {#if !$loadingSettings}
         {#if $isOnline}
           {#if !$needsSGDBAPIKey}
@@ -223,7 +223,7 @@
   }
 
   .content {
-    padding: 0px 0.375rem;
+    padding: 0rem 0.375rem;
   }
 
   .inputs {
@@ -245,6 +245,6 @@
     width: 100%;
     text-align: center;
     opacity: 0.5;
-    padding-top: 40px;
+    padding-top: 3.5rem;
   }
 </style>

@@ -76,8 +76,8 @@
 
     border-radius: 0.25rem;
     
-    margin-bottom: 7px;
-    margin-right: 7px;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
 
     position: relative;
   }
@@ -97,12 +97,12 @@
   }
 
   .list-entry {
-    padding: 4px 8px;
+    padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
 
-    height: 47px;
+    height: 3rem;
 
-    font-size: 14px;
+    font-size: 1rem;
 
     display: flex;
     flex-direction: row;
@@ -117,7 +117,7 @@
 
     transition: background-color 0.2s ease-in-out;
 
-    width: calc(100% - 20px);
+    width: calc(100% - 1.25rem);
 
     z-index: 0;
     
@@ -148,18 +148,18 @@
   }
 
   .icon-container {
-    margin-right: 7px;
+    margin-right: 0.5rem;
     border-radius: 0.25rem;
 
-    height: 32px;
-    width: 32px;
+    height: 2rem;
+    width: 2rem;
 
     overflow: hidden;
   }
 
   .name {
-    height: 23px;
-    line-height: 23px;
+    height: 1.5rem;
+    line-height: 1.5rem;
 
     text-overflow: ellipsis;
     overflow: hidden;
@@ -170,7 +170,7 @@
 
   .status {
     height: 20.5rem;
-    min-width: 5px;
+    min-width: 0.25rem;
 
     display: flex;
     align-items: center;
@@ -179,10 +179,10 @@
   .image-control {
     border-radius: 50%;
 
-    width: 14px;
-    height: 14px;
+    width: 1rem;
+    height: 1rem;
 
-    padding: 5px;
+    padding: 0.25rem;
 
     fill: var(--font-color);
 
@@ -194,7 +194,10 @@
 
     z-index: 2;
     
-    margin-right: 7px;
+    margin-right: 0.5rem;
+
+    align-items: center;
+    justify-content: center;
   }
   .image-control:hover {
     cursor: pointer;
