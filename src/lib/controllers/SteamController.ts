@@ -138,13 +138,13 @@ export class SteamController {
     let ids: string[] = [];
     
     // * Try loading games from the Steam API
-    // if (online && !needsSteamAPIKey) {
-    //   ids = await this.getGamesFromSteamAPI(bUserId);
+    if (online && !needsSteamAPIKey) {
+      ids = await this.getGamesFromSteamAPI(bUserId);
       
-    //   if (ids.length > 0) {
-    //     LogController.log(`Loaded ${ids.length} games from Steam API.`);
-    //   }
-    // }
+      if (ids.length > 0) {
+        LogController.log(`Loaded ${ids.length} games from Steam API.`);
+      }
+    }
     
     // * Try loading games from the file system
     if (ids.length === 0) {
