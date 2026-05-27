@@ -120,7 +120,7 @@
 
   .label {
     margin-top: 0px;
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .inputs {

@@ -7,6 +7,7 @@ use std::fs::{self, create_dir_all};
 use std::path::{ PathBuf, Path };
 
 use serde_json::{Value, Map};
+use keyvalues_parser::{Vdf, parse};
 
 #[cfg(target_os = "windows")]
 use winreg::{ enums::*, RegKey };
@@ -142,6 +143,22 @@ pub fn get_localconfig_path(app_handle: AppHandle, steam_path: String, steam_act
 }
 
 #[tauri::command]
+/// Gets the steam libraryfolders.vdf path.
+pub fn get_libraryfolders_path(app_handle: AppHandle, steam_path: String) -> String {
+  logger::log_to_core_file(app_handle.to_owned(), "Getting steam libraryfolders.vdf...", 0);
+  
+  let steam_root: PathBuf = PathBuf::from(steam_path);
+  let joined_path: PathBuf = steam_root.join("steamapps/libraryfolders.vdf");
+
+  if joined_path.as_path().exists() {
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  } else {
+    // * It will won't get read because it doesn't exist.
+    return joined_path.to_str().expect("Should have been able to convert to a string.").to_owned().replace("\\", "/");
+  }
+}
+
+#[tauri::command]
 /// Gets the steam sourcemod path.
 pub fn get_sourcemod_path(app_handle: AppHandle, steam_path: String) -> String {
   logger::log_to_core_file(app_handle.to_owned(), "Getting steam sourcemod path...", 0);
@@ -249,7 +266,7 @@ pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
 /// Reads the user's appinfo.vdf file.
 pub async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
   let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(app_handle.to_owned(), steam_path));
-  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path, None);
+  let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path, Some(false));
   return serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 }
 
@@ -304,6 +321,47 @@ pub async fn read_localconfig_vdf(app_handle: AppHandle, steam_path: String, ste
     return serde_json::to_string(&appids).expect("Should have been able to serialize localconfig vdf to string.");
   } else {
     logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
+    return "{}".to_owned();
+  }
+}
+
+#[tauri::command]
+/// Reads the user's localconfig.vdf file.
+pub async fn get_installed_appids(app_handle: AppHandle, steam_path: String) -> String {
+  let libraryfolders_path = PathBuf::from(get_libraryfolders_path(app_handle.to_owned(), steam_path));
+    
+  if libraryfolders_path.as_path().exists() {
+    logger::log_to_core_file(app_handle.to_owned(), "libraryfolders.vdf exists, reading...", 0);
+    let libraryfolders_contents: String = fs::read_to_string(libraryfolders_path).expect("libraryfolders.vdf should have existed.").parse().expect("File should have been a text file.");
+    
+    let mut appids: Vec<String> = Vec::new();
+    
+    let vdf = parse(&libraryfolders_contents).map(Vdf::from).expect("libraryfolders.vdf should have been parsable.");
+
+    let root = vdf.value
+      .get_obj()
+      .expect("should have been able to get library folders obj.");
+
+    for (_, library_value) in root.clone().0 {
+      let library = match library_value[0].get_obj() {
+        Some(v) => v,
+        None => continue,
+      };
+
+      if let Some(apps) = library
+        .get("apps")
+      {
+        let apps_list = apps[0].get_obj().expect("Should have been able to convert library apps to obj.");
+
+        for (app_id, _) in apps_list.clone().0 {
+          appids.push(app_id.into_owned());
+        }
+      }
+    }
+
+    return serde_json::to_string(&appids).expect("Should have been able to serialize libraryfolders vdf to string.");
+  } else {
+    logger::log_to_core_file(app_handle.to_owned(), "libraryfolders.vdf does not exist.", 0);
     return "{}".to_owned();
   }
 }

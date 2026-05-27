@@ -17,3 +17,5 @@ export { default as VirtualList } from "./VirtualList.svelte";
 
 export { default as CurrentGridImage } from "./CurrentGridImage.svelte";
 
+export { default as Paginator } from "./Paginator.svelte";
+

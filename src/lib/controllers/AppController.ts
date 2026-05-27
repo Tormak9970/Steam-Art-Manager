@@ -34,7 +34,6 @@ import { SettingsController } from "./utils/SettingsController";
  * The main controller for the application.
  */
 export class AppController {
-  private static cacheController: CacheController;
   private static tippyInstance: Instance<Props>;
 
   static tippy = createTippy({
@@ -58,7 +57,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async setup(): Promise<void> {
-    AppController.cacheController = new CacheController();
+    CacheController.init();
 
     await SettingsController.init();
 
@@ -181,7 +180,7 @@ export class AppController {
     const choice = await DialogController.ask("This Action can't be Undone!", "WARNING", "Clearing your cache will permanently delete these images. Are you sure?", "Yes", "No");
 
     if (choice) {
-      await this.cacheController.invalidateSelectedCache();
+      await CacheController.invalidateSelectedCache();
       get(showInfoSnackbar)({ message: "Selected cache cleared" });
     }
   }
@@ -355,11 +354,11 @@ export class AppController {
     const selectedGridType = get(gridType);
     const gameImages = get(appLibraryCache);
 
-    const localPath = await AppController.cacheController.getGridImage(id, imgUrl);
+    const localPath = await CacheController.getGridImage(id, imgUrl);
     
     if (localPath) {
       if (get(cacheSelectedGrids)) {
-        await AppController.cacheController.cacheSelectedGrid(get(selectedGameAppId), image, localPath);
+        await CacheController.cacheSelectedGrid(get(selectedGameAppId), image, localPath);
       }
 
       if (!gameImages[selectedGameId]) {
@@ -383,16 +382,6 @@ export class AppController {
     } else {
       LogController.log(`Failed to set ${selectedGridType} for ${gameName} (${selectedGameId}) to ${localPath}.`);
     }
-  }
-
-  /**
-   * Batch applies grids to the provided games.
-   * @param appIds The list of game ids.
-   * ? Logging Complete.
-   */
-  static async batchApplyGrids(appIds: string[]): Promise<void> {
-    LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
-    await AppController.cacheController.batchApplyGrids(appIds);
   }
 
   /**
@@ -500,47 +489,6 @@ export class AppController {
   }
 
   /**
-   * Chooses the steam grid game id for the provided game.
-   * @param appId The id of the app to get.
-   * @param isCustomName Whether the app name is custom or not.
-   * @returns A promise resolving to the id.
-   * ? Logging complete.
-   */
-  static async chooseSteamGridGameId(appId: string, isCustomName: boolean): Promise<string> {
-    return await AppController.cacheController.chooseSteamGridGameId(appId, get(selectedGameName), get(currentPlatform), true, isCustomName);
-  }
-
-  /**
-   * Gets a list of grids for the provided game.
-   * @param appId The id of the app to get.
-   * @param selectedSteamGridId Optional id of the current steamGridGame.
-   * @param useFirstPage Whether to only get just the first page's results.
-   * @returns A promise resolving to a list of the results.
-   * ? Logging complete.
-   */
-  static async getSteamGridArt(appId: string, selectedSteamGridId: string, useFirstPage: boolean): Promise<SGDBImage[]> {
-    return await AppController.cacheController.fetchGrids(appId, true, selectedSteamGridId, useFirstPage);
-  }
-
-  /**
-   * Searches SGDB for the provided query.
-   * @param query The search query to use.
-   * @returns A promise resolving to the results array, or null if it timed out.
-   */
-  static async searchSGDBForGame(query: string): Promise<SGDBGame[]> {
-    return await AppController.cacheController.searchForGame(query);
-  }
-
-  /**
-   * Gets the steam appid for the provided SGDB game.
-   * @param game The game to use.
-   * @returns A promise resolving to the appid, or null if not found.
-   */
-  static async getAppidForSGDBGame(game: SGDBGame): Promise<string | null> {
-    return await AppController.cacheController.getAppidForSGDBGame(game);
-  }
-
-  /**
    * Shows the game search modal and returns the result.
    * @param defaultName The currently selected game name.
    * @returns A promise resolving to a tuple of [gameName, gameId] or null, based on the user's selection.
@@ -602,7 +550,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async destroy(): Promise<void> {
-    await AppController.cacheController.destroy();
+    await CacheController.destroy();
     SettingsController.destroy();
     LogController.log("App destroyed.");
   }
@@ -704,24 +652,5 @@ export class AppController {
   static async reloadSteamGames(): Promise<void> {
     await SteamController.getUserApps();
     loadingGames.set(false);
-  }
-
-  /**
-   * Checks if the sgdb api client is initialized.
-   * @returns True if the sgdb api client is initialized.
-   */
-  static sgdbClientInitialized(): boolean {
-    return !!AppController.cacheController?.client;
-  }
-
-  /**
-   * Caches a game's original steam asset so it can be applied to the game.
-   * @param appid The appid of the original asset to cache.
-   * @param imageURL The image url.
-   * @param type The image type.
-   * @returns The local file path.
-   */
-  static async cacheOriginalAsset(appid: string, imageURL: string, type: string) {
-    return await AppController.cacheController.cacheOriginalAsset(appid, imageURL, type);
   }
 }

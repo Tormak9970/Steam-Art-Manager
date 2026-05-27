@@ -1,4 +1,7 @@
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { fetch } from "@tauri-apps/plugin-http";
+import { exit } from "@tauri-apps/plugin-process";
 import { get } from "svelte/store";
 
 import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
@@ -6,9 +9,6 @@ import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKe
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
-import { path } from "@tauri-apps/api";
-import * as fs from "@tauri-apps/plugin-fs";
-import { exit } from "@tauri-apps/plugin-process";
 import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
@@ -66,6 +66,7 @@ export class SteamController {
    */
   private static async getGamesFromAppinfo(ids: string[]): Promise<GameStruct[]> {
     // LogController.log("Loading games from appinfo.vdf...");
+    const installedAppIds: string[] = await RustInterop.getInstalledAppIds();
 
     const vdf = await RustInterop.readAppinfoVdf();
 
@@ -82,7 +83,9 @@ export class SteamController {
           wideCapsule: libraryAssets?.library_header?.image?.english ?? entry.common?.header_image?.english ?? "",
           hero: libraryAssets?.library_hero?.image?.english ?? "",
           logo: libraryAssets?.library_logo?.image?.english ?? "",
-        }
+        },
+        type: entry.common.type,
+        installed: installedAppIds.includes(entry.appid.toString())
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
@@ -184,8 +187,10 @@ export class SteamController {
     
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
-        "appid": shortcut.appid,
-        "name": shortcut.AppName ?? shortcut.appName ?? shortcut.appname
+        appid: shortcut.appid,
+        name: shortcut.AppName ?? shortcut.appName ?? shortcut.appname,
+        type: "Game",
+        installed: true,
       };
     });
     nonSteamGames.set(structuredShortcuts);

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { AppController, CacheController } from "@controllers";
   import { Check, Edit, Options, Position, Steam, Upload } from "@icons";
   import { DropDown, IconButton, Menu } from "@interactables";
-  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, manualSteamGames, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
+  import { currentPlatform, customGameNames, dbFilters, gridsSize, gridType, isOnline, loadingSettings, manualSteamGames, needsSGDBAPIKey, nonSteamGames, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, steamGames, steamGridDBKey, steamGridSearchCache } from "@stores/AppState";
   import { showLogoPositionModal, showOriginalGridsModal } from "@stores/Modals";
   import * as dialog from "@tauri-apps/plugin-dialog";
   import { GridTypes, type SGDBGame } from "@types";
@@ -29,11 +29,11 @@
   $: originalName = ($steamGames.find((game) => game.appid.toString() === $selectedGameAppId) ?? $nonSteamGames.find((game) => game.appid.toString() === $selectedGameAppId))?.name;
 
   $: menuOptions = [
-      { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
-      { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
-      { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
-      { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
-    ]
+    { label: "View Original Grids", icon: Steam, onClick: () => { $showOriginalGridsModal = true; } },
+    { label: "Set Logo Position", icon: Position, onClick: () => { $showLogoPositionModal = true; } },
+    { label: "Upload Local Art", icon: Upload, onClick: prompUserForArt },
+    { label: "Show Selected Grids", icon: $showCachedGrids ? Check : undefined, onClick: () => { $showCachedGrids = !$showCachedGrids; } }
+  ]
 
   /**
    * Handles when the user changes the custom game name
@@ -133,7 +133,7 @@
       resetGridStores();
     });
     apiKeyUnsub = steamGridDBKey.subscribe(async (key) => {
-      if (key === "" || !AppController.sgdbClientInitialized()) resetGridStores();
+      if (key === "" || !CacheController?.client) resetGridStores();
     });
   });
 
@@ -157,11 +157,11 @@
       <div class="inputs">
         <div class="controls">
           {#if !windowWidth || windowWidth >= 1265}
-            <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} />
+            <DropDown label="Browsing" options={availableSteamGridGames} width={"130px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {:else}
-            <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} />
+            <DropDown options={availableSteamGridGames} width={"200px"} bind:value={$selectedSteamGridGameId} disabled={$needsSGDBAPIKey} />
           {/if}
-          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === ""}>
+          <IconButton label="Customize Search" on:click={handleCustomNameInput} tooltipPosition={"top"} disabled={$selectedGameAppId === "" || $needsSGDBAPIKey}>
             <Edit style="height: 0.875rem; width: 0.875rem;" />
           </IconButton>
         </div>
@@ -183,9 +183,33 @@
     </div>
 
     <div class="content" style="height: calc(100% - 85px); position: relative; z-index: 1;">
-      {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters[$gridType])}|${$selectedGameName}`}
-        <GridResults hasCustomName={hasCustomName} />
-      {/key}
+      {#if !$loadingSettings}
+        {#if $isOnline}
+          {#if !$needsSGDBAPIKey}
+            {#if $selectedGameAppId !== ""}
+              {#key `${$isOnline}|${$gridType}|${$selectedGameAppId}|${$selectedSteamGridGameId}|${JSON.stringify($dbFilters)}|${$selectedGameName}`}
+                <GridResults hasCustomName={hasCustomName} />
+              {/key}
+            {:else}
+              <div class="message">
+                Select a game to start managing your art!
+              </div>
+            {/if}
+          {:else}
+            <div class="message">
+              Please set your API key to use SteamGridDB.
+            </div>
+          {/if}
+        {:else}
+          <div class="message">
+            You're currently offline. In order to go online and access SteamGridDB, try hitting the "Go Online" button below.
+          </div>
+        {/if}
+      {:else}
+        <div class="message">
+          Initializing...
+        </div>
+      {/if}
     </div>
   </div>
 </Pane>
@@ -215,5 +239,12 @@
   .buttons-cont {
     display: flex;
     gap: 0.5rem;
+  }
+
+  .message {
+    width: 100%;
+    text-align: center;
+    opacity: 0.5;
+    padding-top: 40px;
   }
 </style>
