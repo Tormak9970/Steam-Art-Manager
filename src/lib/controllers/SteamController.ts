@@ -1,4 +1,7 @@
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { fetch } from "@tauri-apps/plugin-http";
+import { exit } from "@tauri-apps/plugin-process";
 import { get } from "svelte/store";
 
 import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
@@ -6,9 +9,6 @@ import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKe
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
-import { path } from "@tauri-apps/api";
-import * as fs from "@tauri-apps/plugin-fs";
-import { exit } from "@tauri-apps/plugin-process";
 import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
@@ -168,6 +168,9 @@ export class SteamController {
    * ? Logging complete.
    */
   static async getUserApps(): Promise<void> {
+    const installedAppIds = await RustInterop.getInstalledAppIds();
+    console.log("installedAppIds:", installedAppIds)
+    
     const userId = get(activeUserId);
 
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
