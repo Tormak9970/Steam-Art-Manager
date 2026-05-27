@@ -76,7 +76,7 @@
               <div class="accordion-body">
                 {#each Object.keys($dbFilters[$gridType][section]) as filter}
                   <Toggle
-                    label="{filter === "material" ? "Minimal" : toUpperCaseSplit(filter)}"
+                    label="{filter === "material" ? "Minimal" : filter === "nsfw" ? "Adult Content" : toUpperCaseSplit(filter)}"
                     value={$dbFilters[$gridType][section][filter]}
                     on:change={updateFilters(section, filter)}
                   />

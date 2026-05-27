@@ -84,10 +84,16 @@
 
   
   .inputs {
-    width: 100%;
+    width: calc(100% - 0.5rem - 2px);
     display: flex;
     align-items: center;
     gap: 1rem;
+
+    background-color: var(--background);
+    padding: 0.25rem;
+
+    border-radius: 0.25rem;
+    border: 1px solid var(--background-hover)
   }
 
   .checklist {
