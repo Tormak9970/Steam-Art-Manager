@@ -66,6 +66,7 @@ export class SteamController {
    */
   private static async getGamesFromAppinfo(ids: string[]): Promise<GameStruct[]> {
     // LogController.log("Loading games from appinfo.vdf...");
+    const installedAppIds: string[] = await RustInterop.getInstalledAppIds();
 
     const vdf = await RustInterop.readAppinfoVdf();
 
@@ -84,7 +85,7 @@ export class SteamController {
           logo: libraryAssets?.library_logo?.image?.english ?? "",
         },
         type: entry.common.type,
-        installed: true
+        installed: installedAppIds.includes(entry.appid.toString())
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
@@ -160,6 +161,8 @@ export class SteamController {
     
     const games = await SteamController.getGamesFromAppinfo(ids);
 
+    console.log(games)
+
     return games;
   }
 
@@ -168,9 +171,6 @@ export class SteamController {
    * ? Logging complete.
    */
   static async getUserApps(): Promise<void> {
-    const installedAppIds = await RustInterop.getInstalledAppIds();
-    console.log("installedAppIds:", installedAppIds)
-    
     const userId = get(activeUserId);
 
     const libraryCacheDir = await RustInterop.getLibraryCacheDirectory();
