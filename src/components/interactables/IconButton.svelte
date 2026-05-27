@@ -2,22 +2,29 @@
   import { AppController } from "@controllers";
   import type { Placement } from "tippy.js";
 
-  export let label: string;
+  export let label: string | undefined = undefined;
   export let tooltipPosition: Placement = "top-end";
   export let width = "auto";
   export let height = "auto";
   export let disabled = false;
   export let highlight = false;
+  export let greyHighlight = false;
   export let warn = false;
+  export let padding = "6px";
 </script>
 
-<button class="button" class:warn={warn} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height};" on:click use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
+{#if !!label}
+  <button class="button" class:warn={warn} class:grey-highlight={greyHighlight} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height}; padding: {padding}" on:click use:AppController.tippy={{ content: label, placement: tooltipPosition, onShow: AppController.onTippyShow }}>
+    <slot />
+  </button>
+{:else}
+<button class="button" class:warn={warn} class:grey-highlight={greyHighlight} class:highlight={highlight} class:disabled={disabled} style="width: {width}; height: {height}; padding: {padding}" on:click>
   <slot />
 </button>
+{/if}
 
 <style>
   .button {
-    padding: 6px;
     min-width: 22px;
     min-height: 22px;
         
@@ -36,6 +43,8 @@
     fill: var(--font-color);
 
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    aspect-ratio: 1 / 1;
   }
 
   .button:hover {
@@ -54,6 +63,15 @@
 
   .highlight { background-color: var(--save); }
   .highlight:hover { background-color: var(--save-hover); }
+
+  .grey-highlight {
+    background-color: var(--foreground-light);
+    border: 1px solid var(--foreground-light-hover);
+  }
+  .grey-highlight:hover {
+    background-color: var(--foreground-light-hover);
+    border: 1px solid var(--foreground-light-hover);
+  }
 
   .warn { background-color: var(--warning); }
   .warn:hover { background-color: var(--warning-hover); }

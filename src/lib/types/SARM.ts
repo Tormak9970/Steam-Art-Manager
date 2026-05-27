@@ -1,14 +1,18 @@
 export type GameStruct = {
   appid: number,
   name: string,
-  gridInfo?: {
+  gridInfo?: GameStructGridInfo
+  type: string
+  installed: boolean
+}
+
+export type GameStructGridInfo = {
     icon: string,
     capsule: string,
     wideCapsule: string,
     hero: string,
     logo: string,
   }
-}
 
 export enum GridTypes {
   CAPSULE="Capsule",

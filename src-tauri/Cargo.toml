@@ -33,6 +33,7 @@ image = "0.25.1"
 home = "0.5.9"
 zip = "2.2.2"
 new-vdf-parser = { path = "../crates/new-vdf-parser" }
+keyvalues-parser = "0.2.4"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

@@ -225,6 +225,14 @@ export class RustInterop {
   }
 
   /**
+   * Gets a list of the installed apps on the system.
+   * @returns A promise resolving to the contents of the installed app ids.
+   */
+  static async getInstalledAppIds(): Promise<any> {
+    return JSON.parse(await invoke<string>("get_installed_appids", { steamPath: RustInterop.steamPath }));
+  }
+
+  /**
    * Saves the user's changes.
    * @param activeUserId The id of the active user.
    * @param currentArt The current changes.

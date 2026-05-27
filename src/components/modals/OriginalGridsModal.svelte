@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppController } from "@controllers";
+  import { AppController, CacheController } from "@controllers";
   import { Plus } from "@icons";
   import { CurrentGridImage } from "@layout";
   import { currentPlatform, Platforms, selectedGameAppId, selectedSteamGridGameId, showInfoSnackbar } from "@stores/AppState";
@@ -36,7 +36,7 @@
   async function setOriginalAsset(type: keyof typeof imageSources) {
     loadingType = type;
     
-    AppController.cacheOriginalAsset($selectedGameAppId, imageSources[type], type).then((localPath) => {
+    CacheController.cacheOriginalAsset($selectedGameAppId, imageSources[type], type).then((localPath) => {
       if (localPath !== "") {
         AppController.setCustomArt(localPath);
         $showInfoSnackbar({ message: "Asset applied!" });
@@ -49,7 +49,7 @@
     let appid: string | null = $selectedGameAppId
 
     if ($currentPlatform === Platforms.NON_STEAM) {
-      appid = await AppController.getAppidForSGDBGame({
+      appid = await CacheController.getAppidForSGDBGame({
         id: parseInt($selectedSteamGridGameId),
         name: "",
         types: [],
