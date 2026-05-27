@@ -2,6 +2,8 @@ export type GameStruct = {
   appid: number,
   name: string,
   gridInfo?: GameStructGridInfo
+  type: string
+  installed: boolean
 }
 
 export type GameStructGridInfo = {

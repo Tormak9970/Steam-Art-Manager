@@ -82,7 +82,9 @@ export class SteamController {
           wideCapsule: libraryAssets?.library_header?.image?.english ?? entry.common?.header_image?.english ?? "",
           hero: libraryAssets?.library_hero?.image?.english ?? "",
           logo: libraryAssets?.library_logo?.image?.english ?? "",
-        }
+        },
+        type: entry.common.type,
+        installed: true
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
@@ -136,13 +138,13 @@ export class SteamController {
     let ids: string[] = [];
     
     // * Try loading games from the Steam API
-    if (online && !needsSteamAPIKey) {
-      ids = await this.getGamesFromSteamAPI(bUserId);
+    // if (online && !needsSteamAPIKey) {
+    //   ids = await this.getGamesFromSteamAPI(bUserId);
       
-      if (ids.length > 0) {
-        LogController.log(`Loaded ${ids.length} games from Steam API.`);
-      }
-    }
+    //   if (ids.length > 0) {
+    //     LogController.log(`Loaded ${ids.length} games from Steam API.`);
+    //   }
+    // }
     
     // * Try loading games from the file system
     if (ids.length === 0) {
@@ -184,8 +186,10 @@ export class SteamController {
     
     const structuredShortcuts = Object.values(shortcuts).map((shortcut: any) => {
       return {
-        "appid": shortcut.appid,
-        "name": shortcut.AppName ?? shortcut.appName ?? shortcut.appname
+        appid: shortcut.appid,
+        name: shortcut.AppName ?? shortcut.appName ?? shortcut.appname,
+        type: "Game",
+        installed: true,
       };
     });
     nonSteamGames.set(structuredShortcuts);
