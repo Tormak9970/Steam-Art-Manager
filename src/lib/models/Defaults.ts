@@ -1,5 +1,12 @@
 import type { Settings } from "@types";
 
+export const APP_TYPES = [
+  "Game",
+  "Demo",
+  "Application",
+  "Beta"
+]
+
 export const DEFAULT_FILTERS = {
   "Capsule": {
     "styles": {
@@ -152,7 +159,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   "debugMode": false,
 
-  "appTypes": ["game"],
+  "appTypes": ["Game"],
 
   "windowSettings": {
     "main": {

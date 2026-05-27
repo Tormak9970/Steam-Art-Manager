@@ -406,6 +406,7 @@ export class SettingsController {
   
       theme.subscribe(SettingsController.setOnChange("theme")),
       debugMode.subscribe(SettingsController.setOnChange("debugMode")),
+      appTypes.subscribe(SettingsController.setOnChange("appTypes")),
       showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
       cacheSelectedGrids.subscribe(SettingsController.setOnChange("cacheSelectedGrids")),
       userSelectedGrids.subscribe(SettingsController.setOnChange("userSelectedGrids")),

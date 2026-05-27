@@ -3,7 +3,8 @@
   import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { activeUserId, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { APP_TYPES } from "@models";
+  import { activeUserId, appTypes, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -11,6 +12,7 @@
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
   import ModalBody from "../modal-utils/ModalBody.svelte";
+  import ChecklistArrayEntry from "./ChecklistArrayEntry.svelte";
   import DropdownEntry from "./DropdownEntry.svelte";
   import FilePathEntry from "./FilePathEntry.svelte";
   import TextFieldEntry from "./TextFieldEntry.svelte";
@@ -60,6 +62,7 @@
   let steamInstallLocation = $steamInstallPath;
   let debugModeSetting = $debugMode;
   let cacheSelectedGridsSetting = $cacheSelectedGrids;
+  let appTypesSetting = [...$appTypes];
 
   /**
    * Saves the changed settings.
@@ -83,6 +86,8 @@
 
     
     if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
+
+    if (JSON.stringify(appTypesSetting) !== JSON.stringify($appTypes)) $appTypes = [...appTypesSetting];
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
     
@@ -108,6 +113,7 @@
     steamAPIKey = $steamKey;
     steamInstallLocation = $steamInstallPath;
     debugModeSetting = $debugMode;
+    appTypesSetting = [...$appTypes];
     cacheSelectedGridsSetting = $cacheSelectedGrids
     
     LogController.log("Reverted settings.");
@@ -161,6 +167,16 @@
   function onCacheSelectedGridsChange(value: boolean): void {
     cacheSelectedGridsSetting = value;
     console.log("cacheSelectedGridsSetting:", cacheSelectedGridsSetting)
+    canSave = true;
+  }
+
+  /**
+   * Function to run on cache selected app types.
+   * @param value The updated value.
+   */
+  function onAppTypesChange(value: string[]): void {
+    appTypesSetting = value;
+    console.log("appTypesSetting:", appTypesSetting)
     canSave = true;
   }
 
@@ -236,6 +252,13 @@
           canBeEmpty
           onChange={onSteamKeyChange}
         />
+         <ChecklistArrayEntry
+            label="App Types to Display"
+            description={"Choose which app types SARM will display."}
+            options={APP_TYPES}
+            value={appTypesSetting}
+            onChange={onAppTypesChange}
+         />
         <ToggleFieldEntry
           label="Cache Selected Grids"
           description={"Enables saving previously selected grids."}
@@ -257,7 +280,6 @@
           value={debugModeSetting}
           onChange={onDebugModeChange}
         />
-        <!-- "Application", "Game", "Demo", "Beta" -->
       </div>
     </div>
   </div>
