@@ -3,7 +3,7 @@
   import { Info } from "@icons";
   import { DropDown, Toggle } from "@interactables";
   import { Table } from "@layout";
-  import { Platforms, appLibraryCache, gridType, hiddenGameIds } from "@stores/AppState";
+  import { Platforms, appLibraryCache, appTypes, gridType, hiddenGameIds } from "@stores/AppState";
   import type { GameStruct } from "@types";
   import { onMount } from "svelte";
   import SelectedGameEntry from "./SelectedGameEntry.svelte";
@@ -38,15 +38,20 @@
   let gamesToFilter: GameStruct[] = [];
   let selectedGames: Record<string, boolean> = {};
   let includeHidden = false;
+  let installedOnly = false;
 
   /**
    * Function to run when any state changes.
    * @param platform The chosen platform.
    * @param gameFilter The type of filtering to use.
    * @param showHidden Whether to include hidden games or not.
+   * @param installedOnly Whether to only include installed apps.
    */
-  function onStateChange(platform: string, gameFilter: string, showHidden: boolean): void {
-    gamesToFilter = (platform === "All" ? allGames : (platform === Platforms.STEAM ? steamGames : nonSteamGames)).filter((game) => !showHidden ? !$hiddenGameIds.includes(game.appid) : true);
+  function onStateChange(platform: string, gameFilter: string, showHidden: boolean, installedOnly: boolean): void {
+    gamesToFilter = (platform === "All" ? allGames : (platform === Platforms.STEAM ? steamGames : nonSteamGames))
+      .filter((game) => {
+        return (showHidden || !$hiddenGameIds.includes(game.appid)) && (!installedOnly || game.installed) && $appTypes.includes(game.type.toLowerCase());
+      });
     const selectedGameEntries = gamesToFilter.map((game) => {
       return [ game.appid, gameFilter === "All" ? true : (!$appLibraryCache[game.appid]?.[$gridType]) ];
     });
@@ -67,7 +72,7 @@
   }
 
   onMount(() => {
-    onStateChange(selectedPlatform, selectedGamesFilter, includeHidden);
+    onStateChange(selectedPlatform, selectedGamesFilter, includeHidden, installedOnly);
   });
 </script>
 
@@ -75,13 +80,18 @@
   <div class="options">
     <div class="dropdowns">
       {#if showPlatforms}
-        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden); }} showTooltip={false} />
+        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
       {/if}
       {#if showFilters}
-        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden); }} showTooltip={false} />
+        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
       {/if}
     </div>
-    <Toggle label="Include Hidden" bind:value={includeHidden} on:change={(e) => { onStateChange(selectedPlatform, selectedGamesFilter, e.detail.value); }} />
+    <div class="dropdowns">
+      <div class="toggles">
+        <Toggle label="Include Hidden" bind:value={includeHidden} on:change={(e) => { onStateChange(selectedPlatform, selectedGamesFilter, e.detail.value, installedOnly); }} />
+        <Toggle label="Installed Only" bind:value={installedOnly} on:change={(e) => { onStateChange(selectedPlatform, selectedGamesFilter, includeHidden, e.detail.value); }} />
+      </div>
+    </div>
   </div>
   <Table>
     <span slot="header">
@@ -132,5 +142,11 @@
     display: flex;
     flex-direction: column;
     gap: 7px;
+  }
+
+  .toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 </style>

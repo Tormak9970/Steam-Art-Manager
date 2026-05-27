@@ -19,6 +19,8 @@ export type Settings = {
 
   debugMode: boolean,
 
+  appTypes: string[],
+
   /**
    * @deprecated no longer used
    */

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -276,6 +276,10 @@ export class SettingsController {
     SettingsController.oldValues["debugMode"] = debugModeSetting;
     debugMode.set(debugModeSetting);
     if (debugModeSetting) await RustInterop.toggleDevTools(true);
+
+    const appTypesSetting = SettingsController.settings.appTypes;
+    SettingsController.oldValues["appTypes"] = appTypesSetting;
+    appTypes.set(appTypesSetting);
 
     const steamInstallPathSetting = SettingsController.settings.steamInstallPath;
     await findSteamPath(steamInstallPathSetting);

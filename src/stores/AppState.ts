@@ -31,6 +31,7 @@ export const requestTimeoutLength = writable(5000);
 // * Settings
 export const theme = writable(Theme.DARK);
 export const debugMode = writable(false);
+export const appTypes = writable<string[]>([]);
 export const renderGamesInList = writable(false);
 
 export const optionsSize = writable(16);

@@ -2,7 +2,7 @@
   import { Check, GridView, ListView, Options } from "@icons";
   import { IconToggle, Menu, SearchBar, Toggle } from "@interactables";
   import { ListTabs } from "@layout";
-  import { Platforms, appLibraryCache, currentPlatform, gamesSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
+  import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
   import type { GameStruct, GridTypes } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
@@ -21,6 +21,7 @@
   let onlyShowMissingUnsub: Unsubscriber;
   let onlyShowInstalledUnsub: Unsubscriber;
   let gridTypeUnsub: Unsubscriber;
+  let appTypeUnsub: Unsubscriber;
 
   let isLoading = true;
 
@@ -77,7 +78,7 @@
    * @param gridType The current gridType.
    * @returns The list of filtered games.
    */
-  function filterGames(platform: Platforms, hiddenIds: number[], showHidden: boolean, sGames: GameStruct[], manualSGames: GameStruct[], nonSGames: GameStruct[], onlyShowMissing: boolean, onlyInstalled: boolean, gridType: GridTypes): GameStruct[] {
+  function filterGames(platform: Platforms, hiddenIds: number[], showHidden: boolean, sGames: GameStruct[], manualSGames: GameStruct[], nonSGames: GameStruct[], onlyShowMissing: boolean, onlyInstalled: boolean, gridType: GridTypes, appTypes: string[]): GameStruct[] {
     let allGames = getGamesForPlatform(platform, sGames, manualSGames, nonSGames);
     let selectedGames: GameStruct[] = [];
 
@@ -99,7 +100,7 @@
       });
     }
 
-    return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    return selectedGames.filter((game) => game.name.toLowerCase().includes(searchQuery.toLowerCase()) && appTypes.includes(game.type.toLowerCase()));
   }
 
   /**
@@ -108,53 +109,58 @@
    */
   function onSearchChange(query: string): void {
     searchQuery = query.toLowerCase();
-    games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+    games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
   }
 
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, newGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, newGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     manualSteamGamesUnsub = manualSteamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, newGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      if ($currentPlatform === Platforms.STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, newGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     nonSteamGamesUnsub = nonSteamGames.subscribe((newGames) => {
       isLoading = true;
-      if ($currentPlatform === Platforms.NON_STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, newGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      if ($currentPlatform === Platforms.NON_STEAM) games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, newGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
       isLoading = true;
-      games = filterGames($currentPlatform, ids, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      games = filterGames($currentPlatform, ids, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
       isLoading = true;
-      games = filterGames($currentPlatform, $hiddenGameIds, show, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      games = filterGames($currentPlatform, $hiddenGameIds, show, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       isLoading = true;
-      games = filterGames(platform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType);
+      games = filterGames(platform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     onlyShowMissingUnsub = onlyShowMissing.subscribe((missing) => {
       isLoading = true;
-      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, missing, $onlyShowInstalled, $gridType);
+      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, missing, $onlyShowInstalled, $gridType, $appTypes);
       isLoading = false;
     });
     onlyShowInstalledUnsub = onlyShowInstalled.subscribe((installed) => {
       isLoading = true;
-      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, installed, $gridType);
+      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, installed, $gridType, $appTypes);
       isLoading = false;
     });
     gridTypeUnsub = gridType.subscribe((type) => {
       isLoading = true;
-      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, type);
+      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, type, $appTypes);
+      isLoading = false;
+    });
+    appTypeUnsub = appTypes.subscribe((types) => {
+      isLoading = true;
+      games = filterGames($currentPlatform, $hiddenGameIds, $showHidden, $steamGames, $manualSteamGames, $nonSteamGames, $onlyShowMissing, $onlyShowInstalled, $gridType, types);
       isLoading = false;
     });
   });
@@ -169,6 +175,7 @@
     if (onlyShowMissingUnsub) onlyShowMissingUnsub();
     if (onlyShowInstalledUnsub) onlyShowInstalledUnsub();
     if (gridTypeUnsub) gridTypeUnsub();
+    if (appTypeUnsub) appTypeUnsub();
   });
 </script>
 

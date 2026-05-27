@@ -152,6 +152,8 @@ export const DEFAULT_SETTINGS: Settings = {
 
   "debugMode": false,
 
+  "appTypes": ["game"],
+
   "windowSettings": {
     "main": {
       "filters": DEFAULT_FILTERS,

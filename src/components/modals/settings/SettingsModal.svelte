@@ -257,6 +257,7 @@
           value={debugModeSetting}
           onChange={onDebugModeChange}
         />
+        <!-- "Application", "Game", "Demo", "Beta" -->
       </div>
     </div>
   </div>

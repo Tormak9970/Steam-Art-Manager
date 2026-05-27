@@ -161,8 +161,6 @@ export class SteamController {
     
     const games = await SteamController.getGamesFromAppinfo(ids);
 
-    console.log(games)
-
     return games;
   }
 
