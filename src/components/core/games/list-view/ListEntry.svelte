@@ -97,8 +97,7 @@
   }
 
   .list-entry {
-    background-color: var(--foreground);
-    padding: 6px 10px;
+    padding: 4px 8px;
     border-radius: 0.25rem;
 
     height: 47px;
@@ -121,15 +120,27 @@
     width: calc(100% - 20px);
 
     z-index: 0;
+    
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
   }
-  .list-entry:hover { background-color: var(--foreground-hover); }
+  .list-entry:hover {
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
+  }
   
   .disabled {
     pointer-events: none;
   }
 
-  .selected { background-color: var(--foreground-light); }
-  .selected:hover { background-color: var(--foreground-light-hover); }
+  .selected {
+    background-color: var(--foreground-hover);
+    border: 1px solid var(--foreground-light);
+  }
+  .selected:hover {
+    background-color: var(--foreground-light);
+    border: 1px solid var(--foreground-light);
+  }
 
   .entry-info {
     display: flex;

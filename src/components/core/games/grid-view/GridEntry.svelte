@@ -99,8 +99,7 @@
   }
 
   .game {
-    background-color: var(--foreground);
-    padding: 10px;
+    padding: 8px;
     padding-bottom: 5px;
     border-radius: 0.25rem;
 
@@ -117,11 +116,23 @@
     user-select: none;
 
     transition: background-color 0.2s ease-in-out;
+    
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
   }
-  .game:hover { background-color: var(--foreground-hover); }
+  .game:hover {
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
+  }
 
-  .selected { background-color: var(--foreground-light); }
-  .selected:hover { background-color: var(--foreground-light-hover); }
+  .selected {
+    background-color: var(--foreground-hover);
+    border: 1px solid var(--foreground-light);
+  }
+  .selected:hover {
+    background-color: var(--foreground-light);
+    border: 1px solid var(--foreground-light);
+  }
 
   .name {
     width: 100%;

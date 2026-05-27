@@ -58,7 +58,6 @@
 
 <style>
   .grid {
-    background-color: var(--foreground);
     padding: 10px;
     padding-bottom: 5px;
     border-radius: 0.25rem;
@@ -76,9 +75,13 @@
     user-select: none;
 
     transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    
+    background-color: var(--background-hover);
+    border: 1px solid var(--foreground);
   }
   .grid:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 1px solid var(--foreground-hover);
   }
 
   .author {
