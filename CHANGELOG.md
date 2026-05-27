@@ -6,6 +6,20 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.13.0
+
+New Features
+* added ability to filter games by if they're missing art or not ([8dbe295](https://github.com/Tormak9970/Steam-Art-Manager/commit/8dbe295))
+* added filter for installed games ([41a2bde](https://github.com/Tormak9970/Steam-Art-Manager/commit/41a2bde))
+* added pagination ([3f66851](https://github.com/Tormak9970/Steam-Art-Manager/commit/3f66851))
+* added the ability to include alternate app types ([3a4064e](https://github.com/Tormak9970/Steam-Art-Manager/commit/3a4064e))
+
+Bug Fixes
+* bulk editing missing only works again ([fd424bc](https://github.com/Tormak9970/Steam-Art-Manager/commit/fd424bc))
+* filtering grids now responds properly to changes ([650775f](https://github.com/Tormak9970/Steam-Art-Manager/commit/650775f))
+* list view now renders properly ([28b58ee](https://github.com/Tormak9970/Steam-Art-Manager/commit/28b58ee))
+* properly disable grid options when no sgdb api key is present ([a2a4df6](https://github.com/Tormak9970/Steam-Art-Manager/commit/a2a4df6))
+
 ## v3.12.1
 
 Bug Fixes
