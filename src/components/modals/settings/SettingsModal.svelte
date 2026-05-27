@@ -226,7 +226,7 @@
 <ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
   <div class="content">
     <div class="scroll-container" use:isOverflowing={{ callback: (o) => overflowing = o }}>
-      <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+      <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
         <FilePathEntry
           label="Steam Install Path"
           description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
@@ -288,21 +288,21 @@
     <Button on:click={cancel} width="46.5%">Cancel</Button>
     <Button on:click={saveSettings} width="46.5%" disabled={!canSave}>Save Changes</Button>
     <IconButton label="Open log directory" on:click={openLogDirectory}>
-      <Folder style="height: 14px; width: 14px;" />
+      <Folder style="height: 1rem; width: 1rem;" />
     </IconButton>
   </span>
 </ModalBody>
 
 <style>
   .content {
-		width: 600px;
-    padding-top: 14px;
+		width: 37.5rem;
+    padding-top: 0.75rem;
     
 		max-height: 73vh;
 	}
 
   .scroll-container {
-    max-height: calc(73vh - 14px);
+    max-height: calc(73vh - 0.75rem);
     width: 100%;
 
     overflow-y: scroll;
@@ -311,7 +311,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0.75rem;
   }
 
   .buttons {
