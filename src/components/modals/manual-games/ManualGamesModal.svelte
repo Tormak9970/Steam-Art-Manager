@@ -123,7 +123,7 @@
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 0.5rem;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
+          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="6.25rem" showTooltip={false} />
         </div>
       </div>
       <div class="section-label">Game Info</div>

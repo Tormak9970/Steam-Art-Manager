@@ -38,7 +38,7 @@
 
 <style>
   .selected-game-entry {
-    width: calc(100% - 1rem);
+    width: calc(100% - 1.125rem);
     height: 1.25rem;
     
     padding: 0.25rem 0.5rem;
@@ -46,7 +46,8 @@
     display: flex;
     align-items: center;
 
-    background-color: var(--foreground);
+    background-color: var(--background-hover);
+    border: 0.0125rem solid var(--foreground);
     border-radius: 0.25rem;
   }
 
