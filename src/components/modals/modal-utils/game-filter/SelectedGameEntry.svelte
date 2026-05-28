@@ -14,41 +14,42 @@
     <Checkbox bind:value={isChecked} onChange={(checked) => { onChange(game.appid, checked); }} />
   </div>
   <div class="name">{game.name}</div>
-  <div class="platform" style="margin-left: auto; margin-right: {platform === Platforms.STEAM ? "60px" : "40px"};">{platform}</div>
+  <div class="platform" style="margin-left: auto; margin-right: {platform === Platforms.STEAM ? "3.75rem" : "2.5rem"};">{platform}</div>
 </div>
 
 <style>
   .selected-game-entry {
-    width: calc(100% - 14px);
-    height: 24px;
+    width: calc(100% - 1rem);
+    height: 1.5rem;
     
-    padding: 3px 5px;
+    padding: 0.125rem 0.25rem;
 
     border-radius: 0.25rem;
 
     display: flex;
     align-items: center;
 
-    background-color: var(--foreground);
+    background-color: var(--background-hover);
+    border: 0.0125rem solid var(--foreground);
   }
   .selected-game-entry:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0rem;
   }
 
   .name {
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
 
-    width: 200px;
+    width: 12.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     
-    margin-left: 10px;
+    margin-left: 0.5rem;
   }
 
   .platform {
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
   }
 </style>
