@@ -4,25 +4,26 @@
 
 <div class="entry-loading-skeleton">
   <div class="shine" />
-  <svg xmlns="http://www.w3.org/2000/svg" height="16px" width="16px" viewBox="0 0 100 100" style="height: 16px; width: 16px;">
-    <circle cx="50" cy="50" r="38" fill="var(--foreground-hover)" stroke="var(--foreground-hover)" stroke-width="4" />
+  <svg xmlns="http://www.w3.org/2000/svg" height="1rem" width="1rem" viewBox="0 0 100 100" style="height: 1rem; width: 1rem;">
+    <rect x="0" y="0" width="100" height="100" rx="20" ry="20" fill="var(--background)" />
   </svg>
   <div class="name-placeholder" />
 </div>
 
 <style>
   .entry-loading-skeleton {
-    width: calc(100% - 14px);
+    width: calc(100% - 0.75rem);
+    height: 1.25rem;
     
-    padding: 3px 7px;
-    margin-bottom: 7px;
+    padding: 0.25rem 0.325rem;
 
     border-radius: 0.25rem;
 
     display: flex;
     align-items: center;
 
-    background-color: var(--foreground);
+    background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
 
     position: relative;
 
@@ -31,16 +32,16 @@
     overflow: hidden;
   }
   .entry-loading-skeleton:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0rem;
   }
 
   .name-placeholder {
-    height: 14px;
-    width: 217px;
+    height: 1rem;
+    width: 13.5rem;
 
-    margin-left: 5px;
+    margin-left: 0.25rem;
 
-    background-color: var(--foreground-hover);
+    background-color: var(--background);
 
     border-radius: 0.25rem;
   }

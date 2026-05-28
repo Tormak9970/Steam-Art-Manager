@@ -88,14 +88,13 @@
       </div>
       <div class="search-container">
         <IconButton label="Retry" on:click={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
-          <Refresh style="height: 12px; width: 12px;" />
+          <Refresh style="height: 0.875rem; width: 0.875rem;" />
         </IconButton>
-        <!-- <Spacer orientation="HORIZONTAL" /> -->
-        <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="250px" reversed />
+        <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="15.75rem" reversed />
       </div>
       <div class="container">
         <div class="scroll-container" use:scrollShadow={{ background: "--background" }} use:isOverflowing={{ callback: (o) => overflowing = o }}>
-          <div class="wrapper" style:width={overflowing ? "calc(100% - 7px)" : "100%"}>
+          <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
             {#if loading}
               {#each new Array(10) as _}
                 <EntryLoadingSkeleton />
@@ -120,8 +119,8 @@
 
 <style>
   .content {
-		width: 400px;
-		height: calc(100% - 60px);
+		width: 25rem;
+		height: calc(100% - 3.75rem);
 
 		display: flex;
 		flex-direction: column;
@@ -131,7 +130,7 @@
 
   .body {
     width: 100%;
-    margin-top: 7px;
+    margin-top: 0.5rem;
     
 		display: flex;
 		flex-direction: column;
@@ -139,8 +138,8 @@
   }
 
   .description {
-    font-size: 14px;
-    margin-bottom: 7px;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
   }
 
   .container {
@@ -151,11 +150,11 @@
 
   .scroll-container {
     width: 100%;
-    height: 200px;
+    height: 12.5rem;
 
     overflow: auto;
 
-    margin-top: 5px;
+    margin-top: 0.25rem;
   }
 
   .search-container {
@@ -163,14 +162,14 @@
     display: flex;
     align-items: center;
 
-    gap: 7px;
-    margin-bottom: 7px;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.375rem;
   }
 
   .buttons {
