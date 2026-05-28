@@ -212,8 +212,8 @@
   <style>
     .mouse-over-shield {
       position: fixed;
-      top: 0px;
-      left: 0px;
+      top: 0rem;
+      left: 0rem;
       height: 100%;
       width: 100%;
       background-color: rgba(255, 0, 0, 0);
@@ -264,12 +264,12 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    width: 17px;
-    height: 17px;
+    width: 1rem;
+    height: 1rem;
     background-color: var(--thumb-bgcolor, white);
     cursor: pointer;
     border-radius: 999px;
-    margin-top: -5px;
+    margin-top: -0.25rem;
     transition: box-shadow 100ms;
     user-select: none;
     box-shadow: var(
@@ -288,9 +288,9 @@
   .range__tooltip {
     pointer-events: none;
     position: absolute;
-    top: -33px;
+    top: -2rem;
     color: var(--tooltip-text, white);
-    width: 30.5rem;
+    width: 3.5rem;
     padding: 0.25rem 0;
     border-radius: 0.25rem;
     text-align: center;
@@ -302,13 +302,13 @@
     content: "";
     display: block;
     position: absolute;
-    height: 7px;
-    width: 7px;
+    height: 0.5rem;
+    width: 0.5rem;
     background-color: var(--tooltip-bgcolor, #6185ff);
-    bottom: -3px;
-    left: calc(50% - 3px);
+    bottom: -0.25rem;
+    left: calc(50% - 0.25rem);
     clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
     transform: rotate(-45deg);
-    border-radius: 0 0 0 3px;
+    border-radius: 0 0 0 0.25rem;
   }
 </style>

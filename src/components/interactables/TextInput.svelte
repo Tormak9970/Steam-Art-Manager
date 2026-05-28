@@ -16,7 +16,7 @@
 
 <style>
   .input {
-    margin: 0px;
+    margin: 0rem;
 
     display: flex;
     flex-direction: row;
@@ -24,7 +24,7 @@
 
     color: var(--font-color);
 
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 
   .input > input {
@@ -33,7 +33,7 @@
     border: 1px solid var(--foreground);
     outline: none;
     border-radius: 0.25rem;
-    padding: 5px;
+    padding: 0.25rem;
 
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }

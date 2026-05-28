@@ -178,8 +178,8 @@
 	}
 
 	svelte-virtual-list-row {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 0.625rem;
+    margin-right: 0.625rem;
 		display: flex;
 	}
 </style>

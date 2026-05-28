@@ -28,7 +28,7 @@
     on:click={handleClick}
   />
   {#if label !== ""}
-    <span style="margin-left: 10px; font-size: 14px; height: 15px; text-align: center; user-select: none;">{label}</span>
+    <span style="margin-left: 0.625rem; font-size: 0.875rem; height: 1rem; text-align: center; user-select: none;">{label}</span>
   {/if}
 </div>
 
@@ -39,8 +39,8 @@
   }
 
   .toggle button {
-    width: 36px;
-    height: 22px;
+    width: 2.25rem;
+    height: 1.375rem;
 
     position: relative;
 
@@ -50,7 +50,7 @@
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
 
-    border-radius: 11px;
+    border-radius: 11rem;
   }
   .toggle button:hover {
     background-color: var(--foreground);
@@ -60,8 +60,8 @@
   .toggle button::before {
     content: "";
     
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
 
     position: absolute;
     top: 3px;

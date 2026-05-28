@@ -63,7 +63,7 @@
 
 <style>
   .content {
-    width: 700px;
+    width: 43.75rem;
   }
 
   .other-grids-container {

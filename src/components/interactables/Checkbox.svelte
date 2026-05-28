@@ -19,7 +19,7 @@
   <input type="checkbox" id="" bind:checked={value} />
   <span class="check-box">
     {#if value}
-      <Check height="16px" />
+      <Check height="1rem" />
     {/if}
   </span>
 </div>
@@ -30,8 +30,8 @@
     position: relative;
     cursor: pointer;
 
-    height: 20px;
-    width: 20px;
+    height: 1.25rem;
+    width: 1.25rem;
 
     border-radius: 0.25rem;
     border: 1px solid transparent;
@@ -46,11 +46,11 @@
   }
 
   .check-box {
-    height: calc(100% - 6px);
-    width: calc(100% - 6px);
+    height: calc(100% - 0.375rem);
+    width: calc(100% - 0.375rem);
     background-color: var(--background-hover);
     border: 1px solid var(--foreground);
-    padding: 2px;
+    padding: 0.125rem;
     border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
