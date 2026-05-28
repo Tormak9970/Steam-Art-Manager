@@ -29,9 +29,9 @@
   $: title = step === "changelog" ? `Update v${$updateManifest?.version} is Available!` : (step === "download" ? `Downloading v${$updateManifest?.version}...` : "Download Complete!")
 
   const stepHeight = {
-    changelog: 390,
-    download: 122,
-    restart: 125
+    changelog: 24.5,
+    download: 7.75,
+    restart: 7.75
   }
   
   let contentLength = 0;
@@ -118,7 +118,7 @@
 </script>
 
 <ModalBody title={title} open={open} on:close={() => open = false} on:closeEnd={() => $showUpdateModal = false } canClose={false}>
-  <div class="content" style:height="{stepHeight[step]}px">
+  <div class="content" style:height="{stepHeight[step]}rem">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
       <UpdateField label="Release Date" value={formattedDate} />
@@ -165,12 +165,12 @@
 
 <style>
   .content {
-    min-width: 500px;
+    min-width: 31.25rem;
   }
 
   .info {
     width: 100%;
-    margin: 7px 0px;
+    margin: 0.5rem 0rem;
   }
 
   .changelog {
@@ -182,22 +182,22 @@
     background-color: var(--background-dark);
     overflow: hidden;
 
-    height: calc(100% - 70px);
+    height: calc(100% - 4.5rem);
   }
 
   :global(.changelog .release-notes p) {
-    margin: 3px;
-    margin-left: 6px;
-    font-size: 14px;
+    margin: 0.25rem;
+    margin-left: 0.375rem;
+    font-size: 0.875rem;
   }
 
   :global(.changelog .release-notes ul) {
     margin-top: 0.25rem;
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   :global(.changelog .release-notes li) {
-    margin-bottom: 3px;
+    margin-bottom: 0.25rem;
   }
 
   .scroll-container {

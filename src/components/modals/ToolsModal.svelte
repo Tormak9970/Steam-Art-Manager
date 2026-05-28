@@ -84,14 +84,14 @@
 
 <style>
   .content {
-		width: 400px;
+		width: 25rem;
 
 		display: grid;
-    gap: 14px;
+    gap: 1.25rem;
 		grid-template-columns: repeat(4, 1fr);
     grid-auto-flow: row;
 
 
-    padding-top: 14px;
+    padding-top: 1rem;
 	}
 </style>

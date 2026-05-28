@@ -59,12 +59,12 @@
     min-width: 18rem;
   }
   .info {
-    margin-top: 7px;
-    font-size: 12px;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
   }
 
   .options {
-    margin-top: 7px;
+    margin-top: 0.5rem;
     width: 100%;
   }
 

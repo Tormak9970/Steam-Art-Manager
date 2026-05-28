@@ -34,7 +34,7 @@
     
     background-color: var(--background);
 
-    border-radius: 0px 0px 0.25rem 0.25rem;
+    border-radius: 0rem 0rem 0.25rem 0.25rem;
 	}
 
   ul {

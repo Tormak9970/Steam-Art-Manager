@@ -52,8 +52,8 @@
 
 <style>
   .info {
-    margin-top: 7px;
-    font-size: 14px;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
   }
 
   .buttons {

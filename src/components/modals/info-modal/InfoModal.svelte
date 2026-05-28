@@ -33,23 +33,23 @@
 
 <style>
   .content {
-		width: 600px;
+		width: 37.5rem;
 
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
 
-    gap: 14px;
-    padding-top: 14px;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
 	}
 
   .info {
     width: 100%;
     display: flex;
     align-items: center;
-    font-size: 10px;
+    font-size: 0.625rem;
     opacity: 0.5;
-    height: 0px;
+    height: rem;
   }
 </style>
