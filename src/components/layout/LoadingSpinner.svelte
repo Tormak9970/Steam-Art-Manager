@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let width = "100px";
-  export let height = "100px";
+  export let width = "6.25rem";
+  export let height = "6.25rem";
 </script>
 
 <div class="spinner" style="width: {width}; height: {height};">

@@ -124,7 +124,7 @@
 
 <style>
   .content {
-    width: 700px;
+    width: 43.75rem;
   }
 
   .other-grids-container {
@@ -136,12 +136,12 @@
   }
   
   .image-control {
-    border-radius: 6px;
+    border-radius: 0.375rem;
 
     height: 1.25rem;
     width: 1.25rem;
 
-    padding: 5px;
+    padding: 0.375rem;
 
     display: flex;
     align-items: center;
@@ -154,8 +154,8 @@
     opacity: 0.8;
 
     position: absolute;
-    right: 14px;
-    bottom: 6px;
+    right: 0.875rem;
+    bottom: 0.375rem;
   }
   .image-control:hover {
     cursor: pointer;

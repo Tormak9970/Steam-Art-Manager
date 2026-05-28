@@ -17,31 +17,31 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="remove-cont" on:click={() => { onRemove(game); }} use:AppController.tippy={{ content: "Remove this game", placement: "left", onShow: AppController.onTippyShow }}>
-    <CloseOutlined style="width: 12px; height: 12px;" />
+    <CloseOutlined style="width: 0.75rem; height: 0.75rem;" />
   </div>
   <div class="name">{game.name}</div>
   <div class="steam-art" use:AppController.tippy={{ content: steamArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
     {#if hasSteamArt}
-      <CheckOutlined style="width: 12px; height: 12px; fill: var(--success);" />
+      <CheckOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--success);" />
     {:else}
-      <CloseOutlined style="width: 12px; height: 12px; fill: var(--font-color);" />
+      <CloseOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);" />
     {/if}
   </div>
   <div class="custom-art" use:AppController.tippy={{ content: customArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
     {#if hasCustomArt}
-      <CheckOutlined style="width: 12px; height: 12px; fill: var(--success);" />
+      <CheckOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--success);" />
     {:else}
-      <CloseOutlined style="width: 12px; height: 12px; fill: var(--font-color);" />
+      <CloseOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);" />
     {/if}
   </div>
 </div>
 
 <style>
   .selected-game-entry {
-    width: calc(100% - 20px);
-    height: 20px;
+    width: calc(100% - 1rem);
+    height: 1.25rem;
     
-    padding: 3px 7px;
+    padding: 0.25rem 0.5rem;
 
     display: flex;
     align-items: center;
@@ -51,7 +51,7 @@
   }
 
   .remove-cont {
-    margin-left: 2px;
+    margin-left: 0.125rem;
     margin-right: 0.25rem;
     width: auto;
     height: 100%;
@@ -71,22 +71,22 @@
   }
 
   .name {
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
 
-    width: 200px;
+    width: 12.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     
-    margin-left: 10px;
+    margin-left: 0.5rem;
   }
 
   .steam-art {
-    margin-left: 87px;
-    margin-right: 7px;
+    margin-left: 5.5rem;
+    margin-right: 0.5rem;
     
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
 
     width: auto;
@@ -100,10 +100,10 @@
   }
 
   .custom-art {
-    margin-left: 27px;
-    margin-right: 7px;
+    margin-left: 1.625rem;
+    margin-right: 0.5rem;
     
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
 
     width: auto;

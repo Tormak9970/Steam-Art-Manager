@@ -98,14 +98,14 @@
       <Table>
         <span slot="header">
           <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
-            <Info style="height: 12px; width: 12px;" />
+            <Info style="height: 0.75rem; width: 0.75rem;" />
           </div>
-          <div>Name</div>
+          <div style="margin-right: auto;">Name</div>
           <div class="exist-art-icon" use:AppController.tippy={{ content: "Has official art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
-            <Steam style="height: 12px; width: 12px;" />
+            <Steam style="height: 0.75rem; width: 0.75rem;" />
           </div>
-          <div class="exist-art-icon" style="margin-left: 10.5rem; margin-right: 34px;" use:AppController.tippy={{ content: "Has custom art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
-            <SGDBLogo style="height: 12px; width: 16px;" />
+          <div class="exist-art-icon" style="margin-left: 1.125rem; margin-right: 2rem;" use:AppController.tippy={{ content: "Has custom art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
+            <SGDBLogo style="height: 0.75rem; width: 1rem;" />
           </div>
         </span>
         <span slot="data" class="entries">
@@ -122,12 +122,12 @@
     <div class="right">
       <div class="options">
         <div class="dropdown-cont">
-          <div style="margin-right: 7px;">Method for Adding Games:</div>
+          <div style="margin-right: 0.5rem;">Method for Adding Games:</div>
           <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="100px" showTooltip={false} />
         </div>
       </div>
       <div class="section-label">Game Info</div>
-      <div class="border" style="margin-right: 20px; margin-bottom: 7px; width: calc(100% - 20px);" />
+      <div class="border" style="margin-right: 1.25rem; margin-bottom: 0.5rem; width: calc(100% - 1.25rem);" />
       {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
       {:else if $selectedManualGamesAddMethod === "manual"}
@@ -139,14 +139,14 @@
 
 <style>
   .border {
-    margin-top: 7px;
+    margin-top: 0.5rem;
     border-bottom: 0.0625rem solid var(--foreground);
   }
 
   .entries {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .content {
@@ -155,32 +155,32 @@
   }
 
   .left {
-    margin-right: 10px;
-    width: 430px;
+    margin-right: 0.625rem;
+    width: 26.75rem;
   }
 
   .right {
-    margin-left: 10px;
-    width: 430px;
+    margin-left: 0.625rem;
+    width: 26.75rem;
   }
 
   .info {
-    margin-top: 7px;
-    margin-bottom: 7px;
-    font-size: 14px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
   }
 
   .batch-icon {
     fill: var(--font-color);
-    margin-left: 9px;
-    margin-right: 14px;
+    margin-left: 0.5rem;
+    margin-right: 0.875rem;
 
     cursor: pointer;
   }
   .exist-art-icon {
     fill: var(--font-color);
     margin-left: auto;
-    margin-right: 14px;
+    margin-right: 0.875rem;
 
     cursor: pointer;
   }
@@ -190,23 +190,23 @@
     
     display: flex;
 
-    font-size: 14px;
+    font-size: 0.875rem;
     align-items: center;
 
-    margin-bottom: 7px;
+    margin-bottom: 0.5rem;
   }
 
   .options {
-    margin-top: 7px;
+    margin-top: 0.5rem;
   }
 
   .section-label {
     margin-top: 0.5rem;
-    font-size: 20px;
+    font-size: 1.25rem;
   }
 
   .buttons {
-    margin-top: 14px;
+    margin-top: 0.875rem;
     width: 100%;
     display: flex;
     justify-content: space-between;
