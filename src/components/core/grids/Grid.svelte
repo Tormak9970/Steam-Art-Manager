@@ -77,11 +77,11 @@
     transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
     
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
   }
   .grid:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   .author {

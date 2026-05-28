@@ -66,7 +66,7 @@
   li:last-child { border-right: none; }
 
   span {
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     display: block;
     padding: 0.25rem 6px;
     cursor: pointer;

@@ -90,7 +90,7 @@
     z-index: 99;
     margin-top: 0.125rem;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     box-shadow: 0.25rem 0.375rem 0.75rem -0.125rem var(--shadow);
     overflow: hidden;
   }
@@ -106,7 +106,7 @@
     z-index: 99;
     margin-top: 0.125rem;
     border-radius: 0.125rem;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     box-shadow: -0.125rem -0.375rem 1.625rem -0.125rem var(--shadow);
   }
 

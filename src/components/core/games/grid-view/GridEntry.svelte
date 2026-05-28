@@ -118,20 +118,20 @@
     transition: background-color 0.2s ease-in-out;
     
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
   }
   .game:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   .selected {
     background-color: var(--foreground-hover);
-    border: 1px solid var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
   }
   .selected:hover {
     background-color: var(--foreground-light);
-    border: 1px solid var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
   }
 
   .name {

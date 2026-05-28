@@ -45,7 +45,7 @@
     position: relative;
 
     background: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
 
     cursor: pointer;
     transition: background-color 0.15s ease-in-out;
@@ -54,7 +54,7 @@
   }
   .toggle button:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   .toggle button::before {

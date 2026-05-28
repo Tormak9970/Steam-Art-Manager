@@ -122,11 +122,11 @@
     z-index: 0;
     
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
   }
   .list-entry:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
   
   .disabled {
@@ -135,11 +135,11 @@
 
   .selected {
     background-color: var(--foreground-hover);
-    border: 1px solid var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
   }
   .selected:hover {
     background-color: var(--foreground-light);
-    border: 1px solid var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
   }
 
   .entry-info {

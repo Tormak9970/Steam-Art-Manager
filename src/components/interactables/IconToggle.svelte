@@ -42,7 +42,7 @@
 		color: var(--font-color);
 
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     overflow: hidden;
   }
 
@@ -77,7 +77,7 @@
   }
 
   .icon-toggle:hover {
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   .selected,

@@ -52,7 +52,7 @@
 
     justify-content: center;
 
-    border-right: 1px solid var(--foreground);
+    border-right: 0.0625rem solid var(--foreground);
     overflow: hidden;
   }
   li:first-child {

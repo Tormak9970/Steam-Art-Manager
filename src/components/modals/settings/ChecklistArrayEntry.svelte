@@ -93,7 +93,7 @@
     padding: 0.25rem;
 
     border-radius: 0.25rem;
-    border: 1px solid var(--background-hover)
+    border: 0.0625rem solid var(--background-hover)
   }
 
   .checklist {

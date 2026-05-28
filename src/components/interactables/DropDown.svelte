@@ -124,7 +124,7 @@
     position: relative;
     padding: 5px;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
 
     background-color: var(--background-hover);
     transition: background-color 0.15s ease-in-out;
@@ -133,7 +133,7 @@
   }
   .custom-select:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     cursor: pointer;
   }
   .disabled {
@@ -189,7 +189,7 @@
     z-index: 99;
     margin-top: 1px;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     box-shadow: 3px 6px 12px -2px var(--shadow);
     overflow: hidden;
   }
@@ -205,7 +205,7 @@
     z-index: 99;
     margin-top: 2px;
     border-radius: 2px;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     box-shadow: -3px -6px 26px -2px var(--shadow);
   }
 

@@ -143,7 +143,7 @@
 
   .border {
     margin-top: 7px;
-    border-bottom: 1px solid var(--foreground);
+    border-bottom: 0.0625rem solid var(--foreground);
   }
 
   .m3-container > :global(svg) {

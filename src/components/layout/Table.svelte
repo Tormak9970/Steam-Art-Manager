@@ -36,7 +36,7 @@
     position: relative;
     z-index: 2;
 
-    border-bottom: 1px solid var(--foreground);
+    border-bottom: 0.0625rem solid var(--foreground);
   }
 
   .header, .header :global(> :first-child) {

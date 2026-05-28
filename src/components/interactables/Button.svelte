@@ -19,7 +19,7 @@
     height: auto;
         
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
 
     display: flex;
@@ -36,7 +36,7 @@
 
   button:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   button:focus {
@@ -50,11 +50,11 @@
 
   .highlight {
     background-color: #18bb039c;
-    border: 1px solid var(--save-hover);
+    border: 0.0625rem solid var(--save-hover);
   }
   .highlight:hover {
     background-color: #18bb03c5;
-    border: 1px solid var(--save-hover);
+    border: 0.0625rem solid var(--save-hover);
   }
 
   .warn { background-color: var(--warning); }

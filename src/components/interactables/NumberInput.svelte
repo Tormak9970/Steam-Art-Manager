@@ -55,7 +55,7 @@
   .input > input {
     color: var(--font-color);
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
     outline: none;
     padding: 5px;
@@ -66,7 +66,7 @@
   .input > input:hover,
   .input > input:focus {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     outline: none;
   }
 </style>

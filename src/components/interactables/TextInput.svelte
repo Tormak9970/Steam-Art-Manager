@@ -9,7 +9,7 @@
 <div class="input">
   {#if label !== ""}
     <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+    <label style="margin-right: 0.625rem; font-size: 0.825rem; user-select: none;">{label}:</label>
   {/if}
   <input style="width: {width}px;" type="text" placeholder="{placeholder !== "" ? placeholder : value}" bind:value={value} on:change on:input>
 </div>
@@ -30,7 +30,7 @@
   .input > input {
     color: var(--font-color);
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     outline: none;
     border-radius: 0.25rem;
     padding: 0.25rem;
@@ -40,7 +40,7 @@
   .input > input:hover,
   .input > input:focus {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     outline: none;
   }
 </style>

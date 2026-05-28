@@ -164,7 +164,7 @@ a:visited { color: var(--link-color-visited); }
 .tippy-box[data-theme~=sarm] {
   background-color: var(--tooltip-background);
   background-clip: padding-box;
-  border: 1px solid var(--tooltip-border);
+  border: 0.0625rem solid var(--tooltip-border);
   color: var(--font-color);
   box-shadow: 0 0.25rem 14px -2px var(--tooltip-shadow);
   font-size: 12px;

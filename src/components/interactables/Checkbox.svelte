@@ -34,7 +34,7 @@
     width: 1.25rem;
 
     border-radius: 0.25rem;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
   }
 
   .check-box-container input {
@@ -49,7 +49,7 @@
     height: calc(100% - 0.375rem);
     width: calc(100% - 0.375rem);
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     padding: 0.125rem;
     border-radius: 0.25rem;
     display: flex;
@@ -64,6 +64,6 @@
 
   .check-box-container:hover input ~ .check-box {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 </style>

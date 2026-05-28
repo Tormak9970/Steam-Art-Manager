@@ -23,7 +23,7 @@
     position: relative;
     height: 20px;
     background-color: var(--background-dark);
-    border: 1px solid #000;
+    border: 0.0625rem solid #000;
     border-radius: 2px;
   }
 
