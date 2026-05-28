@@ -3,7 +3,7 @@
   export let value:string;
   export let placeholder:string = "";
 
-  export let width:number = 140;
+  export let width:string = "8.75rem";
 </script>
 
 <div class="input">
@@ -11,7 +11,7 @@
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label style="margin-right: 0.625rem; font-size: 0.825rem; user-select: none;">{label}:</label>
   {/if}
-  <input style="width: {width}px;" type="text" placeholder="{placeholder !== "" ? placeholder : value}" bind:value={value} on:change on:input>
+  <input style="width: {width};" type="text" placeholder="{placeholder !== "" ? placeholder : value}" bind:value={value} on:change on:input>
 </div>
 
 <style>

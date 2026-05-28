@@ -55,13 +55,13 @@
     <div class="required-cont">
       {#if required}
         <div class="tooltip-cont" use:AppController.tippy={{ content: "This setting is required", placement: "top", onShow: AppController.onTippyShow }}>
-          <Asterisk style="height: 14px; width: 14px; fill: var(--font-color);" />
+          <Asterisk style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);" />
         </div>
       {/if}
     </div>
   </div>
   <div class="inputs">
-    <TextInput placeholder={"Your API key"} on:input={debouncedWrapper} width="{220}" bind:value={value} />
+    <TextInput placeholder={"Your API key"} on:input={debouncedWrapper} width="13.75rem" bind:value={value} />
 
     {#if useValidator}
       {#if isValid}
@@ -101,7 +101,7 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
-    padding: 6px;
+    padding: 0.5rem;
     border-radius: 0.25rem;
   }
 
@@ -112,12 +112,12 @@
   }
 
   .required-cont {
-    height: 14px;
-    width: 14px;
+    height: 0.875rem;
+    width: 0.875rem;
   }
 
   .label {
-    margin-top: 0px;
+    margin-top: 0rem;
     font-size: 1rem;
   }
 
@@ -127,12 +127,12 @@
 
   .description {
     line-height: 1.5rem;
-    font-size: 14px;
-    margin: 7px 0px;
+    font-size: 0.875rem;
+    margin: 0.5rem 0rem;
 
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   
@@ -140,21 +140,21 @@
     display: flex;
     align-items: center;
 
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .valid-value {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--success);
   }
 
   .warn-value {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: rgb(231, 198, 12);
   }
 
   .invalid-value {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--warning);
   }
 </style>

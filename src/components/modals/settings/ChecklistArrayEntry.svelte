@@ -9,7 +9,6 @@
   export let options: string[];
   export let value: string[];
   export let onChange: (value: string[]) => void = () => {};
-  export let disabled = false;
   export let required = false;
 
   /**
@@ -33,7 +32,7 @@
     <div class="required-cont">
       {#if required}
         <div class="tooltip-cont" use:AppController.tippy={{ content: "This setting is required", placement: "top", onShow: AppController.onTippyShow }}>
-          <Asterisk style="height: 14px; width: 14px; fill: var(--font-color);" />
+          <Asterisk style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);" />
         </div>
       {/if}
     </div>
@@ -70,21 +69,21 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
-    padding: 6px;
+    padding: 0.5rem;
     border-radius: 0.25rem;
 
-    width: calc(100% - 14px);
+    width: calc(100% - 0.875rem);
   }
 
   .description {
     line-height: 1.5rem;
-    font-size: 14px;
-    margin: 7px 0px;
+    font-size: 0.875rem;
+    margin: 0.5rem 0rem;
   }
 
   
   .inputs {
-    width: calc(100% - 0.5rem - 2px);
+    width: calc(100% - 0.5rem - 0.125rem);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -102,7 +101,7 @@
   }
 
   .name {
-    font-size: 12px;
+    font-size: 0.825rem;
     user-select: none;
 
     overflow: hidden;
@@ -119,12 +118,12 @@
   }
 
   .required-cont {
-    height: 14px;
-    width: 14px;
+    height: 0.875rem;
+    width: 0.875rem;
   }
 
   .label {
-    margin-top: 0px;
+    margin-top: 0rem;
     font-size: 1rem;
   }
 </style>

@@ -45,9 +45,9 @@
 
     --m3-snackbar-shape: 0.25rem;
 
-    --m3-util-elevation-3: 0px 5px 5px -3px rgb(var(--m3-scheme-shadow) / 0.2),
-    0px 0.5rem 10px 1px rgb(var(--m3-scheme-shadow) / 0.14),
-    0px 3px 14px 2px rgb(var(--m3-scheme-shadow) / 0.12);
+    --m3-util-elevation-3: 0rem 0.3125rem 0.3125rem -0.25rem rgb(var(--m3-scheme-shadow) / 0.2),
+    0rem 0.5rem 0.625rem 0.0625rem rgb(var(--m3-scheme-shadow) / 0.14),
+    0rem 0.25rem 0.875rem 0.125rem rgb(var(--m3-scheme-shadow) / 0.12);
   }
 
   .background {
@@ -68,7 +68,7 @@
   }
 
   .dialog {
-    width: calc(100% - 2rem);
+    width: calc(100% - 0.125rem);
     max-width: 30rem;
 
     border: 0;
