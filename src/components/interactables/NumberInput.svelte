@@ -30,7 +30,7 @@
 <div class="input">
   {#if label !== ""}
     <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+    <label style="margin-right: 0.875rem; font-size: 0.875rem; user-select: none;">{label}:</label>
   {/if}
   <input
     type="text"
@@ -42,14 +42,14 @@
 
 <style>
   .input {
-    margin: 0px;
+    margin: 0rem;
 
     display: flex;
     flex-direction: row;
     align-items: center;
 
     color: var(--font-color);
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 
   .input > input {
@@ -58,8 +58,8 @@
     border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
     outline: none;
-    padding: 5px;
-    max-width: 140px;
+    padding: 0.25rem;
+    max-width: 8.75rem;
     
     transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
   }

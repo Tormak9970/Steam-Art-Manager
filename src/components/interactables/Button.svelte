@@ -13,8 +13,8 @@
 
 <style>
   button {
-    padding: 6px 12px;
-    min-width: 52px;
+    padding: 0.425rem 0.75rem;
+    min-width: 3.25rem;
 
     height: auto;
         
@@ -26,7 +26,7 @@
     align-items: center;
     justify-content: center;
 
-    font-size: 12px;
+    font-size: 0.75rem;
     cursor: pointer;
 
     color: var(--font-color);
