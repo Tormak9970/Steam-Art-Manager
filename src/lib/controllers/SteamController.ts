@@ -71,7 +71,7 @@ export class SteamController {
     const vdf = await RustInterop.readAppinfoVdf();
 
     return vdf.entries.filter((entry: any) => ids.includes(entry.appid.toString())).map((entry: any) => {
-      const libraryAssets = entry.common.library_assets_full;
+      const libraryAssets = entry?.common?.library_assets_full;
       
       return {
         appid: entry.appid,
