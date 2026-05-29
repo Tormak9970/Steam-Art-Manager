@@ -71,7 +71,7 @@ export class SteamController {
     const vdf = await RustInterop.readAppinfoVdf();
 
     return vdf.entries.filter((entry: any) => ids.includes(entry.appid.toString())).map((entry: any) => {
-      const libraryAssets = entry.common.library_assets_full;
+      const libraryAssets = entry?.common?.library_assets_full;
       
       return {
         appid: entry.appid,
@@ -84,7 +84,7 @@ export class SteamController {
           hero: libraryAssets?.library_hero?.image?.english ?? "",
           logo: libraryAssets?.library_logo?.image?.english ?? "",
         },
-        type: entry.common.type,
+        type: entry.common?.type ?? "Game",
         installed: installedAppIds.includes(entry.appid.toString())
       };
     }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));

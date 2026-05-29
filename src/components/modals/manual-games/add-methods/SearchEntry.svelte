@@ -14,37 +14,40 @@
 
 <style>
   .search-entry {
-    width: calc(100% - 14px);
-    height: 20px;
+    width: calc(100% - 1rem);
+    height: 1.25rem;
     
-    padding: 3px;
+    padding: 0.25rem;
 
     display: flex;
     align-items: center;
 
-    background-color: var(--foreground);
+    background-color: var(--background-hover);
+    border: 0.0125rem solid var(--foreground);
 
     border-radius: 0.25rem;
   }
 
   .search-entry:hover {
-    background-color: var(--foreground-hover);
+    background-color: var(--foreground);
+    border: 0.0625rem solid var(--foreground-hover);
     cursor: pointer;
   }
 
   .selected, .selected:hover {
     background-color: var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
   }
 
   .name {
-    font-size: 12px;
+    font-size: 0.75rem;
     user-select: none;
 
-    width: 200px;
+    width: 18.75rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     
-    margin-left: 10px;
+    margin-left: 0.25rem;
   }
 </style>

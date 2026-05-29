@@ -12,7 +12,7 @@
   export let onChange: (query:string) => void = () => {};
 
   let searching = false;
-  let timeout:NodeJS.Timeout|null;
+  let timeout:number|null;
 
   let searchInput:HTMLInputElement;
 
@@ -62,7 +62,7 @@
 
   input {
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     color: var(--font-color);
     border-radius: 0.25rem;
     padding: 0.375rem;
@@ -74,7 +74,7 @@
   input:hover,
   input:focus {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     outline: none;
   }
 

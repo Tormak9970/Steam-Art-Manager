@@ -2,7 +2,7 @@
  import { afterUpdate } from "svelte";
 
   export let progress:number = 0;
-  export let width:string = "200px";
+  export let width:string = "12.5rem";
   export let onFinish: () => void = () => {};
 
   $: isFinished = Math.abs(progress - 100) === 0;
@@ -14,17 +14,17 @@
   });
 </script>
 
-<div class="prog-bar" style="width: calc({width} - 2px);">
+<div class="prog-bar" style="width: calc({width} - 0.125rem);">
   <div class="prog-bar-ind" style="width: {progress}%;" class:finished={isFinished} />
 </div>
 
 <style>
   .prog-bar {
     position: relative;
-    height: 20px;
+    height: 1.25rem;
     background-color: var(--background-dark);
-    border: 1px solid #000;
-    border-radius: 2px;
+    border: 0.0625rem solid #000;
+    border-radius: 0.125rem;
   }
 
   .prog-bar-ind {

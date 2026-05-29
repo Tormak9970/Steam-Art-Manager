@@ -99,12 +99,11 @@
   }
 
   .game {
-    background-color: var(--foreground);
-    padding: 10px;
-    padding-bottom: 5px;
+    padding: 0.5rem;
+    padding-bottom: 0.25rem;
     border-radius: 0.25rem;
 
-    font-size: 14px;
+    font-size: 0.75rem;
 
     display: flex;
     flex-direction: column;
@@ -117,16 +116,28 @@
     user-select: none;
 
     transition: background-color 0.2s ease-in-out;
+    
+    background-color: var(--background-hover);
+    border: 0.0625rem solid var(--foreground);
   }
-  .game:hover { background-color: var(--foreground-hover); }
+  .game:hover {
+    background-color: var(--foreground);
+    border: 0.0625rem solid var(--foreground-hover);
+  }
 
-  .selected { background-color: var(--foreground-light); }
-  .selected:hover { background-color: var(--foreground-light-hover); }
+  .selected {
+    background-color: var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-light);
+  }
+  .selected:hover {
+    background-color: var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
+  }
 
   .name {
     width: 100%;
-    height: 23px;
-    line-height: 23px;
+    height: 1.5rem;
+    line-height: 1.5rem;
 
     text-overflow: ellipsis;
     overflow: hidden;
@@ -138,15 +149,15 @@
   .button-container {
     position: absolute;
 
-    top: 2px;
-    left: 2px;
+    top: 0.125rem;
+    left: 0.125rem;
     
-    width: 14px;
+    width: 1rem;
 
     z-index: 2;
 
     flex-direction: column;
-    gap: 5px;
+    gap: 0.25rem;
 
     display: none;
   }
@@ -154,16 +165,20 @@
   .image-control {
     border-radius: 50%;
 
-    width: 14px;
-    height: 14px;
+    width: 1rem;
+    height: 1rem;
 
-    padding: 5px;
+    padding: 0.25rem;
 
     fill: var(--font-color);
 
     background-color: var(--background);
 
     opacity: 0.8;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .image-control:hover {
     cursor: pointer;

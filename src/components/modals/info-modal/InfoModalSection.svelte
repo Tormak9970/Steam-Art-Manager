@@ -16,18 +16,18 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
-    padding: 6px;
+    padding: 0.5rem;
     border-radius: 0.25rem;
   }
 
   .title {
-    margin-top: 0px;
+    margin-top: 0rem;
     font-size: 1.5rem;
   }
 
   .content {
     line-height: 1.5rem;
-    font-size: 14px;
-    margin: 7px 0px;
+    font-size: 0.875rem;
+    margin: 0.5rem 0rem;
   }
 </style>

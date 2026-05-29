@@ -31,8 +31,8 @@
     <div class="entry-info">
       <div class="icon-container">
         {#if showIcon}
-          <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}px" fadeOption={IMAGE_FADE_OPTIONS}>
-            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}px; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}px; width: auto; height: auto;" draggable="false" />
+          <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}rem; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}rem; width: auto; height: auto;" draggable="false" />
           </Lazy>
         {:else}
           <div style="text-align: center;">No icon image for game</div>
@@ -76,8 +76,8 @@
 
     border-radius: 0.25rem;
     
-    margin-bottom: 7px;
-    margin-right: 7px;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
 
     position: relative;
   }
@@ -97,13 +97,12 @@
   }
 
   .list-entry {
-    background-color: var(--foreground);
-    padding: 6px 10px;
+    padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
 
-    height: 47px;
+    height: 3rem;
 
-    font-size: 14px;
+    font-size: 1rem;
 
     display: flex;
     flex-direction: row;
@@ -118,18 +117,30 @@
 
     transition: background-color 0.2s ease-in-out;
 
-    width: calc(100% - 20px);
+    width: calc(100% - 1.25rem);
 
     z-index: 0;
+    
+    background-color: var(--background-hover);
+    border: 0.0625rem solid var(--foreground);
   }
-  .list-entry:hover { background-color: var(--foreground-hover); }
+  .list-entry:hover {
+    background-color: var(--foreground);
+    border: 0.0625rem solid var(--foreground-hover);
+  }
   
   .disabled {
     pointer-events: none;
   }
 
-  .selected { background-color: var(--foreground-light); }
-  .selected:hover { background-color: var(--foreground-light-hover); }
+  .selected {
+    background-color: var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-light);
+  }
+  .selected:hover {
+    background-color: var(--foreground-light);
+    border: 0.0625rem solid var(--foreground-light);
+  }
 
   .entry-info {
     display: flex;
@@ -137,18 +148,18 @@
   }
 
   .icon-container {
-    margin-right: 7px;
+    margin-right: 0.5rem;
     border-radius: 0.25rem;
 
-    height: 32px;
-    width: 32px;
+    height: 2rem;
+    width: 2rem;
 
     overflow: hidden;
   }
 
   .name {
-    height: 23px;
-    line-height: 23px;
+    height: 1.5rem;
+    line-height: 1.5rem;
 
     text-overflow: ellipsis;
     overflow: hidden;
@@ -159,7 +170,7 @@
 
   .status {
     height: 20.5rem;
-    min-width: 5px;
+    min-width: 0.25rem;
 
     display: flex;
     align-items: center;
@@ -168,10 +179,10 @@
   .image-control {
     border-radius: 50%;
 
-    width: 14px;
-    height: 14px;
+    width: 1rem;
+    height: 1rem;
 
-    padding: 5px;
+    padding: 0.25rem;
 
     fill: var(--font-color);
 
@@ -183,7 +194,10 @@
 
     z-index: 2;
     
-    margin-right: 7px;
+    margin-right: 0.5rem;
+
+    align-items: center;
+    justify-content: center;
   }
   .image-control:hover {
     cursor: pointer;

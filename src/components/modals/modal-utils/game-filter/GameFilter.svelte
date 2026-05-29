@@ -80,10 +80,10 @@
   <div class="options">
     <div class="dropdowns">
       {#if showPlatforms}
-        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="100px" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
+        <DropDown label="Platforms" options={platforms} bind:value={selectedPlatform} width="6.25rem" onChange={(platform) => { onStateChange(platform, selectedGamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
       {/if}
       {#if showFilters}
-        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="100px" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
+        <DropDown label="Filters" options={gameFilters} bind:value={selectedGamesFilter} width="6.25rem" onChange={(gamesFilter) => { onStateChange(selectedPlatform, gamesFilter, includeHidden, installedOnly); }} showTooltip={false} />
       {/if}
     </div>
     <div class="dropdowns">
@@ -96,10 +96,10 @@
   <Table>
     <span slot="header">
       <div class="batch-icon" use:AppController.tippy={{ content: "Checked games will be included", placement: "left", onShow: AppController.onTippyShow }}>
-        <Info style="height: 12px; width: 12px;" />
+        <Info style="height: 0.75rem; width: 0.75rem;" />
       </div>
       <div>Name</div>
-      <div style="margin-left: auto; margin-right: 57px;">Platform</div>
+      <div style="margin-left: auto; margin-right: 3.5rem;">Platform</div>
     </span>
     <span slot="data" class="entries">
       {#each gamesToFilter as game, i (`${game.appid}|${i}`)}
@@ -114,8 +114,8 @@
 <style>
   .batch-icon {
     fill: var(--font-color);
-    margin-left: 9px;
-    margin-right: 14px;
+    margin-left: 0.625rem;
+    margin-right: 0.75rem;
 
     cursor: pointer;
   }
@@ -128,20 +128,20 @@
   }
 
   .options {
-    margin-top: 7px;
+    margin-top: 0.5rem;
 
     width: 100%;
 
     display: flex;
     flex-direction: column;
 
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .entries {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 
   .toggles {

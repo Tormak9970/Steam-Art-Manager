@@ -13,7 +13,7 @@
    */
   function saveWrapper(): void {
     $showInfoSnackbar({ message: `Added ${gameName}!` });
-    onGameSave({ appid: appId, name: gameName });
+    onGameSave({ appid: appId, type: "Game", installed: true, name: gameName });
     gameName = "";
     appId = 0;
   }
@@ -53,21 +53,21 @@
   }
 
   .description {
-    width: calc(100% - 30px);
-    margin-top: 7px;
-    margin-bottom: 21px;
+    width: calc(100% - 1.75rem);
+    margin-top: 0.5rem;
+    margin-bottom: 1.25rem;
 
-    font-size: 14px;
+    font-size: 0.875rem;
 
     background-color: var(--background-dark);
     border-radius: 0.25rem;
 
-    padding: 5px;
+    padding: 0.5rem;
   }
 
   .buttons {
-    margin-top: 14px;
-    width: calc(100% - 20px);
+    margin-top: 0.875rem;
+    width: calc(100% - 1.25rem);
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;

@@ -6,6 +6,20 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.14.0
+
+New Features
+* aligned grid styles with the rest of sarm ([1c55986](https://github.com/Tormak9970/Steam-Art-Manager/commit/1c55986))
+* polished ui and made it more consistent ([78c64e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/78c64e5))
+* updated styling of the custom game name dialog ([dccf188](https://github.com/Tormak9970/Steam-Art-Manager/commit/dccf188))
+
+Bug Fixes
+* adjusted wording and settings styles ([8b7d0c3](https://github.com/Tormak9970/Steam-Art-Manager/commit/8b7d0c3))
+* app will no longer fail to load with missing common assets ([aa44177](https://github.com/Tormak9970/Steam-Art-Manager/commit/aa44177))
+* icons now render properly, but don't save ([1609d3e](https://github.com/Tormak9970/Steam-Art-Manager/commit/1609d3e))
+* provided a default for steam apps missing a type ([053f788](https://github.com/Tormak9970/Steam-Art-Manager/commit/053f788))
+* settings now adjust properly when new ones are added ([e084fe8](https://github.com/Tormak9970/Steam-Art-Manager/commit/e084fe8))
+
 ## v3.13.0
 
 New Features

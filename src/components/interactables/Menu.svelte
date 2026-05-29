@@ -59,8 +59,8 @@
 
   .select-items > div,
   .select-items > div {
-    padding: 0.35rem 10px;
-    padding-top: 5px;
+    padding: 0.35rem 0.625rem;
+    padding-top: 0.25rem;
 
     display: flex;
     flex-direction: row;
@@ -88,10 +88,10 @@
     /* left: 0; */
     right: 0;
     z-index: 99;
-    margin-top: 1px;
+    margin-top: 0.125rem;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground-hover);
-    box-shadow: 3px 6px 12px -2px var(--shadow);
+    border: 0.0625rem solid var(--foreground-hover);
+    box-shadow: 0.25rem 0.375rem 0.75rem -0.125rem var(--shadow);
     overflow: hidden;
   }
   .select-items > div:hover {
@@ -104,10 +104,10 @@
     left: 0;
     right: 0;
     z-index: 99;
-    margin-top: 2px;
-    border-radius: 2px;
-    border: 1px solid transparent;
-    box-shadow: -3px -6px 26px -2px var(--shadow);
+    margin-top: 0.125rem;
+    border-radius: 0.125rem;
+    border: 0.0625rem solid transparent;
+    box-shadow: -0.125rem -0.375rem 1.625rem -0.125rem var(--shadow);
   }
 
   .select-hide { display: none; }

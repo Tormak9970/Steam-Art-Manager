@@ -8,7 +8,7 @@
   export let isLoading: boolean;
   export let games: GameStruct[];
 
-  const itemHeight = 47;
+  const itemHeight = 48;
 </script>
 
 <div class="games-list">

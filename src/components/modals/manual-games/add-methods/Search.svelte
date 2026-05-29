@@ -41,7 +41,7 @@
     const appid = await CacheController.getAppidForSGDBGame(selectedGame!);
     
     if (appid) {
-      onGameSave({ appid: parseInt(appid), name: selectedGame!.name });
+      onGameSave({ appid: parseInt(appid), type: "Game", installed: true, name: selectedGame!.name });
       $showInfoSnackbar({ message: `Added ${selectedGame!.name}!` });
       selectedGame = null;
       results = [];
@@ -74,7 +74,7 @@
       Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
     </div>
     <div class="table-cont">
-      <Table height="317px">
+      <Table height="19.75rem">
         <span slot="header">
           <div class="name">Name</div>
         </span>
@@ -102,24 +102,24 @@
   }
 
   .description {
-    width: calc(100% - 20px);
-    margin-top: 6px;
-    margin-bottom: 7px;
+    width: calc(100% - 1.25rem);
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
 
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .table-cont {
-    width: calc(100% - 7px);
+    width: calc(100% - 0.5rem);
   }
 
   .name {
-    margin-left: 3px;
+    margin-left: 0.25rem;
   }
 
   .buttons {
-    margin-top: 14px;
-    width: calc(100% - 7px);
+    margin-top: 0.875rem;
+    width: calc(100% - 0.5rem);
     display: flex;
     justify-content: space-between;
     justify-self: flex-end;
@@ -128,6 +128,6 @@
   .entries {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 0.5rem;
   }
 </style>

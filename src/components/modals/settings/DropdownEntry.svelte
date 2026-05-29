@@ -31,7 +31,7 @@
       options={options}
       bind:value={value}
       onChange={onChange}
-      width="100px"
+      width="6.25rem"
       tooltipPosition="bottom"
       entryTooltipPosition="right"
       disabled={disabled}
@@ -54,16 +54,16 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
-    padding: 6px;
+    padding: 0.5rem;
     border-radius: 0.25rem;
 
-    width: calc(100% - 14px);
+    width: calc(100% - 0.875rem);
   }
 
   .description {
     line-height: 1.5rem;
-    font-size: 14px;
-    margin: 7px 0px;
+    font-size: 0.875rem;
+    margin: 0.5rem 0rem;
   }
 
   
