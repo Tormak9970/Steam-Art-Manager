@@ -10,7 +10,7 @@
   export let highlight = false;
   export let greyHighlight = false;
   export let warn = false;
-  export let padding = "6px";
+  export let padding = "0.3125rem";
 </script>
 
 {#if !!label}
@@ -25,18 +25,18 @@
 
 <style>
   .button {
-    min-width: 22px;
-    min-height: 22px;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
         
     background-color: var(--background-hover);
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    font-size: 12px;
+    font-size: 0.75rem;
     cursor: pointer;
 
     color: var(--font-color);
@@ -49,7 +49,7 @@
 
   .button:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
   }
 
   .button:focus {
@@ -66,11 +66,11 @@
 
   .grey-highlight {
     background-color: var(--foreground-light);
-    border: 1px solid var(--foreground-light-hover);
+    border: 0.0625rem solid var(--foreground-light-hover);
   }
   .grey-highlight:hover {
     background-color: var(--foreground-light-hover);
-    border: 1px solid var(--foreground-light-hover);
+    border: 0.0625rem solid var(--foreground-light-hover);
   }
 
   .warn { background-color: var(--warning); }

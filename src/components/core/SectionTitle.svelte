@@ -16,6 +16,6 @@
   .title {
     margin: 0.375rem;
     margin-bottom: 0;
-    border-bottom: 1px solid var(--foreground);
+    border-bottom: 0.0625rem solid var(--foreground);
   }
 </style>

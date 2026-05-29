@@ -72,13 +72,13 @@
   $: canClear = !!$originalLogoPositions[game.appid] && $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition !== "REMOVE";
 
   const widths = {
-    "Hero": 956,
-    "Logo": 600
+    "Hero": 59.75,
+    "Logo": 12.5
   };
 
   const heights = {
-    "Hero": 342,
-    "Logo": 402
+    "Hero": 21.375,
+    "Logo": 25.125
   };
 
   /**
@@ -171,9 +171,9 @@
   <div class="content">
     <div class="view">
       <div class="hero-cont">
-        <div class="img" class:missing-background={heroPath === ""} style="max-height: {heights.Hero}px;">
+        <div class="img" class:missing-background={heroPath === ""} style="max-height: {heights.Hero}rem;">
           {#if heroPath !== ""}
-            <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}px; max-height: {heights.Hero}px; width: auto; height: auto;" />
+            <img src="{heroPath}" alt="Hero image for {game?.name}" style="max-width: {widths.Hero}rem; max-height: {heights.Hero}rem; width: auto; height: auto;" />
           {/if}
         </div>
       </div>
@@ -183,19 +183,19 @@
     </div>
     <div class="interactables">
       <div class="logo-size">
-        <Slider label="Width" bind:value={logoWidth} width="200px" />
+        <Slider label="Width" bind:value={logoWidth} width="12.5rem" />
       </div>
       <div class="logo-size">
-        <Slider label="Height" bind:value={logoHeight} width="200px" />
+        <Slider label="Height" bind:value={logoHeight} width="12.5rem" />
       </div>
       <div class="logo-position">
-        <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="140px" direction="UP" />
+        <DropDown label="Position" options={dropdownOptions} bind:value={logoPosition} width="8.75rem" direction="UP" />
       </div>
       {#if canClear}
-        <Button on:click={applyChanges} width="182px" disabled={!canSave}>Save</Button>
-        <Button on:click={clearLogoPosition} width="102px">Reset</Button>
+        <Button on:click={applyChanges} width="11.5rem" disabled={!canSave}>Save</Button>
+        <Button on:click={clearLogoPosition} width="6.5rem">Reset</Button>
       {:else}
-        <Button on:click={applyChanges} width="300px" disabled={!canSave}>Save</Button>
+        <Button on:click={applyChanges} width="18.75rem" disabled={!canSave}>Save</Button>
       {/if}
     </div>
   </div>
@@ -203,8 +203,8 @@
 
 <style>
   .content {
-    min-width: 200px;
-    min-height: calc(100% - 20px);
+    min-width: 12.5rem;
+    min-height: calc(100% - 1.25rem);
 
     display: flex;
     flex-direction: column;
@@ -214,19 +214,19 @@
   .view {
     width: 100%;
     position: relative;
-    margin: 10px 0px;
+    margin: 0.625rem 0;
   }
 
   .logo-cont {
     position: absolute;
     display: flex;
     flex-direction: column;
-    border: 2px solid var(--highlight-transparent);
-    border-radius: 2px;
+    border: 0.125rem solid var(--highlight-transparent);
+    border-radius: 0.125rem;
   }
 
   .hero-cont > .img {
-    border-radius: 2px;
+    border-radius: 0.125rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -235,23 +235,23 @@
   }
 
   .missing-background {
-    width: 956px;
-    height: 342px;
-    border-radius: 2px;
+    width: 59.75rem;
+    height: 21.375rem;
+    border-radius: 0.125rem;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
   }
 
   .interactables {
-    width: calc(100% - 20px);
-    padding: 0px 10px;
+    width: calc(100% - 1.25rem);
+    padding: 0rem 0.625rem;
 
     display: flex;
     align-items: center;
 
-    gap: 7px;
+    gap: 0.5rem;
   }
 
-  .logo-size { width: 220px; }
-  .logo-position { width: 220px; }
+  .logo-size { width: 13.75rem; }
+  .logo-position { width: 13.75rem; }
 </style>

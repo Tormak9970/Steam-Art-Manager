@@ -8,19 +8,20 @@
   export let isLoading: boolean;
   export let games: GameStruct[];
 
-  const padding = 20;
+  const padding = 1.25;
+  const heightOffset = 1.125;
 </script>
 
 <div class="games-grid">
   {#if isLoading}
-    <div class="loading-container" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+    <div class="loading-container" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
       {#each new Array(100) as _}
         <GridLoadingSkeleton />
       {/each}
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualGrid itemHeight={SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18} itemWidth={SMALL_GRID_DIMENSIONS.widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
+      <VirtualGrid remItemHeight={SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset} remItemWidth={SMALL_GRID_DIMENSIONS.widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualGrid>
     {:else}

@@ -29,8 +29,8 @@
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="description" on:click={clickListener}>
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html description}<br/>
     </div>
   {/if}
@@ -43,16 +43,16 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
-    padding: 6px;
+    padding: 0.5rem;
     border-radius: 0.25rem;
 
-    width: calc(100% - 14px);
+    width: calc(100% - 0.875rem);
   }
 
   .description {
     line-height: 1.5rem;
-    font-size: 14px;
-    margin: 7px 0px;
+    font-size: 0.875rem;
+    margin: 0.5rem 0rem;
   }
 
   

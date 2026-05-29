@@ -12,18 +12,18 @@
 
 <div class="grid-image">
   <div class="loading-overlay" class:selected={selected}>
-    <LoadingSpinner width="40px" height="40px" />
+    <LoadingSpinner width="2.5rem" height="2.5rem" />
   </div>
   <div class="label">{gridType}</div>
-  <div class="img-cont" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
+  <div class="img-cont" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}rem; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}rem;">
     {#if src && src !== ""}
-      <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
-        <Lazy height="{CURRENT_GRID_DIMENSIONS.heights[gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
-          <img src="{src}" alt="{gridType} image." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px; width: auto; height: auto;" />
+      <div class="img" class:logo-background={gridType === GridTypes.LOGO} class:icon-background={gridType === GridTypes.ICON} style="max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}rem;">
+        <Lazy height="{CURRENT_GRID_DIMENSIONS.heights[gridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+          <img src="{src}" alt="{gridType} image." style="max-width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}rem; max-height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}rem; width: auto; height: auto;" />
         </Lazy>
       </div>
     {:else}
-      <div class="logo-background" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}px; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}px;">
+      <div class="logo-background" style="width: {CURRENT_GRID_DIMENSIONS.widths[gridType]}rem; height: {CURRENT_GRID_DIMENSIONS.heights[gridType]}rem;">
         <Image style="width: 2rem; height: 2rem; fill: var(--font-color)" />
       </div>
     {/if}
@@ -36,12 +36,12 @@
   }
   
   .label {
-    padding-left: 10px;
+    padding-left: 0.625rem;
     font-size: 1.5rem;
   }
 
   .img-cont {
-    margin: 3px 10px;
+    margin: 0.125rem 0.625rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -49,7 +49,7 @@
   }
 
   .img-cont > .img {
-    border-radius: 2px;
+    border-radius: 0.125rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;

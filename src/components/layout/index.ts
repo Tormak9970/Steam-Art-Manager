@@ -1,9 +1,6 @@
 export { default as InfiniteScroll } from "./InfiniteScroll.svelte";
 
 export { default as ListTabs } from "./tabs/ListTabs.svelte";
-export { default as Tab } from "./tabs/Tab.svelte";
-export { default as Tabs } from "./tabs/Tabs.svelte";
-export * from "./tabs/tabStore";
 
 export { default as Accordion } from "./Accordion.svelte";
 export { default as GridLoadingSkeleton } from "./GridLoadingSkeleton.svelte";

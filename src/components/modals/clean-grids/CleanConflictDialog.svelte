@@ -78,9 +78,9 @@
     <div class="images {conflictGridType}">
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
-            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
-              <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -88,9 +88,9 @@
       </div>
       <div class="split">
         <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px;">
-            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
-              <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}px; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}px; width: auto; height: auto;" />
+          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem;">
+            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+              <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem; width: auto; height: auto;" />
             </Lazy>
           </div>
         </div>
@@ -108,8 +108,8 @@
 <style>
   /* done */
   .content {
-    width: 600px;
-		height: calc(100% - 60px);
+    width: 37.5rem;
+		height: calc(100% - 3.75rem);
 
 		display: flex;
 		flex-direction: column;
@@ -119,9 +119,9 @@
 
   .description {
     width: 100%;
-    font-size: 14px;
-    margin-top: 7px;
-    margin-bottom: 7px;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .images {
@@ -132,7 +132,7 @@
     flex-direction: row;
     justify-content: space-around;
 
-    gap: 10px;
+    gap: 0.625rem;
   }
 
   .images.hero {
@@ -145,7 +145,7 @@
     flex-direction: column;
     align-items: center;
 
-    gap: 10px;
+    gap: 0.625rem;
   }
 
   .images.hero .split {
@@ -164,11 +164,11 @@
     display: flex;
     flex-direction: row;
     height: calc(100% - 30.5rem);
-    max-width: 550px;
+    max-width: 34.375rem;
   }
 
   .img-cont > .img {
-    border-radius: 2px;
+    border-radius: 0.125rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -189,7 +189,7 @@
 
   /* done */
   .buttons {
-    margin-top: 14px;
+    margin-top: 0.875rem;
     width: 100%;
     display: flex;
     justify-content: space-between;

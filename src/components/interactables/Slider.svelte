@@ -5,13 +5,13 @@
   export let min:number = 0;
   export let max:number = 100;
   export let value:number = 0;
-  export let width:string = "100px";
+  export let width:string = "6.25rem";
 </script>
 
 <div class="slider" style="width: {width};">
   {#if label !== ""}
     <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 13px; font-size: 14px; user-select: none;">{label}:</label>
+    <label style="margin-right: 0.75rem; font-size: 0.875rem; user-select: none;">{label}:</label>
   {/if}
   <RangeInput min={min} max={max} bind:value="{value}" on:change />
 </div>
@@ -27,7 +27,7 @@
     --tooltip-bg: var(--foreground-light);
     --tooltip-bgcolor: var(--foreground-light);
     
-    margin: 0px;
+    margin: 0rem;
 
     display: flex;
     flex-direction: row;
@@ -35,7 +35,7 @@
 
     color: var(--font-color);
 
-    font-size: 12px;
+    font-size: 0.75rem;
     width: 100%;
   }
 </style>

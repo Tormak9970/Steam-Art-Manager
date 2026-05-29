@@ -80,7 +80,7 @@
       {/if}
     </div>
     <div class="border" />
-    <div class="content m3-font-body-medium" style:margin-bottom={$$slots.buttons ? "0.8rem" : "0px"}>
+    <div class="content m3-font-body-medium" style:margin-bottom={$$slots.buttons ? "0.8rem" : "0rem"}>
       <slot />
     </div>
     <div class="buttons">
@@ -113,16 +113,16 @@
 
   .close-btn {
     position: absolute;
-    height: 20px;
-    width: 20px;
+    height: 1.25rem;
+    width: 1.25rem;
     fill: var(--font-color);
 
-    top: 2px;
-    right: 2px;
+    top: 0.125rem;
+    right: 0.125rem;
 
     background-color: var(--background);
-    padding: 3px;
-    border-radius: 2px;
+    padding: 0.25rem;
+    border-radius: 0.125rem;
 
     display: flex;
     flex-direction: column;
@@ -142,8 +142,8 @@
   }
 
   .border {
-    margin-top: 7px;
-    border-bottom: 1px solid var(--foreground);
+    margin-top: 0.25rem;
+    border-bottom: 0.0625rem solid var(--foreground);
   }
 
   .m3-container > :global(svg) {
@@ -157,8 +157,8 @@
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
     
-    font-size: 20px;
-    line-height: 20px;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
 
     font-weight: bold;
   }
@@ -216,7 +216,7 @@
     backdrop-filter: blur(1px);
 
     position: absolute;
-    top: 0px;
+    top: 0rem;
   }
   @keyframes dialogIn {
     0% {

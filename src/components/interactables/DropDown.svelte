@@ -62,7 +62,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper" on:click|stopPropagation>
   {#if label !== ""}
-    <div style="margin-right: 7px; font-size: 14px; user-select: none;">{label}:</div>
+    <div style="margin-right: 0.5rem; font-size: 0.875rem; user-select: none;">{label}:</div>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
@@ -108,7 +108,7 @@
 
 <style>
   .wrapper {
-    margin: 0px;
+    margin: 0rem;
 
 		display: flex;
 		flex-direction: row;
@@ -116,24 +116,24 @@
 
 		color: var(--font-color);
 
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .custom-select {
     user-select: none;
     position: relative;
-    padding: 5px;
+    padding: 0.3125rem;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground);
+    border: 0.0625rem solid var(--foreground);
 
     background-color: var(--background-hover);
     transition: background-color 0.15s ease-in-out;
     
-    min-width: 160px;
+    min-width: 10rem;
   }
   .custom-select:hover {
     background-color: var(--foreground);
-    border: 1px solid var(--foreground-hover);
+    border: 0.0625rem solid var(--foreground-hover);
     cursor: pointer;
   }
   .disabled {
@@ -146,8 +146,8 @@
     text-overflow: ellipsis;
     overflow: hidden;
 
-    width: calc(100% - 30px);
-    line-height: 16px;
+    width: calc(100% - 1.875rem);
+    line-height: 1rem;
   }
   .select-selected::after {
     position: absolute;
@@ -156,27 +156,27 @@
     right: 4%;
     width: 0;
     height: 0;
-    border: min(1.333vw, 6px) solid transparent;
+    border: min(1.333vw, 0.375rem) solid transparent;
     border-color: var(--font-color) transparent transparent transparent;
   }
   
   .select-arrow-active::after {
     border-color: transparent transparent var(--font-color) transparent;
-    top: 7px;
+    top: 0.5rem;
   }
 
   .select-items > div,
   .select-selected {
     color: var(--font-color);
-    padding: 0px 3px;
+    padding: 0rem 0.125rem;
     cursor: pointer;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
   }
   .select-items > div {
-    padding: 0.25rem 5px;
-    padding-top: 5px;
+    padding: 0.25rem 0.3125rem;
+    padding-top: 0.3125rem;
     
     transition: background-color 0.15s ease-in-out;
   }
@@ -187,10 +187,10 @@
     left: 0;
     right: 0;
     z-index: 99;
-    margin-top: 1px;
+    margin-top: 0.125rem;
     border-radius: 0.25rem;
-    border: 1px solid var(--foreground-hover);
-    box-shadow: 3px 6px 12px -2px var(--shadow);
+    border: 0.0625rem solid var(--foreground-hover);
+    box-shadow: 0.125rem 0.75rem -0.125rem var(--shadow);
     overflow: hidden;
   }
   .select-items > div:hover {
@@ -203,10 +203,10 @@
     left: 0;
     right: 0;
     z-index: 99;
-    margin-top: 2px;
-    border-radius: 2px;
-    border: 1px solid transparent;
-    box-shadow: -3px -6px 26px -2px var(--shadow);
+    margin-top: 0.125rem;
+    border-radius: 0.125rem;
+    border: 0.0625rem solid transparent;
+    box-shadow: -0.125rem -0.75rem 1.625rem -0.125rem var(--shadow);
   }
 
   .select-hide { display: none; }

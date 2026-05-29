@@ -30,16 +30,16 @@
   }
 </script>
 
-<div class="grid-img" style="height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px;">
+<div class="grid-img" style="height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem;">
   {#if showImage && !showWarning && imagePath}
-    <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={IMAGE_FADE_OPTIONS}>
+    <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
         <video
           src="{imagePath}"
           muted
           loop
           autoplay={false}
-          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
           on:mouseover={onEnter}
           on:mouseleave={onLeave}
         />
@@ -47,7 +47,7 @@
         <img
           src="{imagePath}"
           alt="{altText}"
-          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
           draggable="false"
           on:error={() => showWarning = true}
         />

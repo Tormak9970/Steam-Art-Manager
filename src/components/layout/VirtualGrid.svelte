@@ -7,10 +7,13 @@
 	export let items: any[];
 	export let height = "100%";
   export let width = "100%";
-	export let itemHeight: number;
-  export let itemWidth: number;
+	export let remItemHeight: number;
+  export let remItemWidth: number;
   export let columnGap: number;
   export let rowGap: number;
+
+  $: itemHeight = remItemHeight * 16;
+  $: itemWidth = remItemWidth * 16;
 
   export let keyFunction = (entry: any) => entry.index;
 

@@ -249,7 +249,7 @@ export class CacheController {
 
       const targetFilters = filters[type];
       const gridStyles = Object.keys(targetFilters.styles).filter((style) => targetFilters.styles[style]);
-      const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : [];
+      const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : undefined;
       const mimes = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
       const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
       const humor = targetFilters.oneoftag.humor;

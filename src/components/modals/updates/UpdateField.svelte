@@ -11,11 +11,11 @@
   .field {
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 0.25rem;
   }
 
   .field > .entry {
-    font-size: 14px;
-    margin-right: 7px;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
   }
 </style>

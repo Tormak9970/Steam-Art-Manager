@@ -65,9 +65,9 @@
 
 <style>
   .content {
-		width: 600px;
-		height: calc(100% - 60px);
-    padding-top: 14px;
+		width: 37.5rem;
+		height: calc(100% - 3.75rem);
+    padding-top: 1rem;
 
 		display: flex;
 		flex-direction: column;

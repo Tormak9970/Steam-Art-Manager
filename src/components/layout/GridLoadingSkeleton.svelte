@@ -25,11 +25,11 @@
   }
 
   .img-placeholder {
-    width: calc(100% - 10px);
+    width: calc(100% - 1rem);
 
     flex-grow: 1;
 
-    margin-top: 5px;
+    margin-top: 0.5rem;
 
     background-color: var(--foreground-hover);
 
@@ -37,10 +37,10 @@
   }
 
   .title-placeholder {
-    height: 20px;
-    width: calc(100% - 10px);
+    height: 1.25rem;
+    width: calc(100% - 1rem);
 
-    margin: 5px 0px;
+    margin: 0.5rem 0rem;
 
     background-color: var(--foreground-hover);
     border-radius: 0.25rem;

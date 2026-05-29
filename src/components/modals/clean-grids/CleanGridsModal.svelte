@@ -49,7 +49,7 @@
       </ul>
     </div>
     <div class="options">
-      <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="100px" showTooltip={false} />
+      <DropDown label={"Preset"} options={presets} bind:value={$selectedCleanGridsPreset} width="6.25rem" showTooltip={false} />
     </div>
     <div class="view">
       {#if $selectedCleanGridsPreset === "custom"}
@@ -65,27 +65,27 @@
 
 <style>
   .content {
-    width: 600px;
-		height: calc(100% - 60px);
+    width: 37.5rem;
+		height: calc(100% - 3.75rem);
 
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
 
-    gap: 7px;
+    gap: 0.5rem;
 	}
 
   .description {
     width: 100%;
-    font-size: 14px;
-    margin-top: 7px;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
   }
 
   .description ul {
-    margin: 0px;
-    padding-left: 20px;
-    font-size: 13px;
+    margin: 0rem;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
   }
 
   .description li {
