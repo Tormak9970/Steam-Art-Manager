@@ -28,9 +28,9 @@
 
 <style>
 	.tabs {
-		padding: 10px;
-    padding-bottom: 5px;
-    border-top: 2px solid var(--foreground);
+		padding: 0.625rem;
+    padding-bottom: 0.25rem;
+    border-top: 0.125rem solid var(--foreground);
     
     background-color: var(--background);
 
@@ -47,7 +47,7 @@
     display: flex;
   }
 	li {
-    margin-bottom: -1px;
+    margin-bottom: -0.0625rem;
     flex-grow: 1;
 
     justify-content: center;
@@ -62,7 +62,7 @@
 
   span {
     display: block;
-    padding: 5px 7px;
+    padding: 0.375rem 0.5rem;
     cursor: pointer;
 
     background-color: var(--background);
@@ -72,6 +72,6 @@
 
   li.active > span { background-color: var(--foreground); }
 
-  li.active > span:hover { background-color: var(--foreground-hover) !important; }
-  span:hover { background-color: var(--background-hover) !important; }
+  span:hover { background-color: var(--background-hover); }
+  li.active > span:hover { background-color: var(--foreground-hover); }
 </style>

@@ -57,17 +57,17 @@ export const SMALL_GRID_DIMENSIONS: GridDimensions = {
 
 export const CLEAN_CONFLICT_GRID_DIMENSIONS: Record<string, Record<string, number>> = {
   "widths": {
-    "capsule": 200,
-    "widecapsule": 280,
-    "hero": 586,
-    "logo": 300,
-    "icon": 256,
+    "capsule": 12.5,
+    "widecapsule": 17.5,
+    "hero": 36.625,
+    "logo": 18.75,
+    "icon": 16,
   },
   "heights": {
-    "capsule": 300,
-    "widecapsule": 135,
-    "hero": 210,
-    "logo": 201,
-    "icon": 256,
+    "capsule": 18.75,
+    "widecapsule": 8.375,
+    "hero": 13.125,
+    "logo": 12.5,
+    "icon": 16,
   }
 }

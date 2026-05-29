@@ -21,7 +21,7 @@
   let holding = false;
   let thumbHover = false;
   let keydownAcceleration = 0;
-  let accelerationTimer: NodeJS.Timeout;
+  let accelerationTimer: number;
 
   // Dispatch 'change' events
   const dispatch = createEventDispatcher();
