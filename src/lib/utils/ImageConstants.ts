@@ -40,18 +40,18 @@ export const CURRENT_GRID_DIMENSIONS: GridDimensions = {
 
 export const SMALL_GRID_DIMENSIONS: GridDimensions = {
   "widths": {
-    "Capsule": 100,
-    "Wide Capsule": 200,
-    "Hero": 353,
-    "Logo": 200,
-    "Icon": 60,
+    "Capsule": 6.25,
+    "Wide Capsule": 12.5,
+    "Hero": 22.125,
+    "Logo": 12.5,
+    "Icon": 3.75,
   },
   "heights": {
-    "Capsule": 150,
-    "Wide Capsule": 97,
-    "Hero": 114,
-    "Logo": 134,
-    "Icon": 60,
+    "Capsule": 9.375,
+    "Wide Capsule": 6,
+    "Hero": 7.125,
+    "Logo": 8.375,
+    "Icon": 3.75,
   }
 }
 

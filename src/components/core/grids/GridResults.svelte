@@ -9,7 +9,8 @@
   import { writable } from "svelte/store";
   import Grid from "./Grid.svelte";
   
-  const padding = 20;
+  const padding = 1.25;
+  const heightOffset = 1.125;
 
   export let hasCustomName: boolean;
 
@@ -51,7 +52,7 @@
   <div class="scroll-wrapper">
     <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
       {#if isLoading}
-        <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+        <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
           {#each new Array(100) as _}
             <GridLoadingSkeleton />
           {/each}
@@ -59,7 +60,7 @@
       {:else}
         {#if $showCachedGrids}
           {#if selectedGameGrids.length > 0}
-            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
               {#each selectedGameGrids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                 <Grid grid={grid} />
               {/each}
@@ -71,7 +72,7 @@
           {/if}
         {:else}
           {#if grids.length > 0}
-            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}px; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + 18}px;">
+            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
               {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                 <Grid grid={grid} />
               {/each}

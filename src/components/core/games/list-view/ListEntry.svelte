@@ -31,8 +31,8 @@
     <div class="entry-info">
       <div class="icon-container">
         {#if showIcon}
-          <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}px" fadeOption={IMAGE_FADE_OPTIONS}>
-            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}px; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}px; width: auto; height: auto;" draggable="false" />
+          <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}rem; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}rem; width: auto; height: auto;" draggable="false" />
           </Lazy>
         {:else}
           <div style="text-align: center;">No icon image for game</div>
