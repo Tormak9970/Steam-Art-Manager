@@ -9,7 +9,7 @@ import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKe
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
-import { type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
+import { type AppInfoVdf, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
 
@@ -68,26 +68,30 @@ export class SteamController {
     // LogController.log("Loading games from appinfo.vdf...");
     const installedAppIds: string[] = await RustInterop.getInstalledAppIds();
 
-    const vdf = await RustInterop.readAppinfoVdf();
+    const vdf: AppInfoVdf = await RustInterop.readAppinfoVdf();
 
-    return vdf.entries.filter((entry: any) => ids.includes(entry.appid.toString())).map((entry: any) => {
-      const libraryAssets = entry?.common?.library_assets_full;
-      
-      return {
-        appid: entry.appid,
-        // eslint-disable-next-line no-control-regex
-        name: typeof entry.common.name === "string" ? entry.common.name.replace(/[^\x00-\x7F]/g, "") : entry.common.name.toString(),
-        gridInfo: {
-          icon: entry.common.icon ? (entry.common.icon + ".jpg") : "",
-          capsule: libraryAssets?.library_capsule?.image?.english ?? "",
-          wideCapsule: libraryAssets?.library_header?.image?.english ?? entry.common?.header_image?.english ?? "",
-          hero: libraryAssets?.library_hero?.image?.english ?? "",
-          logo: libraryAssets?.library_logo?.image?.english ?? "",
-        },
-        type: entry.common?.type ?? "Game",
-        installed: installedAppIds.includes(entry.appid.toString())
-      };
-    }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
+    return vdf.entries
+      .filter((entry) => !!entry && !!(entry.common))
+      .filter((entry: any) => ids.includes(entry.appid.toString()))
+      .map((entry) => {
+        const commonData = entry.common!;
+        const libraryAssets = commonData.library_assets_full;
+        
+        return {
+          appid: entry.appid,
+          // eslint-disable-next-line no-control-regex
+          name: typeof commonData.name === "string" ? commonData.name.replace(/[^\x00-\x7F]/g, "") : commonData.name.toString(),
+          gridInfo: {
+            icon: commonData.icon ? (commonData.icon + ".jpg") : "",
+            capsule: libraryAssets?.library_capsule?.image?.english ?? "",
+            wideCapsule: libraryAssets?.library_header?.image?.english ?? commonData.header_image?.english ?? "",
+            hero: libraryAssets?.library_hero?.image?.english ?? "",
+            logo: libraryAssets?.library_logo?.image?.english ?? "",
+          },
+          type: commonData.type ?? "Game",
+          installed: installedAppIds.includes(entry.appid.toString())
+        };
+      }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
 
   /**
