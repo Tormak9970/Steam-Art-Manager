@@ -12,6 +12,7 @@
 
   let modalOpen = true;
   $: definedModalInfo = $gridModalInfo!;
+  console.log("definedModalInfo:", $gridModalInfo)
 
   /**
    * The function to run when the modal closes.
@@ -52,13 +53,13 @@
 
 <ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} #${$gridModalInfo?.id}`} open={modalOpen} on:close={() => modalOpen = false} on:closeEnd={onClose}>
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: {definedModalInfo.width}px; height: {definedModalInfo.height}px;">
-      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px;">
-        <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px" fadeOption={{ delay: 500, duration: 1000 }}>
+    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: {definedModalInfo.width || 256}rem; height: {definedModalInfo.height || 256}rem;">
+      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem;">
+        <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem" fadeOption={{ delay: 500, duration: 1000 }}>
           <img
             src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
             alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
-            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}px; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}px; width: auto; height: auto;"
+            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
           />
         </Lazy>
       </div>
@@ -92,7 +93,7 @@
 
 <style>
   .border {
-    margin-top: 7px;
+    margin-top: 0.5rem;
     border-bottom: 0.0625rem solid var(--foreground);
   }
 
@@ -102,10 +103,10 @@
     height: calc(100% - 30.5rem);
   }
   .capsule .info, .icon .info {
-    margin: 10px;
-    margin-right: 0px;
-    min-width: 200px;
-    min-height: calc(100% - 20px);
+    margin: 0.5rem;
+    margin-right: 0rem;
+    min-width: 12.5rem;
+    min-height: calc(100% - 1.25rem);
 
     display: flex;
     flex-direction: column;
@@ -113,10 +114,10 @@
   }
 
   .wide-capsule .info, .hero .info, .logo .info {
-    margin-bottom: 10px;
-    margin-top: 10px;
-    min-width: 200px;
-    min-height: calc(100% - 20px);
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    min-width: 12.5rem;
+    min-height: calc(100% - 1.25rem);
 
     display: flex;
     flex-direction: column;
@@ -127,11 +128,11 @@
     display: flex;
     flex-direction: row;
     height: calc(100% - 30.5rem);
-    max-width: 550px;
+    max-width: 34.375rem;
   }
 
   .img-cont {
-    margin-top: 10px;
+    margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -139,7 +140,7 @@
   }
 
   .img-cont > .img {
-    border-radius: 2px;
+    border-radius: 0.125rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -151,49 +152,50 @@
     border-radius: 0.5rem;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
-    padding: 5px;
+    padding: 0.25rem;
+    height: 100%;
   }
 
   .icon-background {
     border-radius: 0.5rem;
     background-color: #a3a3a3;
     background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
-    padding: 5px;
-    height: 256px;
-    width: 256px;
+    padding: 0.25rem;
+    height: 16rem;
+    width: 16rem;
   }
 
   .author {
     display: flex;
     align-items: center;
-    margin-bottom: 7px;
+    margin-bottom: 0.5rem;
   }
 
   .author > .name {
-    margin-left: 7px;
-    font-size: 16px;
+    margin-left: 0.5rem;
+    font-size: 1rem;
   }
 
   .author > .pfp > img {
-    max-width: 20px;
-    max-height: 20px;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
     width: auto;
     height: auto;
   }
 
   .label {
-    margin-top: 7px;
-    font-size: 16px;
+    margin-top: 0.5rem;
+    font-size: 1rem;
   }
-  .label-small { font-size: 14px; }
+  .label-small { font-size: 0.875rem; }
 
   .notes {
-    margin-top: 7px;
-    font-size: 14px;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
   }
 
   .buttons {
-    margin-top: 14px;
+    margin-top: 0.875rem;
     width: 100%;
     display: flex;
     justify-content: space-around;

@@ -6,18 +6,18 @@ type GridDimensions = Record<string, GridTypesMap<number>>
 
 export const PREVIEW_GRID_DIMENSIONS: GridDimensions = {
   "widths": {
-    "Capsule": 400,
-    "Wide Capsule": 600,
-    "Hero": 956,
-    "Logo": 600,
-    "Icon": 256,
+    "Capsule": 25,
+    "Wide Capsule": 37.5,
+    "Hero": 59.75,
+    "Logo": 37.5,
+    "Icon": 16,
   },
   "heights": {
-    "Capsule": 600,
-    "Wide Capsule": 291,
-    "Hero": 342,
-    "Logo": 402,
-    "Icon": 256,
+    "Capsule": 37.5,
+    "Wide Capsule": 18.25,
+    "Hero": 21.5,
+    "Logo": 25.25,
+    "Icon": 16,
   }
 }
 
