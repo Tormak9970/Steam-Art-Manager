@@ -51,3 +51,36 @@ export type SteamUser = {
   MostRecent: string,
   Timestamp: string
 }
+
+export type CommonLibraryImage = {
+  english?: string,
+}
+
+export type CommonLibraryAsset = {
+  image: CommonLibraryImage,
+}
+
+export type CommonLibraryInfo = {
+  library_capsule?: CommonLibraryAsset,
+  library_header?: CommonLibraryAsset,
+  header_image?: CommonLibraryAsset,
+  library_hero?: CommonLibraryAsset,
+  library_logo?: CommonLibraryAsset,
+}
+
+export type AppInfoCommonProps = {
+  library_assets_full?: CommonLibraryInfo
+  name: string | any,
+  type?: string,
+  icon?: string,
+  header_image?: CommonLibraryImage,
+}
+
+export type AppInfo = {
+  appid: number,
+  common?: AppInfoCommonProps
+}
+
+export type AppInfoVdf = {
+    entries: AppInfo[]
+}
