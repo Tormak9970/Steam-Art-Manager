@@ -71,8 +71,9 @@ export class SteamController {
     const vdf: AppInfoVdf = await RustInterop.readAppinfoVdf();
 
     return vdf.entries
+      .filter((entry) => !!entry && !!(entry.common))
       .filter((entry: any) => ids.includes(entry.appid.toString()))
-      .filter((entry) => !!entry && !!(entry.common)).map((entry) => {
+      .map((entry) => {
         const commonData = entry.common!;
         const libraryAssets = commonData.library_assets_full;
         
