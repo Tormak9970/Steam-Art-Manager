@@ -3,9 +3,10 @@
   export let disabled = false;
   export let highlight = false;
   export let warn = false;
+  export let padding = "0.375rem 0.75rem";
 </script>
 
-<button class:warn={warn} class:highlight={highlight} class:disabled={disabled} style:width={width} on:click>
+<button class:warn={warn} class:highlight={highlight} class:disabled={disabled} style:padding={padding} style:width={width} on:click>
   <div style="user-select: none;">
     <slot />
   </div>
@@ -13,7 +14,6 @@
 
 <style>
   button {
-    padding: 0.425rem 0.75rem;
     min-width: 3.25rem;
 
     height: auto;

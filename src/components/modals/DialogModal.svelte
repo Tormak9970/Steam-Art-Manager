@@ -58,20 +58,20 @@
 
 <style>
   .content {
-    max-width: 400px;
+    max-width: 5rem;
   }
 
   .info {
-    margin: 0px 10px;
-    margin-top: 7px;
-    font-size: 14px;
+    margin: 0rem 0.625rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
 
     display: flex;
     align-items: center;
   }
 
   .message {
-    margin-left: 15px;
+    margin-left: 1rem;
   }
 
   .buttons {
