@@ -106,23 +106,38 @@ export class SettingsController {
     
     const defaultSettings = structuredClone(DEFAULT_SETTINGS);
 
-    const curKeys = Object.keys(currentSettings);
-    const defEntries = Object.entries(defaultSettings);
-    const defKeys = Object.keys(defaultSettings);
+    const recursivelySetNew = (defaults: any, current: any) => {
+      const curKeys = Object.keys(current);
+      const defEntries = Object.entries(defaults);
 
-    for (const [ key, val ] of defEntries) {
-      if (!curKeys.includes(key)) {
-        // @ts-expect-error This will always be fine.
-        settings[key] = val;
+      for (const [ key, val ] of defEntries) {
+        if (!curKeys.includes(key)) {
+          current[key] = val;
+        } else if (typeof val === "object" && !Array.isArray(val)) {
+          current[key] = recursivelySetNew(val, current[key]);
+        }
       }
+
+      return current
     }
 
-    for (const key in currentSettings) {
-      if (!defKeys.includes(key)) {
-        // @ts-expect-error This will always be fine.
-        delete settings[key];
+    settings = recursivelySetNew(defaultSettings, settings);
+
+    const recursivelyDeleteOld = (defaults: any, current: any) => {
+      const defKeys = Object.keys(defaults);
+
+      for (const key in current) {
+        if (!defKeys.includes(key)) {
+          delete current[key];
+        } else if (typeof current[key] === "object" && !Array.isArray(current[key])) {
+          current[key] = recursivelyDeleteOld(defaults[key], current[key])
+        }
       }
+      
+      return current
     }
+
+    settings = recursivelyDeleteOld(defaultSettings, settings);
     
     settings = SettingsController.migrateSettingsStructure(settings);
 

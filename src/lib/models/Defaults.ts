@@ -125,7 +125,6 @@ export const DEFAULT_FILTERS = {
     },
     "mimes": {
       "image/png": true,
-      "image/webp": true,
       "image/vnd.microsoft.icon": true
     },
     "types": {
@@ -159,7 +158,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   "debugMode": false,
 
-  "appTypes": ["Game"],
+  "appTypes": ["game"],
 
   "windowSettings": {
     "main": {
