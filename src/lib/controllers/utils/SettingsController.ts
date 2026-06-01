@@ -224,7 +224,11 @@ export class SettingsController {
     return async (value: T) => {
       if (!SettingsController.oldValues[key] || JSON.stringify(SettingsController.oldValues[key]) !== JSON.stringify(value)) {
         parentObject[lastKey] = value;
-        SettingsController.oldValues[key] = value;
+        if (typeof value === "object") {
+          SettingsController.oldValues[key] = structuredClone(value);
+        } else {
+          SettingsController.oldValues[key] = value;
+        }
         
         await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(SettingsController.settings));
         
@@ -354,7 +358,7 @@ export class SettingsController {
       showHidden.set(showHiddenGamesSetting);
       
       const dbFiltersSetting = SettingsController.settings.windowSettings.main.filters;
-      SettingsController.oldValues["windowSettings.main.filters"] = dbFiltersSetting;
+      SettingsController.oldValues["windowSettings.main.filters"] = structuredClone(dbFiltersSetting);
       dbFilters.set(dbFiltersSetting);
       
       const gridTypeSetting = SettingsController.settings.windowSettings.main.type as GridTypes;
@@ -367,7 +371,7 @@ export class SettingsController {
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
-      SettingsController.oldValues["windowSettings.main.panels"] = panelSizeSetting;
+      SettingsController.oldValues["windowSettings.main.panels"] = structuredClone(panelSizeSetting);
       optionsSize.set(panelSizeSetting.options);
       gamesSize.set(panelSizeSetting.games);
       gridsSize.set(panelSizeSetting.grids);
