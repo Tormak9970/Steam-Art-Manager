@@ -6,6 +6,16 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.16.0
+
+New Features
+* added multi grid type batch apply ([a1d0a6f](https://github.com/Tormak9970/Steam-Art-Manager/commit/a1d0a6f))
+* added the ability to set non-steam game icons ([e2284dd](https://github.com/Tormak9970/Steam-Art-Manager/commit/e2284dd))
+
+Bug Fixes
+* corrected small typo causing steam path not to save ([e13df67](https://github.com/Tormak9970/Steam-Art-Manager/commit/e13df67))
+* steam api keys now load properly ([75e45b7](https://github.com/Tormak9970/Steam-Art-Manager/commit/75e45b7))
+
 ## v3.15.0
 
 New Features
