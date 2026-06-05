@@ -129,7 +129,7 @@ export class SettingsController {
       for (const key in current) {
         if (!defKeys.includes(key)) {
           delete current[key];
-        } else if (typeof current[key] === "object" && !Array.isArray(current[key])) {
+        } else if (typeof current[key] === "object" && !Array.isArray(current[key]) && key !== "steamApiKeyMap") {
           current[key] = recursivelyDeleteOld(defaults[key], current[key])
         }
       }

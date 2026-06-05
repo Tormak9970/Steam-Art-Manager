@@ -58,13 +58,13 @@
 
 <style>
   .content {
-    max-width: 5rem;
+    max-width: 25rem;
   }
 
   .info {
     margin: 0rem 0.625rem;
     margin-top: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
 
     display: flex;
     align-items: center;
