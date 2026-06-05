@@ -29,7 +29,7 @@
   function fetchGrids(gameId:string, page: number, filters: DBFilters) {
     if (gameId !== "None") {
       isLoading = true
-      CacheController.fetchGrids($selectedGameAppId, true, gameId, page, filters).then((unfilteredGrids) => {
+      CacheController.fetchGrids($selectedGameAppId, true, gameId, $gridType, page, filters).then((unfilteredGrids) => {
         totalGrids = unfilteredGrids.total
         grids = unfilteredGrids.images
         isLoading = false

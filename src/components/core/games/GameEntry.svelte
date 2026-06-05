@@ -31,8 +31,6 @@
   $: logoPosChanged = steamLogoPos ? (steamLogoPos.nHeightPct !== originalLogoPos?.nHeightPct || steamLogoPos.nWidthPct !== originalLogoPos?.nWidthPct || steamLogoPos.pinnedPosition !== originalLogoPos?.pinnedPosition) : false;
   $: canDiscard = gridChanged || logoPosChanged;
 
-  $: disabled = $gridType === GridTypes.ICON && iconPath === "";
-
   /**
    * Selects this game.
    */
@@ -132,7 +130,6 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
-    disabled={disabled}
   />
 {:else}
   <GridEntry
@@ -148,6 +145,5 @@
     selectGame={selectGame}
     toggleHidden={toggleHidden}
     showAllGrids={showAllGrids}
-    disabled={disabled}
   />
 {/if}

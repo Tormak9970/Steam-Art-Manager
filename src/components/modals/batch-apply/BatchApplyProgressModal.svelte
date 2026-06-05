@@ -56,7 +56,7 @@
 
 <style>
   .content {
-    min-width: 18rem;
+    min-width: 30rem;
   }
   .info {
     margin-top: 0.5rem;

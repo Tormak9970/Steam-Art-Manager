@@ -364,15 +364,14 @@ export class CacheController {
    * @param appId The id of the app to fetch.
    * @param useCoreFile Whether or not to use the core log file.
    * @param selectedSteamGridId Optional id of the current steamGridGame.
+   * @param type The grid type to fetch.
    * @param page The page of grids to fetch.
    * @param filters The DB Filters to use.
    * @returns A promise resolving to the grids.
    * ? Logging complete.
    */
-  static async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, page: number, filters: DBFilters): Promise<GridResults> {
+  static async fetchGrids(appId: string, useCoreFile: boolean, selectedSteamGridId: string, type: GridTypes, page: number, filters: DBFilters): Promise<GridResults> {
     logToFile(`Fetching grids for game ${appId}...`, useCoreFile);
-    const type = get(gridType);
-
     return await this.fetchGridsForGame(parseInt(selectedSteamGridId), type, page, filters, useCoreFile);
   }
 
@@ -417,9 +416,10 @@ export class CacheController {
   /**
    * Batch applies grids to the provided games.
    * @param appIds The list of ids.
+   * @param allGridTypes Whether to include all grid types.
    * ? Logging Complete.
    */
-  static async batchApplyGrids(appIds: string[]): Promise<void> {
+  static async batchApplyGrids(appIds: string[], allGridTypes: boolean): Promise<void> {
     LogController.batchApplyLog(`Starting batch apply for ${appIds.length} games...`);
     LogController.batchApplyLog("\n");
     
@@ -438,65 +438,74 @@ export class CacheController {
     const filters = get(dbFilters);
 
     let numFinished = 0;
-    const totalGrids = appIds.length;
+    let totalGrids = appIds.length;
     let shortcutsNeedUpdate = false;
     let wasCancelled = false;
 
-    for (const appid of appIds) {
-      if (get(batchApplyWasCancelled)) {
-        wasCancelled = true;
-        break;
-      } else {
-        const appidInt = parseInt(appid);
-        let gameName: string;
-        let isSteamGame = true;
-        let message: string;
+    let selectedGridTypes: GridTypes[] = [get(gridType)]
 
-        if (steamGameNameMap[appid]) {
-          gameName = steamGameNameMap[appid];
+    if (allGridTypes) {
+      selectedGridTypes = [GridTypes.CAPSULE, GridTypes.WIDE_CAPSULE, GridTypes.HERO, GridTypes.LOGO, GridTypes.ICON];
+      totalGrids = appIds.length * 5;
+    }
+
+    for (const selectedGridType of selectedGridTypes) {
+      for (const appid of appIds) {
+        if (get(batchApplyWasCancelled)) {
+          wasCancelled = true;
+          break;
         } else {
-          isSteamGame = false;
-          gameName = nonSteamGameNameMap[appid];
-        }
+          const appidInt = parseInt(appid);
+          let gameName: string;
+          let isSteamGame = true;
+          let message: string;
 
-        const sgdbGameId = await this.chooseSteamGridGameId(appid, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
-        const grids = await this.fetchGrids(appid, false, sgdbGameId, 0, filters);
-        const filtered = grids.images;
-        
-        if (filtered.length > 0) {
-          const grid = filtered[0];
-
-          // @ts-ignore
-          if (!gridsCopy[appid]) gridsCopy[appid] = {};
-          
-          let imgUrl = grid.url.toString();
-          if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
-
-          const localPath = await this.getGridImage(appid, imgUrl, false);
-          
-          if (localPath) {
-            if (!isSteamGame && selectedGridType === GridTypes.ICON) {
-              shortcutsNeedUpdate = true;
-              const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt)!;
-              shortcut.icon = localPath;
-            }
-  
-            gridsCopy[appid][selectedGridType] = localPath;
-            
-            message = `Applied ${selectedGridType} to ${gameName}.`;
+          if (steamGameNameMap[appid]) {
+            gameName = steamGameNameMap[appid];
           } else {
-            message = `Failed to applied ${selectedGridType} to ${gameName}.`;
+            isSteamGame = false;
+            gameName = nonSteamGameNameMap[appid];
           }
-        } else {
-          message = `No ${selectedGridType === GridTypes.HERO ? `${selectedGridType}e` : selectedGridType}s with these filters for ${gameName}.`;
+
+          const sgdbGameId = await this.chooseSteamGridGameId(appid, gameName, isSteamGame ? Platforms.STEAM : Platforms.NON_STEAM, false);
+          const grids = await this.fetchGrids(appid, false, sgdbGameId, selectedGridType, 0, filters);
+          const filtered = grids.images;
+          
+          if (filtered.length > 0) {
+            const grid = filtered[0];
+
+            // @ts-ignore
+            if (!gridsCopy[appid]) gridsCopy[appid] = {};
+            
+            let imgUrl = grid.url.toString();
+            if (imgUrl.endsWith("?")) imgUrl = imgUrl.substring(0, imgUrl.length - 1);
+
+            const localPath = await this.getGridImage(appid, imgUrl, false);
+            
+            if (localPath) {
+              if (!isSteamGame && selectedGridType === GridTypes.ICON) {
+                shortcutsNeedUpdate = true;
+                const shortcut = shortcutsCopy.find((s: SteamShortcut) => s.appid === appidInt)!;
+                shortcut.icon = localPath;
+              }
+    
+              gridsCopy[appid][selectedGridType] = localPath;
+              
+              message = `Applied ${selectedGridType} to ${gameName}.`;
+            } else {
+              message = `Failed to applied ${selectedGridType} to ${gameName}.`;
+            }
+          } else {
+            message = `No ${selectedGridType === GridTypes.HERO ? `${selectedGridType}e` : selectedGridType}s with these filters for ${gameName}.`;
+          }
+
+          batchApplyMessage.set(message);
+          LogController.batchApplyLog(message);
+          LogController.batchApplyLog("\n");
+
+          numFinished++;
+          batchApplyProgress.set((numFinished / totalGrids) * 100);
         }
-
-        batchApplyMessage.set(message);
-        LogController.batchApplyLog(message);
-        LogController.batchApplyLog("\n");
-
-        numFinished++;
-        batchApplyProgress.set((numFinished / totalGrids) * 100);
       }
     }
 
