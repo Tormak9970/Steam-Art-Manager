@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -352,6 +352,10 @@ export class SettingsController {
       const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
       SettingsController.oldValues["windowSettings.main.gameViewType"] = gameViewTypeSetting;
       renderGamesInList.set(gameViewTypeSetting === 1);
+
+      const gridImageSizeSetting = SettingsController.settings.windowSettings.main.gridImageSize;
+      SettingsController.oldValues["windowSettings.main.gridImageSize"] = gridImageSizeSetting;
+      gridImageSize.set(gridImageSizeSetting);
   
       const showHiddenGamesSetting = SettingsController.settings.showHiddenGames;
       SettingsController.oldValues["showHiddenGames"] = showHiddenGamesSetting;
@@ -434,6 +438,7 @@ export class SettingsController {
   
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),
+      gridImageSize.subscribe(SettingsController.setOnChange("windowSettings.main.gridImageSize")),
       gridType.subscribe(SettingsController.setOnChange("windowSettings.main.type")),
       showCachedGrids.subscribe(SettingsController.setOnChange("windowSettings.main.showCached")),
   

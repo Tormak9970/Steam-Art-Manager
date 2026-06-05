@@ -7,6 +7,21 @@ export const APP_TYPES = [
   "Beta"
 ]
 
+export const GRID_IMAGE_SIZES = [
+  {
+    label: "Small",
+    data: "small"
+  },
+  {
+    label: "Medium",
+    data: "medium"
+  },
+  {
+    label: "Large",
+    data: "large"
+  },
+]
+
 export const DEFAULT_FILTERS = {
   "Capsule": {
     "styles": {
@@ -141,42 +156,43 @@ export const DEFAULT_FILTERS = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  "version": "",
-  "steamInstallPath": "",
-  "shownShortcutPrompt": false,
-  "steamGridDbApiKey": "",
-  "steamApiKeyMap": {},
-  "hiddenGameIds": [],
-  "manualSteamGames": [],
-  "customGameNames": {},
+  version: "",
+  steamInstallPath: "",
+  shownShortcutPrompt: false,
+  steamGridDbApiKey: "",
+  steamApiKeyMap: {},
+  hiddenGameIds: [],
+  manualSteamGames: [],
+  customGameNames: {},
 
-  "cacheSelectedGrids": false,
-  "userSelectedGrids": {},
+  cacheSelectedGrids: false,
+  userSelectedGrids: {},
   
-  "theme": 0,
-  "showHiddenGames": false,
+  theme: 0,
+  showHiddenGames: false,
 
-  "debugMode": false,
+  debugMode: false,
 
-  "appTypes": ["game"],
+  appTypes: ["game"],
 
-  "windowSettings": {
-    "main": {
-      "filters": DEFAULT_FILTERS,
-      "panels": {
-        "options": 16,
-        "games": 42,
-        "grids": 42
+  windowSettings: {
+    main: {
+      gridImageSize: "small",
+      filters: DEFAULT_FILTERS,
+      panels: {
+        options: 16,
+        games: 42,
+        grids: 42
       },
-      "showCached": false,
-      "gameViewType": 0,
-      "type": "Capsule",
+      showCached: false,
+      gameViewType: 0,
+      type: "Capsule",
     },
-    "cleanGrids": {
-      "preset": "clean"
+    cleanGrids: {
+      preset: "clean"
     },
-    "manageManualGames": {
-      "method": "manual"
+    manageManualGames: {
+      method: "manual"
     }
   }
 };

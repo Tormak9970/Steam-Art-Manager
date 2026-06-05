@@ -2,15 +2,12 @@
   import { CacheController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, Paginator } from "@layout";
-  import { currentPlatform, dbFilters, gridType, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, userSelectedGrids, type DBFilters } from "@stores/AppState";
+  import { currentPlatform, dbFilters, gridImageSize, gridType, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, userSelectedGrids, type DBFilters } from "@stores/AppState";
   import { GridTypes, type SGDBImage } from "@types";
-  import { SMALL_GRID_DIMENSIONS } from "@utils";
+  import { GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import Grid from "./Grid.svelte";
-  
-  const padding = 1.25;
-  const heightOffset = 1.125;
 
   export let hasCustomName: boolean;
 
@@ -20,8 +17,11 @@
   let grids: SGDBImage[] = [];
 
   $: selectedGameGrids = $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [];
+  
+  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
 
-  console.log(selectedGameGrids)
+  $: imageWidth = gridDimensions.widths[$gridType] + gridDimensions.padding
+  $: imageHeight = gridDimensions.heights[$gridType] + gridDimensions.padding + gridDimensions.heightOffset
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
@@ -52,7 +52,7 @@
   <div class="scroll-wrapper">
     <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
       {#if isLoading}
-        <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
+        <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
           {#each new Array(100) as _}
             <GridLoadingSkeleton />
           {/each}
@@ -60,7 +60,7 @@
       {:else}
         {#if $showCachedGrids}
           {#if selectedGameGrids.length > 0}
-            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
+            <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
               {#each selectedGameGrids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                 <Grid grid={grid} />
               {/each}
@@ -72,7 +72,7 @@
           {/if}
         {:else}
           {#if grids.length > 0}
-            <div class="game-grid" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
+            <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
               {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
                 <Grid grid={grid} />
               {/each}
