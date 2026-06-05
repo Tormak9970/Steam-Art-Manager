@@ -40,6 +40,7 @@ export type Settings = {
   
   windowSettings: {
     main: {
+      gridImageSize: string,
       filters: any,
       panels: MainWindowPanels,
       gameViewType: number,

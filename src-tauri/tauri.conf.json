@@ -22,7 +22,7 @@
 				"fullscreen": false,
 				"resizable": true,
 				"center": true,
-				"visible": true,
+				"visible": false,
         "tabbingIdentifier": "Steam Art Manager"
       }
     ],

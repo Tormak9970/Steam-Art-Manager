@@ -1,178 +1,276 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod utils;
-mod handle_changes;
-mod steam;
-mod zip_controller;
-mod start_menu_tiles;
-mod grids_cache_loader;
 mod clean_grids;
+mod grids_cache_loader;
+mod handle_changes;
+mod start_menu_tiles;
+mod steam;
 mod types;
+mod utils;
+mod zip_controller;
 
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_fs::FsExt;
 use tauri_plugin_http::reqwest::Client;
+use tauri_plugin_window_state;
 
-use std::{path::PathBuf, fs::{self, File}, io::Write, time::Duration, panic::{self, Location}, process::exit};
+use std::{
+    fs::{self, File},
+    io::Write,
+    panic::{self, Location},
+    path::PathBuf,
+    process::exit,
+    time::Duration,
+};
 
+use panic_message::get_panic_info_message;
 use serde;
 use steam::get_steam_root_dir;
-use panic_message::get_panic_info_message;
-use tauri::{self, AppHandle, Manager};
 use tauri::Emitter;
+use tauri::{self, AppHandle, Manager};
 
 use utils::logger;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
-  args: Vec<String>,
-  cwd: String,
+    args: Vec<String>,
+    cwd: String,
 }
 
 #[tauri::command]
 /// Downloads a file from a url.
-async fn download_grid(app_handle: AppHandle, grid_url: String, dest_path: String, timeout: u64) -> String {
-  logger::log_to_core_file(app_handle.to_owned(), format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(), 0);
-  
-  let http_client_res = Client::builder().timeout(Duration::from_secs(timeout)).build();
-  let http_client: Client = http_client_res.expect("Should have been able to successfully make the reqwest client.");
+async fn download_grid(
+    app_handle: AppHandle,
+    grid_url: String,
+    dest_path: String,
+    timeout: u64,
+) -> String {
+    logger::log_to_core_file(
+        app_handle.to_owned(),
+        format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(),
+        0,
+    );
 
-  let response_res = http_client.get(grid_url.clone()).send().await;
-  
-  if response_res.is_ok() {
-    let response = response_res.ok().expect("Should have been able to get response from ok result.");
-    let response_bytes = response.bytes().await.expect("Should have been able to await getting response bytes.");
+    let http_client_res = Client::builder()
+        .timeout(Duration::from_secs(timeout))
+        .build();
+    let http_client: Client =
+        http_client_res.expect("Should have been able to successfully make the reqwest client.");
 
-    let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
-    let write_res = dest_file.write_all(&response_bytes);
+    let response_res = http_client.get(grid_url.clone()).send().await;
 
-    if write_res.is_ok() {
-      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} finished.", grid_url.clone()).as_str(), 0);
-      return String::from("success");
+    if response_res.is_ok() {
+        let response = response_res
+            .ok()
+            .expect("Should have been able to get response from ok result.");
+        let response_bytes = response
+            .bytes()
+            .await
+            .expect("Should have been able to await getting response bytes.");
+
+        let mut dest_file: File = File::create(&dest_path).expect("Dest path should have existed.");
+        let write_res = dest_file.write_all(&response_bytes);
+
+        if write_res.is_ok() {
+            logger::log_to_core_file(
+                app_handle.to_owned(),
+                format!("Download of {} finished.", grid_url.clone()).as_str(),
+                0,
+            );
+            return String::from("success");
+        } else {
+            let err = write_res
+                .err()
+                .expect("Request failed, error should have existed.");
+            logger::log_to_core_file(
+                app_handle.to_owned(),
+                format!(
+                    "Download of {} failed with {}.",
+                    grid_url.clone(),
+                    err.to_string()
+                )
+                .as_str(),
+                0,
+            );
+            return String::from("failed");
+        }
     } else {
-      let err = write_res.err().expect("Request failed, error should have existed.");
-      logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
-      return String::from("failed");
+        let err = response_res
+            .err()
+            .expect("Request failed, error should have existed.");
+        logger::log_to_core_file(
+            app_handle.to_owned(),
+            format!(
+                "Download of {} failed with {}.",
+                grid_url.clone(),
+                err.to_string()
+            )
+            .as_str(),
+            0,
+        );
+        return String::from("failed");
     }
-  } else {
-    let err = response_res.err().expect("Request failed, error should have existed.");
-    logger::log_to_core_file(app_handle.to_owned(), format!("Download of {} failed with {}.", grid_url.clone(), err.to_string()).as_str(), 0);
-    return String::from("failed");
-  }
 }
 
 #[tauri::command]
 /// Downloads a file from a url.
-async fn copy_grid_to_selected(app_handle: AppHandle, source_path: String, dest_path: String) -> bool {
-  let path_dest = PathBuf::from(dest_path);
-  let _ = fs::create_dir_all(path_dest.parent().expect("Dest Path should have a parent directory."));
-  let copy_res = fs::copy(source_path.clone(), path_dest);
-  
-  if copy_res.is_err() {
-    let err = copy_res.err().expect("Request failed, error should have existed.");
-    logger::log_to_core_file(app_handle.to_owned(), format!("Cache of {} failed with {}.", source_path, err.to_string()).as_str(), 0);
-    return false;
-  }
+async fn copy_grid_to_selected(
+    app_handle: AppHandle,
+    source_path: String,
+    dest_path: String,
+) -> bool {
+    let path_dest = PathBuf::from(dest_path);
+    let _ = fs::create_dir_all(
+        path_dest
+            .parent()
+            .expect("Dest Path should have a parent directory."),
+    );
+    let copy_res = fs::copy(source_path.clone(), path_dest);
 
-  return true;
+    if copy_res.is_err() {
+        let err = copy_res
+            .err()
+            .expect("Request failed, error should have existed.");
+        logger::log_to_core_file(
+            app_handle.to_owned(),
+            format!("Cache of {} failed with {}.", source_path, err.to_string()).as_str(),
+            0,
+        );
+        return false;
+    }
+
+    return true;
 }
-
 
 #[tauri::command]
 // Validates the steam install path
 async fn validate_steam_path(app_handle: AppHandle, target_path: String) -> bool {
-  let steam_path: PathBuf = PathBuf::from(&target_path);
+    let steam_path: PathBuf = PathBuf::from(&target_path);
 
-  let steam_path_str: String = steam_path.to_str().expect("Should have been able to convert pathbuf to string").to_owned();
+    let steam_path_str: String = steam_path
+        .to_str()
+        .expect("Should have been able to convert pathbuf to string")
+        .to_owned();
 
-  add_path_to_scope(app_handle, steam_path_str).await;
+    add_path_to_scope(app_handle, steam_path_str).await;
 
-  if steam_path.exists() {
-    let contents_res = fs::read_dir(steam_path);
-    let mut contents = contents_res.ok().expect("Should have been able to read the provided directory.");
+    if steam_path.exists() {
+        let contents_res = fs::read_dir(steam_path);
+        let mut contents = contents_res
+            .ok()
+            .expect("Should have been able to read the provided directory.");
 
-    return contents.any(| entry_res | {
-      if entry_res.is_ok() {
-        let entry = entry_res.ok().expect("Entry should have been ok");
+        return contents.any(|entry_res| {
+            if entry_res.is_ok() {
+                let entry = entry_res.ok().expect("Entry should have been ok");
 
-        return entry.file_name().eq_ignore_ascii_case("steam.exe") || entry.file_name().eq_ignore_ascii_case("steam.sh");
-      }
+                return entry.file_name().eq_ignore_ascii_case("steam.exe")
+                    || entry.file_name().eq_ignore_ascii_case("steam.sh");
+            }
 
-      return false;
-    });
-  }
+            return false;
+        });
+    }
 
-  return false;
+    return false;
 }
 
 #[tauri::command]
 /// Adds the provided path to Tauri FS and Asset scope.
 async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
-  let path_as_buf: PathBuf = PathBuf::from(&target_path);
+    let path_as_buf: PathBuf = PathBuf::from(&target_path);
 
-  if !path_as_buf.as_path().exists() {
-    logger::log_to_core_file(app_handle.clone(), format!("Error adding {} to scope. Path does not exist.", &target_path).as_str(), 2);
+    if !path_as_buf.as_path().exists() {
+        logger::log_to_core_file(
+            app_handle.clone(),
+            format!(
+                "Error adding {} to scope. Path does not exist.",
+                &target_path
+            )
+            .as_str(),
+            2,
+        );
+        return false;
+    }
+
+    let fs_scope = app_handle.fs_scope();
+    let asset_scope = app_handle.asset_protocol_scope();
+
+    let _ = fs_scope.allow_directory(&path_as_buf, true);
+    let asset_res = asset_scope.allow_directory(&path_as_buf, true);
+
+    if asset_res.is_ok() {
+        logger::log_to_core_file(
+            app_handle.clone(),
+            format!("Added {} to scope.", &target_path).as_str(),
+            0,
+        );
+        return true;
+    }
+
+    let err = asset_res.err().unwrap();
+    logger::log_to_core_file(
+        app_handle.clone(),
+        format!(
+            "Error adding {} to scope. Asset Scope Error: {}",
+            &target_path,
+            err.to_string()
+        )
+        .as_str(),
+        2,
+    );
     return false;
-  }
-
-  let fs_scope = app_handle.fs_scope();
-  let asset_scope = app_handle.asset_protocol_scope();
-
-  let _ = fs_scope.allow_directory(&path_as_buf, true);
-  let asset_res = asset_scope.allow_directory(&path_as_buf, true);
-
-  if asset_res.is_ok() {
-    logger::log_to_core_file(app_handle.clone(), format!("Added {} to scope.", &target_path).as_str(), 0);
-    return true;
-  }
-
-  let err = asset_res.err().unwrap();
-  logger::log_to_core_file(app_handle.clone(), format!("Error adding {} to scope. Asset Scope Error: {}", &target_path, err.to_string()).as_str(), 2);
-  return false;
 }
 
 #[tauri::command]
 /// Adds the user's steam directory to Tauri FS and Asset scope.
 async fn add_steam_to_scope(app_handle: AppHandle) -> String {
-  let steam_path_res = get_steam_root_dir();
+    let steam_path_res = get_steam_root_dir();
 
-  if steam_path_res.is_ok() {
-    let steam_path: PathBuf = steam_path_res.ok().expect("Should have been able to get steam path from result.");
-    let steam_path_str: String = steam_path.as_path().display().to_string();
-    let was_added: bool = add_path_to_scope(app_handle, steam_path_str.to_owned()).await;
+    if steam_path_res.is_ok() {
+        let steam_path: PathBuf = steam_path_res
+            .ok()
+            .expect("Should have been able to get steam path from result.");
+        let steam_path_str: String = steam_path.as_path().display().to_string();
+        let was_added: bool = add_path_to_scope(app_handle, steam_path_str.to_owned()).await;
 
-    if was_added {
-      if &steam_path_str == "c:/program files (x86)/steam" {
-        return String::from("C:/Program Files (x86)/Steam");
-      } else {
-        return steam_path_str;
-      }
+        if was_added {
+            if &steam_path_str == "c:/program files (x86)/steam" {
+                return String::from("C:/Program Files (x86)/Steam");
+            } else {
+                return steam_path_str;
+            }
+        } else {
+            return String::from("");
+        }
     } else {
-      return String::from("");
-    }
-  } else {
-    let err_message = steam_path_res.err().expect("Should have been able to get Steam install path error.");
-    logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
+        let err_message = steam_path_res
+            .err()
+            .expect("Should have been able to get Steam install path error.");
+        logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
 
-    return String::from("DNE");
-  }
+        return String::from("DNE");
+    }
 }
 
 #[tauri::command]
 /// Toggles the dev tools for the current window.
 async fn toggle_dev_tools(app_handle: AppHandle, enable: bool) {
-  let window = app_handle.get_webview_window("main").expect("Should have been able to get the main window.");
-  
-  if enable {
-    window.open_devtools();
-  } else {
-    window.close_devtools();
-  }
+    let window = app_handle
+        .get_webview_window("main")
+        .expect("Should have been able to get the main window.");
+
+    if enable {
+        window.open_devtools();
+    } else {
+        window.close_devtools();
+    }
 }
 
 /// This app's main function.
 fn main() {
-  tauri::Builder::default()
+    tauri::Builder::default()
+    .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
       logger::clean_out_log,
       logger::log_to_core_file,
@@ -210,6 +308,7 @@ fn main() {
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .plugin(tauri_plugin_updater::Builder::new().build())
     .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
       println!("{}, {argv:?}, {cwd}", app.package_info().name);

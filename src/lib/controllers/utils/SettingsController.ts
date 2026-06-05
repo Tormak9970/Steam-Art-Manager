@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -224,7 +224,11 @@ export class SettingsController {
     return async (value: T) => {
       if (!SettingsController.oldValues[key] || JSON.stringify(SettingsController.oldValues[key]) !== JSON.stringify(value)) {
         parentObject[lastKey] = value;
-        SettingsController.oldValues[key] = value;
+        if (typeof value === "object") {
+          SettingsController.oldValues[key] = structuredClone(value);
+        } else {
+          SettingsController.oldValues[key] = value;
+        }
         
         await fs.writeTextFile(SettingsController.settingsPath, JSON.stringify(SettingsController.settings));
         
@@ -348,13 +352,17 @@ export class SettingsController {
       const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
       SettingsController.oldValues["windowSettings.main.gameViewType"] = gameViewTypeSetting;
       renderGamesInList.set(gameViewTypeSetting === 1);
+
+      const gridImageSizeSetting = SettingsController.settings.windowSettings.main.gridImageSize;
+      SettingsController.oldValues["windowSettings.main.gridImageSize"] = gridImageSizeSetting;
+      gridImageSize.set(gridImageSizeSetting);
   
       const showHiddenGamesSetting = SettingsController.settings.showHiddenGames;
       SettingsController.oldValues["showHiddenGames"] = showHiddenGamesSetting;
       showHidden.set(showHiddenGamesSetting);
       
       const dbFiltersSetting = SettingsController.settings.windowSettings.main.filters;
-      SettingsController.oldValues["windowSettings.main.filters"] = dbFiltersSetting;
+      SettingsController.oldValues["windowSettings.main.filters"] = structuredClone(dbFiltersSetting);
       dbFilters.set(dbFiltersSetting);
       
       const gridTypeSetting = SettingsController.settings.windowSettings.main.type as GridTypes;
@@ -367,7 +375,7 @@ export class SettingsController {
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
-      SettingsController.oldValues["windowSettings.main.panels"] = panelSizeSetting;
+      SettingsController.oldValues["windowSettings.main.panels"] = structuredClone(panelSizeSetting);
       optionsSize.set(panelSizeSetting.options);
       gamesSize.set(panelSizeSetting.games);
       gridsSize.set(panelSizeSetting.grids);
@@ -430,6 +438,7 @@ export class SettingsController {
   
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),
+      gridImageSize.subscribe(SettingsController.setOnChange("windowSettings.main.gridImageSize")),
       gridType.subscribe(SettingsController.setOnChange("windowSettings.main.type")),
       showCachedGrids.subscribe(SettingsController.setOnChange("windowSettings.main.showCached")),
   

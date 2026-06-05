@@ -1,27 +1,29 @@
 <script lang="ts">
   import { GridLoadingSkeleton, VirtualGrid } from "@layout";
-  import { currentPlatform, gridType } from "@stores/AppState";
+  import { currentPlatform, gridImageSize, gridType } from "@stores/AppState";
   import type { GameStruct } from "@types";
-  import { SMALL_GRID_DIMENSIONS } from "@utils";
+  import { GRID_DIMENSIONS } from "@utils";
   import GameEntry from "../GameEntry.svelte";
 
   export let isLoading: boolean;
   export let games: GameStruct[];
 
-  const padding = 1.25;
-  const heightOffset = 1.125;
+  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+
+  $: imageWidth = gridDimensions.widths[$gridType] + gridDimensions.padding
+  $: imageHeight = gridDimensions.heights[$gridType] + gridDimensions.padding + gridDimensions.heightOffset
 </script>
 
 <div class="games-grid">
   {#if isLoading}
-    <div class="loading-container" style="--img-width: {SMALL_GRID_DIMENSIONS.widths[$gridType] + padding}rem; --img-height: {SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset}rem;">
+    <div class="loading-container" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
       {#each new Array(100) as _}
         <GridLoadingSkeleton />
       {/each}
     </div>
   {:else}
     {#if games.length > 0}
-      <VirtualGrid remItemHeight={SMALL_GRID_DIMENSIONS.heights[$gridType] + padding + heightOffset} remItemWidth={SMALL_GRID_DIMENSIONS.widths[$gridType] + padding} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
+      <VirtualGrid remItemHeight={imageHeight} remItemWidth={imageWidth} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
         <GameEntry game={entry} />
       </VirtualGrid>
     {:else}

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { AppController } from "@controllers";
   import { TriangleExclamation } from "@icons";
-  import { gridType } from "@stores/AppState";
-  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
+  import { gridImageSize, gridType } from "@stores/AppState";
+  import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
   export let imagePath: string;
@@ -12,6 +12,12 @@
   export let isVideo: boolean = false;
 
   let showWarning = false;
+
+  
+  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+
+  $: imageWidth = gridDimensions.widths[$gridType]
+  $: imageHeight = gridDimensions.heights[$gridType]
 
   /**
    * Function to run when the user starts hovering over a video.
@@ -30,16 +36,16 @@
   }
 </script>
 
-<div class="grid-img" style="height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem;">
+<div class="grid-img" style="height: {imageHeight}rem;">
   {#if showImage && !showWarning && imagePath}
-    <Lazy height="{SMALL_GRID_DIMENSIONS.heights[$gridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+    <Lazy height="{imageHeight}rem" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
         <video
           src="{imagePath}"
           muted
           loop
           autoplay={false}
-          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
+          style="max-width: {imageWidth}rem; max-height: {imageHeight}rem; width: auto; height: auto;"
           on:mouseover={onEnter}
           on:mouseleave={onLeave}
         />
@@ -47,7 +53,7 @@
         <img
           src="{imagePath}"
           alt="{altText}"
-          style="max-width: {SMALL_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {SMALL_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
+          style="max-width: {imageWidth}rem; max-height: {imageHeight}rem; width: auto; height: auto;"
           draggable="false"
           on:error={() => showWarning = true}
         />
