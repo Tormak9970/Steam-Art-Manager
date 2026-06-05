@@ -22,7 +22,7 @@
       directory: true,
       multiple: false
     });
-    if (path && path !== "") dispatch("changed", { value: path as string });
+    if (path && path !== "") dispatch("change", { value: path as string });
   }
 </script>
 

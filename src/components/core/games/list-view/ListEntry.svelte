@@ -14,7 +14,7 @@
   export let hasCustomName: boolean;
   export let hasCustomArt: boolean;
   export let canDiscard: boolean;
-  export let disabled: boolean;
+  export let disabled: boolean = false;
 
   export let selectGame: () => void;
   export let toggleHidden: (isHidden: boolean) => void;
