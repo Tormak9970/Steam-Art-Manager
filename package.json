@@ -1,6 +1,6 @@
 {
   "name": "steam-art-manager",
-  "version": "3.14.1",
+  "version": "3.15.0",
   "private": true,
   "type": "module",
   "author": {
@@ -32,6 +32,7 @@
     "@tauri-apps/plugin-process": "^2.3.0",
     "@tauri-apps/plugin-shell": "^2.3.1",
     "@tauri-apps/plugin-updater": "^2.9.0",
+    "@tauri-apps/plugin-window-state": "~2",
     "fast-xml-parser": "^4.5.0",
     "markdown-it": "^13.0.2",
     "svelte-lazy": "^1.2.7",

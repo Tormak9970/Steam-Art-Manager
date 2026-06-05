@@ -1,9 +1,9 @@
 <script lang="ts">
   import { AppController } from "@controllers";
   import { AllGrids, Ban, Hide, Recycle, Show, Tag } from "@icons";
-  import { selectedGameAppId } from "@stores/AppState";
+  import { gridImageSize, selectedGameAppId } from "@stores/AppState";
   import type { GameStruct } from "@types";
-  import { IMAGE_FADE_OPTIONS, SMALL_GRID_DIMENSIONS } from "@utils";
+  import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
   export let game: GameStruct;
@@ -19,6 +19,8 @@
   export let selectGame: () => void;
   export let toggleHidden: (isHidden: boolean) => void;
   export let showAllGrids: (appId: number) => void;
+
+  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -31,8 +33,8 @@
     <div class="entry-info">
       <div class="icon-container">
         {#if showIcon}
-          <Lazy height="{SMALL_GRID_DIMENSIONS.heights.Icon}rem" fadeOption={IMAGE_FADE_OPTIONS}>
-            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {SMALL_GRID_DIMENSIONS.widths.Icon}rem; max-height: {SMALL_GRID_DIMENSIONS.heights.Icon}rem; width: auto; height: auto;" draggable="false" />
+          <Lazy height="{gridDimensions.heights.Icon}rem" fadeOption={IMAGE_FADE_OPTIONS}>
+            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {gridDimensions.widths.Icon}rem; max-height: {gridDimensions.heights.Icon}rem; width: auto; height: auto;" draggable="false" />
           </Lazy>
         {:else}
           <div style="text-align: center;">No icon image for game</div>

@@ -38,6 +38,8 @@ export const optionsSize = writable(16);
 export const gamesSize = writable(42);
 export const gridsSize = writable(42);
 
+export const gridImageSize = writable<string>("small");
+
 export const selectedCleanGridsPreset = writable<"clean" | "custom">("clean");
 export const selectedManualGamesAddMethod = writable<"manual" | "search">("search");
 
