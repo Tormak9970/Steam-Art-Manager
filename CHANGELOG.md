@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.14.1
+
+Bug Fixes
+* apps with no common data are now filtered out ([d7b436e](https://github.com/Tormak9970/Steam-Art-Manager/commit/d7b436e))
+* corrected csp for original grids ([1d8c664](https://github.com/Tormak9970/Steam-Art-Manager/commit/1d8c664))
+
 ## v3.14.0
 
 New Features
