@@ -259,20 +259,23 @@ export class SettingsController {
     // ? need to clean the data here bc props can vary in terms of case
     for (const [ id, user ] of Object.entries(users)) {
       const userKeys = Object.keys(user);
-      // @ts-expect-error since we're mapping from user's keys, it should always work.
-      const lowerCaseUser = Object.fromEntries(userKeys.map((key: string) => [ key.toLowerCase(), user[key] ]));
+      const lowerCaseUser = Object.fromEntries(
+        userKeys
+          .filter((key: string) => !!key)
+          // @ts-expect-error since we're mapping from user's keys, it should always work.
+          .map((key: string) => [ key.toLowerCase(), user[key] ])
+      );
+
+      if (!lowerCaseUser.id64 || !lowerCaseUser.id32) {
+          continue;
+      }
 
       cleanedUsers[id] = {
         id64: lowerCaseUser.id64,
         id32: lowerCaseUser.id32,
-        AccountName: lowerCaseUser.accountname,
-        PersonaName: lowerCaseUser.personaname,
-        RememberPassword: lowerCaseUser.rememberpassword,
-        WantsOfflineMode: lowerCaseUser.wantsofflinemode,
-        SkipOfflineModeWarning: lowerCaseUser.skipofflinemodewarning,
-        AllowAutoLogin: lowerCaseUser.allowautologin,
-        MostRecent: lowerCaseUser.mostrecent,
-        Timestamp: lowerCaseUser.timestamp
+        AccountName: lowerCaseUser.accountname ?? 'Unkown',
+        PersonaName: lowerCaseUser.personaname ?? 'Unkown',
+        MostRecent: lowerCaseUser.mostrecent ?? "0",
       }
     }
 
