@@ -327,7 +327,11 @@ export class SettingsController {
       }
 
       
-      const manualSteamGamesSetting = SettingsController.settings.manualSteamGames;
+      let manualSteamGamesSetting = SettingsController.settings.manualSteamGames;
+      manualSteamGamesSetting = manualSteamGamesSetting.map((game) => ({
+        ...game,
+        type: game.type ?? "Game"
+      }))
       SettingsController.oldValues["manualSteamGames"] = structuredClone(manualSteamGamesSetting);
       if (manualSteamGamesSetting.length > 0) {
         manualSteamGames.set(manualSteamGamesSetting);
