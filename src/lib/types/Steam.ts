@@ -44,12 +44,13 @@ export type SteamUser = {
   id32: string,
   AccountName: string,
   PersonaName: string,
-  RememberPassword: string,
-  WantsOfflineMode: string,
-  SkipOfflineModeWarning: string,
-  AllowAutoLogin: string,
+  // All these fields exist but SARM doesn't need them
+  // RememberPassword: string,
+  // WantsOfflineMode: string,
+  // SkipOfflineModeWarning: string,
+  // AllowAutoLogin: string,
   MostRecent: string,
-  Timestamp: string
+  // Timestamp: string
 }
 
 export type CommonLibraryImage = {
