@@ -4,6 +4,7 @@
 
   export let label = "";
   export let description = "";
+  export let steamBug: boolean = false;
   export let value: boolean;
   export let onChange: (value: boolean) => void = () => {};
 

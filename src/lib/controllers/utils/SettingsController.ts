@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -396,6 +396,12 @@ export class SettingsController {
       SettingsController.oldValues["windowSettings.manageManualGames.method"] = manageManualGamesMethodSetting;
       selectedManualGamesAddMethod.set(manageManualGamesMethodSetting);
       
+      
+      const fixesSetting = SettingsController.settings.fixes;
+      const autoGenLogoPosSetting = fixesSetting.autoGenLogoPos;
+      SettingsController.oldValues["fixes.autoGenLogoPos"] = autoGenLogoPosSetting;
+      autoGenLogoPos.set(autoGenLogoPosSetting);
+
       
       LogController.log("Finished loading app settings.");
       loadingSettings.set(false);

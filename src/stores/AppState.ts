@@ -43,6 +43,7 @@ export const gridImageSize = writable<string>("small");
 export const selectedCleanGridsPreset = writable<"clean" | "custom">("clean");
 export const selectedManualGamesAddMethod = writable<"manual" | "search">("search");
 
+export const autoGenLogoPos = writable(false);
 
 // * App State
 export const loadingSettings = writable(true);
