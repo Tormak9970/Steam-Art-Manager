@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { AppController } from "@controllers";
+  import { Bug } from "@icons";
   import { Toggle } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
 
   export let label = "";
   export let description = "";
+  export let steamBug: boolean = false;
   export let value: boolean;
   export let onChange: (value: boolean) => void = () => {};
 
@@ -26,6 +29,12 @@
   <div class="inputs">
     <Toggle label={label} on:change={(e) => onChange(e.detail.value)} bind:value={value} />
     <slot />
+    {#if steamBug}
+      <div class="bug-warning"  use:AppController.tippy={{ content: "This is a Steam issue and will be removed once fixed.", placement: "top", onShow: AppController.onTippyShow }}>
+        <div class="steam-bug-warning">Steam</div>
+        <Bug fill="yellow" width="1rem" />
+      </div>
+    {/if}
   </div>
   {#if description !== ""}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -55,11 +64,20 @@
     margin: 0.5rem 0rem;
   }
 
-  
   .inputs {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .bug-warning {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .steam-bug-warning {
+    color: yellow;
   }
 </style>

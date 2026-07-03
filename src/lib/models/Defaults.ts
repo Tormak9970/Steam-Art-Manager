@@ -194,5 +194,9 @@ export const DEFAULT_SETTINGS: Settings = {
     manageManualGames: {
       method: "manual"
     }
+  },
+
+  fixes: {
+    autoGenLogoPos: false
   }
 };

@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
-import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage } from "@types";
+import { Platforms, activeUserId, appLibraryCache, autoGenLogoPos, cacheSelectedGrids, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "@stores/AppState";
+import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "@stores/Modals";
+import { GridTypes, type ChangedPath, type LogoPinPositions, type SGDBGame, type SGDBImage, type SteamLogoConfig } from "@types";
 import { restartApp } from "@utils";
 import { createTippy } from "svelte-tippy";
 import { get } from "svelte/store";
 import { hideAll, type Instance, type Props } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { Platforms, activeUserId, appLibraryCache, cacheSelectedGrids, canSave, currentPlatform, customGameNames, gridType, isOnline, loadingGames, manualSteamGames, needsSGDBAPIKey, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, selectedGameAppId, selectedGameName, showErrorSnackbar, showInfoSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, steamUsers, unfilteredLibraryCache } from "../../stores/AppState";
-import { cleanConflicts, gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, gridModalInfo, showCleanConflictDialog, showGameSearchModal, showGridModal, showSettingsModal } from "../../stores/Modals";
 import { CacheController } from "./CacheController";
 import { SteamController } from "./SteamController";
 import { DialogController } from "./utils/DialogController";
@@ -102,8 +102,33 @@ export class AppController {
     const originalShortcutIcons = Object.fromEntries(originalIconEntries);
 
     const originalLogoPos = get(originalLogoPositions);
-    const steamLogoPos = get(steamLogoPositions);
+    let steamLogoPos = get(steamLogoPositions);
     const logoPosStrings: Record<string, string> = {};
+
+    if (get(autoGenLogoPos)) {
+      const newLogoPositions = {...steamLogoPos}
+      const autoGenPositions: Record<string, SteamLogoConfig> = {}
+
+      for (const [appid, cache] of Object.entries(libraryCache)) {
+        const hasNewLogo = cache.Logo !== originalCache[appid].Logo && cache.Logo !== "REMOVE";
+
+        if (hasNewLogo) {
+          autoGenPositions[appid] = {
+            nVersion: 1,
+            logoPosition: {
+              pinnedPosition: "BottomLeft",
+              nHeightPct: 50,
+              nWidthPct: 50
+            }
+          }
+        }
+      }
+
+      steamLogoPos = {
+        ...autoGenPositions,
+        ...newLogoPositions,
+      }
+    }
 
     for (const [ appid, steamLogo ] of Object.entries(steamLogoPos)) {
       const originalPos = originalLogoPos[appid]?.logoPosition;
