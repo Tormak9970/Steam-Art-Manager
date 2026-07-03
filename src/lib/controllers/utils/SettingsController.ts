@@ -457,6 +457,8 @@ export class SettingsController {
   
       selectedManualGamesAddMethod.subscribe(SettingsController.setOnChange("windowSettings.manageManualGames.method")),
       selectedCleanGridsPreset.subscribe(SettingsController.setOnChange("windowSettings.cleanGrids.preset")),
+      
+      autoGenLogoPos.subscribe(SettingsController.setOnChange("fixes.autoGenLogoPos")),
     ];
   }
 

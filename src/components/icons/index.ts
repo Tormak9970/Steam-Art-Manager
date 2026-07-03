@@ -1,6 +1,7 @@
 export { default as AllGrids } from "./AllGrids.svelte";
 export { default as Asterisk } from "./Asterisk.svelte";
 export { default as Ban } from "./Ban.svelte";
+export { default as Bug } from "./Bug.svelte";
 export { default as Check } from "./Check.svelte";
 export { default as CheckOutlined } from "./CheckOutlined.svelte";
 export { default as Clean } from "./Clean.svelte";
