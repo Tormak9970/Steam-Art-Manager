@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.17.0
+
+New Features
+* added setting to auto gen logo positions ([db615b0](https://github.com/Tormak9970/Steam-Art-Manager/commit/db615b0))
+
 ## v3.16.1
 
 Bug Fixes
