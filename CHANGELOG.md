@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.16.1
+
+Bug Fixes
+* added mapping for missing manual app types ([54e6494](https://github.com/Tormak9970/Steam-Art-Manager/commit/54e6494))
+* filter out corrupted steam users ([55bd96b](https://github.com/Tormak9970/Steam-Art-Manager/commit/55bd96b))
+
 ## v3.16.0
 
 New Features
