@@ -19,7 +19,8 @@ export enum Platforms {
 
 export enum Theme {
   DARK,
-  LIGHT
+  LIGHT,
+  AUTO
 }
 
 export const showInfoSnackbar = writable<(data: ShowInfoOptions) => void>();

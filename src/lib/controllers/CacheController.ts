@@ -252,10 +252,32 @@ export class CacheController {
       const dimensions = (type !== GridTypes.LOGO && type !== GridTypes.ICON) ? Object.keys(targetFilters.dimensions!).filter((dimension) => targetFilters.dimensions![dimension]) : undefined;
       const mimes = Object.keys(targetFilters.mimes).filter((imgType) => targetFilters.mimes[imgType]);
       const animationTypes = Object.keys(targetFilters.types).filter((gridType) => targetFilters.types[gridType]);
-      const humor = targetFilters.oneoftag.humor;
-      const epilepsy = targetFilters.oneoftag.epilepsy;
-      const nsfw = targetFilters.oneoftag.nsfw;
-      const untagged = targetFilters.oneoftag.untagged;
+
+      
+      const oneoftag = targetFilters.oneoftag
+      const humor = oneoftag.humor;
+      const epilepsy = oneoftag.epilepsy;
+      const nsfw = oneoftag.nsfw;
+      const untagged = oneoftag.untagged;
+      
+      const isHumorOnly = humor && !epilepsy && !nsfw
+      const isEpilepsyOnly = !humor && epilepsy && !nsfw
+      const isNSFWOnly = !humor && !epilepsy && nsfw
+
+      const isSingleTag = isHumorOnly || isEpilepsyOnly || isNSFWOnly
+
+      const tags: string[] = []
+
+      if (!untagged) {
+        if (nsfw) tags.push("nsfw")
+        if (epilepsy) tags.push("epilepsy")
+        if (humor) tags.push("humor")
+      }
+    
+      // * SGDB Tag Values
+      // ! TRUE means ONLY grids with this tag
+      // ! FALSE means EXCLUDE grids with this tag
+      // ! ANY means include both
 
       // @ts-expect-error This will always be a function on this.client
       const gridResults: GridResults = await this.client[`get${type.includes("Capsule") ? "Grid": (type === GridTypes.HERO ? "Heroe" : type)}sById`](
@@ -264,9 +286,10 @@ export class CacheController {
         dimensions,
         mimes,
         animationTypes,
-        !untagged && nsfw ? "true" : !nsfw ? "false" : "any",
-        !untagged && humor ? "true" : !humor ? "false" : "any",
-        !untagged && epilepsy ? "true" : !epilepsy ? "false" : "any",
+        nsfw ? isSingleTag && !untagged ? "true" : "any" : "false",
+        humor ? isSingleTag && !untagged ? "true" : "any" : "false",
+        epilepsy ? isSingleTag && !untagged ? "true" : "any" : "false",
+        tags,
         page
       );
       

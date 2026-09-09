@@ -63,7 +63,7 @@ export interface SGDBImageOptions {
   nsfw?: string;
   epilepsy?: string;
   humor?: string;
-  oneoftag?: string;
+  oneoftag?: string[];
   page?: number;
 }
 

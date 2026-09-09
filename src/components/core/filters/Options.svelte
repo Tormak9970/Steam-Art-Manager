@@ -1,7 +1,8 @@
 <script lang="ts">
   import { LogController } from "@controllers";
   import { isOverflowing, scrollShadow } from "@directives";
-  import { Toggle } from "@interactables";
+  import { Moon, Sun, SunAndMoon } from "@icons";
+  import { ThreeWayToggle, Toggle } from "@interactables";
   import { Accordion } from "@layout";
   import { dbFilters, gridType, optionsSize, theme } from "@stores/AppState";
   import { Pane } from "svelte-splitpanes";
@@ -43,13 +44,13 @@
 
   /**
    * Function to run on theme change.
-   * @param event The change event.
+   * @param value The theme.
    */
-  function onDarkModeChange(event: any): void {
-    const checked = event.detail.value;
-    document.body.setAttribute("data-theme", checked ? "dark" : "light");
-    $theme = checked ? 0 : 1;
-    LogController.log(`Set theme to "${checked ? "dark" : "light"}".`);
+  function onDarkModeChange(value: number): void {
+    const newTheme = value === 0 ? "dark" : value === 1 ? "light" : "auto"
+    document.body.setAttribute("data-theme", newTheme);
+    $theme = value;
+    LogController.log(`Set theme to "${newTheme}".`);
   }
 </script>
 
@@ -59,7 +60,17 @@
   
     <div class="content">
       <div class="toggle-container">
-        <Toggle label="Dark Mode" value={$theme === 0} on:change={onDarkModeChange}/>
+        <ThreeWayToggle leftTooltip="Dark" midTooltip="Light" rightTooltip="Auto" value={$theme} onChange={onDarkModeChange}>
+          <span slot="left">
+            <Moon width="1rem" height="1rem" />
+          </span>
+          <span slot="middle">
+            <Sun width="1rem" height="1rem" />
+          </span>
+          <span slot="right">
+            <SunAndMoon width="1rem" height="1rem" />
+          </span>
+        </ThreeWayToggle>
       </div>
       
       <Divider />
@@ -120,9 +131,9 @@
     padding: 0.5rem 0;
   }
   .toggle-container {
-    padding-top: 0.25rem;
+    padding-top: 0;
     padding-bottom: 0.125rem;
-    padding-left: 0.375rem;
+    padding-left: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
