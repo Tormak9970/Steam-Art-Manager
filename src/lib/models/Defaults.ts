@@ -168,7 +168,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cacheSelectedGrids: false,
   userSelectedGrids: {},
   
-  theme: 0,
+  theme: 2,
   showHiddenGames: false,
 
   debugMode: false,

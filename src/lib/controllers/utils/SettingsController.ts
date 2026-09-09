@@ -292,7 +292,7 @@ export class SettingsController {
     const themeSetting = SettingsController.settings.theme;
     SettingsController.oldValues["theme"] = themeSetting;
     theme.set(themeSetting);
-    document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : "light");
+    document.body.setAttribute("data-theme", themeSetting === 0 ? "dark" : themeSetting === 1 ? "light" : "auto");
 
     const debugModeSetting = SettingsController.settings.debugMode;
     SettingsController.oldValues["debugMode"] = debugModeSetting;
@@ -460,6 +460,8 @@ export class SettingsController {
       
       autoGenLogoPos.subscribe(SettingsController.setOnChange("fixes.autoGenLogoPos")),
     ];
+
+
   }
 
   /**
