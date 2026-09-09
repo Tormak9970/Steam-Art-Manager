@@ -6,6 +6,14 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.18.0
+
+New Features
+* added system theme option ([55bedc5](https://github.com/Tormak9970/Steam-Art-Manager/commit/55bedc5))
+
+Bug Fixes
+* selecting multiple sgdb tags now behaves as expected ([c490d08](https://github.com/Tormak9970/Steam-Art-Manager/commit/c490d08))
+
 ## v3.17.0
 
 New Features
