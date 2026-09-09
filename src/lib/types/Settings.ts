@@ -53,5 +53,9 @@ export type Settings = {
     manageManualGames: {
       method: ManageManualGamesMethod
     }
+  },
+
+  fixes: {
+    autoGenLogoPos: boolean
   }
 };

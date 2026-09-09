@@ -4,7 +4,7 @@
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
   import { APP_TYPES, GRID_IMAGE_SIZES } from "@models";
-  import { activeUserId, appTypes, cacheSelectedGrids, debugMode, gridImageSize, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, gridImageSize, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -65,6 +65,8 @@
   let appTypesSetting = [...$appTypes];
   let gridImageSizeSetting = $gridImageSize;
 
+  let autoGenLogoPosSetting = $autoGenLogoPos;
+
   /**
    * Saves the changed settings.
    */
@@ -97,6 +99,8 @@
     if (gridImageSizeSetting !== $gridImageSize) $gridImageSize = gridImageSizeSetting;
 
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
+    
+    if (autoGenLogoPosSetting !== $autoGenLogoPos) $autoGenLogoPos = autoGenLogoPosSetting;
 
     LogController.log("Saved settings.");
     $showInfoSnackbar({ message: "Settings saved!" });
@@ -117,8 +121,9 @@
     steamInstallLocation = $steamInstallPath;
     debugModeSetting = $debugMode;
     appTypesSetting = [...$appTypes];
-    cacheSelectedGridsSetting = $cacheSelectedGrids
-    gridImageSizeSetting = $gridImageSize
+    cacheSelectedGridsSetting = $cacheSelectedGrids;
+    gridImageSizeSetting = $gridImageSize;
+    autoGenLogoPosSetting = $autoGenLogoPos;
     
     LogController.log("Reverted settings.");
     
@@ -153,24 +158,6 @@
     } else {
       canSave = false;
     }
-  }
-
-  /**
-   * Function to run on debug mode change.
-   * @param value The updated value.
-   */
-  function onDebugModeChange(value: boolean): void {
-    debugModeSetting = value;
-    canSave = true;
-  }
-
-  /**
-   * Function to run on cache selected grids change.
-   * @param value The updated value.
-   */
-  function onCacheSelectedGridsChange(value: boolean): void {
-    cacheSelectedGridsSetting = value;
-    canSave = true;
   }
 
   /**
@@ -273,7 +260,10 @@
           label="Cache Selected Grids"
           description={"Enables saving previously selected grids."}
           value={cacheSelectedGridsSetting}
-          onChange={onCacheSelectedGridsChange}
+          onChange={(value) => {
+            cacheSelectedGridsSetting = value;
+            canSave = true;
+          }}
         >
           <Button on:click={AppController.clearCachedGrids}>Clear Cache</Button>
         </ToggleFieldEntry>
@@ -285,10 +275,23 @@
           onChange={(id) => {selectedUserId = id; canSave = true;}}
         />
         <ToggleFieldEntry
+          label="Automatically Generate Logo Config"
+          description={"Steam is bugged for some users and doesn't display custom logos unless the logo config is present. Check this if you're running into that issue."}
+          steamBug
+          value={autoGenLogoPosSetting}
+          onChange={(value) => {
+            autoGenLogoPosSetting = value;
+            canSave = true;
+          }}
+        />
+        <ToggleFieldEntry
           label="Debug Mode"
           description={"Enables the inspect element window and automatically opens it on launch."}
           value={debugModeSetting}
-          onChange={onDebugModeChange}
+          onChange={(value) => {
+            debugModeSetting = value;
+            canSave = true;
+          }}
         />
       </div>
     </div>
