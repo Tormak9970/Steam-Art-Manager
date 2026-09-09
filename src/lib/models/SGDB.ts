@@ -207,6 +207,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired game matching the provided filters.
    */
@@ -219,19 +220,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getGrids({
       type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -245,6 +248,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of grids for the desired steam game matching the provided filters.
    */
@@ -257,19 +261,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getGrids({
       type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -303,6 +309,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
@@ -315,19 +322,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getHeroes({
       type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -341,6 +350,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired steam game matching the provided filters.
    */
@@ -353,19 +363,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getHeroes({
       type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -399,6 +411,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of heroes for the desired game matching the provided filters.
    */
@@ -411,19 +424,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getIcons({
       type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -437,6 +452,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of icons for the desired steam game matching the provided filters.
    */
@@ -449,19 +465,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getIcons({
       type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -495,6 +513,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired game matching the provided filters.
    */
@@ -507,19 +526,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getLogos({
       type: "game",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 
@@ -533,6 +554,7 @@ export class SGDB {
    * @param nsfw Whether the result should include nsfw images.
    * @param humor Whether the result should include humor images.
    * @param epilepsy Whether the result should include epilepsy images.
+   * @param oneoftag The tags to include.
    * @param page The page of results to get.
    * @returns A promise resolving to a list of logos for the desired steam game matching the provided filters.
    */
@@ -545,19 +567,21 @@ export class SGDB {
     nsfw?: string,
     humor?: string,
     epilepsy?: string,
+    oneoftag?: string[],
     page?: number
   ): Promise<GridResults> {
     return this.getLogos({
       type: "steam",
-      id: id,
-      styles: styles,
-      dimensions: dimensions,
-      mimes: mimes,
-      types: types,
-      nsfw: nsfw,
-      humor: humor,
-      epilepsy: epilepsy,
-      page: page,
+      id,
+      styles,
+      dimensions,
+      mimes,
+      types,
+      nsfw,
+      humor,
+      epilepsy,
+      oneoftag,
+      page,
     });
   }
 }
