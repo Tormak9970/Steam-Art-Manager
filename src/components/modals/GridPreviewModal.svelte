@@ -2,7 +2,8 @@
   import MarkDownIt from "markdown-it";
 
   import { AppController } from "@controllers";
-  import { Button } from "@interactables";
+  import { Position } from "@icons";
+  import { Button, IconButton } from "@interactables";
   import { gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
   import { gridModalInfo, showGridModal } from "@stores/Modals";
   import { GridTypes } from "@types";
@@ -13,6 +14,8 @@
   let modalOpen = true;
   $: definedModalInfo = $gridModalInfo!;
   console.log("definedModalInfo:", $gridModalInfo)
+
+  let showHeroCropping = false;
 
   /**
    * The function to run when the modal closes.
@@ -55,6 +58,11 @@
   <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
     <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: {definedModalInfo.width || 256}rem; height: {definedModalInfo.height || 256}rem;">
       <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem;">
+        <div class="button-container" class:visible={$gridType === GridTypes.HERO}>
+          <IconButton label="Show Steam Cropping" tooltipPosition="right" on:click={() => showHeroCropping = !showHeroCropping}>
+            <Position width="1rem" height="1rem" />
+          </IconButton>
+        </div>
         <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem" fadeOption={{ delay: 500, duration: 1000 }}>
           <img
             src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
@@ -62,6 +70,34 @@
             style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
           />
         </Lazy>
+        <!-- ! This idea and implementation comes directly from SGDB's website -->
+        <div class="steam-hero-overlay" class:visible={showHeroCropping}>
+          <div class="blur-container">
+            <img
+              class="blurred"
+              src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
+              alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
+            />
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
+            <svg width="100%" height="100%" viewBox="0 0 1920 620">
+              <defs>
+                <linearGradient id="blurGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="rgb(39, 44, 53)" stop-opacity="0.1"></stop>
+                  <stop offset="100%" stop-color="rgb(19, 21, 24)" stop-opacity="0.7"></stop>
+                </linearGradient>
+              </defs>
+              <rect x="210.5" y="88.5" width="1495" height="369" fill="none" stroke="#fff" stroke-width="1"></rect>
+              <path opacity="0.4" d="M0 0v520h1920V0zm1706 458H210V88h1496z"></path>
+              <rect x="0" y="520" width="100%" height="100" fill="url(#blurGrad)"></rect>
+            </svg>
+            <g dominant-baseline="middle" text-anchor="middle" font-size=".65em" fill="#e4e4e4" style="text-shadow: rgb(0, 0, 0) 0px 0px 4px;">
+              <text x="50%" y="7.55%">VISIBILITY DEPENDS ON WINDOW SIZE</text>
+              <text x="50%" y="44.6%">ALWAYS VISIBLE</text>
+              <text x="50%" y="92.5%">ONLY VISIBLE BEHIND TRANSLUCENT BAR</text>
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
     <div class="info">
@@ -146,6 +182,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
 
   .logo-background {
@@ -200,5 +237,49 @@
     display: flex;
     justify-content: space-around;
     justify-self: flex-end;
+  }
+
+  .button-container {
+    display: none;
+
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+
+    z-index: 2;
+  }
+
+  .steam-hero-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 400ms cubic-bezier(0.23, 1, 0.32, 1);
+    box-sizing: border-box;
+
+    display: none;
+
+    z-index: 1;
+  }
+
+  .visible {
+    display: flex;
+  }
+
+  .blur-container {
+    display: flex;
+    align-items: flex-end;
+    position: absolute;
+    height: 16.12903%;
+    overflow: hidden;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  .blurred {
+    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'%3E%3CfeGaussianBlur stdDeviation='8' /%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E %3C/svg%3E#a");
+    width: 100%;
+    height: auto;
   }
 </style>
