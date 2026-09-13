@@ -45,8 +45,8 @@ async fn download_grid(
     dest_path: String,
     timeout: u64,
 ) -> String {
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("Downloading grid from {} to {}", grid_url, dest_path).as_str(),
         0,
     );
@@ -72,8 +72,8 @@ async fn download_grid(
         let write_res = dest_file.write_all(&response_bytes);
 
         if write_res.is_ok() {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 format!("Download of {} finished.", grid_url.clone()).as_str(),
                 0,
             );
@@ -82,8 +82,8 @@ async fn download_grid(
             let err = write_res
                 .err()
                 .expect("Request failed, error should have existed.");
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 format!(
                     "Download of {} failed with {}.",
                     grid_url.clone(),
@@ -98,8 +98,8 @@ async fn download_grid(
         let err = response_res
             .err()
             .expect("Request failed, error should have existed.");
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             format!(
                 "Download of {} failed with {}.",
                 grid_url.clone(),
@@ -131,8 +131,8 @@ async fn copy_grid_to_selected(
         let err = copy_res
             .err()
             .expect("Request failed, error should have existed.");
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             format!("Cache of {} failed with {}.", source_path, err.to_string()).as_str(),
             0,
         );
@@ -181,8 +181,8 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
     let path_as_buf: PathBuf = PathBuf::from(&target_path);
 
     if !path_as_buf.as_path().exists() {
-        logger::log_to_core_file(
-            app_handle.clone(),
+        logger::log_core(
+            &app_handle,
             format!(
                 "Error adding {} to scope. Path does not exist.",
                 &target_path
@@ -200,8 +200,8 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
     let asset_res = asset_scope.allow_directory(&path_as_buf, true);
 
     if asset_res.is_ok() {
-        logger::log_to_core_file(
-            app_handle.clone(),
+        logger::log_core(
+            &app_handle,
             format!("Added {} to scope.", &target_path).as_str(),
             0,
         );
@@ -209,8 +209,8 @@ async fn add_path_to_scope(app_handle: AppHandle, target_path: String) -> bool {
     }
 
     let err = asset_res.err().unwrap();
-    logger::log_to_core_file(
-        app_handle.clone(),
+    logger::log_core(
+        &app_handle,
         format!(
             "Error adding {} to scope. Asset Scope Error: {}",
             &target_path,
@@ -247,7 +247,7 @@ async fn add_steam_to_scope(app_handle: AppHandle) -> String {
         let err_message = steam_path_res
             .err()
             .expect("Should have been able to get Steam install path error.");
-        logger::log_to_core_file(app_handle.to_owned(), &err_message, 2);
+        logger::log_core(&app_handle, &err_message, 2);
 
         return String::from("DNE");
     }
@@ -273,17 +273,17 @@ fn main() {
     .plugin(tauri_plugin_window_state::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
       logger::clean_out_log,
-      logger::log_to_core_file,
-      logger::log_to_batch_apply_file,
+      logger::frontend_log_core_handler,
+      logger::frontend_log_batch_handler,
       steam::get_steam_users,
-      steam::get_grids_directory,
-      steam::get_library_cache_directory,
-      steam::get_appinfo_path,
-      steam::get_shortcuts_path,
-      steam::get_localconfig_path,
+      steam::frontend_get_grids_directory,
+      steam::frontend_get_library_cache_directory_handler,
+      steam::frontend_get_appinfo_path_handler,
+      steam::frontend_get_shortcuts_path_handler,
+      steam::frontend_get_localconfig_path_handler,
       steam::get_sourcemod_path,
       steam::get_goldsrc_path,
-      steam::get_libraryfolders_path,
+      steam::frontend_get_libraryfolders_path_handler,
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       grids_cache_loader::get_cache_data,

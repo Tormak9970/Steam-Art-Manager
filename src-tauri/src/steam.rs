@@ -66,14 +66,13 @@ pub fn get_steam_root_dir() -> Result<PathBuf, String> {
     }
 }
 
-#[tauri::command]
 /// Gets the steam grids directory.
 pub fn get_grids_directory(
-    app_handle: AppHandle,
+    app_handle: &AppHandle,
     steam_path: String,
     steam_active_user_id: String,
 ) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam grids folder...", 0);
+    logger::log_core(app_handle, "Getting steam grids folder...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root
@@ -93,8 +92,8 @@ pub fn get_grids_directory(
 
     let dir_create_res = fs::create_dir_all(grids_dir.clone());
     if dir_create_res.is_err() {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            app_handle,
             "Should have been able to create the grids dir!",
             2,
         );
@@ -105,10 +104,19 @@ pub fn get_grids_directory(
 }
 
 #[tauri::command]
+/// Gets the steam grids directory.
+pub fn frontend_get_grids_directory(
+    app_handle: AppHandle,
+    steam_path: String,
+    steam_active_user_id: String,
+) -> String {
+    return get_grids_directory(&app_handle, steam_path, steam_active_user_id)
+}
+
 /// Gets the steam library cache directory.
-pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+pub fn get_library_cache_directory(app_handle: &AppHandle, steam_path: String) -> String {
+    logger::log_core(
+        &app_handle,
         "Getting steam library cache folder...",
         0,
     );
@@ -131,9 +139,14 @@ pub fn get_library_cache_directory(app_handle: AppHandle, steam_path: String) ->
 }
 
 #[tauri::command]
+/// Gets the steam library cache directory.
+pub fn frontend_get_library_cache_directory_handler(app_handle: AppHandle, steam_path: String) -> String {
+    return get_library_cache_directory(&app_handle, steam_path);
+}
+
 /// Gets the steam appinfo.vdf path.
-pub fn get_appinfo_path(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam appinfo.vdf...", 0);
+pub fn get_appinfo_path(app_handle: &AppHandle, steam_path: String) -> String {
+    logger::log_core(app_handle, "Getting steam appinfo.vdf...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root.join("appcache/appinfo.vdf");
@@ -146,13 +159,18 @@ pub fn get_appinfo_path(app_handle: AppHandle, steam_path: String) -> String {
 }
 
 #[tauri::command]
+/// Gets the steam appinfo.vdf path.
+pub fn frontend_get_appinfo_path_handler(app_handle: AppHandle, steam_path: String) -> String {
+    return get_appinfo_path(&app_handle, steam_path);
+}
+
 /// Gets the steam shortcuts.vdf path.
 pub fn get_shortcuts_path(
-    app_handle: AppHandle,
+    app_handle: &AppHandle,
     steam_path: String,
     steam_active_user_id: String,
 ) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam shortcuts.vdf...", 0);
+    logger::log_core(&app_handle, "Getting steam shortcuts.vdf...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root
@@ -177,13 +195,22 @@ pub fn get_shortcuts_path(
 }
 
 #[tauri::command]
-/// Gets the steam localconfig.vdf path.
-pub fn get_localconfig_path(
+/// Gets the steam shortcuts.vdf path.
+pub fn frontend_get_shortcuts_path_handler(
     app_handle: AppHandle,
     steam_path: String,
     steam_active_user_id: String,
 ) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam localconfig.vdf...", 0);
+    return get_shortcuts_path(&app_handle, steam_path, steam_active_user_id);
+}
+
+/// Gets the steam localconfig.vdf path.
+pub fn get_localconfig_path(
+    app_handle: &AppHandle,
+    steam_path: String,
+    steam_active_user_id: String,
+) -> String {
+    logger::log_core(&app_handle, "Getting steam localconfig.vdf...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root
@@ -208,10 +235,19 @@ pub fn get_localconfig_path(
 }
 
 #[tauri::command]
+/// Gets the steam localconfig.vdf path.
+pub fn frontend_get_localconfig_path_handler(
+    app_handle: AppHandle,
+    steam_path: String,
+    steam_active_user_id: String,
+) -> String {
+    return get_localconfig_path(&app_handle, steam_path, steam_active_user_id);
+}
+
 /// Gets the steam libraryfolders.vdf path.
-pub fn get_libraryfolders_path(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+pub fn get_libraryfolders_path(app_handle: &AppHandle, steam_path: String) -> String {
+    logger::log_core(
+        app_handle,
         "Getting steam libraryfolders.vdf...",
         0,
     );
@@ -236,9 +272,15 @@ pub fn get_libraryfolders_path(app_handle: AppHandle, steam_path: String) -> Str
 }
 
 #[tauri::command]
+/// Gets the steam libraryfolders.vdf path.
+pub fn frontend_get_libraryfolders_path_handler(app_handle: AppHandle, steam_path: String) -> String {
+    return get_libraryfolders_path(&app_handle, steam_path);
+}
+
+#[tauri::command]
 /// Gets the steam sourcemod path.
 pub fn get_sourcemod_path(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam sourcemod path...", 0);
+    logger::log_core(&app_handle, "Getting steam sourcemod path...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root.join("steamapps/sourcemods");
@@ -262,7 +304,7 @@ pub fn get_sourcemod_path(app_handle: AppHandle, steam_path: String) -> String {
 #[tauri::command]
 /// Gets the steam goldsrc path.
 pub fn get_goldsrc_path(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting steam goldsrc path...", 0);
+    logger::log_core(&app_handle, "Getting steam goldsrc path...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
     let joined_path: PathBuf = steam_root.join("steamapps/sourcemods/Half-Life");
@@ -348,16 +390,16 @@ fn read_steam_users(steam_path: String) -> Map<String, Value> {
 #[tauri::command]
 /// Gets all steam users that have logged in on this computer.
 pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         "Checking config/loginusers.vdf for current user info.",
         0,
     );
 
     let steam_users = read_steam_users(steam_path);
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("Loaded {} steam users.", steam_users.len()).as_str(),
         0,
     );
@@ -368,7 +410,7 @@ pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
 #[tauri::command]
 /// Reads the user's appinfo.vdf file.
 pub async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
-    let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(app_handle.to_owned(), steam_path));
+    let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(&app_handle, steam_path));
     let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path, Some(false));
     return serde_json::to_string(&appinfo_vdf)
         .expect("Should have been able to serialize AppInfo vdf to string.");
@@ -382,18 +424,18 @@ pub async fn read_shortcuts_vdf(
     steam_active_user_id: String,
 ) -> String {
     let shortcuts_path = PathBuf::from(get_shortcuts_path(
-        app_handle.to_owned(),
+        &app_handle,
         steam_path,
         steam_active_user_id,
     ));
 
     if shortcuts_path.as_path().exists() {
-        logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf exists, reading...", 0);
+        logger::log_core(&app_handle, "shortcuts.vdf exists, reading...", 0);
         let shortcuts_array = open_shortcuts_vdf(&shortcuts_path);
         return serde_json::to_string(&shortcuts_array)
             .expect("Should have been able to serialize Shortcuts vdf to string.");
     } else {
-        logger::log_to_core_file(app_handle.to_owned(), "shortcuts.vdf does not exist.", 0);
+        logger::log_core(&app_handle, "shortcuts.vdf does not exist.", 0);
         return "{}".to_owned();
     }
 }
@@ -406,14 +448,14 @@ pub async fn read_localconfig_vdf(
     steam_active_user_id: String,
 ) -> String {
     let localconfig_path = PathBuf::from(get_localconfig_path(
-        app_handle.to_owned(),
+        &app_handle,
         steam_path,
         steam_active_user_id,
     ));
 
     if localconfig_path.as_path().exists() {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             "localconfig.vdf exists, reading...",
             0,
         );
@@ -449,7 +491,7 @@ pub async fn read_localconfig_vdf(
         return serde_json::to_string(&appids)
             .expect("Should have been able to serialize localconfig vdf to string.");
     } else {
-        logger::log_to_core_file(app_handle.to_owned(), "localconfig.vdf does not exist.", 0);
+        logger::log_core(&app_handle, "localconfig.vdf does not exist.", 0);
         return "{}".to_owned();
     }
 }
@@ -458,11 +500,11 @@ pub async fn read_localconfig_vdf(
 /// Reads the user's localconfig.vdf file.
 pub async fn get_installed_appids(app_handle: AppHandle, steam_path: String) -> String {
     let libraryfolders_path =
-        PathBuf::from(get_libraryfolders_path(app_handle.to_owned(), steam_path));
+        PathBuf::from(get_libraryfolders_path(&app_handle, steam_path));
 
     if libraryfolders_path.as_path().exists() {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             "libraryfolders.vdf exists, reading...",
             0,
         );
@@ -502,8 +544,8 @@ pub async fn get_installed_appids(app_handle: AppHandle, steam_path: String) -> 
         return serde_json::to_string(&appids)
             .expect("Should have been able to serialize libraryfolders vdf to string.");
     } else {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             "libraryfolders.vdf does not exist.",
             0,
         );

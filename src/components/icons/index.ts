@@ -33,6 +33,7 @@ export { default as Recycle } from "./Recycle.svelte";
 export { default as Refresh } from "./Refresh.svelte";
 export { default as RightChevron } from "./RightChevron.svelte";
 export { default as RightDoubleChevron } from "./RightDoubleChevron.svelte";
+export { default as Ruler } from "./Ruler.svelte";
 export { default as SGDBLogo } from "./SGDB.svelte";
 export { default as Share } from "./Share.svelte";
 export { default as Show } from "./Show.svelte";

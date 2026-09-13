@@ -73,18 +73,28 @@ pub fn log_to_file(log_path: &PathBuf, message: &str, level: u8) {
     }
 }
 
+/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to core.log.
+pub fn log_core(app_handle: &AppHandle, message: &str, level: u8) {
+    let log_path: PathBuf = get_core_log_path(app_handle);
+    log_to_file(&log_path, message, level);
+}
+
 #[tauri::command]
 /// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to core.log.
-pub fn log_to_core_file(app_handle: AppHandle, message: &str, level: u8) {
-    let log_path: PathBuf = get_core_log_path(&app_handle);
+pub fn frontend_log_core_handler(app_handle: AppHandle, message: &str, level: u8) {
+    log_core(&app_handle, message, level);
+}
+
+/// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to batch-apply.log.
+pub fn log_batch(app_handle: &AppHandle, message: &str, level: u8) {
+    let log_path: PathBuf = get_batch_apply_log_path(app_handle);
     log_to_file(&log_path, message, level);
 }
 
 #[tauri::command]
 /// Logs a message to file with level 0 (info), 1 (warn), or 2 (err) to batch-apply.log.
-pub fn log_to_batch_apply_file(app_handle: AppHandle, message: &str, level: u8) {
-    let log_path: PathBuf = get_batch_apply_log_path(&app_handle);
-    log_to_file(&log_path, message, level);
+pub fn frontend_log_batch_handler(app_handle: AppHandle, message: &str, level: u8) {
+    log_batch(&app_handle, message, level);
 }
 
 #[tauri::command]
@@ -96,5 +106,5 @@ pub fn clean_out_log(app_handle: AppHandle) {
     let batch_apply_log_path: PathBuf = get_core_log_path(&app_handle);
     File::create(&batch_apply_log_path).expect("Batch Apply log path should have existed.");
 
-    log_to_core_file(app_handle, "Initialized logging file", 0);
+    log_core(&app_handle, "Initialized logging file", 0);
 }

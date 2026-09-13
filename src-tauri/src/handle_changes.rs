@@ -40,8 +40,8 @@ fn get_grid_filename(
         "Logo" => return format!("{}_logo{}", appid, image_type),
         "Icon" => return format!("{}_icon.jpg", appid),
         _ => {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                app_handle,
                 format!("Unexpected grid type {}", grid_type).as_str(),
                 2,
             );
@@ -69,7 +69,7 @@ fn filter_paths(
     shortcut_icons: &Map<String, Value>,
 ) -> Vec<ChangedPath> {
     let grids_dir = PathBuf::from(steam::get_grids_directory(
-        app_handle.to_owned(),
+        app_handle,
         steam_path.to_owned(),
         steam_active_user_id,
     ));
@@ -180,8 +180,8 @@ pub async fn save_changes(
     let current_art_dict: GridImageCache = serde_json::from_str(current_art.as_str()).unwrap();
     let original_art_dict: GridImageCache = serde_json::from_str(original_art.as_str()).unwrap();
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         "Converting current path entries to grid paths...",
         0,
     );
@@ -203,8 +203,8 @@ pub async fn save_changes(
             )
         })
         .collect();
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         "Current path entries converted to grid paths.",
         0,
     );
@@ -221,8 +221,8 @@ pub async fn save_changes(
                     return format!("{{ \"error\": \"{}\"}}", err.to_string());
                 }
 
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!("Removed grid {}.", changed_path.oldPath.to_owned()).as_str(),
                     0,
                 );
@@ -236,13 +236,14 @@ pub async fn save_changes(
                 }
             }
 
-            fs::File::create(target.clone()).unwrap();
+            fs::create_dir_all(target.clone()).expect("Failed to make directory for path when saving changes.");
+            fs::File::create(target.clone()).expect("Failed to make file for path when saving changes.");
 
             let copy_res = fs::copy(source.clone(), target.clone());
 
             if copy_res.is_err() {
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!("Failed to copy {} to {}.", source, target).as_str(),
                     2,
                 );
@@ -250,8 +251,8 @@ pub async fn save_changes(
                 return format!("{{ \"error\": \"{}\"}}", err.to_string());
             }
 
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 format!("Copied {} to {}.", source, target).as_str(),
                 0,
             );
@@ -259,7 +260,7 @@ pub async fn save_changes(
     }
 
     let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(
-        app_handle.to_owned(),
+        &app_handle,
         steam_path.to_owned(),
         steam_active_user_id.clone(),
     ));
@@ -276,16 +277,16 @@ pub async fn save_changes(
                 return format!("{{ \"error\": \"{}\"}}", err.to_string());
             }
 
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 format!("Removed logo position config for {}.", appid).as_str(),
                 0,
             );
         } else {
             let write_res = fs::write(&logo_config_path, steam_logo_str);
             if write_res.is_err() {
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!("Failed to write logo pos to config for {}.", appid).as_str(),
                     2,
                 );
@@ -293,8 +294,8 @@ pub async fn save_changes(
                 return format!("{{ \"error\": \"{}\"}}", err.to_string());
             }
 
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 format!("Wrote logo pos to config for {}.", appid).as_str(),
                 0,
             );
@@ -305,8 +306,8 @@ pub async fn save_changes(
         check_for_shortcut_changes(&shortcut_icons, &original_shortcut_icons);
 
     if should_change_shortcuts {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             "Changes to shortcuts detected. Writing shortcuts.vdf...",
             0,
         );
@@ -350,15 +351,15 @@ pub async fn save_changes(
         shortcuts_data = Value::Object(modified_shortcuts_data);
 
         let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(
-            app_handle.to_owned(),
+            &app_handle,
             steam_path.to_owned(),
             steam_active_user_id,
         ));
         write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
-        logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
+        logger::log_core(&app_handle, "Changes to shortcuts saved.", 0);
     } else {
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             "No changes to shortcuts detected. Skipping...",
             0,
         );
@@ -368,7 +369,7 @@ pub async fn save_changes(
 
     if changed_res.is_err() {
         let err = changed_res.err().unwrap();
-        logger::log_to_core_file(app_handle, format!("{}", err.to_string()).as_str(), 2);
+        logger::log_core(&app_handle, format!("{}", err.to_string()).as_str(), 2);
         return String::from("[]");
     }
 
@@ -383,9 +384,9 @@ pub async fn write_shortcuts(
     steam_active_user_id: String,
     shortcuts_str: String,
 ) -> bool {
-    logger::log_to_core_file(app_handle.to_owned(), "Writing shortcuts.vdf...", 0);
+    logger::log_core(&app_handle, "Writing shortcuts.vdf...", 0);
     let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(
-        app_handle.to_owned(),
+        &app_handle,
         steam_path,
         steam_active_user_id,
     ));
@@ -395,10 +396,10 @@ pub async fn write_shortcuts(
     let success: bool = write_shortcuts_vdf(&shortcuts_vdf_path, shortcuts_data);
 
     if success {
-        logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts saved.", 0);
+        logger::log_core(&app_handle, "Changes to shortcuts saved.", 0);
         return true;
     } else {
-        logger::log_to_core_file(app_handle.to_owned(), "Changes to shortcuts failed.", 0);
+        logger::log_core(&app_handle, "Changes to shortcuts failed.", 0);
         return false;
     }
 }
