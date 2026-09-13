@@ -3,8 +3,8 @@
   import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { APP_TYPES, GRID_IMAGE_SIZES } from "@models";
-  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, gridImageSize, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { APP_TYPES } from "@models";
+  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -63,7 +63,6 @@
   let debugModeSetting = $debugMode;
   let cacheSelectedGridsSetting = $cacheSelectedGrids;
   let appTypesSetting = [...$appTypes];
-  let gridImageSizeSetting = $gridImageSize;
 
   let autoGenLogoPosSetting = $autoGenLogoPos;
 
@@ -95,8 +94,6 @@
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
     
     if (cacheSelectedGridsSetting !== $cacheSelectedGrids) $cacheSelectedGrids = cacheSelectedGridsSetting;
-    
-    if (gridImageSizeSetting !== $gridImageSize) $gridImageSize = gridImageSizeSetting;
 
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
     
@@ -122,7 +119,6 @@
     debugModeSetting = $debugMode;
     appTypesSetting = [...$appTypes];
     cacheSelectedGridsSetting = $cacheSelectedGrids;
-    gridImageSizeSetting = $gridImageSize;
     autoGenLogoPosSetting = $autoGenLogoPos;
     
     LogController.log("Reverted settings.");
@@ -248,13 +244,6 @@
           options={APP_TYPES}
           value={appTypesSetting}
           onChange={onAppTypesChange}
-        />
-        <DropdownEntry
-          label="Grid Image Size"
-          description="Adjust the size of grids displayed in SARM."
-          options={GRID_IMAGE_SIZES}
-          value={gridImageSizeSetting}
-          onChange={(size) => {gridImageSizeSetting = size; canSave = true;}}
         />
         <ToggleFieldEntry
           label="Cache Selected Grids"

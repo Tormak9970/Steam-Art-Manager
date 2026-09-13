@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { Check, GridView, ListView, Options } from "@icons";
+  import { Check, GridView, ListView, Options, Ruler } from "@icons";
   import { IconToggle, Menu, SearchBar } from "@interactables";
   import { ListTabs } from "@layout";
-  import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
+  import { GRID_IMAGE_SIZES } from "@models";
+  import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridImageSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
   import type { GameStruct, GridTypes } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
@@ -37,6 +38,14 @@
     { label: "Missing Grids Only", icon: $onlyShowMissing ? Check : undefined, onClick: () => { $onlyShowMissing = !$onlyShowMissing } },
     { label: "Installed Only", icon: $onlyShowInstalled ? Check : undefined, onClick: () => { $onlyShowInstalled = !$onlyShowInstalled } }
   ]
+
+  $: gridSizeOptions = GRID_IMAGE_SIZES.map((size) => {
+    return {
+      label: size.label,
+      icon: $gridImageSize === size.data ? Check : undefined,
+      onClick: () => { $gridImageSize = size.data }
+    }
+  })
 
   /**
    * Overwrites the default search function.
@@ -200,6 +209,9 @@
         </div>
         <div class="left-cont">
           <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
+          <Menu label="Grid Size" options={gridSizeOptions}>
+            <Ruler style="height: 1rem; width: 1rem;" />
+          </Menu>
           <Menu label="Game Options" options={menuOptions}>
             <Options style="height: 1rem; width: 1rem;" />
           </Menu>
