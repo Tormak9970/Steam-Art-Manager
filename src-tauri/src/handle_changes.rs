@@ -236,8 +236,15 @@ pub async fn save_changes(
                 }
             }
 
-            fs::create_dir_all(target.clone()).expect("Failed to make directory for path when saving changes.");
-            fs::File::create(target.clone()).expect("Failed to make file for path when saving changes.");
+            let dir_path = PathBuf::from(&target);
+            let parent_dir = dir_path.parent().expect("Path should have parent.");
+            let dir_res = fs::create_dir_all(parent_dir);
+            if dir_res.is_err() {
+              let err = dir_res.err().unwrap();
+              return format!("{{ \"error\": \"{}\"}}", err.to_string());
+            }
+
+            let _ = fs::File::create(target.clone());
 
             let copy_res = fs::copy(source.clone(), target.clone());
 
