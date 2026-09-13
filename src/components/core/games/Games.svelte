@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Check, GridView, ListView, Options } from "@icons";
-  import { IconToggle, Menu, SearchBar, Toggle } from "@interactables";
+  import { IconToggle, Menu, SearchBar } from "@interactables";
   import { ListTabs } from "@layout";
   import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
   import type { GameStruct, GridTypes } from "@types";
@@ -33,6 +33,7 @@
   let setSearchFocus: () => void;
 
   $: menuOptions = [
+    { label: "Show Hidden", icon: $showHidden ? Check : undefined, onClick: () => { $showHidden = !$showHidden } },
     { label: "Missing Grids Only", icon: $onlyShowMissing ? Check : undefined, onClick: () => { $onlyShowMissing = !$onlyShowMissing } },
     { label: "Installed Only", icon: $onlyShowInstalled ? Check : undefined, onClick: () => { $onlyShowInstalled = !$onlyShowInstalled } }
   ]
@@ -196,7 +197,6 @@
               <ListView />
             </span>
           </IconToggle>
-          <Toggle label="Show hidden" bind:value={$showHidden}/>
         </div>
         <div class="left-cont">
           <SearchBar label="Search Library" onChange={onSearchChange} interval={800} bind:setSearchFocus={setSearchFocus} />
