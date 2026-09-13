@@ -236,7 +236,8 @@ pub async fn save_changes(
                 }
             }
 
-            fs::File::create(target.clone()).unwrap();
+            fs::create_dir_all(target.clone()).expect("Failed to make directory for path when saving changes.");
+            fs::File::create(target.clone()).expect("Failed to make file for path when saving changes.");
 
             let copy_res = fs::copy(source.clone(), target.clone());
 
