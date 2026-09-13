@@ -6,6 +6,16 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.19.0
+
+New Features
+* added ability to view hero cropping from preview modal ([8438b44](https://github.com/Tormak9970/Steam-Art-Manager/commit/8438b44))
+
+Bug Fixes
+* added full directory path creation to handle os outliers ([3881d3d](https://github.com/Tormak9970/Steam-Art-Manager/commit/3881d3d))
+* corrected copying of some data structures ([66551ff](https://github.com/Tormak9970/Steam-Art-Manager/commit/66551ff))
+* moved grid sizes to be next to filters on the games panel ([904257e](https://github.com/Tormak9970/Steam-Art-Manager/commit/904257e))
+
 ## v3.18.0
 
 New Features
