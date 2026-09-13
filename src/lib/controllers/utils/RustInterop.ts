@@ -66,7 +66,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToCoreFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_core_file", { message: message, level: level });
+    await invoke("frontend_log_core_handler", { message: message, level: level });
   }
 
   /**
@@ -83,7 +83,7 @@ export class RustInterop {
    * @param level The log level.
    */
   static async logToBatchApplyFile(message: string, level: LogLevel): Promise<void> {
-    await invoke("log_to_batch_apply_file", { message: message, level: level });
+    await invoke("frontend_log_batch_handler", { message: message, level: level });
   }
 
   /**
@@ -92,7 +92,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's grids directory.
    */
   static async getGridsDirectory(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_grids_directory", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
+    return await invoke<string>("frontend_get_grids_directory", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -100,7 +100,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's appinfo.vdf path.
    */
   static async getAppinfoPath(): Promise<string> {
-    return await invoke<string>("get_appinfo_path", { steamPath: RustInterop.steamPath });
+    return await invoke<string>("frontend_get_appinfo_path_handler", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -109,7 +109,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's shortcuts.vdf path.
    */
   static async getShortcutsPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_shortcuts_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
+    return await invoke<string>("frontend_get_shortcuts_path_handler", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -118,7 +118,7 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's localconfig.vdf path.
    */
   static async getLocalconfigPath(activeUserId: string): Promise<string> {
-    return await invoke<string>("get_localconfig_path", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
+    return await invoke<string>("frontend_get_localconfig_path_handler", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
   }
 
   /**
@@ -143,7 +143,7 @@ export class RustInterop {
    */
   static async getLibraryCacheDirectory(): Promise<string> {
     console.log(RustInterop.steamPath)
-    return await invoke<string>("get_library_cache_directory", { steamPath: RustInterop.steamPath });
+    return await invoke<string>("frontend_get_library_cache_directory_handler", { steamPath: RustInterop.steamPath });
   }
   
   /**

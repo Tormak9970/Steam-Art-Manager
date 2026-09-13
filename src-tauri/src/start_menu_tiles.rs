@@ -11,7 +11,7 @@ use tauri::{AppHandle, Manager};
 
 #[cfg(target_os = "windows")]
 // Gets the app tiles directory. (Windows)
-fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
+fn get_app_tiles_dir(app_handle: &AppHandle) -> PathBuf {
     let data_dir: PathBuf = app_handle
         .to_owned()
         .path()
@@ -24,7 +24,7 @@ fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
 
 #[cfg(target_os = "linux")]
 // Gets the app tiles directory. (Linux)
-fn get_app_tiles_dir(app_handle: AppHandle) -> PathBuf {
+fn get_app_tiles_dir(app_handle: &AppHandle) -> PathBuf {
     let data_dir: PathBuf = app_handle
         .to_owned()
         .path()
@@ -112,9 +112,9 @@ fn get_appinfo_from_shortcut(
 #[tauri::command]
 /// Gets a map containing all the apps with start menu tiles.
 pub fn get_apps_with_tiles(app_handle: AppHandle) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Getting app tiles...", 0);
+    logger::log_core(&app_handle, "Getting app tiles...", 0);
 
-    let app_tiles_dir: PathBuf = get_app_tiles_dir(app_handle.clone());
+    let app_tiles_dir: PathBuf = get_app_tiles_dir(&app_handle);
 
     let mut app_tiles: Map<String, Value> = Map::new();
 
@@ -134,8 +134,8 @@ pub fn get_apps_with_tiles(app_handle: AppHandle) -> String {
             if appinfo.is_some() {
                 let (appid, tile_path) = appinfo.unwrap();
                 if appid == String::from("Not found") || tile_path == String::from("Not found") {
-                    logger::log_to_core_file(
-                        app_handle.to_owned(),
+                    logger::log_core(
+                        &app_handle,
                         format!("Failed to get tile info for {}.", filename_str).as_str(),
                         1,
                     );
@@ -146,8 +146,8 @@ pub fn get_apps_with_tiles(app_handle: AppHandle) -> String {
         }
     }
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("Found {} apps with tiles.", app_tiles.len()).as_str(),
         0,
     );
@@ -212,7 +212,7 @@ pub fn write_app_tiles(
     new_tiles_str: String,
     tile_paths_str: String,
 ) -> String {
-    logger::log_to_core_file(app_handle.to_owned(), "Writing app tiles...", 0);
+    logger::log_core(&app_handle, "Writing app tiles...", 0);
 
     let new_tiles: HashMap<String, String> = serde_json::from_str(new_tiles_str.as_str()).unwrap();
     let tile_paths: HashMap<String, String> =

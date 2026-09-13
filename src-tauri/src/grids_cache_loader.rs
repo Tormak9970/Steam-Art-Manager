@@ -13,7 +13,7 @@ use serde_json::{Map, Value};
 use tauri::AppHandle;
 
 /// Gets the id and grid_type from a grid's filename.
-fn get_info_from_gridname(grid_name: String) -> (String, String) {
+fn get_info_from_gridname(grid_name: String) -> Result<(String, String), String> {
     let dot_index = grid_name.find(".").unwrap();
     let underscore_index = grid_name.find("_");
     let name = (&grid_name[0..dot_index]).to_owned();
@@ -23,17 +23,18 @@ fn get_info_from_gridname(grid_name: String) -> (String, String) {
         let id = (&name[0..index]).to_owned();
         let grid_type = (&name[(index + 1)..]).to_owned();
 
-        return (id, grid_type);
+        return Ok((id, grid_type));
     } else if name.ends_with("p") {
         let id = (&name[0..name.len() - 1]).to_owned();
-        return (id, "capsule".to_owned());
+        return Ok((id, "capsule".to_owned()));
     } else {
-        return (name, "wide_capsule".to_owned());
+        return Ok((name, "wide_capsule".to_owned()));
     }
 }
 
 /// Adds a grid_cache file to the cache.
 fn add_grid_file_to_cache(
+    app_handle: &AppHandle,
     entry: DirEntry,
     filename: &str,
     shortcut_ids: &Vec<String>,
@@ -47,7 +48,17 @@ fn add_grid_file_to_cache(
         return;
     }
 
-    let (app_id, grid_type) = get_info_from_gridname(filename.to_owned());
+    let grid_info_res = get_info_from_gridname(filename.to_owned());
+
+    if grid_info_res.is_err() {
+        let err = grid_info_res.err().unwrap();
+        let message = format!("Skipping Grid Info for {}. Error: {}", filename, err.to_string());
+
+        logger::log_core(app_handle, &message, 1);
+        return;
+    }
+
+    let (app_id, grid_type) = grid_info_res.unwrap();
 
     let grid_type_key = GRID_CACHE_TYPES.get(&grid_type);
     if grid_type_key.is_some()
@@ -81,14 +92,14 @@ async fn filter_grids_dir(
     let mut logo_configs: Vec<String> = vec![];
 
     let grids_dir =
-        steam::get_grids_directory(app_handle.clone(), steam_path, steam_active_user_id);
+        steam::get_grids_directory(app_handle, steam_path, steam_active_user_id);
 
     let contents_res = fs::read_dir(grids_dir);
     if contents_res.is_err() {
         let err = contents_res.err().unwrap();
         let message = format!("Error reading grids directory. error: {}", err.to_string());
 
-        logger::log_to_core_file(app_handle.to_owned(), &message, 2);
+        logger::log_core(app_handle, &message, 2);
 
         return (cache_data, logo_configs);
     }
@@ -108,6 +119,7 @@ async fn filter_grids_dir(
         }
 
         add_grid_file_to_cache(
+            &app_handle,
             entry,
             &filename,
             shortcut_ids,
@@ -230,7 +242,7 @@ async fn filter_library_dir(
 ) -> Map<String, Value> {
     let mut unfiltered_cache: Map<String, Value> = Map::new();
 
-    let library_dir = steam::get_library_cache_directory(app_handle.clone(), steam_path);
+    let library_dir = steam::get_library_cache_directory(app_handle, steam_path);
 
     let contents_res = fs::read_dir(&library_dir);
     if contents_res.is_err() {
@@ -240,7 +252,7 @@ async fn filter_library_dir(
             err.to_string()
         );
 
-        logger::log_to_core_file(app_handle.to_owned(), &message, 2);
+        logger::log_core(app_handle, &message, 2);
 
         return unfiltered_cache;
     }
@@ -285,7 +297,7 @@ pub async fn get_cache_data(
     shortcut_ids: Vec<String>,
     steam_apps: HashMap<String, Option<GridInfo>>,
 ) -> (Map<String, Value>, Map<String, Value>, Vec<String>) {
-    logger::log_to_core_file(app_handle.to_owned(), "Loading Grids Cache...", 0);
+    logger::log_core(&app_handle, "Loading Grids Cache...", 0);
 
     let (mut grid_cache_data, logo_configs) = filter_grids_dir(
         &app_handle,
@@ -303,8 +315,8 @@ pub async fn get_cache_data(
         return num_keys >= 2 || shortcut_ids.contains(app_id);
     });
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("Loaded grids for {} apps.", grid_cache_data.len()).as_str(),
         0,
     );

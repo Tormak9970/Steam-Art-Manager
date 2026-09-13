@@ -25,8 +25,8 @@ pub async fn clean_grids(
     all_appids: String,
     selected_game_ids: String,
 ) -> String {
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("Starting {} grid cleaning.", preset).as_str(),
         0,
     );
@@ -35,7 +35,7 @@ pub async fn clean_grids(
         .expect("Should have been able to deserialize appids array.");
 
     let grids_dir_path: String =
-        steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
+        steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
     let grids_dir_contents = fs::read_dir(grids_dir_path).unwrap();
 
     let mut found_apps: HashMap<String, (String, String)> = HashMap::new();
@@ -64,8 +64,8 @@ pub async fn clean_grids(
                     return format!("{{ \"error\": \"{}\"}}", err.to_string());
                 }
 
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!("Deleted {}.", filename_str).as_str(),
                     0,
                 );
@@ -87,8 +87,8 @@ pub async fn clean_grids(
                     gridType: grid_type.clone(),
                 });
 
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!(
                         "Detected conflict between {} and {}.",
                         filename_str, other_filename
@@ -127,8 +127,8 @@ pub async fn clean_grids(
                     return format!("{{ \"error\": \"{}\"}}", err.to_string());
                 }
 
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    &app_handle,
                     format!("Deleted {}.", filename_str).as_str(),
                     0,
                 );
@@ -136,8 +136,8 @@ pub async fn clean_grids(
         }
     }
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         format!("{} grid cleaning complete.", preset).as_str(),
         0,
     );

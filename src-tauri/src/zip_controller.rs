@@ -126,8 +126,8 @@ fn get_import_grid_name(
                 file_grid_type = "";
             }
             _ => {
-                logger::log_to_core_file(
-                    app_handle.to_owned(),
+                logger::log_core(
+                    app_handle,
                     format!("Unexpected grid type: {}", grid_type).as_str(),
                     1,
                 );
@@ -183,8 +183,8 @@ fn generate_grids_zip(
         let entry = dir_entry.expect("Should have been able to get directory entry.");
 
         if !entry.file_type().unwrap().is_file() {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                app_handle,
                 format!(
                     "Grid entry {} is a directory, skipping...",
                     entry.file_name().to_str().unwrap()
@@ -202,8 +202,8 @@ fn generate_grids_zip(
         let (id, grid_type) = get_id_from_grid_name(filename_str);
 
         if !platform_id_map.contains_key(&id) {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                app_handle,
                 format!(
                     "Grid entry {} is not in appids list, skipping...",
                     entry.file_name().to_str().unwrap()
@@ -228,8 +228,8 @@ fn generate_grids_zip(
         let _ = zip_writer.start_file(in_zip_filename, entry_options);
         let _ = zip_writer.write(&contents);
 
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            app_handle,
             format!(
                 "Wrote entry {} to zip.",
                 entry.file_name().to_str().unwrap()
@@ -241,7 +241,7 @@ fn generate_grids_zip(
 
     let _ = zip_writer.finish();
 
-    logger::log_to_core_file(app_handle.to_owned(), "Successfully wrote export zip.", 0);
+    logger::log_core(app_handle, "Successfully wrote export zip.", 0);
 
     return true;
 }
@@ -262,7 +262,7 @@ fn set_grids_from_zip(
         .expect("Should have been able to create reader because file existed.");
 
     if zip_reader.is_empty() {
-        logger::log_to_core_file(app_handle.to_owned(), "No entries in zip.", 0);
+        logger::log_core(app_handle, "No entries in zip.", 0);
         return (false, icon_map);
     }
 
@@ -294,14 +294,14 @@ fn set_grids_from_zip(
 
             let mut outfile = File::create(&dest_path).unwrap();
             io::copy(&mut zip_file, &mut outfile).expect("Should have been able to write file.");
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                app_handle,
                 format!("Wrote zip entry {}.", zip_file.name()).as_str(),
                 0,
             );
         } else {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                app_handle,
                 format!("Zip entry {} is a directory, skipping...", zip_file.name()).as_str(),
                 1,
             );
@@ -333,14 +333,14 @@ pub async fn export_grids_to_zip(
     if file_path.is_some() {
         let zip_path = file_path.unwrap();
         let zip_path_str = zip_path.to_string();
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             format!("Got save path: {}", &zip_path_str).as_str(),
             0,
         );
 
         let grids_dir_path =
-            steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
+            steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
         let succeeded = generate_grids_zip(
             &app_handle,
             PathBuf::from(grids_dir_path),
@@ -350,19 +350,19 @@ pub async fn export_grids_to_zip(
         );
 
         if succeeded {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 "Successfully saved the user's grids.",
                 0,
             );
             return true;
         }
 
-        logger::log_to_core_file(app_handle.to_owned(), "Failed to save the user's grids.", 0);
+        logger::log_core(&app_handle, "Failed to save the user's grids.", 0);
         return false;
     }
 
-    logger::log_to_core_file(app_handle.to_owned(), "No save location was chosen.", 0);
+    logger::log_core(&app_handle, "No save location was chosen.", 0);
     return false;
 }
 
@@ -386,8 +386,8 @@ pub async fn import_grids_from_zip(
     if file_path.is_some() {
         let zip_file_path = file_path.unwrap();
         let zip_path = zip_file_path.as_path().unwrap();
-        logger::log_to_core_file(
-            app_handle.to_owned(),
+        logger::log_core(
+            &app_handle,
             format!(
                 "Got file path: {}",
                 zip_path
@@ -399,7 +399,7 @@ pub async fn import_grids_from_zip(
         );
 
         let grids_dir_path =
-            steam::get_grids_directory(app_handle.to_owned(), steam_path, steam_active_user_id);
+            steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
         let (success, icon_map) = set_grids_from_zip(
             &app_handle,
             PathBuf::from(grids_dir_path),
@@ -408,20 +408,20 @@ pub async fn import_grids_from_zip(
         );
 
         if success {
-            logger::log_to_core_file(
-                app_handle.to_owned(),
+            logger::log_core(
+                &app_handle,
                 "Successfully set the user's grids.",
                 0,
             );
             return (success, icon_map);
         }
 
-        logger::log_to_core_file(app_handle.to_owned(), "Failed to set the user's grids.", 0);
+        logger::log_core(&app_handle, "Failed to set the user's grids.", 0);
         return (success, icon_map);
     }
 
-    logger::log_to_core_file(
-        app_handle.to_owned(),
+    logger::log_core(
+        &app_handle,
         "No zip file was selected by user.",
         0,
     );
