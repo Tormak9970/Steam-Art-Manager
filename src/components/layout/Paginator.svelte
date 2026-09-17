@@ -24,10 +24,10 @@
 <div class="container" class:disabled={disabled}>
   <div class="button-container">
     <div class="viewing-message">Showing {resultsStart + 1} to {resultsEnd + 1} of {totalResults + 1}</div>
-    <IconButton label="First Page" on:click={() => currentPage = 0} padding={"0.25rem"}>
+    <IconButton label="First Page" on:click={() => currentPage = 0} disabled={currentPage === 0} padding={"0.25rem"}>
       <LeftDoubleChevron style="height: 1rem; width: 1rem;" />
     </IconButton>
-    <IconButton label="Previous" on:click={() => currentPage-- } padding={"0.25rem"}>
+    <IconButton label="Previous" on:click={() => currentPage-- } disabled={currentPage === 0} padding={"0.25rem"}>
       <LeftChevron style="height: 1rem; width: 1rem;" />
     </IconButton>
     <div class="pages">
@@ -37,10 +37,10 @@
         </IconButton>
       {/each}
     </div>
-    <IconButton label="Next" on:click={() => currentPage-- } padding={"0.25rem"}>
+    <IconButton label="Next" on:click={() => currentPage++ } disabled={currentPage === finalPage - 1} padding={"0.25rem"}>
       <RightChevron style="height: 1rem; width: 1rem;" />
     </IconButton>
-    <IconButton label="Last Page" on:click={() => currentPage = finalPage} padding={"0.25rem"}>
+    <IconButton label="Last Page" on:click={() => currentPage = finalPage - 1} disabled={currentPage === finalPage - 1} padding={"0.25rem"}>
       <RightDoubleChevron style="height: 1rem; width: 1rem;" />
     </IconButton>
   </div>
