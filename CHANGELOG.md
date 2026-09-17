@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.19.1
+
+Bug Fixes
+* corrected crash due to directory creation ([7797686](https://github.com/Tormak9970/Steam-Art-Manager/commit/7797686))
+
 ## v3.19.0
 
 New Features
