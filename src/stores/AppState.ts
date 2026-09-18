@@ -69,6 +69,8 @@ export const dowloadingGridId = writable<string>("");
 export const selectedSteamGridGameId = writable("None");
 
 export const showHidden = writable(false);
+export const onlyShowMissing = writable<boolean>(false);
+export const onlyShowInstalled = writable<boolean>(false);
 
 export const steamUsers = writable<{ [id: string]: SteamUser }>({});
 export const activeUserId = writable(0);

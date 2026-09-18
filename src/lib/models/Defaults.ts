@@ -170,6 +170,8 @@ export const DEFAULT_SETTINGS: Settings = {
   
   theme: 2,
   showHiddenGames: false,
+  onlyShowInstalled: false,
+  onlyShowMissing: false,
 
   debugMode: false,
 
