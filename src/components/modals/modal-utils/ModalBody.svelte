@@ -98,6 +98,7 @@
     background-color: var(--background);
     border: none;
     border-radius: var(--m3-dialog-shape);
+    border: 1px solid var(--foreground);
     margin: auto;
 
     position: relative;

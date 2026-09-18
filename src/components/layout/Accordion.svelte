@@ -55,6 +55,9 @@
 
     width: 100%;
     background-color: var(--background);
+    
+    border: 1px solid var(--foreground);
+    border-bottom: none;
 
     transition: background-color 0.15s ease-in-out;
 
@@ -63,14 +66,19 @@
   .all-corners {
     border-radius: 0.25rem;
     transition: border-radius 0.15s ease-in-out 0.15s;
+    
+    border-bottom: 1px solid var(--foreground);
   }
   button:hover { background-color: var(--background-hover); }
 
   .content {
     padding: 0 0.375rem;
-    width: calc(100% - 0.75rem);
+    width: calc(100% - 0.875rem);
     background-color: var(--background);
     border-radius: 0 0 0.25rem 0.25rem;
+    
+    border: 0.0625rem solid var(--foreground);
+    border-top: none;
   }
 
 	svg { transition: transform 0.2s ease-in; margin-right: 0.25rem; }

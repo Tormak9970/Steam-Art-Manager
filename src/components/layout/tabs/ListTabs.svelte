@@ -12,21 +12,32 @@
   }
 </script>
 
-<ul style="user-select: none;">
-  {#each tabs as tab}
-    <li class:active={selected === tab}>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <span on:click={() => onClick(tab)}>{tab}</span>
-    </li>
-  {/each}
-</ul>
+<div class="tabs-container">
+  <ul style="user-select: none;">
+    {#each tabs as tab}
+      <li class:active={selected === tab}>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <span on:click={() => onClick(tab)}>{tab}</span>
+      </li>
+    {/each}
+  </ul>
 
-<div class="tabs" style="height: {height};">
-  <slot />
+  <div class="tabs" style="height: {height};">
+    <slot />
+  </div>
 </div>
 
 <style>
+  .tabs-container {
+    height: calc(100% - 0.125rem);
+    width: calc(100% - 0.125rem);
+
+    border: 1px solid var(--foreground);
+    
+    border-radius: 0.25rem;
+  }
+
 	.tabs {
 		padding: 0.625rem;
     padding-bottom: 0.25rem;
