@@ -16,6 +16,8 @@ export type Settings = {
   
   theme: number,
   showHiddenGames: boolean,
+  onlyShowInstalled: boolean,
+  onlyShowMissing: boolean,
 
   debugMode: boolean,
 

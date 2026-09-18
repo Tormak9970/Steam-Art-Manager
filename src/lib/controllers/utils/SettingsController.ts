@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -367,6 +367,14 @@ export class SettingsController {
       const showHiddenGamesSetting = SettingsController.settings.showHiddenGames;
       SettingsController.oldValues["showHiddenGames"] = showHiddenGamesSetting;
       showHidden.set(showHiddenGamesSetting);
+  
+      const onlyShowMissingSetting = SettingsController.settings.onlyShowMissing;
+      SettingsController.oldValues["onlyShowMissing"] = onlyShowMissingSetting;
+      onlyShowMissing.set(onlyShowMissingSetting);
+  
+      const onlyShowInstalledSetting = SettingsController.settings.onlyShowInstalled;
+      SettingsController.oldValues["onlyShowInstalled"] = onlyShowInstalledSetting;
+      onlyShowInstalled.set(onlyShowInstalledSetting);
       
       const dbFiltersSetting = SettingsController.settings.windowSettings.main.filters;
       SettingsController.oldValues["windowSettings.main.filters"] = structuredClone(dbFiltersSetting);
@@ -444,6 +452,8 @@ export class SettingsController {
       debugMode.subscribe(SettingsController.setOnChange("debugMode")),
       appTypes.subscribe(SettingsController.setOnChange("appTypes")),
       showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
+      onlyShowInstalled.subscribe(SettingsController.setOnChange("onlyShowInstalled")),
+      onlyShowMissing.subscribe(SettingsController.setOnChange("onlyShowMissing")),
       cacheSelectedGrids.subscribe(SettingsController.setOnChange("cacheSelectedGrids")),
       userSelectedGrids.subscribe(SettingsController.setOnChange("userSelectedGrids")),
   

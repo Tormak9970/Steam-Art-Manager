@@ -3,11 +3,11 @@
   import { IconToggle, Menu, SearchBar } from "@interactables";
   import { ListTabs } from "@layout";
   import { GRID_IMAGE_SIZES } from "@models";
-  import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridImageSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
+  import { Platforms, appLibraryCache, appTypes, currentPlatform, gamesSize, gridImageSize, gridType, hiddenGameIds, loadingGames, manualSteamGames, nonSteamGames, onlyShowInstalled, onlyShowMissing, renderGamesInList, showHidden, steamGames } from "@stores/AppState";
   import type { GameStruct, GridTypes } from "@types";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
-  import { writable, type Unsubscriber } from "svelte/store";
+  import { type Unsubscriber } from "svelte/store";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import GamesGrid from "./grid-view/GamesGrid.svelte";
@@ -28,8 +28,6 @@
 
   let searchQuery = "";
   let games: GameStruct[] = [];
-  let onlyShowMissing = writable<boolean>(false)
-  let onlyShowInstalled = writable<boolean>(false)
 
   let setSearchFocus: () => void;
 
