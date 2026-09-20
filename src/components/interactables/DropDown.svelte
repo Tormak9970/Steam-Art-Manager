@@ -62,7 +62,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper" on:click|stopPropagation>
   {#if label !== ""}
-    <div style="margin-right: 0.5rem; font-size: 0.875rem; user-select: none;">{label}:</div>
+    <b style="margin-right: 0.5rem; font-size: 1rem; user-select: none;">{label}</b>
   {/if}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if showTooltip}
