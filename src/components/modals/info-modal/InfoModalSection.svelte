@@ -16,13 +16,14 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     padding: 0.5rem;
     border-radius: 0.25rem;
   }
 
   .title {
     margin-top: 0rem;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .content {

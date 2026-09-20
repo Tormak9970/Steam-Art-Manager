@@ -54,10 +54,11 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     padding: 0.5rem;
     border-radius: 0.25rem;
 
-    width: calc(100% - 0.875rem);
+    width: calc(100% - 1rem);
   }
 
   .description {

@@ -174,15 +174,13 @@
   }
 
   .changelog {
-    width: 100%;
-  }
-
-  .changelog {
+    width: calc(100% - 0.125rem);
     border-radius: 0.25rem;
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     overflow: hidden;
 
-    height: calc(100% - 4.5rem);
+    height: calc(100% - 4.625rem);
   }
 
   :global(.changelog .release-notes p) {

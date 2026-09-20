@@ -53,13 +53,14 @@
   }
 
   .description {
-    width: calc(100% - 1.75rem);
+    width: calc(100% - 1.875rem);
     margin-top: 0.5rem;
     margin-bottom: 1.25rem;
 
     font-size: 0.875rem;
 
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
 
     padding: 0.5rem;

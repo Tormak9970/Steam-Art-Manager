@@ -23,7 +23,7 @@
     position: relative;
     height: 1.25rem;
     background-color: var(--background-dark);
-    border: 0.0625rem solid #000;
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.125rem;
   }
 
