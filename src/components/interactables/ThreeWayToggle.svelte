@@ -53,7 +53,7 @@
   }
 
   .side {
-    background-color: var(--background-hover);
+    background-color: var(--background);
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
 
