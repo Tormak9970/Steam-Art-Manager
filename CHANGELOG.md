@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.19.2
+
+Bug Fixes
+* games settings now persist ([c57b811](https://github.com/Tormak9970/Steam-Art-Manager/commit/c57b811))
+* pagination buttons for grid results now work properly ([a6b5f09](https://github.com/Tormak9970/Steam-Art-Manager/commit/a6b5f09))
+
 ## v3.19.1
 
 Bug Fixes
