@@ -172,6 +172,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHiddenGames: false,
   onlyShowInstalled: false,
   onlyShowMissing: false,
+  previewOnClick: false,
 
   debugMode: false,
 

@@ -61,16 +61,17 @@ export const steamInstallPath = writable("");
 export const canSave = writable(false);
 export const isOnline = writable(false);
 export const loadingGames = writable(true);
-export const currentPlatform: Writable<Platforms> = writable(Platforms.STEAM);
-export const gridType: Writable<GridTypes> = writable(GridTypes.CAPSULE);
+export const currentPlatform = writable(Platforms.STEAM);
+export const gridType = writable(GridTypes.CAPSULE);
 
-export const selectedGameAppId = writable<string>("");
-export const dowloadingGridId = writable<string>("");
+export const selectedGameAppId = writable("");
+export const dowloadingGridId = writable("");
 export const selectedSteamGridGameId = writable("None");
 
 export const showHidden = writable(false);
-export const onlyShowMissing = writable<boolean>(false);
-export const onlyShowInstalled = writable<boolean>(false);
+export const onlyShowMissing = writable(false);
+export const onlyShowInstalled = writable(false);
+export const previewGridsOnClick = writable(false);
 
 export const steamUsers = writable<{ [id: string]: SteamUser }>({});
 export const activeUserId = writable(0);

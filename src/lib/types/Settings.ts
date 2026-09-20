@@ -18,6 +18,7 @@ export type Settings = {
   showHiddenGames: boolean,
   onlyShowInstalled: boolean,
   onlyShowMissing: boolean,
+  previewOnClick: boolean,
 
   debugMode: boolean,
 

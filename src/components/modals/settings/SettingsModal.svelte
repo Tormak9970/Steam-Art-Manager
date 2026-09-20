@@ -4,7 +4,7 @@
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
   import { APP_TYPES } from "@models";
-  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, previewGridsOnClick, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -62,6 +62,7 @@
   let steamInstallLocation = $steamInstallPath;
   let debugModeSetting = $debugMode;
   let cacheSelectedGridsSetting = $cacheSelectedGrids;
+  let previewGridsOnClickSetting = $previewGridsOnClick;
   let appTypesSetting = [...$appTypes];
 
   let autoGenLogoPosSetting = $autoGenLogoPos;
@@ -95,6 +96,8 @@
     
     if (cacheSelectedGridsSetting !== $cacheSelectedGrids) $cacheSelectedGrids = cacheSelectedGridsSetting;
 
+    if (previewGridsOnClickSetting !== $previewGridsOnClick) $previewGridsOnClick = previewGridsOnClickSetting;
+
     if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
     
     if (autoGenLogoPosSetting !== $autoGenLogoPos) $autoGenLogoPos = autoGenLogoPosSetting;
@@ -119,6 +122,7 @@
     debugModeSetting = $debugMode;
     appTypesSetting = [...$appTypes];
     cacheSelectedGridsSetting = $cacheSelectedGrids;
+    previewGridsOnClickSetting = $previewGridsOnClick;
     autoGenLogoPosSetting = $autoGenLogoPos;
     
     LogController.log("Reverted settings.");
@@ -256,6 +260,15 @@
         >
           <Button on:click={AppController.clearCachedGrids}>Clear Cache</Button>
         </ToggleFieldEntry>
+        <ToggleFieldEntry
+          label="Preview Grids by Default"
+          description={"Switches clicking on a grid to open the preview window instead of applying it."}
+          value={previewGridsOnClickSetting}
+          onChange={(value) => {
+            previewGridsOnClickSetting = value;
+            canSave = true;
+          }}
+        />
         <DropdownEntry
           label="Steam User"
           description="Determines which Steam account to edit grids for."

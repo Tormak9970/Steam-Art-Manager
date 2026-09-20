@@ -2,7 +2,7 @@
   import { AppController } from "@controllers";
   import { Edit, Expand, Film, Share } from "@icons";
   import { LoadingSpinner } from "@layout";
-  import { dowloadingGridId, gridType } from "@stores/AppState";
+  import { dowloadingGridId, gridType, previewGridsOnClick } from "@stores/AppState";
   import { open } from "@tauri-apps/plugin-shell";
   import type { SGDBImage } from "@types";
   import { throttle } from "@utils";
@@ -17,7 +17,11 @@
    * Sets this grid to be the current grid for the selected game.
    */
   function selectGame(): void {
-    onSelect();
+    if ($previewGridsOnClick) {
+      AppController.viewSteamGridImage(grid);
+    } else {
+      onSelect();
+    }
   }
 
   /**
