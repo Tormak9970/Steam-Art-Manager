@@ -8,12 +8,13 @@
   ],
   "svg.preview.background": "editor",
   "svelte.enable-ts-plugin": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit"
-  },
   "svelte.plugin.svelte.defaultScriptLanguage": "ts",
   // "svelte.plugin.css.globals": "src/",
   "svelte.plugin.svelte.compilerWarnings": {},
-  "javascript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "always",
+        "source.organizeImports": "explicit"
+    },
 }

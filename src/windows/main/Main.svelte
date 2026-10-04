@@ -9,7 +9,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Splitpanes, type IPaneSizingEvent } from "svelte-splitpanes";
 
-  let windowCloseUnsub: () => void;
+  let windowCloseUnsub: () => void = $state(() => {});
 
   /**
    * Handler for all main window errors.
