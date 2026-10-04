@@ -1,8 +1,8 @@
 import "../globalStyles.css";
 import Main from "./Main.svelte";
 
-const main = new Main({
-  target: document.getElementById("entryPoint"),
-});
+import { mount } from 'svelte';
 
-export default main;
+const app = mount(Main, { target: document.getElementById("entryPoint") });
+
+export default app;

@@ -1,7 +1,7 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
-import { rmdirSync } from "fs";
+import { rmSync } from "fs";
 import { resolve } from "path";
-import sveltePreprocess from "svelte-preprocess";
+import { sveltePreprocess } from "svelte-preprocess";
 import { defineConfig } from "vite";
 
 type ExcludeOptions = {
@@ -25,7 +25,7 @@ function excludeDirectories(config?: ExcludeOptions) {
       if (config) {
         for (const directory of config.directories) {
           const directoryPath = resolve(outDir, directory);
-          rmdirSync(directoryPath, { recursive: true });
+          rmSync(directoryPath, { recursive: true });
           console.log(`Deleted ${directoryPath}`);
         }
       }
@@ -50,16 +50,16 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      "@interactables": resolve(__dirname, "./src/components/interactables"),
-      "@layout": resolve(__dirname, "./src/components/layout"),
-      "@stores": resolve(__dirname, "./src/stores"),
-      "@controllers": resolve(__dirname, "./src/lib/controllers"),
-      "@models": resolve(__dirname, "./src/lib/models"),
-      "@directives": resolve(__dirname, "./src/lib/directives"),
-      "@utils": resolve(__dirname, "./src/lib/utils"),
-      "@icons": resolve(__dirname, "./src/components/icons"),
-      "@components": resolve(__dirname, "./src/components"),
-      "@types": resolve(__dirname, "./src/lib/types"),
+      "@interactables": resolve(import.meta.dirname, "./src/components/interactables"),
+      "@layout": resolve(import.meta.dirname, "./src/components/layout"),
+      "@stores": resolve(import.meta.dirname, "./src/stores"),
+      "@controllers": resolve(import.meta.dirname, "./src/lib/controllers"),
+      "@models": resolve(import.meta.dirname, "./src/lib/models"),
+      "@directives": resolve(import.meta.dirname, "./src/lib/directives"),
+      "@utils": resolve(import.meta.dirname, "./src/lib/utils"),
+      "@icons": resolve(import.meta.dirname, "./src/components/icons"),
+      "@components": resolve(import.meta.dirname, "./src/components"),
+      "@types": resolve(import.meta.dirname, "./src/lib/types"),
     }
   },
 
@@ -88,7 +88,7 @@ export default defineConfig({
 
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/windows/main/main.html')
+        main: resolve(import.meta.dirname, 'src/windows/main/main.html')
       },
       external: [
         "/public/progress-images"

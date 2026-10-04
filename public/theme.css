@@ -16,14 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 :root {
-	--highlight: #04e200;
-	--highlight-hover: #05FF00;
-
-	--highlight-dim: #039900;
-	--highlight-dim-hover: #04aa02;
-
-	--highlight-transparent: #04e2009d;
-
 	--selection-color: #3891ff7a;
 
 	--link-color: #00bbff;
@@ -44,6 +36,14 @@
 
 @media (prefers-color-scheme: light) {
   [data-theme="auto"] {
+    --highlight: #04e200;
+    --highlight-hover: #05FF00;
+
+    --highlight-dim: #039900;
+    --highlight-dim-hover: #04aa02;
+
+    --highlight-transparent: #04e2009d;
+    
     --font-color: #0e0e0e;
     --shadow: #868383;
     
@@ -75,6 +75,14 @@
 
 @media (prefers-color-scheme: dark) {
   [data-theme="auto"] {
+    --highlight: #04e200;
+    --highlight-hover: #05FF00;
+
+    --highlight-dim: #039900;
+    --highlight-dim-hover: #04aa02;
+
+    --highlight-transparent: #04e2009d;
+
     --font-color: #e7e7e7;
     --shadow: #0e0e0e;
 
@@ -103,6 +111,14 @@
 }
 
 [data-theme="dark"] {
+	--highlight: #04e200;
+	--highlight-hover: #05FF00;
+
+	--highlight-dim: #039900;
+	--highlight-dim-hover: #04aa02;
+
+	--highlight-transparent: #04e2009d;
+
 	--font-color: #e7e7e7;
 	--shadow: #0e0e0e;
 
@@ -130,6 +146,14 @@
 }
 
 [data-theme="light"] {
+	--highlight: #04e200;
+	--highlight-hover: #05FF00;
+
+	--highlight-dim: #039900;
+	--highlight-dim-hover: #04aa02;
+
+	--highlight-transparent: #04e2009d;
+  
 	--font-color: #0e0e0e;
 	--shadow: #868383;
 	
