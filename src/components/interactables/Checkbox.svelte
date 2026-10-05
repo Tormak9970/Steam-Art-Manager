@@ -1,8 +1,12 @@
 <script lang="ts">
   import { Check } from "@icons";
 
-  export let value:boolean;
-  export let onChange: (checked: boolean) => void = () => {};
+  type Props = {
+    value: boolean;
+    onChange?: (checked: boolean) => void;
+  };
+
+  let { value = $bindable(), onChange = () => {} }: Props = $props();
 
   /**
    * Toggles the check's value.
@@ -13,9 +17,9 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="check-box-container" on:click={check}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="check-box-container" onclick={check}>
   <input type="checkbox" id="" bind:checked={value} />
   <span class="check-box">
     {#if value}
@@ -56,7 +60,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    
+
     transition: background-color 0.15s ease-in-out;
 
     fill: var(--highlight);
