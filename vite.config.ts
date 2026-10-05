@@ -5,8 +5,8 @@ import { sveltePreprocess } from "svelte-preprocess";
 import { defineConfig } from "vite";
 
 type ExcludeOptions = {
-  directories: string[]
-}
+  directories: string[];
+};
 
 /**
  * Removes the provided directories from build.
@@ -15,13 +15,13 @@ type ExcludeOptions = {
  */
 function excludeDirectories(config?: ExcludeOptions) {
   return {
-    name: 'remove-progress-images',
-    resolveId (source: string) {
-      return source === 'virtual-module' ? source : null;
+    name: "remove-progress-images",
+    resolveId(source: string) {
+      return source === "virtual-module" ? source : null;
     },
-    renderStart (outputOptions: any, inputOptions: any) {
+    renderStart(outputOptions: any, inputOptions: any) {
       const outDir = outputOptions.dir;
-      
+
       if (config) {
         for (const directory of config.directories) {
           const directoryPath = resolve(outDir, directory);
@@ -29,8 +29,8 @@ function excludeDirectories(config?: ExcludeOptions) {
           console.log(`Deleted ${directoryPath}`);
         }
       }
-    }
-  }
+    },
+  };
 }
 
 // https://vitejs.dev/config/
@@ -42,15 +42,22 @@ export default defineConfig({
           typescript: true,
         }),
       ],
+      compilerOptions: {
+        // Temporary to force runes mode to find deprecated code.
+        runes: true,
+      },
     }),
     excludeDirectories({
-      directories: ["progress-images"]
-    })
+      directories: ["progress-images"],
+    }),
   ],
 
   resolve: {
     alias: {
-      "@interactables": resolve(import.meta.dirname, "./src/components/interactables"),
+      "@interactables": resolve(
+        import.meta.dirname,
+        "./src/components/interactables",
+      ),
       "@layout": resolve(import.meta.dirname, "./src/components/layout"),
       "@stores": resolve(import.meta.dirname, "./src/stores"),
       "@controllers": resolve(import.meta.dirname, "./src/lib/controllers"),
@@ -60,7 +67,7 @@ export default defineConfig({
       "@icons": resolve(import.meta.dirname, "./src/components/icons"),
       "@components": resolve(import.meta.dirname, "./src/components"),
       "@types": resolve(import.meta.dirname, "./src/lib/types"),
-    }
+    },
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -88,15 +95,13 @@ export default defineConfig({
 
     rollupOptions: {
       input: {
-        main: resolve(import.meta.dirname, 'src/windows/main/main.html')
+        main: resolve(import.meta.dirname, "src/windows/main/main.html"),
       },
-      external: [
-        "/public/progress-images"
-      ],
+      external: ["/public/progress-images"],
     },
   },
   define: {
-    'APP_VERSION': JSON.stringify(process.env.npm_package_version),
-    'IS_DEBUG': !!process.env.TAURI_DEBUG
-  }
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+    IS_DEBUG: !!process.env.TAURI_DEBUG,
+  },
 });

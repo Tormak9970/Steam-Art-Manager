@@ -1,6 +1,11 @@
 <script lang="ts">
   import { Footer, Games, Grids, Modals, Options } from "@components";
-  import { AppController, DialogController, LogController, SettingsController } from "@controllers";
+  import {
+    AppController,
+    DialogController,
+    LogController,
+    SettingsController,
+  } from "@controllers";
   import { canSave, isOnline } from "@stores/AppState";
   import { showUpdateModal, updateManifest } from "@stores/Modals";
   import { Window } from "@tauri-apps/api/window";
@@ -21,7 +26,9 @@
     const columnNumber = e.colno;
     const lineNumber = e.lineno;
 
-    LogController.error(`MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`);
+    LogController.error(
+      `MainWindow: ${message} in ${fileName} at ${lineNumber}:${columnNumber}.`,
+    );
   }
 
   /**
@@ -31,19 +38,25 @@
   async function handlePanelResize(event: CustomEvent<IPaneSizingEvent[]>) {
     if (event.detail) {
       await SettingsController.set("windowSettings.main.panels", {
-        "options": event.detail[0].size,
-        "games": event.detail[1].size,
-        "grids": event.detail[2].size
-      })
+        options: event.detail[0].size,
+        games: event.detail[1].size,
+        grids: event.detail[2].size,
+      });
     }
   }
-  
+
   /**
    * Function to run when the user attempts to close the main window.
    */
   async function onCloseListener(): Promise<void> {
     if ($canSave) {
-      const shouldQuit = await DialogController.ask("Unsaved Changes!", "WARNING", "You have unsaved changes! Quitting will cause you to loose them", "Confirm", "Cancel");
+      const shouldQuit = await DialogController.ask(
+        "Unsaved Changes!",
+        "WARNING",
+        "You have unsaved changes! Quitting will cause you to loose them",
+        "Confirm",
+        "Cancel",
+      );
       if (shouldQuit) {
         const success = await exit(0);
         LogController.log(`Program exited: ${success}`);
@@ -54,9 +67,9 @@
     }
   }
 
-	onMount(() => {
+  onMount(() => {
     window.addEventListener("error", onError);
-    
+
     // * This is actually async but isn't typed properly.
     Window.getByLabel("main")!.then(async (appWindow) => {
       windowCloseUnsub = await appWindow!.onCloseRequested(async (event) => {
@@ -65,11 +78,11 @@
       });
     });
 
-		let i = 0;
+    let i = 0;
 
-		while(!$isOnline && i < 4) {
-			if (navigator.onLine) $isOnline = true;
-		}
+    while (!$isOnline && i < 4) {
+      if (navigator.onLine) $isOnline = true;
+    }
 
     checkUpdate().then(async (update) => {
       if (update && update.available) {
@@ -85,56 +98,56 @@
       }
 
       AppController.init();
-    })
-	});
+    });
+  });
 
-	onDestroy(async () => {
+  onDestroy(async () => {
     window.removeEventListener("error", onError);
-		await AppController.destroy();
-    
+    await AppController.destroy();
+
     if (windowCloseUnsub) windowCloseUnsub();
-	});
+  });
 </script>
 
 <main>
   <Modals />
-	<div class="content">
-		<Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
-			<Options />
+  <div class="content">
+    <Splitpanes dblClickSplitter={false} on:resized={handlePanelResize}>
+      <Options />
 
       <Games />
-      
+
       <Grids />
-		</Splitpanes>
-	</div>
-	<Footer />
+    </Splitpanes>
+  </div>
+  <Footer />
 </main>
 
 <style>
-	main {
-		width: 100%;
-		height: 100%;
+  main {
+    width: 100%;
+    height: 100%;
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 
-		color: var(--font-color);
+    color: var(--font-color);
 
-		transition: opacity 0.1s ease-in-out;
-	}
+    transition: opacity 0.1s ease-in-out;
+  }
 
-	.content {
-		width: 100%;
-		height: calc(100% - 2rem);
+  .content {
+    width: 100%;
+    height: calc(100% - 2rem);
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 
     position: relative;
     z-index: 1;
-	}
+  }
 </style>
