@@ -1,17 +1,26 @@
 <script lang="ts">
   import { More } from "@icons";
   import { open } from "@tauri-apps/plugin-dialog";
-  import { createEventDispatcher } from "svelte";
   import type { Placement } from "tippy.js";
   import IconButton from "./IconButton.svelte";
 
-  export let label: string;
-  export let tooltipPosition: Placement = "top-end";
-  export let disabled = false;
-  export let highlight = false;
-  export let warn = false;
+  type Props = {
+    label: string;
+    onChange?: (value: string) => void | Promise<void>;
+    tooltipPosition?: Placement;
+    disabled?: boolean;
+    highlight?: boolean;
+    warn?: boolean;
+  };
 
-  const dispatch = createEventDispatcher();
+  let {
+    label,
+    onChange,
+    tooltipPosition = "top-end",
+    disabled = false,
+    highlight = false,
+    warn = false,
+  }: Props = $props();
 
   /**
    * Handles the onClick event of the icon button.
@@ -20,12 +29,12 @@
     const path = await open({
       title: "Select your steam install",
       directory: true,
-      multiple: false
+      multiple: false,
     });
-    if (path && path !== "") dispatch("change", { value: path as string });
+    if (path && path !== "") onChange?.(path as string);
   }
 </script>
 
-<IconButton label={label} tooltipPosition={tooltipPosition} on:click={onClick} disabled={disabled} highlight={highlight} warn={warn}>
+<IconButton {label} {tooltipPosition} {onClick} {disabled} {highlight} {warn}>
   <More height="0.8rem" width="0.8rem" />
 </IconButton>
