@@ -3,7 +3,15 @@
   import { Info, SGDBLogo, Steam } from "@icons";
   import { Button, DropDown } from "@interactables";
   import { Table } from "@layout";
-  import { appLibraryCache, manualSteamGames, originalAppLibraryCache, selectedManualGamesAddMethod, showErrorSnackbar, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import {
+    appLibraryCache,
+    manualSteamGames,
+    originalAppLibraryCache,
+    selectedManualGamesAddMethod,
+    showErrorSnackbar,
+    showInfoSnackbar,
+    steamGames,
+  } from "@stores/AppState";
   import { showManualGamesModal } from "@stores/Modals";
   import type { GameStruct } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -17,7 +25,7 @@
   function onClose(): void {
     $showManualGamesModal = false;
   }
-  
+
   let open = true;
   let canSave = false;
 
@@ -26,7 +34,7 @@
 
   let addMethods = [
     { label: "Manual", data: "manual" },
-    { label: "Search", data: "search" }
+    { label: "Search", data: "search" },
   ];
 
   /**
@@ -34,13 +42,20 @@
    * @param game The new game to add.
    */
   function addNewGame(game: GameStruct): void {
-    if ($steamGames.find((sGame) => sGame.appid === game.appid) || tempManualGames.find((tGame) => tGame.appid === game.appid)) {
-      $showErrorSnackbar({ message: "Game with that appid already exists! Can't have duplicates." });
+    if (
+      $steamGames.find((sGame) => sGame.appid === game.appid) ||
+      tempManualGames.find((tGame) => tGame.appid === game.appid)
+    ) {
+      $showErrorSnackbar({
+        message: "Game with that appid already exists! Can't have duplicates.",
+      });
     } else {
       LogController.log(`Added manually added game ${game.name}.`);
       tempManualGames.push(game);
-      tempManualGames = [ ...tempManualGames ];
-      canSave = structuredClone(originalManualGames) !== structuredClone(tempManualGames);
+      tempManualGames = [...tempManualGames];
+      canSave =
+        structuredClone(originalManualGames) !==
+        structuredClone(tempManualGames);
     }
   }
 
@@ -52,8 +67,9 @@
     LogController.log(`Removed manually added game ${game.name}.`);
     const index = tempManualGames.findIndex((g) => g.appid === game.appid);
     tempManualGames.splice(index, 1);
-    tempManualGames = [ ...tempManualGames ];
-    canSave = structuredClone(originalManualGames) !== structuredClone(tempManualGames);
+    tempManualGames = [...tempManualGames];
+    canSave =
+      structuredClone(originalManualGames) !== structuredClone(tempManualGames);
   }
 
   /**
@@ -66,15 +82,31 @@
     const appLibCache = $appLibraryCache;
 
     for (const game of tempManualGames) {
-      if (!originalAppLibCache[game.appid]) originalAppLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
-      if (!appLibCache[game.appid]) appLibCache[game.appid] = { "Capsule": "", "Wide Capsule": "", "Hero": "", "Logo": "", "Icon": "" };
+      if (!originalAppLibCache[game.appid])
+        originalAppLibCache[game.appid] = {
+          Capsule: "",
+          "Wide Capsule": "",
+          Hero: "",
+          Logo: "",
+          Icon: "",
+        };
+      if (!appLibCache[game.appid])
+        appLibCache[game.appid] = {
+          Capsule: "",
+          "Wide Capsule": "",
+          Hero: "",
+          Logo: "",
+          Icon: "",
+        };
     }
 
     originalAppLibraryCache.set(structuredClone(originalAppLibCache));
     appLibraryCache.set(structuredClone(appLibCache));
 
     LogController.log(`Saved ${tempManualGames.length} manually added games.`);
-    $showInfoSnackbar({ message: `Saved ${tempManualGames.length} manually added games.` });
+    $showInfoSnackbar({
+      message: `Saved ${tempManualGames.length} manually added games.`,
+    });
 
     onClose();
   }
@@ -88,46 +120,87 @@
   }
 </script>
 
-<ModalBody title={"Manage Manual Games"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
+<ModalBody
+  title={"Manage Manual Games"}
+  {open}
+  on:close={() => (open = false)}
+  on:closeEnd={onClose}
+>
   <div class="content">
     <div class="left">
       <div class="info">
-        Add any Steam games that SARM isn't picking up. These will be automatically loaded each time you use SARM.
+        Add any Steam games that SARM isn't picking up. These will be
+        automatically loaded each time you use SARM.
       </div>
       <div class="section-label">Your Manual Games</div>
       <Table>
         <span slot="header">
-          <div class="batch-icon" use:AppController.tippy={{ content: "Current Manual Games", placement: "top", onShow: AppController.onTippyShow }}>
+          <div
+            class="batch-icon"
+            use:AppController.tippy={{
+              content: "Current Manual Games",
+              placement: "top",
+              onShow: AppController.onTippyShow,
+            }}
+          >
             <Info style="height: 0.75rem; width: 0.75rem;" />
           </div>
           <div style="margin-right: auto;">Name</div>
-          <div class="exist-art-icon" use:AppController.tippy={{ content: "Has official art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
+          <div
+            class="exist-art-icon"
+            use:AppController.tippy={{
+              content: "Has official art on this PC",
+              placement: "top",
+              onShow: AppController.onTippyShow,
+            }}
+          >
             <Steam style="height: 0.75rem; width: 0.75rem;" />
           </div>
-          <div class="exist-art-icon" style="margin-left: 1.125rem; margin-right: 2rem;" use:AppController.tippy={{ content: "Has custom art on this PC", placement: "top", onShow: AppController.onTippyShow }}>
+          <div
+            class="exist-art-icon"
+            style="margin-left: 1.125rem; margin-right: 2rem;"
+            use:AppController.tippy={{
+              content: "Has custom art on this PC",
+              placement: "top",
+              onShow: AppController.onTippyShow,
+            }}
+          >
             <SGDBLogo style="height: 0.75rem; width: 1rem;" />
           </div>
         </span>
         <span slot="data" class="entries">
           {#each tempManualGames as game}
-            <ManualGameEntry game={game} onRemove={removeHandler} />
+            <ManualGameEntry {game} onRemove={removeHandler} />
           {/each}
         </span>
       </Table>
       <div class="buttons">
-        <Button on:click={cancel} width="47.5%">Cancel</Button>
-        <Button on:click={saveChanges} width="47.5%" disabled={!canSave}>Save Changes</Button>
+        <Button label="Cancel" onClick={cancel} width="47.5%" />
+        <Button
+          label="Save Changes"
+          onClick={saveChanges}
+          width="47.5%"
+          disabled={!canSave}
+        />
       </div>
     </div>
     <div class="right">
       <div class="options">
         <div class="dropdown-cont">
           <div style="margin-right: 0.5rem;">Method for Adding Games:</div>
-          <DropDown options={addMethods} bind:value={$selectedManualGamesAddMethod} width="6.25rem" showTooltip={false} />
+          <DropDown
+            options={addMethods}
+            bind:value={$selectedManualGamesAddMethod}
+            width="6.25rem"
+            showTooltip={false}
+          />
         </div>
       </div>
       <div class="section-label">Game Info</div>
-      <div class="border" style="margin-right: 1.25rem; margin-bottom: 0.5rem; width: calc(100% - 1.25rem);" />
+      <div
+        class="border"
+        style="margin-right: 1.25rem; margin-bottom: 0.5rem; width: calc(100% - 1.25rem);"
+      />
       {#if $selectedManualGamesAddMethod === "search"}
         <Search onGameSave={addNewGame} />
       {:else if $selectedManualGamesAddMethod === "manual"}
@@ -187,7 +260,7 @@
 
   .dropdown-cont {
     width: 85%;
-    
+
     display: flex;
 
     font-size: 0.875rem;

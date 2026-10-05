@@ -4,7 +4,13 @@
   import { AppController } from "@controllers";
   import { Position } from "@icons";
   import { Button, IconButton } from "@interactables";
-  import { gridType, manualSteamGames, nonSteamGames, selectedGameAppId, steamGames } from "@stores/AppState";
+  import {
+    gridType,
+    manualSteamGames,
+    nonSteamGames,
+    selectedGameAppId,
+    steamGames,
+  } from "@stores/AppState";
   import { gridModalInfo, showGridModal } from "@stores/Modals";
   import { GridTypes } from "@types";
   import { PREVIEW_GRID_DIMENSIONS } from "@utils";
@@ -13,7 +19,7 @@
 
   let modalOpen = true;
   $: definedModalInfo = $gridModalInfo!;
-  console.log("definedModalInfo:", $gridModalInfo)
+  console.log("definedModalInfo:", $gridModalInfo);
 
   let showHeroCropping = false;
 
@@ -22,15 +28,15 @@
    */
   function onClose(): void {
     $showGridModal = false;
-		$gridModalInfo = null;
+    $gridModalInfo = null;
   }
 
   const mdIt = new MarkDownIt({
     html: true,
-    linkify: true
+    linkify: true,
   });
-  
-  $: games = [ ...$steamGames, ...$manualSteamGames, ...$nonSteamGames ];
+
+  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
 
   /**
    * Apply the grid being previewed.
@@ -45,7 +51,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -54,20 +60,54 @@
   }
 </script>
 
-<ModalBody title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} #${$gridModalInfo?.id}`} open={modalOpen} on:close={() => modalOpen = false} on:closeEnd={onClose}>
-  <div class="content {$gridType.split(" ").join("-").toLowerCase()}">
-    <div class="img-cont" style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: {definedModalInfo.width || 256}rem; height: {definedModalInfo.height || 256}rem;">
-      <div class="img" class:logo-background={$gridType === GridTypes.LOGO} class:icon-background={$gridType === GridTypes.ICON} style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem;">
-        <div class="button-container" class:visible={$gridType === GridTypes.HERO}>
-          <IconButton label="Show Steam Cropping" tooltipPosition="right" on:click={() => showHeroCropping = !showHeroCropping}>
+<ModalBody
+  title={`${games.find((game) => game.appid.toString() === $selectedGameAppId)?.name} #${$gridModalInfo?.id}`}
+  open={modalOpen}
+  on:close={() => (modalOpen = false)}
+  on:closeEnd={onClose}
+>
+  <div class="content {$gridType.split(' ').join('-').toLowerCase()}">
+    <div
+      class="img-cont"
+      style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[
+        $gridType
+      ]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[
+        $gridType
+      ]}rem; width: {definedModalInfo.width ||
+        256}rem; height: {definedModalInfo.height || 256}rem;"
+    >
+      <div
+        class="img"
+        class:logo-background={$gridType === GridTypes.LOGO}
+        class:icon-background={$gridType === GridTypes.ICON}
+        style="max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem;"
+      >
+        <div
+          class="button-container"
+          class:visible={$gridType === GridTypes.HERO}
+        >
+          <IconButton
+            label="Show Steam Cropping"
+            tooltipPosition="right"
+            on:click={() => (showHeroCropping = !showHeroCropping)}
+          >
             <Position width="1rem" height="1rem" />
           </IconButton>
         </div>
-        <Lazy height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem" fadeOption={{ delay: 500, duration: 1000 }}>
+        <Lazy
+          height="{PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem"
+          fadeOption={{ delay: 500, duration: 1000 }}
+        >
           <img
-            src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
+            src={$gridType === GridTypes.ICON
+              ? $gridModalInfo?.thumb?.toString()
+              : $gridModalInfo?.url?.toString()}
             alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
-            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[$gridType]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[$gridType]}rem; width: auto; height: auto;"
+            style="max-width: {PREVIEW_GRID_DIMENSIONS.widths[
+              $gridType
+            ]}rem; max-height: {PREVIEW_GRID_DIMENSIONS.heights[
+              $gridType
+            ]}rem; width: auto; height: auto;"
           />
         </Lazy>
         <!-- ! This idea and implementation comes directly from SGDB's website -->
@@ -75,23 +115,59 @@
           <div class="blur-container">
             <img
               class="blurred"
-              src="{$gridType === GridTypes.ICON ? $gridModalInfo?.thumb?.toString() : $gridModalInfo?.url?.toString()}"
+              src={$gridType === GridTypes.ICON
+                ? $gridModalInfo?.thumb?.toString()
+                : $gridModalInfo?.url?.toString()}
               alt="{$gridModalInfo?.author?.name}'s {$gridType} image"
             />
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            width="100%"
+            height="100%"
+          >
             <svg width="100%" height="100%" viewBox="0 0 1920 620">
               <defs>
                 <linearGradient id="blurGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="rgb(39, 44, 53)" stop-opacity="0.1"></stop>
-                  <stop offset="100%" stop-color="rgb(19, 21, 24)" stop-opacity="0.7"></stop>
+                  <stop
+                    offset="0%"
+                    stop-color="rgb(39, 44, 53)"
+                    stop-opacity="0.1"
+                  ></stop>
+                  <stop
+                    offset="100%"
+                    stop-color="rgb(19, 21, 24)"
+                    stop-opacity="0.7"
+                  ></stop>
                 </linearGradient>
               </defs>
-              <rect x="210.5" y="88.5" width="1495" height="369" fill="none" stroke="#fff" stroke-width="1"></rect>
-              <path opacity="0.4" d="M0 0v520h1920V0zm1706 458H210V88h1496z"></path>
-              <rect x="0" y="520" width="100%" height="100" fill="url(#blurGrad)"></rect>
+              <rect
+                x="210.5"
+                y="88.5"
+                width="1495"
+                height="369"
+                fill="none"
+                stroke="#fff"
+                stroke-width="1"
+              ></rect>
+              <path opacity="0.4" d="M0 0v520h1920V0zm1706 458H210V88h1496z"
+              ></path>
+              <rect
+                x="0"
+                y="520"
+                width="100%"
+                height="100"
+                fill="url(#blurGrad)"
+              ></rect>
             </svg>
-            <g dominant-baseline="middle" text-anchor="middle" font-size=".65em" fill="#e4e4e4" style="text-shadow: rgb(0, 0, 0) 0px 0px 4px;">
+            <g
+              dominant-baseline="middle"
+              text-anchor="middle"
+              font-size=".65em"
+              fill="#e4e4e4"
+              style="text-shadow: rgb(0, 0, 0) 0px 0px 4px;"
+            >
               <text x="50%" y="7.55%">VISIBILITY DEPENDS ON WINDOW SIZE</text>
               <text x="50%" y="44.6%">ALWAYS VISIBLE</text>
               <text x="50%" y="92.5%">ONLY VISIBLE BEHIND TRANSLUCENT BAR</text>
@@ -104,24 +180,31 @@
       <div>
         <div class="author">
           <div class="pfp">
-            <img src="{$gridModalInfo?.author?.avatar?.toString()}" alt="{$gridModalInfo?.author?.name}'s profile picture" />
+            <img
+              src={$gridModalInfo?.author?.avatar?.toString()}
+              alt="{$gridModalInfo?.author?.name}'s profile picture"
+            />
           </div>
           <div class="name">{$gridModalInfo?.author?.name}</div>
         </div>
         <div class="label-small">Style: {$gridModalInfo?.style}</div>
-        <div class="label-small">Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}</div>
+        <div class="label-small">
+          Dimensions: {$gridModalInfo?.width}x{$gridModalInfo?.height}
+        </div>
         {#if $gridModalInfo?.notes}
           <div class="label">Notes:</div>
           <div class="border" />
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <div class="notes" on:click={clickListener}>{@html mdIt.render($gridModalInfo?.notes)}</div>
+          <div class="notes" on:click={clickListener}>
+            {@html mdIt.render($gridModalInfo?.notes)}
+          </div>
         {:else}
           <div class="border" />
         {/if}
       </div>
       <div class="buttons">
-        <Button on:click={applyGrid} width="100%">Apply</Button>
+        <Button label="Apply" onClick={applyGrid} width="100%" />
       </div>
     </div>
   </div>
@@ -138,7 +221,8 @@
     flex-direction: row;
     height: calc(100% - 30.5rem);
   }
-  .capsule .info, .icon .info {
+  .capsule .info,
+  .icon .info {
     margin: 0.5rem;
     margin-right: 0rem;
     min-width: 12.5rem;
@@ -149,7 +233,9 @@
     justify-content: space-between;
   }
 
-  .wide-capsule .info, .hero .info, .logo .info {
+  .wide-capsule .info,
+  .hero .info,
+  .logo .info {
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
     min-width: 12.5rem;
@@ -188,7 +274,12 @@
   .logo-background {
     border-radius: 0.5rem;
     background-color: #a3a3a3;
-    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    background-image: linear-gradient(
+      140deg,
+      #adadad 0%,
+      #727272 50%,
+      #535353 75%
+    );
     padding: 0.25rem;
     height: 100%;
   }
@@ -196,7 +287,12 @@
   .icon-background {
     border-radius: 0.5rem;
     background-color: #a3a3a3;
-    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    background-image: linear-gradient(
+      140deg,
+      #adadad 0%,
+      #727272 50%,
+      #535353 75%
+    );
     padding: 0.25rem;
     height: 16rem;
     width: 16rem;
@@ -224,7 +320,9 @@
     margin-top: 0.5rem;
     font-size: 1rem;
   }
-  .label-small { font-size: 0.875rem; }
+  .label-small {
+    font-size: 0.875rem;
+  }
 
   .notes {
     margin-top: 0.5rem;

@@ -3,37 +3,62 @@
   import { Cog, GitHub, Info, Refresh, Wrench } from "@icons";
   import { Button, IconButton } from "@interactables";
   import { canSave, isOnline } from "@stores/AppState";
-  import { showInfoModal, showSettingsModal, showToolsModal } from "@stores/Modals";
+  import {
+    showInfoModal,
+    showSettingsModal,
+    showToolsModal,
+  } from "@stores/Modals";
   import { open } from "@tauri-apps/plugin-shell";
 </script>
 
 <div class="footer">
   <div class="info">
-    <!-- svelte-ignore missing-declaration -->
     <div style="margin-left: 0.5rem; text-align: center;">v{APP_VERSION}</div>
   </div>
   <div class="btns">
     {#if $canSave}
-      <Button padding="0.25rem 0.75rem" highlight on:click={AppController.saveChanges}>Save</Button>
-      <Button padding="0.25rem 0.75rem" on:click={AppController.discardChanges}>Cancel</Button>
+      <Button
+        label="Save"
+        padding="0.25rem 0.75rem"
+        highlight
+        onClick={AppController.saveChanges}
+      />
+      <Button
+        label="Cancel"
+        padding="0.25rem 0.75rem"
+        onClick={AppController.discardChanges}
+      />
     {/if}
     {#if !$isOnline}
-      <Button padding="0.25rem 0.75rem" on:click={AppController.tryGoOnline}>Go Online</Button>
+      <Button
+        label="Go Online"
+        padding="0.25rem 0.75rem"
+        onClick={AppController.tryGoOnline}
+      />
     {/if}
-    
-    <IconButton label="Info" on:click={() => $showInfoModal = true}>
+
+    <IconButton label="Info" on:click={() => ($showInfoModal = true)}>
       <Info style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
-    <IconButton label="View on GitHub" on:click={() => open("https://github.com/Tormak9970/Steam-Art-Manager")} tooltipPosition="auto">
+    <IconButton
+      label="View on GitHub"
+      on:click={() => open("https://github.com/Tormak9970/Steam-Art-Manager")}
+      tooltipPosition="auto"
+    >
       <GitHub style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton label="Reload SARM" on:click={AppController.reload}>
       <Refresh style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
-    <IconButton label="Tools" on:click={() => $showToolsModal = true}>
+    <IconButton label="Tools" on:click={() => ($showToolsModal = true)}>
       <Wrench style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
-    <IconButton label="Settings" on:click={() => { $showSettingsModal = true; }}>
+    <IconButton
+      label="Settings"
+      on:click={() => {
+        $showSettingsModal = true;
+      }}
+    >
       <Cog style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
   </div>

@@ -1,14 +1,35 @@
 <script lang="ts">
-  export let width = "auto";
-  export let disabled = false;
-  export let highlight = false;
-  export let warn = false;
-  export let padding = "0.375rem 0.75rem";
+  type Props = {
+    label: string;
+    onClick: () => void | Promise<void>;
+    width?: string;
+    disabled?: boolean;
+    highlight?: boolean;
+    warn?: boolean;
+    padding?: string;
+  };
+
+  let {
+    label,
+    onClick,
+    width = "auto",
+    disabled = false,
+    highlight = false,
+    warn = false,
+    padding = "0.375rem 0.75rem",
+  }: Props = $props();
 </script>
 
-<button class:warn={warn} class:highlight={highlight} class:disabled={disabled} style:padding={padding} style:width={width} on:click>
+<button
+  class:warn
+  class:highlight
+  class:disabled
+  style:padding
+  style:width
+  onclick={onClick}
+>
   <div style="user-select: none;">
-    <slot />
+    {label}
   </div>
 </button>
 
@@ -17,7 +38,7 @@
     min-width: 3.25rem;
 
     height: auto;
-        
+
     background-color: var(--background-hover);
     border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
@@ -31,7 +52,9 @@
 
     color: var(--font-color);
 
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
 
   button:hover {
@@ -57,6 +80,10 @@
     border: 0.0625rem solid var(--save-hover);
   }
 
-  .warn { background-color: var(--warning); }
-  .warn:hover { background-color: var(--warning-hover); }
+  .warn {
+    background-color: var(--warning);
+  }
+  .warn:hover {
+    background-color: var(--warning-hover);
+  }
 </style>

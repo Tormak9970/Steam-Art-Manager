@@ -2,7 +2,7 @@
   import { Button, NumberInput, TextInput } from "@interactables";
   import { showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct } from "@types";
-  
+
   export let onGameSave: (game: GameStruct) => void;
 
   let gameName: string = "";
@@ -35,12 +35,19 @@
   </div>
   <NumberInput label={"App Id"} bind:value={appId} />
   <div class="description">
-    The appid of the game. You can find this by going to the game's steam page, and looking at the number in the url, or looking up "what is the steam appid for GAME_NAME".
+    The appid of the game. You can find this by going to the game's steam page,
+    and looking at the number in the url, or looking up "what is the steam appid
+    for GAME_NAME".
   </div>
 
   <div class="buttons">
-    <Button on:click={clear} width="48.5%">Clear</Button>
-    <Button on:click={saveWrapper} width="48.5%" disabled={gameName === "" || appId === 0}>Add Game</Button>
+    <Button label="Clear" onClick={clear} width="48.5%" />
+    <Button
+      label="Add Game"
+      onClick={saveWrapper}
+      width="48.5%"
+      disabled={gameName === "" || appId === 0}
+    />
   </div>
 </div>
 

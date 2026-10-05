@@ -1,10 +1,30 @@
 <script lang="ts">
-  import { AppController, DialogController, LogController, SettingsController } from "@controllers";
+  import {
+    AppController,
+    DialogController,
+    LogController,
+    SettingsController,
+  } from "@controllers";
   import { isOverflowing } from "@directives";
   import { Folder } from "@icons";
   import { Button, IconButton } from "@interactables";
   import { APP_TYPES } from "@models";
-  import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, debugMode, loadingGames, needsSGDBAPIKey, needsSteamKey, previewGridsOnClick, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers } from "@stores/AppState";
+  import {
+    activeUserId,
+    appTypes,
+    autoGenLogoPos,
+    cacheSelectedGrids,
+    debugMode,
+    loadingGames,
+    needsSGDBAPIKey,
+    needsSteamKey,
+    previewGridsOnClick,
+    showInfoSnackbar,
+    steamGridDBKey,
+    steamInstallPath,
+    steamKey,
+    steamUsers,
+  } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
@@ -17,9 +37,9 @@
   import FilePathEntry from "./FilePathEntry.svelte";
   import TextFieldEntry from "./TextFieldEntry.svelte";
   import ToggleFieldEntry from "./ToggleFieldEntry.svelte";
-  
-	let activeUserIdUnsub: Unsubscriber;
-	let usersUnsub: Unsubscriber;
+
+  let activeUserIdUnsub: Unsubscriber;
+  let usersUnsub: Unsubscriber;
 
   let open = true;
   let overflowing = false;
@@ -37,26 +57,26 @@
         "WARNING",
         "Your Steam API key has been changed, would you like to reload your games?",
         "Yes",
-        "No"
+        "No",
       ).then((confirmed: boolean) => {
         if (confirmed) {
           $loadingGames = true;
           AppController.reloadSteamGames();
         }
-      })
+      });
     }
   }
 
   let canSave = false;
 
-	let users = Object.values($steamUsers).map((user) => {
-		return {
-			"label": user.PersonaName,
-			"data": user.id32
-		}
-	});
-	let selectedUserId = $activeUserId.toString();
-  
+  let users = Object.values($steamUsers).map((user) => {
+    return {
+      label: user.PersonaName,
+      data: user.id32,
+    };
+  });
+  let selectedUserId = $activeUserId.toString();
+
   let steamGridKey = $steamGridDBKey;
   let steamAPIKey = $steamKey;
   let steamInstallLocation = $steamInstallPath;
@@ -70,37 +90,42 @@
   /**
    * Saves the changed settings.
    */
-	async function saveSettings(): Promise<void> {
+  async function saveSettings(): Promise<void> {
     LogController.log("Saving settings...");
-    
+
     $steamGridDBKey = steamGridKey !== "" ? steamGridKey : $steamGridDBKey;
     if ($steamGridDBKey !== "" && $needsSGDBAPIKey) $needsSGDBAPIKey = false;
 
     await SettingsController.set("steamGridDbApiKey", steamGridKey);
-    
+
     if ($steamKey !== steamAPIKey) steamApiKeyChanged = true;
 
     $steamKey = steamAPIKey;
     $needsSteamKey = $steamKey === "";
 
-    const steamApiKeyMapSetting = SettingsController.get<Record<string, string>>("steamApiKeyMap");
+    const steamApiKeyMapSetting =
+      SettingsController.get<Record<string, string>>("steamApiKeyMap");
     steamApiKeyMapSetting[$activeUserId] = steamAPIKey;
     await SettingsController.set("steamApiKeyMap", steamApiKeyMapSetting);
 
-    
     if (steamInstallLocation !== "") $steamInstallPath = steamInstallLocation;
 
-    if (JSON.stringify(appTypesSetting) !== JSON.stringify($appTypes)) $appTypes = [...appTypesSetting];
+    if (JSON.stringify(appTypesSetting) !== JSON.stringify($appTypes))
+      $appTypes = [...appTypesSetting];
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
-    
-    if (cacheSelectedGridsSetting !== $cacheSelectedGrids) $cacheSelectedGrids = cacheSelectedGridsSetting;
 
-    if (previewGridsOnClickSetting !== $previewGridsOnClick) $previewGridsOnClick = previewGridsOnClickSetting;
+    if (cacheSelectedGridsSetting !== $cacheSelectedGrids)
+      $cacheSelectedGrids = cacheSelectedGridsSetting;
 
-    if (selectedUserId !== $activeUserId.toString()) await AppController.changeSteamUser(selectedUserId);
-    
-    if (autoGenLogoPosSetting !== $autoGenLogoPos) $autoGenLogoPos = autoGenLogoPosSetting;
+    if (previewGridsOnClickSetting !== $previewGridsOnClick)
+      $previewGridsOnClick = previewGridsOnClickSetting;
+
+    if (selectedUserId !== $activeUserId.toString())
+      await AppController.changeSteamUser(selectedUserId);
+
+    if (autoGenLogoPosSetting !== $autoGenLogoPos)
+      $autoGenLogoPos = autoGenLogoPosSetting;
 
     LogController.log("Saved settings.");
     $showInfoSnackbar({ message: "Settings saved!" });
@@ -124,9 +149,9 @@
     cacheSelectedGridsSetting = $cacheSelectedGrids;
     previewGridsOnClickSetting = $previewGridsOnClick;
     autoGenLogoPosSetting = $autoGenLogoPos;
-    
+
     LogController.log("Reverted settings.");
-    
+
     canSave = false;
 
     open = false;
@@ -166,7 +191,7 @@
    */
   function onAppTypesChange(value: string[]): void {
     appTypesSetting = value;
-    console.log("appTypesSetting:", appTypesSetting)
+    console.log("appTypesSetting:", appTypesSetting);
     canSave = true;
   }
 
@@ -175,7 +200,7 @@
    */
   async function openLogDirectory() {
     const logDir = await appLogDir();
-    shell.open("file://"+ logDir);
+    shell.open("file://" + logDir);
   }
 
   /**
@@ -194,17 +219,17 @@
 
   onMount(() => {
     activeUserIdUnsub = activeUserId.subscribe((id) => {
-			selectedUserId = id.toString();
-		});
-		usersUnsub = steamUsers.subscribe((sUsers) => {
-			users = Object.values(sUsers).map((user) => {
-				return {
-					"label": user.PersonaName,
-					"data": user.id32
-				}
-			});
-			if (!selectedUserId) selectedUserId = $activeUserId.toString();
-		});
+      selectedUserId = id.toString();
+    });
+    usersUnsub = steamUsers.subscribe((sUsers) => {
+      users = Object.values(sUsers).map((user) => {
+        return {
+          label: user.PersonaName,
+          data: user.id32,
+        };
+      });
+      if (!selectedUserId) selectedUserId = $activeUserId.toString();
+    });
   });
 
   onDestroy(() => {
@@ -213,10 +238,21 @@
   });
 </script>
 
-<ModalBody title={"Settings"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
+<ModalBody
+  title={"Settings"}
+  {open}
+  on:close={() => (open = false)}
+  on:closeEnd={onClose}
+>
   <div class="content">
-    <div class="scroll-container" use:isOverflowing={{ callback: (o) => overflowing = o }}>
-      <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
+    <div
+      class="scroll-container"
+      use:isOverflowing={{ callback: (o) => (overflowing = o) }}
+    >
+      <div
+        class="wrapper"
+        style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+      >
         <FilePathEntry
           label="Steam Install Path"
           description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
@@ -229,7 +265,7 @@
         />
         <TextFieldEntry
           label="SteamGrid Api Key"
-          description={"Needed to load art from SteamGridDB.com. To create one, go to <a href=\"https://www.steamgriddb.com\">Steamgrid</a>, sign in and go to preferences, then API."}
+          description={'Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.'}
           value={steamGridKey}
           onChange={onGridKeyChange}
           required
@@ -237,7 +273,7 @@
         <TextFieldEntry
           label="Steam Api key"
           description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
-          notes={"Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do \"http://YOUR_STEAM_USERNAME.com\"."}
+          notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
           value={steamAPIKey}
           canBeEmpty
           onChange={onSteamKeyChange}
@@ -258,7 +294,10 @@
             canSave = true;
           }}
         >
-          <Button on:click={AppController.clearCachedGrids}>Clear Cache</Button>
+          <Button
+            label="Clear Cache"
+            onClick={AppController.clearCachedGrids}
+          />
         </ToggleFieldEntry>
         <ToggleFieldEntry
           label="Preview Grids by Default"
@@ -272,9 +311,14 @@
         <DropdownEntry
           label="Steam User"
           description="Determines which Steam account to edit grids for."
-          options={(users && users.length > 0) ? users : [ { label: "Loading...", data: "placeholder" } ]}
-          value={(users && users.length > 0) ? selectedUserId : "placeholder"}
-          onChange={(id) => {selectedUserId = id; canSave = true;}}
+          options={users && users.length > 0
+            ? users
+            : [{ label: "Loading...", data: "placeholder" }]}
+          value={users && users.length > 0 ? selectedUserId : "placeholder"}
+          onChange={(id) => {
+            selectedUserId = id;
+            canSave = true;
+          }}
         />
         <ToggleFieldEntry
           label="Automatically Generate Logo Config"
@@ -300,8 +344,13 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button on:click={cancel} width="46.5%">Cancel</Button>
-    <Button on:click={saveSettings} width="46.5%" disabled={!canSave}>Save Changes</Button>
+    <Button label="Cancel" onClick={cancel} width="46.5%" />
+    <Button
+      label="Save Changes"
+      onClick={saveSettings}
+      width="46.5%"
+      disabled={!canSave}
+    />
     <IconButton label="Open log directory" on:click={openLogDirectory}>
       <Folder style="height: 1rem; width: 1rem;" />
     </IconButton>
@@ -310,11 +359,11 @@
 
 <style>
   .content {
-		width: 37.5rem;
+    width: 37.5rem;
     padding-top: 0.75rem;
-    
-		max-height: 73vh;
-	}
+
+    max-height: 73vh;
+  }
 
   .scroll-container {
     max-height: calc(73vh - 0.75rem);
@@ -322,7 +371,7 @@
 
     overflow-y: scroll;
   }
-  
+
   .wrapper {
     display: flex;
     flex-direction: column;

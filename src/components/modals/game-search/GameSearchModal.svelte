@@ -3,8 +3,17 @@
   import { isOverflowing, scrollShadow } from "@directives";
   import { Refresh } from "@icons";
   import { Button, IconButton, SearchBar } from "@interactables";
-  import { selectedGameName, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
-  import { gameSearchModalCancel, gameSearchModalDefault, gameSearchModalSelect, showGameSearchModal } from "@stores/Modals";
+  import {
+    selectedGameName,
+    showErrorSnackbar,
+    showInfoSnackbar,
+  } from "@stores/AppState";
+  import {
+    gameSearchModalCancel,
+    gameSearchModalDefault,
+    gameSearchModalSelect,
+    showGameSearchModal,
+  } from "@stores/Modals";
   import type { SGDBGame } from "@types";
   import { onMount } from "svelte";
   import ModalBody from "../modal-utils/ModalBody.svelte";
@@ -20,7 +29,7 @@
   $: canApply = selectedGame && $gameSearchModalDefault !== selectedGame.name;
 
   let results: SGDBGame[] = [];
-  
+
   /**
    * The function to run when the modal closes.
    */
@@ -32,7 +41,7 @@
   /**
    * Applies the users choice.
    */
-	function applyChoice(): void {
+  function applyChoice(): void {
     canApply = false;
 
     LogController.log(`Applied game choice ${selectedGame!.name}`);
@@ -66,7 +75,7 @@
       results = [];
       $showErrorSnackbar({ message: "Requst Timed Out!" });
     }
-    
+
     loading = false;
   }
 
@@ -80,30 +89,61 @@
   onMount(async () => await makeRequest(searchQuery));
 </script>
 
-<ModalBody title={"Customize Game Name"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
+<ModalBody
+  title={"Customize Game Name"}
+  {open}
+  on:close={() => (open = false)}
+  on:closeEnd={onClose}
+>
   <div class="content">
     <div class="body">
-      <div class="description">
-        Search for games in the SGDB database below
-      </div>
+      <div class="description">Search for games in the SGDB database below</div>
       <div class="search-container">
-        <IconButton label="Retry" on:click={retryRequest} width="auto" tooltipPosition="auto" disabled={!requestTimedOut}>
+        <IconButton
+          label="Retry"
+          on:click={retryRequest}
+          width="auto"
+          tooltipPosition="auto"
+          disabled={!requestTimedOut}
+        >
           <Refresh style="height: 0.875rem; width: 0.875rem;" />
         </IconButton>
-        <SearchBar label="Game Search" bind:value={searchQuery} onChange={async (query) => await makeRequest(query)} width="15.75rem" reversed />
+        <SearchBar
+          label="Game Search"
+          bind:value={searchQuery}
+          onChange={async (query) => await makeRequest(query)}
+          width="15.75rem"
+          reversed
+        />
       </div>
       <div class="container">
-        <div class="scroll-container" use:scrollShadow={{ background: "--background" }} use:isOverflowing={{ callback: (o) => overflowing = o }}>
-          <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
+        <div
+          class="scroll-container"
+          use:scrollShadow={{ background: "--background" }}
+          use:isOverflowing={{ callback: (o) => (overflowing = o) }}
+        >
+          <div
+            class="wrapper"
+            style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+          >
             {#if loading}
               {#each new Array(10) as _}
                 <EntryLoadingSkeleton />
               {/each}
             {:else if requestTimedOut}
-              <div>Request timed out. Check your internet connection or click retry.</div>
+              <div>
+                Request timed out. Check your internet connection or click
+                retry.
+              </div>
             {:else}
               {#each results as sgdbGame (sgdbGame.id)}
-                <GameSearchEntry game={sgdbGame} isSelected={selectedGame ? sgdbGame.id === selectedGame.id : sgdbGame.name === $selectedGameName} onSelect={setSelected} />
+                <GameSearchEntry
+                  game={sgdbGame}
+                  isSelected={selectedGame
+                    ? sgdbGame.id === selectedGame.id
+                    : sgdbGame.name === $selectedGameName}
+                  onSelect={setSelected}
+                />
               {/each}
             {/if}
           </div>
@@ -113,28 +153,33 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button on:click={applyChoice} width="100%" disabled={!canApply}>Apply Choice</Button>
+    <Button
+      label="Apply Choice"
+      onClick={applyChoice}
+      width="100%"
+      disabled={!canApply}
+    />
   </span>
 </ModalBody>
 
 <style>
   .content {
-		width: 25rem;
-		height: calc(100% - 3.75rem);
+    width: 25rem;
+    height: calc(100% - 3.75rem);
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-	}
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
   .body {
     width: 100%;
     margin-top: 0.5rem;
-    
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
   }
 
   .description {

@@ -7,17 +7,17 @@
   import ModalBody from "./modal-utils/ModalBody.svelte";
   import FilePathEntry from "./settings/FilePathEntry.svelte";
 
-  let open = true;
-  let canSave = false;
+  let open = $state(true);
+  let canSave = $state(false);
 
-  let steamInstallLocation = $steamInstallPath;
+  let steamInstallLocation = $state($steamInstallPath);
 
   /**
    * Saves the selected install location.
    */
-	async function saveInstallLocation(): Promise<void> {
+  async function saveInstallLocation(): Promise<void> {
     LogController.log("Setting Steam Install Location...");
-    
+
     $steamInstallPath = steamInstallLocation;
 
     LogController.log("Steam Install Location set.");
@@ -44,7 +44,12 @@
   }
 </script>
 
-<ModalBody title={"Choose Your Steam Install Path"} open={open} on:close={() => open = false} canClose={false}>
+<ModalBody
+  title={"Choose Your Steam Install Path"}
+  {open}
+  on:close={() => (open = false)}
+  canClose={false}
+>
   <div class="content">
     <FilePathEntry
       label="Steam Install Path"
@@ -59,21 +64,26 @@
   </div>
 
   <span slot="buttons" class="buttons">
-    <Button on:click={saveInstallLocation} width="100%" disabled={!canSave}>Save Changes</Button>
+    <Button
+      label="Save Changes"
+      onClick={saveInstallLocation}
+      width="100%"
+      disabled={!canSave}
+    />
   </span>
 </ModalBody>
 
 <style>
   .content {
-		width: 37.5rem;
-		height: calc(100% - 3.75rem);
+    width: 37.5rem;
+    height: calc(100% - 3.75rem);
     padding-top: 1rem;
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-	}
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
   .buttons {
     width: 100%;

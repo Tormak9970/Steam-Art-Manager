@@ -12,4 +12,3 @@ export { default as Slider } from "./Slider.svelte";
 export { default as TextInput } from "./TextInput.svelte";
 export { default as ThreeWayToggle } from "./ThreeWayToggle.svelte";
 export { default as Toggle } from "./Toggle.svelte";
-

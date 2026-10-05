@@ -1,13 +1,19 @@
 <script lang="ts">
   import { CacheController } from "@controllers";
   import { Button, Toggle } from "@interactables";
-  import { gridType, manualSteamGames, nonSteamGames, showInfoSnackbar, steamGames } from "@stores/AppState";
+  import {
+    gridType,
+    manualSteamGames,
+    nonSteamGames,
+    showInfoSnackbar,
+    steamGames,
+  } from "@stores/AppState";
   import { showBatchApplyModal, showBatchApplyProgress } from "@stores/Modals";
   import { GridTypes } from "@types";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
-  $: allSteamGames = [ ...$steamGames, ...$manualSteamGames ];
+  $: allSteamGames = [...$steamGames, ...$manualSteamGames];
 
   let allGridTypes = false;
 
@@ -39,7 +45,12 @@
   }
 </script>
 
-<ModalBody title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`} open={open} on:close={() => open = false} on:closeEnd={onClose}>
+<ModalBody
+  title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`}
+  {open}
+  on:close={() => (open = false)}
+  on:closeEnd={onClose}
+>
   <div class="content">
     <div class="upper">
       <div class="info">
@@ -49,11 +60,15 @@
         <Toggle label="All Grid Types" bind:value={allGridTypes} />
       </div>
     </div>
-    <GameFilter steamGames={allSteamGames} nonSteamGames={$nonSteamGames} bind:selectedGameIds={selectedGameIds} />
+    <GameFilter
+      steamGames={allSteamGames}
+      nonSteamGames={$nonSteamGames}
+      bind:selectedGameIds
+    />
   </div>
   <span slot="buttons" class="buttons">
-    <Button on:click={cancel} width="47.5%">Cancel</Button>
-    <Button on:click={batchApply} width="47.5%">Apply</Button>
+    <Button label="Cancel" onClick={cancel} width="47.5%" />
+    <Button label="Apply" onClick={batchApply} width="47.5%" />
   </span>
 </ModalBody>
 

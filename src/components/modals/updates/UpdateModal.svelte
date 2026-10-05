@@ -2,7 +2,7 @@
   import { relaunch } from "@tauri-apps/plugin-process";
   import { open as openLink } from "@tauri-apps/plugin-shell";
   import MarkdownIt from "markdown-it";
-  
+
   import { showUpdateModal, updateManifest } from "@stores/Modals";
 
   import { LogController } from "@controllers";
@@ -17,23 +17,28 @@
   import UpdateField from "./UpdateField.svelte";
 
   let open = true;
-  
+
   const mdIt = new MarkdownIt({
     html: true,
-    linkify: true
+    linkify: true,
   });
-  
+
   let step: "changelog" | "download" | "restart" = "changelog";
   let formattedDate = "No date provided";
 
-  $: title = step === "changelog" ? `Update v${$updateManifest?.version} is Available!` : (step === "download" ? `Downloading v${$updateManifest?.version}...` : "Download Complete!")
+  $: title =
+    step === "changelog"
+      ? `Update v${$updateManifest?.version} is Available!`
+      : step === "download"
+        ? `Downloading v${$updateManifest?.version}...`
+        : "Download Complete!";
 
   const stepHeight = {
     changelog: 24.5,
     download: 7.75,
-    restart: 7.75
-  }
-  
+    restart: 7.75,
+  };
+
   let contentLength = 0;
   let downloaded = 0;
 
@@ -43,7 +48,7 @@
    */
   function linkClick(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -60,20 +65,22 @@
   }
 
   function downloadUpdate() {
-    LogController.log(`Downloading update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`);
+    LogController.log(
+      `Downloading update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`,
+    );
 
     try {
       $updateManifest!.download((event: DownloadEvent) => {
         switch (event.event) {
-          case 'Started':
+          case "Started":
             contentLength = event.data.contentLength!;
             downloaded = 0;
             step = "download";
             break;
-          case 'Progress':
+          case "Progress":
             downloaded += event.data.chunkLength!;
             break;
-          case 'Finished':
+          case "Finished":
             step = "restart";
             break;
         }
@@ -84,7 +91,9 @@
   }
 
   async function installUpdate(): Promise<void> {
-    LogController.log(`Installing update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`);
+    LogController.log(
+      `Installing update v${$updateManifest!.version}, released on ${$updateManifest!.date}.`,
+    );
 
     // Install the update. This will also restart the app on Windows!
     await $updateManifest!.install();
@@ -101,15 +110,18 @@
       let date = new Date(dateString);
 
       if (isNaN(date.getTime())) {
-        dateString = dateString.replace(/(\+|-)(\d{2}):(\d{2}):(\d{2})$/, '$1$2:$3');
+        dateString = dateString.replace(
+          /(\+|-)(\d{2}):(\d{2}):(\d{2})$/,
+          "$1$2:$3",
+        );
         date = new Date(dateString);
       }
 
       const lang = "en-US";
       const formatter = new Intl.DateTimeFormat(lang, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
 
       formattedDate = formatter.format(date);
@@ -117,27 +129,46 @@
   });
 </script>
 
-<ModalBody title={title} open={open} on:close={() => open = false} on:closeEnd={() => $showUpdateModal = false } canClose={false}>
+<ModalBody
+  {title}
+  {open}
+  on:close={() => (open = false)}
+  on:closeEnd={() => ($showUpdateModal = false)}
+  canClose={false}
+>
   <div class="content" style:height="{stepHeight[step]}rem">
     <div class="info">
       <!-- svelte-ignore missing-declaration -->
       <UpdateField label="Release Date" value={formattedDate} />
-      <UpdateField label="Current Version" value={$updateManifest?.currentVersion ?? "Not Found"} />
-      <UpdateField label="New Version" value={$updateManifest?.version ?? "Not Found"} />
+      <UpdateField
+        label="Current Version"
+        value={$updateManifest?.currentVersion ?? "Not Found"}
+      />
+      <UpdateField
+        label="New Version"
+        value={$updateManifest?.version ?? "Not Found"}
+      />
     </div>
     {#if step === "changelog"}
       <div class="changelog">
-        <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
+        <div
+          class="scroll-container"
+          use:scrollShadow={{ background: "--background-dark" }}
+        >
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="release-notes" on:click={linkClick}>
-            {@html mdIt.render($updateManifest?.body ?? "No update details found")}
+            {@html mdIt.render(
+              $updateManifest?.body ?? "No update details found",
+            )}
           </div>
         </div>
       </div>
     {:else if step === "download"}
       <div class="download-container" in:fade={{ duration: 300 }}>
-        <ProgressIndicator percent={downloaded / (contentLength || 1) * 100} />
+        <ProgressIndicator
+          percent={(downloaded / (contentLength || 1)) * 100}
+        />
       </div>
     {:else}
       <div class="complete-message" in:fade={{ duration: 300 }}>
@@ -148,16 +179,22 @@
   <span slot="buttons" class="buttons">
     <div class="side">
       {#if step === "changelog"}
-        <Button on:click={ignoreUpdate} width="100%">Skip</Button>
+        <Button label="Skip" onClick={ignoreUpdate} width="100%" />
       {:else if step === "restart"}
-        <Button on:click={() => { open = false }} width="100%">No</Button>
+        <Button
+          label="No"
+          onClick={() => {
+            open = false;
+          }}
+          width="100%"
+        />
       {/if}
     </div>
     <div class="side">
       {#if step === "changelog"}
-        <Button on:click={downloadUpdate} width="100%">Download</Button>
+        <Button label="Download" onClick={downloadUpdate} width="100%" />
       {:else if step === "restart"}
-        <Button on:click={installUpdate} width="100%">Yes</Button>
+        <Button label="Yes" onClick={installUpdate} width="100%" />
       {/if}
     </div>
   </span>
