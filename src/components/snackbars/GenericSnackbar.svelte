@@ -6,7 +6,7 @@
     message: string;
     timeout: number | null;
   };
-  
+
   export const show = ({ message, timeout = 4000 }: ShowSnackbarOptions) => {
     snackbar = { message, timeout };
     clearTimeout(timeoutId);
@@ -18,12 +18,16 @@
     }
   };
 
-  export let backgroundColor: string;
-  export let textColor: string;
+  type Props = {
+    backgroundColor: string;
+    textColor: string;
+  };
 
-  let snackbar: SnackbarData | undefined;
-  let timeoutId: any;
-  
+  let { backgroundColor, textColor }: Props = $props();
+
+  let snackbar: SnackbarData | undefined = $state();
+  let timeoutId: any = $state();
+
   onDestroy(() => {
     clearTimeout(timeoutId);
   });
@@ -31,8 +35,16 @@
 
 {#if snackbar}
   <div class="background">
-    <div class="dialog" in:fly={{ y: 0, duration: 300 }} out:fly={{ y: 100, duration: 400 }}>
-      <div class="m3-container" style:--background-color={backgroundColor} style:--text-color={textColor}>
+    <div
+      class="dialog"
+      in:fly={{ y: 0, duration: 300 }}
+      out:fly={{ y: 100, duration: 400 }}
+    >
+      <div
+        class="m3-container"
+        style:--background-color={backgroundColor}
+        style:--text-color={textColor}
+      >
         <p class="m3-font-body-medium">{snackbar.message}</p>
       </div>
     </div>
@@ -45,9 +57,11 @@
 
     --m3-snackbar-shape: 0.25rem;
 
-    --m3-util-elevation-3: 0rem 0.3125rem 0.3125rem -0.25rem rgb(var(--m3-scheme-shadow) / 0.2),
-    0rem 0.5rem 0.625rem 0.0625rem rgb(var(--m3-scheme-shadow) / 0.14),
-    0rem 0.25rem 0.875rem 0.125rem rgb(var(--m3-scheme-shadow) / 0.12);
+    --m3-util-elevation-3: 0rem 0.3125rem 0.3125rem -0.25rem rgb(var(
+              --m3-scheme-shadow
+            ) / 0.2),
+      0rem 0.5rem 0.625rem 0.0625rem rgb(var(--m3-scheme-shadow) / 0.14),
+      0rem 0.25rem 0.875rem 0.125rem rgb(var(--m3-scheme-shadow) / 0.12);
   }
 
   .background {

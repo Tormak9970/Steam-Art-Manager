@@ -1,6 +1,25 @@
 <script lang="ts">
   import { showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
-  import { showBatchApplyModal, showBatchApplyProgress, showCleanConflictDialog, showCleanGridsModal, showCurrentGridsModal, showDialogModal, showGameSearchModal, showGridModal, showInfoModal, showLogoPositionModal, showManualGamesModal, showOriginalGridsModal, showProgressModal, showSettingsModal, showSteamPathModal, showToolsModal, showUpdateModal, showUpdateTilesModal } from "@stores/Modals";
+  import {
+    showBatchApplyModal,
+    showBatchApplyProgress,
+    showCleanConflictDialog,
+    showCleanGridsModal,
+    showCurrentGridsModal,
+    showDialogModal,
+    showGameSearchModal,
+    showGridModal,
+    showInfoModal,
+    showLogoPositionModal,
+    showManualGamesModal,
+    showOriginalGridsModal,
+    showProgressModal,
+    showSettingsModal,
+    showSteamPathModal,
+    showToolsModal,
+    showUpdateModal,
+    showUpdateTilesModal,
+  } from "@stores/Modals";
   import ErrorSnackbar from "../snackbars/ErrorSnackbar.svelte";
   import InfoSnackbar from "../snackbars/InfoSnackbar.svelte";
   import BatchApplyModal from "./batch-apply/BatchApplyModal.svelte";
@@ -21,8 +40,15 @@
   import ToolsModal from "./ToolsModal.svelte";
   import UpdateModal from "./updates/UpdateModal.svelte";
   import UpdateTilesModal from "./UpdateTilesModal.svelte";
-</script>
 
+  let infoSnack: InfoSnackbar | undefined = $state();
+  let errorSnack: ErrorSnackbar | undefined = $state();
+
+  $effect(() => {
+    $showErrorSnackbar = errorSnack!.show;
+    $showInfoSnackbar = infoSnack!.show;
+  });
+</script>
 
 {#if $showUpdateModal}
   <UpdateModal />
@@ -80,5 +106,5 @@
     <OriginalGridsModal />
   {/if}
 {/if}
-<ErrorSnackbar bind:show={$showErrorSnackbar} />
-<InfoSnackbar bind:show={$showInfoSnackbar} />
+<ErrorSnackbar bind:this={errorSnack} />
+<InfoSnackbar bind:this={infoSnack} />
