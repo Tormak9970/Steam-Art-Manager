@@ -1,146 +1,171 @@
-<script lang="ts">
-    import { scrollShadow } from "@directives";
-    import { onMount, tick } from "svelte";
+<script lang="ts" generics="T">
+  import { scrollShadow } from "@directives";
+  import { onMount, tick, type Snippet } from "svelte";
 
-	// * Component Props.
-	export let items: any[];
-	export let height = "100%";
-  export let width = "100%";
-	export let itemHeight: any = undefined;
-  
-  export let keyFunction = (entry: any) => entry.index;
+  type Entry = {
+    index: number;
+    data: T;
+  };
 
-	// * Read-Only, but visible to consumers via bind:start & bind:end.
-	export let start = 0;
-	export let end = 0;
+  // * Component Props.
+  type Props = {
+    items: T[];
+    height?: string;
+    width?: string;
+    itemHeight?: any;
+    keyFunction?: (entry: Entry) => string | number;
+    entry: Snippet<[T]>;
+  };
+
+  let {
+    items,
+    height = "100%",
+    width = "100%",
+    itemHeight = undefined,
+    keyFunction = (entry: any) => entry.index,
+    entry,
+  }: Props = $props();
+
+  // * Read-Only, but visible to consumers via bind:start & bind:end.
+  let start = 0;
+  let end = 0;
 
   // * Local State
-	let mounted: boolean;
-	let rows: HTMLCollectionOf<HTMLElement>;
-	let visible: any[];
-	let heightMap: number[] = [];
+  let mounted: boolean;
+  let rows: HTMLCollectionOf<HTMLElement>;
+  let heightMap: number[] = [];
 
-	let viewport: HTMLElement;
-	let viewportHeight = 0;
+  let viewport: HTMLElement;
+  let viewportHeight = $state(0);
 
-	let contents: HTMLElement;
+  let contents: HTMLElement;
 
-	let top = 0;
-	let bottom = 0;
-	let averageHeight: number;
+  let top = $state(0);
+  let bottom = $state(0);
+  let averageHeight: number;
 
-	$: visible = items.slice(start, end).map((data, i) => {
-		return { index: i + start, data };
-	});
+  let visible = $derived(
+    items.slice(start, end).map((data, i) => {
+      return { index: i + start, data };
+    }),
+  );
 
   // * Whenever `items` changes, invalidate the current heightmap.
-	$: if (mounted) refresh(items, viewportHeight, itemHeight);
+  $effect(() => {
+    if (mounted) refresh(items, viewportHeight, itemHeight);
+  });
 
-	async function refresh(items: any[], viewportHeight: number, itemHeight: number) {
-		const { scrollTop } = viewport;
+  async function refresh(
+    items: any[],
+    viewportHeight: number,
+    itemHeight: number,
+  ) {
+    const { scrollTop } = viewport;
 
     // * Wait until the DOM is up to date.
-		await tick();
+    await tick();
 
-		let contentHeight = top - scrollTop;
-		let i = start;
+    let contentHeight = top - scrollTop;
+    let i = start;
 
-		while (contentHeight < viewportHeight && i < items.length) {
-			let row = rows[i - start];
+    while (contentHeight < viewportHeight && i < items.length) {
+      let row = rows[i - start];
 
-			if (!row) {
-				end = i + 1;
+      if (!row) {
+        end = i + 1;
         // * Render the newly visible entry.
-				await tick();
-				row = rows[i - start];
-			}
+        await tick();
+        row = rows[i - start];
+      }
 
-			const rowHeight = heightMap[i] = itemHeight || row.offsetHeight;
-			contentHeight += rowHeight;
-			i++;
-		}
+      const rowHeight = (heightMap[i] = itemHeight || row.offsetHeight);
+      contentHeight += rowHeight;
+      i++;
+    }
 
-		end = i;
+    end = i;
 
-		const remaining = items.length - end;
-		averageHeight = (top + contentHeight) / end;
+    const remaining = items.length - end;
+    averageHeight = (top + contentHeight) / end;
 
-		bottom = remaining * averageHeight;
-		heightMap.length = items.length;
-	}
+    bottom = remaining * averageHeight;
+    heightMap.length = items.length;
+  }
 
-	async function handleScroll() {
-		const { scrollTop } = viewport;
+  async function handleScroll() {
+    const { scrollTop } = viewport;
 
-		const oldStart = start;
+    const oldStart = start;
 
-		for (let v = 0; v < rows.length; v += 1) {
-			heightMap[start + v] = itemHeight || rows[v].offsetHeight;
-		}
+    for (let v = 0; v < rows.length; v += 1) {
+      heightMap[start + v] = itemHeight || rows[v].offsetHeight;
+    }
 
-		let i = 0;
-		let y = 0;
+    let i = 0;
+    let y = 0;
 
-		while (i < items.length) {
-			const rowHeight = heightMap[i] || averageHeight;
+    while (i < items.length) {
+      const rowHeight = heightMap[i] || averageHeight;
 
-			if (y + rowHeight > scrollTop) {
-				start = i;
-				top = y;
+      if (y + rowHeight > scrollTop) {
+        start = i;
+        top = y;
 
-				break;
-			}
+        break;
+      }
 
-			y += rowHeight;
-			i++;
-		}
+      y += rowHeight;
+      i++;
+    }
 
-		while (i < items.length) {
-			y += heightMap[i] || averageHeight;
-			i++;
+    while (i < items.length) {
+      y += heightMap[i] || averageHeight;
+      i++;
 
-			if (y > scrollTop + viewportHeight) break;
-		}
+      if (y > scrollTop + viewportHeight) break;
+    }
 
-		end = i;
+    end = i;
 
-		const remaining = items.length - end;
-		averageHeight = y / end;
+    const remaining = items.length - end;
+    averageHeight = y / end;
 
-		while (i < items.length) {
+    while (i < items.length) {
       heightMap[i++] = averageHeight;
     }
 
-		bottom = remaining * averageHeight;
+    bottom = remaining * averageHeight;
 
-		// * Prevent jumping if we scrolled up into unknown territory.
-		if (start < oldStart) {
-			await tick();
+    // * Prevent jumping if we scrolled up into unknown territory.
+    if (start < oldStart) {
+      await tick();
 
-			let expectedHeight = 0;
-			let actualHeight = 0;
+      let expectedHeight = 0;
+      let actualHeight = 0;
 
-			for (let i = start; i < oldStart; i +=1) {
-				if (rows[i - start]) {
-					expectedHeight += heightMap[i];
-					actualHeight += itemHeight || rows[i - start].offsetHeight;
-				}
-			}
+      for (let i = start; i < oldStart; i += 1) {
+        if (rows[i - start]) {
+          expectedHeight += heightMap[i];
+          actualHeight += itemHeight || rows[i - start].offsetHeight;
+        }
+      }
 
-			const d = actualHeight - expectedHeight;
-			viewport.scrollTo(0, scrollTop + d);
-		}
+      const d = actualHeight - expectedHeight;
+      viewport.scrollTo(0, scrollTop + d);
+    }
 
-		// TODO if we overestimated the space these
-		// rows would occupy we may need to add some
-		// more. maybe we can just call handle_scroll again?
-	}
+    // TODO if we overestimated the space these
+    // rows would occupy we may need to add some
+    // more. maybe we can just call handle_scroll again?
+  }
 
-	// * Trigger initial refresh.
-	onMount(() => {
-		rows = contents.getElementsByTagName("svelte-virtual-list-row") as HTMLCollectionOf<HTMLElement>;
-		mounted = true;
-	});
+  // * Trigger initial refresh.
+  onMount(() => {
+    rows = contents.getElementsByTagName(
+      "svelte-virtual-list-row",
+    ) as HTMLCollectionOf<HTMLElement>;
+    mounted = true;
+  });
 </script>
 
 <div style="width: {width}; height: {height};">
@@ -148,7 +173,7 @@
     style="height: {height};"
     class="styled-scrollbar"
     use:scrollShadow={{ background: "--background" }}
-    on:scroll={handleScroll}
+    onscroll={handleScroll}
     bind:offsetHeight={viewportHeight}
     bind:this={viewport}
   >
@@ -158,7 +183,7 @@
     >
       {#each visible as row (keyFunction(row))}
         <svelte-virtual-list-row>
-          <slot entry={row.data}>Missing template</slot>
+          {@render entry(row.data)}
         </svelte-virtual-list-row>
       {/each}
     </svelte-virtual-list-contents>
@@ -166,20 +191,20 @@
 </div>
 
 <style>
-	svelte-virtual-list-viewport {
-		position: relative;
-		overflow-y: auto;
+  svelte-virtual-list-viewport {
+    position: relative;
+    overflow-y: auto;
     overflow-x: hidden;
-		display: block;
-	}
+    display: block;
+  }
 
-	svelte-virtual-list-contents {
-		display: block;
-	}
+  svelte-virtual-list-contents {
+    display: block;
+  }
 
-	svelte-virtual-list-row {
+  svelte-virtual-list-row {
     margin-left: 0.625rem;
     margin-right: 0.625rem;
-		display: flex;
-	}
+    display: flex;
+  }
 </style>

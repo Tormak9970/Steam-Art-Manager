@@ -1,17 +1,27 @@
 <script lang="ts">
   import { scrollShadow } from "@directives";
+  import type { Snippet } from "svelte";
 
-  export let height = "25rem";
+  type Props = {
+    height?: string;
+    header: Snippet;
+    data: Snippet;
+  };
+
+  let { height = "25rem", header, data }: Props = $props();
 </script>
 
 <div class="table" style="height: {height};">
   <div class="header">
-    <slot name="header" />
+    {@render header()}
   </div>
   <div class="border" style="margin-top: 0.25rem;"></div>
   <div class="content-container">
-    <div class="scroll-container" use:scrollShadow={{ background: "--background-dark" }}>
-      <slot name="data" />
+    <div
+      class="scroll-container"
+      use:scrollShadow={{ background: "--background-dark" }}
+    >
+      {@render data()}
     </div>
   </div>
 </div>
@@ -21,7 +31,7 @@
     margin-top: 0.5rem;
 
     width: calc(100% - 1rem);
-    
+
     padding: 0.5rem;
 
     border-radius: 0.25rem;
@@ -40,7 +50,8 @@
     border-bottom: 0.0625rem solid var(--foreground);
   }
 
-  .header, .header :global(> :first-child) {
+  .header,
+  .header :global(> :first-child) {
     width: 100%;
 
     display: flex;

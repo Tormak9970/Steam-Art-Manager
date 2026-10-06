@@ -1,14 +1,25 @@
 <script lang="ts">
-	import { slide } from "svelte/transition";
-	export let label: string;
-  export let open = false;
-	let isOpen = open;
-  
-	const toggle = () => { isOpen = !isOpen; }
+  import type { Snippet } from "svelte";
+  import { slide } from "svelte/transition";
+
+  type Props = {
+    label: string;
+    open?: boolean;
+    children: Snippet;
+  };
+
+  let { label, open = false, children }: Props = $props();
+
+  // svelte-ignore state_referenced_locally
+  let isOpen = $state(open);
+
+  const toggle = () => {
+    isOpen = !isOpen;
+  };
 </script>
 
 <div class="accordion">
-  <button on:click={toggle} aria-expanded={isOpen} class:all-corners={!isOpen}>
+  <button onclick={toggle} aria-expanded={isOpen} class:all-corners={!isOpen}>
     <svg
       style="tran"
       width="12"
@@ -18,14 +29,15 @@
       stroke-linejoin="round"
       stroke-width="2"
       viewBox="0 0 24 24"
-      stroke="currentColor">
+      stroke="currentColor"
+    >
       <path d="M9 5l7 7-7 7" />
-    </svg> 
+    </svg>
     {label}
   </button>
   {#if isOpen}
     <div class="content" transition:slide={{ duration: 300 }}>
-      <slot />
+      {@render children()}
     </div>
   {/if}
 </div>
@@ -38,14 +50,14 @@
     user-select: none;
   }
 
-	button {
+  button {
     color: var(--font-color);
     border: none;
     background: none;
     display: flex;
 
     align-items: center;
-    
+
     font-size: 0.875rem;
     cursor: pointer;
 
@@ -55,7 +67,7 @@
 
     width: 100%;
     background-color: var(--background);
-    
+
     border: 1px solid var(--foreground);
     border-bottom: none;
 
@@ -66,21 +78,28 @@
   .all-corners {
     border-radius: 0.25rem;
     transition: border-radius 0.15s ease-in-out 0.15s;
-    
+
     border-bottom: 1px solid var(--foreground);
   }
-  button:hover { background-color: var(--background-hover); }
+  button:hover {
+    background-color: var(--background-hover);
+  }
 
   .content {
     padding: 0 0.375rem;
     width: calc(100% - 0.875rem);
     background-color: var(--background);
     border-radius: 0 0 0.25rem 0.25rem;
-    
+
     border: 0.0625rem solid var(--foreground);
     border-top: none;
   }
 
-	svg { transition: transform 0.2s ease-in; margin-right: 0.25rem; }
-	[aria-expanded=true] svg { transform: rotate(0.25turn); }
+  svg {
+    transition: transform 0.2s ease-in;
+    margin-right: 0.25rem;
+  }
+  [aria-expanded="true"] svg {
+    transform: rotate(0.25turn);
+  }
 </style>
