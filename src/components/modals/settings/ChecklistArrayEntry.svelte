@@ -4,12 +4,23 @@
   import { Checkbox } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
 
-  export let label = "";
-  export let description = "";
-  export let options: string[];
-  export let value: string[];
-  export let onChange: (value: string[]) => void = () => {};
-  export let required = false;
+  type Props = {
+    label?: string;
+    description?: string;
+    options: string[];
+    value: string[];
+    onChange?: (value: string[]) => void;
+    required?: boolean;
+  };
+
+  let {
+    label = "",
+    description = "",
+    options,
+    value,
+    onChange = () => {},
+    required = false,
+  }: Props = $props();
 
   /**
    * Handles click events to redirect to the browser.
@@ -17,7 +28,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -31,8 +42,17 @@
     <h3 class="label">{label}</h3>
     <div class="required-cont">
       {#if required}
-        <div class="tooltip-cont" use:AppController.tippy={{ content: "This setting is required", placement: "top", onShow: AppController.onTippyShow }}>
-          <Asterisk style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);" />
+        <div
+          class="tooltip-cont"
+          use:AppController.tippy={{
+            content: "This setting is required",
+            placement: "top",
+            onShow: AppController.onTippyShow,
+          }}
+        >
+          <Asterisk
+            style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);"
+          />
         </div>
       {/if}
     </div>
@@ -40,24 +60,27 @@
   <div class="inputs">
     {#each options as option}
       <div class="checklist">
-        <Checkbox value={value.includes(option.toLowerCase())} onChange={(checked) => {
-          if (checked) {
-            value.push(option.toLowerCase());
-          } else {
-            value.splice(value.indexOf(option.toLowerCase()), 1);
-          }
-          onChange(value);
-        }} />
+        <Checkbox
+          value={value.includes(option.toLowerCase())}
+          onChange={(checked) => {
+            if (checked) {
+              value.push(option.toLowerCase());
+            } else {
+              value.splice(value.indexOf(option.toLowerCase()), 1);
+            }
+            onChange(value);
+          }}
+        />
         <div class="name">{option}</div>
       </div>
     {/each}
   </div>
   {#if description !== ""}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="description" on:click={clickListener}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="description" onclick={clickListener}>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html description}<br/>
+      {@html description}<br />
     </div>
   {/if}
 </div>
@@ -82,7 +105,6 @@
     margin: 0.5rem 0rem;
   }
 
-  
   .inputs {
     width: calc(100% - 0.5rem - 0.125rem);
     display: flex;
@@ -93,7 +115,7 @@
     padding: 0.25rem;
 
     border-radius: 0.25rem;
-    border: 0.0625rem solid var(--background-hover)
+    border: 0.0625rem solid var(--background-hover);
   }
 
   .checklist {
@@ -108,10 +130,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
+
     margin-left: 0.25rem;
   }
-  
+
   .field-header {
     width: 100%;
     display: flex;

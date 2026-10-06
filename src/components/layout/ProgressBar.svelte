@@ -6,7 +6,7 @@
   };
 
   let {
-    progress = 0,
+    progress = $bindable(0),
     width = "12.5rem",
     onFinish = () => {},
   }: Props = $props();

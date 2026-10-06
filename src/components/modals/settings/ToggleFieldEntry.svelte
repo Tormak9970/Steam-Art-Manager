@@ -3,12 +3,25 @@
   import { Bug } from "@icons";
   import { Toggle } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
+  import type { Snippet } from "svelte";
 
-  export let label = "";
-  export let description = "";
-  export let steamBug: boolean = false;
-  export let value: boolean;
-  export let onChange: (value: boolean) => void = () => {};
+  type Props = {
+    label?: string;
+    description?: string;
+    steamBug?: boolean;
+    value: boolean;
+    onChange?: (value: boolean) => void;
+    children?: Snippet;
+  };
+
+  let {
+    label = "",
+    description = "",
+    steamBug = false,
+    value,
+    onChange = () => {},
+    children,
+  }: Props = $props();
 
   /**
    * Handles click events to redirect to the browser.
@@ -16,7 +29,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -27,20 +40,27 @@
 
 <div class="setting">
   <div class="inputs">
-    <Toggle label={label} on:change={(e) => onChange(e.detail.value)} bind:value={value} />
-    <slot />
+    <Toggle {label} onChange={(value) => onChange(value)} bind:value />
+    {@render children?.()}
     {#if steamBug}
-      <div class="bug-warning"  use:AppController.tippy={{ content: "This is a Steam issue and will be removed once fixed.", placement: "top", onShow: AppController.onTippyShow }}>
+      <div
+        class="bug-warning"
+        use:AppController.tippy={{
+          content: "This is a Steam issue and will be removed once fixed.",
+          placement: "top",
+          onShow: AppController.onTippyShow,
+        }}
+      >
         <div class="steam-bug-warning">Steam</div>
         <Bug fill="yellow" width="1rem" />
       </div>
     {/if}
   </div>
   {#if description !== ""}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="description" on:click={clickListener}>
-      {@html description}<br/>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="description" onclick={clickListener}>
+      {@html description}<br />
     </div>
   {/if}
 </div>

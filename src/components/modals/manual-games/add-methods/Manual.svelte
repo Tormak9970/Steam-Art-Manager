@@ -3,10 +3,14 @@
   import { showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct } from "@types";
 
-  export let onGameSave: (game: GameStruct) => void;
+  type Props = {
+    onGameSave: (game: GameStruct) => void;
+  };
 
-  let gameName: string = "";
-  let appId: number = 0;
+  let { onGameSave }: Props = $props();
+
+  let gameName: string = $state("");
+  let appId: number = $state(0);
 
   /**
    * Wrapper function for saving the manual game.

@@ -5,7 +5,7 @@
     onChange?: (value: boolean) => void;
   };
 
-  let { label = "", value = true, onChange }: Props = $props();
+  let { label = "", value = $bindable(true), onChange }: Props = $props();
 
   /**
    * Handles when the slider is clicked.

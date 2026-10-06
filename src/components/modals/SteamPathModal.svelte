@@ -47,30 +47,34 @@
 <ModalBody
   title={"Choose Your Steam Install Path"}
   {open}
-  on:close={() => (open = false)}
+  onClose={() => {
+    open = false;
+  }}
   canClose={false}
 >
-  <div class="content">
-    <FilePathEntry
-      label="Steam Install Path"
-      description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
-      value={steamInstallLocation}
-      onChange={onInstallLocationChange}
-      useValidator={true}
-      validPathMessage={"Path is a valid Steam install"}
-      validator={validateSteamPath}
-      required
-    />
-  </div>
+  {#snippet body()}
+    <div class="content">
+      <FilePathEntry
+        label="Steam Install Path"
+        description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>~/.steam/Steam</b> on Linux."}
+        value={steamInstallLocation}
+        onChange={onInstallLocationChange}
+        useValidator={true}
+        validPathMessage={"Path is a valid Steam install"}
+        validator={validateSteamPath}
+        required
+      />
+    </div>
+  {/snippet}
 
-  <span slot="buttons" class="buttons">
+  {#snippet controls()}
     <Button
       label="Save Changes"
       onClick={saveInstallLocation}
       width="100%"
       disabled={!canSave}
     />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -83,12 +87,5 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    justify-self: flex-end;
   }
 </style>

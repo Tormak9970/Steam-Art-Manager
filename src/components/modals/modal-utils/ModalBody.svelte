@@ -1,15 +1,32 @@
 <script lang="ts">
   import { Close } from "@icons";
-  import { createEventDispatcher } from "svelte";
+  import type { Snippet } from "svelte";
   import type { HTMLDialogAttributes } from "svelte/elements";
 
-  export let display = "flex";
-  export let extraOptions: HTMLDialogAttributes = {};
-  export let title: string;
-  export let open: boolean;
-  export let canClose = true;
+  type Props = {
+    display?: string;
+    extraOptions?: HTMLDialogAttributes;
+    title: string;
+    open: boolean;
+    canClose?: boolean;
+    onClose?: () => void | Promise<void>;
+    onCloseEnd?: () => void | Promise<void>;
+    body: Snippet;
+    controls?: Snippet;
+  };
 
-  const dispatch = createEventDispatcher();
+  let {
+    display = "flex",
+    extraOptions = {},
+    title,
+    open,
+    canClose = true,
+    onClose,
+    onCloseEnd,
+    body,
+    controls,
+  }: Props = $props();
+
   let dialog: HTMLDialogElement;
 
   /**
@@ -21,29 +38,29 @@
     node.inert = false;
   }
 
-  $: {
-    if (!dialog) break $;
+  $effect(() => {
+    if (!dialog) return;
 
     if (open) {
       openModal(dialog);
     } else {
       hideDialog = true;
     }
-  }
+  });
 
-  let hideDialog = false;
+  let hideDialog = $state(false);
 
   function onAnimationEnd() {
     if (hideDialog) {
       hideDialog = false;
       dialog.close();
-      dispatch("closeEnd");
+      onCloseEnd?.();
     }
   }
 
   function onCancel(e: Event) {
     if (canClose) {
-      dispatch("close");
+      onClose?.();
       open = false;
     } else {
       e.preventDefault();
@@ -52,17 +69,20 @@
 
   function onClick() {
     if (canClose) {
-      dispatch("close");
+      onClose?.();
       open = false;
     }
   }
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <dialog
-  on:cancel={onCancel}
-  on:click|self={onClick}
-  on:animationend={onAnimationEnd}
+  oncancel={onCancel}
+  onclick={(e) => {
+    if (e.currentTarget === e.target) {
+      onClick();
+    }
+  }}
+  onanimationend={onAnimationEnd}
   bind:this={dialog}
   style="display: {display};"
   class:hide={hideDialog}
@@ -72,19 +92,22 @@
     <div class="header">
       <p class="headline m3-font-headline-small">{title}</p>
       {#if canClose}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="close-btn" on:click={onClick}>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="close-btn" onclick={onClick}>
           <Close />
         </div>
       {/if}
     </div>
-    <div class="border" />
-    <div class="content m3-font-body-medium" style:margin-bottom={$$slots.buttons ? "0.8rem" : "0rem"}>
-      <slot />
+    <div class="border"></div>
+    <div
+      class="content m3-font-body-medium"
+      style:margin-bottom={controls ? "0.8rem" : "0rem"}
+    >
+      {@render body()}
     </div>
     <div class="buttons">
-      <slot name="buttons" />
+      {@render controls?.()}
     </div>
   </div>
 </dialog>
@@ -134,7 +157,7 @@
     cursor: pointer;
     background-color: var(--background-hover);
   }
-  
+
   .header {
     width: 100%;
 
@@ -157,20 +180,22 @@
     color: var(--font-color);
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
-    
+
     font-size: 1.25rem;
     line-height: 1.25rem;
 
     font-weight: bold;
   }
-  
+
   .content {
     color: var(--font-color);
   }
 
   .buttons {
+    width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    justify-self: flex-end;
     gap: 0.5rem;
   }
 
@@ -245,7 +270,7 @@
       opacity: 1;
     }
   }
-  
+
   @keyframes dialogOut {
     0% {
       transform: translateY(0) scaleY(100%);

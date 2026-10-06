@@ -6,25 +6,37 @@
   import { debounce } from "@utils";
   import { onMount } from "svelte";
 
-  export let label: string;
-  export let description: string;
-  export let required: boolean = false;
-  export let canBeEmpty = false;
-  export let value: string;
-  export let notes: string = "";
-  export let onChange: (value: string, isValid: boolean) => void = () => {};
-  
-  export let useValidator = false;
-  export let validator: (value: string) => Promise<boolean> = async (value: string) => true;
+  type Props = {
+    label?: string;
+    description?: string;
+    value: string;
+    onChange?: (value: string, isValid: boolean) => void;
+    required?: boolean;
+    canBeEmpty?: boolean;
+    notes?: string;
+    useValidator?: boolean;
+    validator?: (value: string) => Promise<boolean>;
+  };
 
-  let isValid = false;
-  
+  let {
+    label = "",
+    description = "",
+    value,
+    onChange = () => {},
+    required = false,
+    canBeEmpty = false,
+    notes = "",
+    useValidator = false,
+    validator = async (value: string) => true,
+  }: Props = $props();
+
+  let isValid = $state(false);
+
   /**
    * A wrapper for the onChange event.
    */
-  async function changeWrapper(): Promise<void> {
+  async function changeWrapper(value: string): Promise<void> {
     isValid = await validator(value);
-    console.log(isValid);
     onChange(value, isValid);
   }
 
@@ -36,14 +48,14 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
       open(href);
     }
   }
-  
+
   onMount(async () => {
     isValid = await validator(value);
   });
@@ -54,39 +66,51 @@
     <h1 class="label">{label}</h1>
     <div class="required-cont">
       {#if required}
-        <div class="tooltip-cont" use:AppController.tippy={{ content: "This setting is required", placement: "top", onShow: AppController.onTippyShow }}>
-          <Asterisk style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);" />
+        <div
+          class="tooltip-cont"
+          use:AppController.tippy={{
+            content: "This setting is required",
+            placement: "top",
+            onShow: AppController.onTippyShow,
+          }}
+        >
+          <Asterisk
+            style="height: 0.875rem; width: 0.875rem; fill: var(--font-color);"
+          />
         </div>
       {/if}
     </div>
   </div>
   <div class="inputs">
-    <TextInput placeholder={"Your API key"} on:input={debouncedWrapper} width="13.75rem" bind:value={value} />
+    <TextInput
+      placeholder={"Your API key"}
+      onInput={debouncedWrapper}
+      width="13.75rem"
+      bind:value
+    />
 
     {#if useValidator}
       {#if isValid}
         <div class="valid-value">Valid api key</div>
+      {:else if value === "" && canBeEmpty}
+        <div class="warn-value">No api key provided</div>
       {:else}
-        {#if value === "" && canBeEmpty}
-          <div class="warn-value">No api key provided</div>
-        {:else}
-          <div class="invalid-value">Not a valid api key!</div>
-        {/if}
+        <div class="invalid-value">Not a valid api key!</div>
       {/if}
     {/if}
   </div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="description" on:click={clickListener}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="description" onclick={clickListener}>
     <div class="part">
-      <b>Usage:</b><br/>
+      <b>Usage:</b><br />
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html description}<br/>
+      {@html description}<br />
     </div>
 
     {#if notes !== ""}
       <div class="part">
-        <b>Notes:</b><br/>
+        <b>Notes:</b><br />
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html notes}
       </div>
@@ -104,7 +128,7 @@
     border: 0.0625rem solid var(--foreground);
     padding: 0.5rem;
     border-radius: 0.25rem;
-    
+
     width: calc(100% - 1rem);
   }
 
@@ -138,7 +162,6 @@
     gap: 0.5rem;
   }
 
-  
   .inputs {
     display: flex;
     align-items: center;

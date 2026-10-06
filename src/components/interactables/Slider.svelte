@@ -14,7 +14,7 @@
     label = "",
     min = 0,
     max = 100,
-    value = 0,
+    value = $bindable(0),
     width = "6.25rem",
     onChange,
   }: Props = $props();

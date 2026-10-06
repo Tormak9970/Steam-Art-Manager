@@ -10,11 +10,15 @@
   import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
 
-  export let onGameSave: (game: GameStruct) => void;
+  type Props = {
+    onGameSave: (game: GameStruct) => void;
+  };
 
-  let searchQuery: string = "";
-  let selectedGame: SGDBGame | null;
-  let results: SGDBGame[] = [];
+  let { onGameSave }: Props = $props();
+
+  let searchQuery: string = $state("");
+  let selectedGame: SGDBGame | null = $state(null);
+  let results: SGDBGame[] = $state([]);
 
   /**
    * Function to run when a game is selected.
@@ -95,18 +99,20 @@
     </div>
     <div class="table-cont">
       <Table height="19.75rem">
-        <span slot="header">
+        {#snippet header()}
           <div class="name">Name</div>
-        </span>
-        <span slot="data" class="entries">
-          {#each results as game (game.id)}
-            <SearchEntry
-              {game}
-              isSelected={selectedGame?.id === game.id}
-              onSelect={onGameSelect}
-            />
-          {/each}
-        </span>
+        {/snippet}
+        {#snippet data()}
+          <span class="entries">
+            {#each results as game (game.id)}
+              <SearchEntry
+                {game}
+                isSelected={selectedGame?.id === game.id}
+                onSelect={onGameSelect}
+              />
+            {/each}
+          </span>
+        {/snippet}
       </Table>
     </div>
 

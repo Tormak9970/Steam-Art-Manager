@@ -46,26 +46,30 @@
 <ModalBody
   title={"Batch Apply Progress"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="options">
-      <ProgressBar
-        bind:progress={$batchApplyProgress}
-        width="100%"
-        {onFinish}
-      />
+  {#snippet body()}
+    <div class="content">
+      <div class="options">
+        <ProgressBar
+          bind:progress={$batchApplyProgress}
+          width="100%"
+          {onFinish}
+        />
+      </div>
+      <div class="info">{$batchApplyMessage}</div>
     </div>
-    <div class="info">{$batchApplyMessage}</div>
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     {#if $batchApplyProgress === 100}
       <Button label="Close" onClick={closeAfterComplete} width="100%" />
     {:else}
       <Button label="Cancel" onClick={cancel} width="100%" />
     {/if}
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -80,12 +84,5 @@
   .options {
     margin-top: 0.5rem;
     width: 100%;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    justify-self: flex-end;
   }
 </style>

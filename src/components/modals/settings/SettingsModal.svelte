@@ -41,8 +41,8 @@
   let activeUserIdUnsub: Unsubscriber;
   let usersUnsub: Unsubscriber;
 
-  let open = true;
-  let overflowing = false;
+  let open = $state(true);
+  let overflowing = $state(false);
   let steamApiKeyChanged = false;
 
   /**
@@ -67,25 +67,27 @@
     }
   }
 
-  let canSave = false;
+  let canSave = $state(false);
 
-  let users = Object.values($steamUsers).map((user) => {
-    return {
-      label: user.PersonaName,
-      data: user.id32,
-    };
-  });
-  let selectedUserId = $activeUserId.toString();
+  let users = $derived(
+    Object.values($steamUsers).map((user) => {
+      return {
+        label: user.PersonaName,
+        data: user.id32,
+      };
+    }),
+  );
+  let selectedUserId = $derived($activeUserId.toString());
 
-  let steamGridKey = $steamGridDBKey;
-  let steamAPIKey = $steamKey;
-  let steamInstallLocation = $steamInstallPath;
-  let debugModeSetting = $debugMode;
-  let cacheSelectedGridsSetting = $cacheSelectedGrids;
-  let previewGridsOnClickSetting = $previewGridsOnClick;
-  let appTypesSetting = [...$appTypes];
+  let steamGridKey = $state($steamGridDBKey);
+  let steamAPIKey = $state($steamKey);
+  let steamInstallLocation = $state($steamInstallPath);
+  let debugModeSetting = $state($debugMode);
+  let cacheSelectedGridsSetting = $state($cacheSelectedGrids);
+  let previewGridsOnClickSetting = $state($previewGridsOnClick);
+  let appTypesSetting = $state([...$appTypes]);
 
-  let autoGenLogoPosSetting = $autoGenLogoPos;
+  let autoGenLogoPosSetting = $state($autoGenLogoPos);
 
   /**
    * Saves the changed settings.
@@ -241,109 +243,113 @@
 <ModalBody
   title={"Settings"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div
-      class="scroll-container"
-      use:isOverflowing={{ callback: (o) => (overflowing = o) }}
-    >
+  {#snippet body()}
+    <div class="content">
       <div
-        class="wrapper"
-        style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+        class="scroll-container"
+        use:isOverflowing={{ callback: (o) => (overflowing = o) }}
       >
-        <FilePathEntry
-          label="Steam Install Path"
-          description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
-          value={steamInstallLocation}
-          onChange={onInstallLocationChange}
-          useValidator
-          validPathMessage={"Path is a valid Steam install"}
-          validator={validateSteamPath}
-          required
-        />
-        <TextFieldEntry
-          label="SteamGrid Api Key"
-          description={'Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.'}
-          value={steamGridKey}
-          onChange={onGridKeyChange}
-          required
-        />
-        <TextFieldEntry
-          label="Steam Api key"
-          description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
-          notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
-          value={steamAPIKey}
-          canBeEmpty
-          onChange={onSteamKeyChange}
-        />
-        <ChecklistArrayEntry
-          label="App Types to Display"
-          description={"Choose which app types SARM will display."}
-          options={APP_TYPES}
-          value={appTypesSetting}
-          onChange={onAppTypesChange}
-        />
-        <ToggleFieldEntry
-          label="Cache Selected Grids"
-          description={"Enables saving previously selected grids."}
-          value={cacheSelectedGridsSetting}
-          onChange={(value) => {
-            cacheSelectedGridsSetting = value;
-            canSave = true;
-          }}
+        <div
+          class="wrapper"
+          style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
         >
-          <Button
-            label="Clear Cache"
-            onClick={AppController.clearCachedGrids}
+          <FilePathEntry
+            label="Steam Install Path"
+            description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
+            value={steamInstallLocation}
+            onChange={onInstallLocationChange}
+            useValidator
+            validPathMessage={"Path is a valid Steam install"}
+            validator={validateSteamPath}
+            required
           />
-        </ToggleFieldEntry>
-        <ToggleFieldEntry
-          label="Preview Grids by Default"
-          description={"Switches clicking on a grid to open the preview window instead of applying it."}
-          value={previewGridsOnClickSetting}
-          onChange={(value) => {
-            previewGridsOnClickSetting = value;
-            canSave = true;
-          }}
-        />
-        <DropdownEntry
-          label="Steam User"
-          description="Determines which Steam account to edit grids for."
-          options={users && users.length > 0
-            ? users
-            : [{ label: "Loading...", data: "placeholder" }]}
-          value={users && users.length > 0 ? selectedUserId : "placeholder"}
-          onChange={(id) => {
-            selectedUserId = id;
-            canSave = true;
-          }}
-        />
-        <ToggleFieldEntry
-          label="Automatically Generate Logo Config"
-          description={"Steam is bugged for some users and doesn't display custom logos unless the logo config is present. Check this if you're running into that issue."}
-          steamBug
-          value={autoGenLogoPosSetting}
-          onChange={(value) => {
-            autoGenLogoPosSetting = value;
-            canSave = true;
-          }}
-        />
-        <ToggleFieldEntry
-          label="Debug Mode"
-          description={"Enables the inspect element window and automatically opens it on launch."}
-          value={debugModeSetting}
-          onChange={(value) => {
-            debugModeSetting = value;
-            canSave = true;
-          }}
-        />
+          <TextFieldEntry
+            label="SteamGrid Api Key"
+            description={'Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.'}
+            value={steamGridKey}
+            onChange={onGridKeyChange}
+            required
+          />
+          <TextFieldEntry
+            label="Steam Api key"
+            description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
+            notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
+            value={steamAPIKey}
+            canBeEmpty
+            onChange={onSteamKeyChange}
+          />
+          <ChecklistArrayEntry
+            label="App Types to Display"
+            description={"Choose which app types SARM will display."}
+            options={APP_TYPES}
+            value={appTypesSetting}
+            onChange={onAppTypesChange}
+          />
+          <ToggleFieldEntry
+            label="Cache Selected Grids"
+            description={"Enables saving previously selected grids."}
+            value={cacheSelectedGridsSetting}
+            onChange={(value) => {
+              cacheSelectedGridsSetting = value;
+              canSave = true;
+            }}
+          >
+            <Button
+              label="Clear Cache"
+              onClick={AppController.clearCachedGrids}
+            />
+          </ToggleFieldEntry>
+          <ToggleFieldEntry
+            label="Preview Grids by Default"
+            description={"Switches clicking on a grid to open the preview window instead of applying it."}
+            value={previewGridsOnClickSetting}
+            onChange={(value) => {
+              previewGridsOnClickSetting = value;
+              canSave = true;
+            }}
+          />
+          <DropdownEntry
+            label="Steam User"
+            description="Determines which Steam account to edit grids for."
+            options={users && users.length > 0
+              ? users
+              : [{ label: "Loading...", data: "placeholder" }]}
+            value={users && users.length > 0 ? selectedUserId : "placeholder"}
+            onChange={(id) => {
+              selectedUserId = id;
+              canSave = true;
+            }}
+          />
+          <ToggleFieldEntry
+            label="Automatically Generate Logo Config"
+            description={"Steam is bugged for some users and doesn't display custom logos unless the logo config is present. Check this if you're running into that issue."}
+            steamBug
+            value={autoGenLogoPosSetting}
+            onChange={(value) => {
+              autoGenLogoPosSetting = value;
+              canSave = true;
+            }}
+          />
+          <ToggleFieldEntry
+            label="Debug Mode"
+            description={"Enables the inspect element window and automatically opens it on launch."}
+            value={debugModeSetting}
+            onChange={(value) => {
+              debugModeSetting = value;
+              canSave = true;
+            }}
+          />
+        </div>
       </div>
     </div>
-  </div>
+  {/snippet}
 
-  <span slot="buttons" class="buttons">
+  {#snippet controls()}
     <Button label="Cancel" onClick={cancel} width="46.5%" />
     <Button
       label="Save Changes"
@@ -351,10 +357,10 @@
       width="46.5%"
       disabled={!canSave}
     />
-    <IconButton label="Open log directory" on:click={openLogDirectory}>
+    <IconButton label="Open log directory" onClick={openLogDirectory}>
       <Folder style="height: 1rem; width: 1rem;" />
     </IconButton>
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -376,12 +382,5 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    justify-self: flex-end;
   }
 </style>

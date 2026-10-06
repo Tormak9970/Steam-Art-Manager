@@ -1,20 +1,30 @@
-<script lang="ts">
-  
-</script>
-
 <div class="entry-loading-skeleton">
-  <div class="shine" />
-  <svg xmlns="http://www.w3.org/2000/svg" height="1rem" width="1rem" viewBox="0 0 100 100" style="height: 1rem; width: 1rem;">
-    <rect x="0" y="0" width="100" height="100" rx="20" ry="20" fill="var(--background)" />
+  <div class="shine"></div>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="1rem"
+    width="1rem"
+    viewBox="0 0 100 100"
+    style="height: 1rem; width: 1rem;"
+  >
+    <rect
+      x="0"
+      y="0"
+      width="100"
+      height="100"
+      rx="20"
+      ry="20"
+      fill="var(--background)"
+    />
   </svg>
-  <div class="name-placeholder" />
+  <div class="name-placeholder"></div>
 </div>
 
 <style>
   .entry-loading-skeleton {
     width: calc(100% - 0.75rem);
     height: 1.25rem;
-    
+
     padding: 0.25rem 0.325rem;
 
     border-radius: 0.25rem;
@@ -54,17 +64,24 @@
 
     left: -100%;
 
-    background-image: linear-gradient(to left, rgba(var(--foreground-light_rgb), 0.05), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), .5), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), 0.05));
+    background-image: linear-gradient(
+      to left,
+      rgba(var(--foreground-light_rgb), 0.05),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.5),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.05)
+    );
     animation: loading 1.2s infinite;
 
     z-index: 45;
   }
 
   @keyframes loading {
-    0%{
+    0% {
       left: -100%;
     }
-    100%{
+    100% {
       left: 100%;
     }
   }

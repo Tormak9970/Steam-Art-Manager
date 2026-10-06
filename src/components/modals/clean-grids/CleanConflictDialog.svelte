@@ -15,12 +15,12 @@
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
-  let open = true;
-  let conflictNumber: number = 1;
-  let conflict: CleanConflict | null;
-  $: conflictGridType = conflict ? conflict.gridType : "";
-  $: fileAPath = conflict ? convertFileSrc(conflict.fileAPath) : "";
-  $: fileBPath = conflict ? convertFileSrc(conflict.fileBPath) : "";
+  let open = $state(true);
+  let conflictNumber: number = $state(1);
+  let conflict: CleanConflict | null | undefined = $state();
+  let conflictGridType = $derived(conflict ? conflict.gridType : "");
+  let fileAPath = $derived(conflict ? convertFileSrc(conflict.fileAPath) : "");
+  let fileBPath = $derived(conflict ? convertFileSrc(conflict.fileBPath) : "");
 
   /**
    * Get the next grid conflict.
@@ -80,73 +80,77 @@
 <ModalBody
   title={`Conflict #${conflictNumber}`}
   {open}
-  on:close={() => (open = false)}
+  onClose={() => {
+    open = false;
+  }}
   canClose={false}
 >
-  <div class="content">
-    <div class="description">Choose which grid you would like to keep.</div>
-    <div class="images {conflictGridType}">
-      <div class="split">
-        <div class="img-cont">
-          <div
-            class="img"
-            class:logo-background={conflictGridType === "logo"}
-            style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
-              conflictGridType
-            ]}rem;"
-          >
-            <Lazy
-              height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+  {#snippet body()}
+    <div class="content">
+      <div class="description">Choose which grid you would like to keep.</div>
+      <div class="images {conflictGridType}">
+        <div class="split">
+          <div class="img-cont">
+            <div
+              class="img"
+              class:logo-background={conflictGridType === "logo"}
+              style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
                 conflictGridType
-              ]}rem"
-              fadeOption={IMAGE_FADE_OPTIONS}
+              ]}rem;"
             >
-              <img
-                src={fileAPath}
-                alt="Option 1"
-                style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+              <Lazy
+                height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
                   conflictGridType
-                ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
-                  conflictGridType
-                ]}rem; width: auto; height: auto;"
-              />
-            </Lazy>
+                ]}rem"
+                fadeOption={IMAGE_FADE_OPTIONS}
+              >
+                <img
+                  src={fileAPath}
+                  alt="Option 1"
+                  style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+                    conflictGridType
+                  ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                    conflictGridType
+                  ]}rem; width: auto; height: auto;"
+                />
+              </Lazy>
+            </div>
           </div>
+          <div class="filename">{conflict?.fileAName}</div>
         </div>
-        <div class="filename">{conflict?.fileAName}</div>
-      </div>
-      <div class="split">
-        <div class="img-cont">
-          <div
-            class="img"
-            class:logo-background={conflictGridType === "logo"}
-            style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
-              conflictGridType
-            ]}rem;"
-          >
-            <Lazy
-              height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+        <div class="split">
+          <div class="img-cont">
+            <div
+              class="img"
+              class:logo-background={conflictGridType === "logo"}
+              style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
                 conflictGridType
-              ]}rem"
-              fadeOption={IMAGE_FADE_OPTIONS}
+              ]}rem;"
             >
-              <img
-                src={fileBPath}
-                alt="Option 2"
-                style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+              <Lazy
+                height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
                   conflictGridType
-                ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
-                  conflictGridType
-                ]}rem; width: auto; height: auto;"
-              />
-            </Lazy>
+                ]}rem"
+                fadeOption={IMAGE_FADE_OPTIONS}
+              >
+                <img
+                  src={fileBPath}
+                  alt="Option 2"
+                  style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+                    conflictGridType
+                  ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                    conflictGridType
+                  ]}rem; width: auto; height: auto;"
+                />
+              </Lazy>
+            </div>
           </div>
+          <div class="filename">{conflict?.fileBName}</div>
         </div>
-        <div class="filename">{conflict?.fileBName}</div>
       </div>
     </div>
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     <Button
       label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`}
       onClick={() => {
@@ -162,7 +166,7 @@
       width="30%"
     />
     <Button label="Keep Both" onClick={keepBoth} width="30%" />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>

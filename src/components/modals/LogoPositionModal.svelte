@@ -32,7 +32,7 @@
   import { convertFileSrc } from "@tauri-apps/api/core";
   import type { LogoPinPositions } from "@types";
   import { IMAGE_FADE_OPTIONS } from "@utils";
-  import { afterUpdate, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
@@ -63,44 +63,53 @@
     };
   });
 
-  $: games = [...$steamGames, ...$manualSteamGames, ...$nonSteamGames];
-  $: game = games.find((game) => game.appid.toString() === $selectedGameAppId)!;
-  let heroPath = "";
-  let logoPath = "";
+  let games = $derived([
+    ...$steamGames,
+    ...$manualSteamGames,
+    ...$nonSteamGames,
+  ]);
+  let game = $derived(
+    games.find((game) => game.appid.toString() === $selectedGameAppId)!,
+  );
+  let heroPath = $state("");
+  let logoPath = $state("");
 
-  let open = true;
-  let canSave = false;
+  let open = $state(true);
+  let canSave = $state(false);
 
-  const gameLogoPos = $steamLogoPositions[$selectedGameAppId];
+  const gameLogoPos = $derived($steamLogoPositions[$selectedGameAppId]);
 
-  let originalWidth = gameLogoPos?.logoPosition?.nWidthPct ?? 50;
-  let originalHeight = gameLogoPos?.logoPosition?.nHeightPct ?? 50;
-  let originalPosition: LogoPinPositions =
-    gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter";
-
-  let logoWidth =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
-      ? gameLogoPos?.logoPosition?.nWidthPct
-      : 50;
-  let logoHeight =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
-      ? gameLogoPos?.logoPosition?.nHeightPct
-      : 50;
-  let logoPosition: LogoPinPositions =
-    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
-      ? gameLogoPos?.logoPosition?.pinnedPosition
-      : "CenterCenter";
-
-  let currentCssStyles: LogoCssStyles = getLogoPosition(
-    logoPosition,
-    logoHeight,
-    logoWidth,
+  let originalWidth = $derived(gameLogoPos?.logoPosition?.nWidthPct ?? 50);
+  let originalHeight = $derived(gameLogoPos?.logoPosition?.nHeightPct ?? 50);
+  let originalPosition: LogoPinPositions = $derived(
+    gameLogoPos?.logoPosition?.pinnedPosition ?? "CenterCenter",
   );
 
-  $: canClear =
+  let logoWidth = $derived(
+    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
+      ? gameLogoPos?.logoPosition?.nWidthPct
+      : 50,
+  );
+  let logoHeight = $derived(
+    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
+      ? gameLogoPos?.logoPosition?.nHeightPct
+      : 50,
+  );
+  let logoPosition: LogoPinPositions = $derived(
+    gameLogoPos && gameLogoPos?.logoPosition?.pinnedPosition !== "REMOVE"
+      ? gameLogoPos?.logoPosition?.pinnedPosition
+      : "CenterCenter",
+  );
+
+  let currentCssStyles: LogoCssStyles = $derived(
+    getLogoPosition(logoPosition, logoHeight, logoWidth),
+  );
+
+  let canClear = $derived(
     !!$originalLogoPositions[game.appid] &&
-    $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition !==
-      "REMOVE";
+      $steamLogoPositions[$selectedGameAppId]?.logoPosition.pinnedPosition !==
+        "REMOVE",
+  );
 
   const widths = {
     Hero: 59.75,
@@ -174,7 +183,7 @@
     onClose();
   }
 
-  afterUpdate(() => {
+  $effect(() => {
     currentCssStyles = getLogoPosition(logoPosition, logoHeight, logoWidth);
     const originalLogoConfig =
       $originalLogoPositions[$selectedGameAppId]?.logoPosition;
@@ -220,78 +229,82 @@
 <ModalBody
   title={`Set Logo Position for ${game?.name}`}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="view">
-      <div class="hero-cont">
+  {#snippet body()}
+    <div class="content">
+      <div class="view">
+        <div class="hero-cont">
+          <div
+            class="img"
+            class:missing-background={heroPath === ""}
+            style="max-height: {heights.Hero}rem;"
+          >
+            {#if heroPath !== ""}
+              <img
+                src={heroPath}
+                alt="Hero image for {game?.name}"
+                style="max-width: {widths.Hero}rem; max-height: {heights.Hero}rem; width: auto; height: auto;"
+              />
+            {/if}
+          </div>
+        </div>
         <div
-          class="img"
-          class:missing-background={heroPath === ""}
-          style="max-height: {heights.Hero}rem;"
+          class="logo-cont"
+          style="justify-content: {logoPosition.includes('Bottom')
+            ? 'flex-end'
+            : logoPosition.includes('Upper')
+              ? 'flex-start'
+              : 'center'}; align-items: {logoPosition.includes('Left')
+            ? 'flex-start'
+            : 'center'}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;"
         >
-          {#if heroPath !== ""}
-            <img
-              src={heroPath}
-              alt="Hero image for {game?.name}"
-              style="max-width: {widths.Hero}rem; max-height: {heights.Hero}rem; width: auto; height: auto;"
-            />
-          {/if}
+          <img
+            in:fade={IMAGE_FADE_OPTIONS}
+            src={logoPath}
+            alt="Logo image for {game?.name}"
+            style="max-height: 100%; max-width: 100%; width: auto; height: auto;"
+          />
         </div>
       </div>
-      <div
-        class="logo-cont"
-        style="justify-content: {logoPosition.includes('Bottom')
-          ? 'flex-end'
-          : logoPosition.includes('Upper')
-            ? 'flex-start'
-            : 'center'}; align-items: {logoPosition.includes('Left')
-          ? 'flex-start'
-          : 'center'}; height: {logoHeight}%; width: {logoWidth}%; top: {currentCssStyles.top}%; bottom: {currentCssStyles.bottom}%; right: {currentCssStyles.right}%; left: {currentCssStyles.left}%;"
-      >
-        <img
-          in:fade={IMAGE_FADE_OPTIONS}
-          src={logoPath}
-          alt="Logo image for {game?.name}"
-          style="max-height: 100%; max-width: 100%; width: auto; height: auto;"
-        />
+      <div class="interactables">
+        <div class="logo-size">
+          <Slider label="Width" bind:value={logoWidth} width="12.5rem" />
+        </div>
+        <div class="logo-size">
+          <Slider label="Height" bind:value={logoHeight} width="12.5rem" />
+        </div>
+        <div class="logo-position">
+          <DropDown
+            label="Position"
+            options={dropdownOptions}
+            bind:value={logoPosition}
+            width="8.75rem"
+            direction="UP"
+          />
+        </div>
+        {#if canClear}
+          <Button
+            label="Save"
+            onClick={applyChanges}
+            width="11.5rem"
+            disabled={!canSave}
+          />
+          <Button label="Reset" onClick={clearLogoPosition} width="6.5rem" />
+        {:else}
+          <Button
+            label="Save"
+            onClick={applyChanges}
+            width="18.75rem"
+            disabled={!canSave}
+          />
+        {/if}
       </div>
     </div>
-    <div class="interactables">
-      <div class="logo-size">
-        <Slider label="Width" bind:value={logoWidth} width="12.5rem" />
-      </div>
-      <div class="logo-size">
-        <Slider label="Height" bind:value={logoHeight} width="12.5rem" />
-      </div>
-      <div class="logo-position">
-        <DropDown
-          label="Position"
-          options={dropdownOptions}
-          bind:value={logoPosition}
-          width="8.75rem"
-          direction="UP"
-        />
-      </div>
-      {#if canClear}
-        <Button
-          label="Save"
-          onClick={applyChanges}
-          width="11.5rem"
-          disabled={!canSave}
-        />
-        <Button label="Reset" onClick={clearLogoPosition} width="6.5rem" />
-      {:else}
-        <Button
-          label="Save"
-          onClick={applyChanges}
-          width="18.75rem"
-          disabled={!canSave}
-        />
-      {/if}
-    </div>
-  </div>
+  {/snippet}
 </ModalBody>
 
 <style>

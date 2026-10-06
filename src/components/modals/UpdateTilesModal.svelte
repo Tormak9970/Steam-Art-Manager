@@ -91,33 +91,37 @@
 <ModalBody
   title={"Update Start Menu Tiles"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="description">
-      Here you can batch update the game icons shown in your Operating System's
-      start menu to match your custom icons shown in steam.
-      <br />
-      <br />
-      Games that show up below are the result of the following filters:
-      <br />
-      <ul>
-        <li>You already have a Start Menu shortcut for this game.</li>
-        <li>You have changed the icon for this game.</li>
-      </ul>
+  {#snippet body()}
+    <div class="content">
+      <div class="description">
+        Here you can batch update the game icons shown in your Operating
+        System's start menu to match your custom icons shown in steam.
+        <br />
+        <br />
+        Games that show up below are the result of the following filters:
+        <br />
+        <ul>
+          <li>You already have a Start Menu shortcut for this game.</li>
+          <li>You have changed the icon for this game.</li>
+        </ul>
+      </div>
+      <div class="view">
+        <GameFilter
+          steamGames={filteredSteamGames}
+          bind:selectedGameIds
+          showPlatforms={false}
+          showFilters={false}
+          noGamesMessage={"No games with tiles/new icons were found."}
+        />
+      </div>
     </div>
-    <div class="view">
-      <GameFilter
-        steamGames={filteredSteamGames}
-        bind:selectedGameIds
-        showPlatforms={false}
-        showFilters={false}
-        noGamesMessage={"No games with tiles/new icons were found."}
-      />
-    </div>
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     <Button label="Cancel" onClick={onClose} width="48.5%" />
     <Button
       label="Update"
@@ -125,7 +129,7 @@
       width="48.5%"
       disabled={selectedGameIds.length === 0}
     />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -159,13 +163,5 @@
 
   .view {
     width: 100%;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    justify-self: flex-end;
-    gap: 0.5rem;
   }
 </style>

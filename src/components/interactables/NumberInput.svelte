@@ -4,7 +4,7 @@
     value: number;
   };
 
-  let { label = "", value }: Props = $props();
+  let { label = "", value = $bindable() }: Props = $props();
 
   let internalValue = "";
 

@@ -2,12 +2,23 @@
   import { DropDown } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
 
-  export let label = "";
-  export let description = "";
-  export let options: { label: string; data: any }[];
-  export let value: string;
-  export let onChange: (value: string) => void = () => {};
-  export let disabled = false;
+  type Props = {
+    label?: string;
+    description?: string;
+    options: { label: string; data: any }[];
+    value: string;
+    onChange?: (value: string) => void;
+    disabled?: boolean;
+  };
+
+  let {
+    label = "",
+    description = "",
+    options,
+    value,
+    onChange = () => {},
+    disabled = false,
+  }: Props = $props();
 
   /**
    * Handles click events to redirect to the browser.
@@ -15,7 +26,7 @@
    */
   function clickListener(e: Event): void {
     const origin = (e.target as Element).closest("a");
-  
+
     if (origin) {
       e.preventDefault();
       const href = origin.href;
@@ -27,22 +38,22 @@
 <div class="setting">
   <div class="inputs">
     <DropDown
-      label={label}
-      options={options}
-      bind:value={value}
-      onChange={onChange}
+      {label}
+      {options}
+      bind:value
+      {onChange}
       width="6.25rem"
       tooltipPosition="bottom"
       entryTooltipPosition="right"
-      disabled={disabled}
+      {disabled}
     />
   </div>
   {#if description !== ""}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="description" on:click={clickListener}>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="description" onclick={clickListener}>
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html description}<br/>
+      {@html description}<br />
     </div>
   {/if}
 </div>
@@ -67,7 +78,6 @@
     margin: 0.5rem 0rem;
   }
 
-  
   .inputs {
     display: flex;
     align-items: center;

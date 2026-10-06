@@ -18,7 +18,7 @@
   let {
     label = "",
     options,
-    value,
+    value = $bindable(),
     onChange = () => {},
     width = "auto",
     showTooltip = true,

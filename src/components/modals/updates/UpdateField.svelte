@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let label: string;
-  export let value: string;
+  type Props = {
+    label: string;
+    value: string;
+  };
+
+  let { label, value }: Props = $props();
 </script>
 
 <div class="field">

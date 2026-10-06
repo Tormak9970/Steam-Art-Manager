@@ -13,12 +13,12 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
-  $: allSteamGames = [...$steamGames, ...$manualSteamGames];
+  let allSteamGames = $derived([...$steamGames, ...$manualSteamGames]);
 
-  let allGridTypes = false;
+  let allGridTypes = $state(false);
 
-  let open = true;
-  let selectedGameIds: string[] = [];
+  let open = $state(true);
+  let selectedGameIds: string[] = $state([]);
 
   /**
    * The function to run when the modal closes.
@@ -48,28 +48,32 @@
 <ModalBody
   title={`Batch Apply ${$gridType !== GridTypes.HERO ? $gridType : `${$gridType}e`}s`}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="upper">
-      <div class="info">
-        Choose the games you would like to batch apply grids to.
+  {#snippet body()}
+    <div class="content">
+      <div class="upper">
+        <div class="info">
+          Choose the games you would like to batch apply grids to.
+        </div>
+        <div class="toggle-container">
+          <Toggle label="All Grid Types" bind:value={allGridTypes} />
+        </div>
       </div>
-      <div class="toggle-container">
-        <Toggle label="All Grid Types" bind:value={allGridTypes} />
-      </div>
+      <GameFilter
+        steamGames={allSteamGames}
+        nonSteamGames={$nonSteamGames}
+        bind:selectedGameIds
+      />
     </div>
-    <GameFilter
-      steamGames={allSteamGames}
-      nonSteamGames={$nonSteamGames}
-      bind:selectedGameIds
-    />
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     <Button label="Cancel" onClick={cancel} width="47.5%" />
     <Button label="Apply" onClick={batchApply} width="47.5%" />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -96,12 +100,5 @@
 
     text-align: center;
     vertical-align: center;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    justify-self: flex-end;
   }
 </style>

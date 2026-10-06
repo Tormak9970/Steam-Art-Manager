@@ -11,15 +11,15 @@
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import GameFilter from "../modal-utils/game-filter/GameFilter.svelte";
 
-  $: allSteamGames = [...$steamGames, ...$manualSteamGames];
+  let allSteamGames = $derived([...$steamGames, ...$manualSteamGames]);
 
-  let open = true;
+  let open = $state(true);
   let presets = [
     { label: "Clean", data: "clean" },
     { label: "Custom", data: "custom" },
   ];
 
-  let selectedGameIds: string[] = [];
+  let selectedGameIds: string[] = $state([]);
 
   /**
    * The function to run when the modal closes.
@@ -47,47 +47,51 @@
 <ModalBody
   title={"Clean Grids"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="description">
-      Here you can tidy up your custom artwork.<br />
-      <ul>
-        <li>
-          <b>Clean</b>: Deletes grids for games that don't exist (ex: demos,
-          deleted non steam games, etc)
-        </li>
-        <li>
-          <b>Custom</b>: Allows you to customize which games you want to delete
-          the grids for.
-        </li>
-      </ul>
-    </div>
-    <div class="options">
-      <DropDown
-        label={"Preset"}
-        options={presets}
-        bind:value={$selectedCleanGridsPreset}
-        width="6.25rem"
-        showTooltip={false}
-      />
-    </div>
-    <div class="view">
-      {#if $selectedCleanGridsPreset === "custom"}
-        <GameFilter
-          steamGames={allSteamGames}
-          nonSteamGames={$nonSteamGames}
-          bind:selectedGameIds
-          showFilters={false}
+  {#snippet body()}
+    <div class="content">
+      <div class="description">
+        Here you can tidy up your custom artwork.<br />
+        <ul>
+          <li>
+            <b>Clean</b>: Deletes grids for games that don't exist (ex: demos,
+            deleted non steam games, etc)
+          </li>
+          <li>
+            <b>Custom</b>: Allows you to customize which games you want to
+            delete the grids for.
+          </li>
+        </ul>
+      </div>
+      <div class="options">
+        <DropDown
+          label={"Preset"}
+          options={presets}
+          bind:value={$selectedCleanGridsPreset}
+          width="6.25rem"
+          showTooltip={false}
         />
-      {/if}
+      </div>
+      <div class="view">
+        {#if $selectedCleanGridsPreset === "custom"}
+          <GameFilter
+            steamGames={allSteamGames}
+            nonSteamGames={$nonSteamGames}
+            bind:selectedGameIds
+            showFilters={false}
+          />
+        {/if}
+      </div>
     </div>
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     <Button label="Cancel" onClick={cancel} width="48.5%" />
     <Button label="Clean" onClick={cleanGrids} width="48.5%" />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -125,12 +129,5 @@
 
   .view {
     width: 100%;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    justify-self: flex-end;
   }
 </style>

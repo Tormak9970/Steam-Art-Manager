@@ -26,11 +26,13 @@
     $showManualGamesModal = false;
   }
 
-  let open = true;
-  let canSave = false;
+  let open = $state(true);
+  let canSave = $state(false);
 
   const originalManualGames = $manualSteamGames;
-  let tempManualGames: GameStruct[] = structuredClone(originalManualGames);
+  let tempManualGames: GameStruct[] = $state(
+    structuredClone(originalManualGames),
+  );
 
   let addMethods = [
     { label: "Manual", data: "manual" },
@@ -123,91 +125,97 @@
 <ModalBody
   title={"Manage Manual Games"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="left">
-      <div class="info">
-        Add any Steam games that SARM isn't picking up. These will be
-        automatically loaded each time you use SARM.
-      </div>
-      <div class="section-label">Your Manual Games</div>
-      <Table>
-        <span slot="header">
-          <div
-            class="batch-icon"
-            use:AppController.tippy={{
-              content: "Current Manual Games",
-              placement: "top",
-              onShow: AppController.onTippyShow,
-            }}
-          >
-            <Info style="height: 0.75rem; width: 0.75rem;" />
-          </div>
-          <div style="margin-right: auto;">Name</div>
-          <div
-            class="exist-art-icon"
-            use:AppController.tippy={{
-              content: "Has official art on this PC",
-              placement: "top",
-              onShow: AppController.onTippyShow,
-            }}
-          >
-            <Steam style="height: 0.75rem; width: 0.75rem;" />
-          </div>
-          <div
-            class="exist-art-icon"
-            style="margin-left: 1.125rem; margin-right: 2rem;"
-            use:AppController.tippy={{
-              content: "Has custom art on this PC",
-              placement: "top",
-              onShow: AppController.onTippyShow,
-            }}
-          >
-            <SGDBLogo style="height: 0.75rem; width: 1rem;" />
-          </div>
-        </span>
-        <span slot="data" class="entries">
-          {#each tempManualGames as game}
-            <ManualGameEntry {game} onRemove={removeHandler} />
-          {/each}
-        </span>
-      </Table>
-      <div class="buttons">
-        <Button label="Cancel" onClick={cancel} width="47.5%" />
-        <Button
-          label="Save Changes"
-          onClick={saveChanges}
-          width="47.5%"
-          disabled={!canSave}
-        />
-      </div>
-    </div>
-    <div class="right">
-      <div class="options">
-        <div class="dropdown-cont">
-          <div style="margin-right: 0.5rem;">Method for Adding Games:</div>
-          <DropDown
-            options={addMethods}
-            bind:value={$selectedManualGamesAddMethod}
-            width="6.25rem"
-            showTooltip={false}
+  {#snippet body()}
+    <div class="content">
+      <div class="left">
+        <div class="info">
+          Add any Steam games that SARM isn't picking up. These will be
+          automatically loaded each time you use SARM.
+        </div>
+        <div class="section-label">Your Manual Games</div>
+        <Table>
+          {#snippet header()}
+            <div
+              class="batch-icon"
+              use:AppController.tippy={{
+                content: "Current Manual Games",
+                placement: "top",
+                onShow: AppController.onTippyShow,
+              }}
+            >
+              <Info style="height: 0.75rem; width: 0.75rem;" />
+            </div>
+            <div style="margin-right: auto;">Name</div>
+            <div
+              class="exist-art-icon"
+              use:AppController.tippy={{
+                content: "Has official art on this PC",
+                placement: "top",
+                onShow: AppController.onTippyShow,
+              }}
+            >
+              <Steam style="height: 0.75rem; width: 0.75rem;" />
+            </div>
+            <div
+              class="exist-art-icon"
+              style="margin-left: 1.125rem; margin-right: 2rem;"
+              use:AppController.tippy={{
+                content: "Has custom art on this PC",
+                placement: "top",
+                onShow: AppController.onTippyShow,
+              }}
+            >
+              <SGDBLogo style="height: 0.75rem; width: 1rem;" />
+            </div>
+          {/snippet}
+          {#snippet data()}
+            <span class="entries">
+              {#each tempManualGames as game}
+                <ManualGameEntry {game} onRemove={removeHandler} />
+              {/each}
+            </span>
+          {/snippet}
+        </Table>
+        <div class="buttons">
+          <Button label="Cancel" onClick={cancel} width="47.5%" />
+          <Button
+            label="Save Changes"
+            onClick={saveChanges}
+            width="47.5%"
+            disabled={!canSave}
           />
         </div>
       </div>
-      <div class="section-label">Game Info</div>
-      <div
-        class="border"
-        style="margin-right: 1.25rem; margin-bottom: 0.5rem; width: calc(100% - 1.25rem);"
-      />
-      {#if $selectedManualGamesAddMethod === "search"}
-        <Search onGameSave={addNewGame} />
-      {:else if $selectedManualGamesAddMethod === "manual"}
-        <Manual onGameSave={addNewGame} />
-      {/if}
+      <div class="right">
+        <div class="options">
+          <div class="dropdown-cont">
+            <div style="margin-right: 0.5rem;">Method for Adding Games:</div>
+            <DropDown
+              options={addMethods}
+              bind:value={$selectedManualGamesAddMethod}
+              width="6.25rem"
+              showTooltip={false}
+            />
+          </div>
+        </div>
+        <div class="section-label">Game Info</div>
+        <div
+          class="border"
+          style="margin-right: 1.25rem; margin-bottom: 0.5rem; width: calc(100% - 1.25rem);"
+        ></div>
+        {#if $selectedManualGamesAddMethod === "search"}
+          <Search onGameSave={addNewGame} />
+        {:else if $selectedManualGamesAddMethod === "manual"}
+          <Manual onGameSave={addNewGame} />
+        {/if}
+      </div>
     </div>
-  </div>
+  {/snippet}
 </ModalBody>
 
 <style>

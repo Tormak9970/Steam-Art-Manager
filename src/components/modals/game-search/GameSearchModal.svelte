@@ -20,15 +20,17 @@
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
   import GameSearchEntry from "./GameSearchEntry.svelte";
 
-  let open = true;
-  let overflowing = false;
-  let loading = true;
-  let requestTimedOut = false;
-  let searchQuery = $gameSearchModalDefault;
-  let selectedGame: SGDBGame | null = null;
-  $: canApply = selectedGame && $gameSearchModalDefault !== selectedGame.name;
+  let open = $state(true);
+  let overflowing = $state(false);
+  let loading = $state(true);
+  let requestTimedOut = $state(false);
+  let searchQuery = $state($gameSearchModalDefault);
+  let selectedGame: SGDBGame | undefined = $state();
+  let canApply = $derived(
+    selectedGame && $gameSearchModalDefault !== selectedGame?.name,
+  );
 
-  let results: SGDBGame[] = [];
+  let results: SGDBGame[] = $state([]);
 
   /**
    * The function to run when the modal closes.
@@ -42,8 +44,6 @@
    * Applies the users choice.
    */
   function applyChoice(): void {
-    canApply = false;
-
     LogController.log(`Applied game choice ${selectedGame!.name}`);
     $showInfoSnackbar({ message: "Choice applied!" });
 
@@ -92,74 +92,80 @@
 <ModalBody
   title={"Customize Game Name"}
   {open}
-  on:close={() => (open = false)}
-  on:closeEnd={onClose}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
 >
-  <div class="content">
-    <div class="body">
-      <div class="description">Search for games in the SGDB database below</div>
-      <div class="search-container">
-        <IconButton
-          label="Retry"
-          on:click={retryRequest}
-          width="auto"
-          tooltipPosition="auto"
-          disabled={!requestTimedOut}
-        >
-          <Refresh style="height: 0.875rem; width: 0.875rem;" />
-        </IconButton>
-        <SearchBar
-          label="Game Search"
-          bind:value={searchQuery}
-          onChange={async (query) => await makeRequest(query)}
-          width="15.75rem"
-          reversed
-        />
-      </div>
-      <div class="container">
-        <div
-          class="scroll-container"
-          use:scrollShadow={{ background: "--background" }}
-          use:isOverflowing={{ callback: (o) => (overflowing = o) }}
-        >
-          <div
-            class="wrapper"
-            style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+  {#snippet body()}
+    <div class="content">
+      <div class="body">
+        <div class="description">
+          Search for games in the SGDB database below
+        </div>
+        <div class="search-container">
+          <IconButton
+            label="Retry"
+            onClick={retryRequest}
+            width="auto"
+            tooltipPosition="auto"
+            disabled={!requestTimedOut}
           >
-            {#if loading}
-              {#each new Array(10) as _}
-                <EntryLoadingSkeleton />
-              {/each}
-            {:else if requestTimedOut}
-              <div>
-                Request timed out. Check your internet connection or click
-                retry.
-              </div>
-            {:else}
-              {#each results as sgdbGame (sgdbGame.id)}
-                <GameSearchEntry
-                  game={sgdbGame}
-                  isSelected={selectedGame
-                    ? sgdbGame.id === selectedGame.id
-                    : sgdbGame.name === $selectedGameName}
-                  onSelect={setSelected}
-                />
-              {/each}
-            {/if}
+            <Refresh style="height: 0.875rem; width: 0.875rem;" />
+          </IconButton>
+          <SearchBar
+            label="Game Search"
+            bind:value={searchQuery}
+            onChange={async (query) => await makeRequest(query)}
+            width="15.75rem"
+            reversed
+          />
+        </div>
+        <div class="container">
+          <div
+            class="scroll-container"
+            use:scrollShadow={{ background: "--background" }}
+            use:isOverflowing={{ callback: (o) => (overflowing = o) }}
+          >
+            <div
+              class="wrapper"
+              style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+            >
+              {#if loading}
+                {#each new Array(10) as _}
+                  <EntryLoadingSkeleton />
+                {/each}
+              {:else if requestTimedOut}
+                <div>
+                  Request timed out. Check your internet connection or click
+                  retry.
+                </div>
+              {:else}
+                {#each results as sgdbGame (sgdbGame.id)}
+                  <GameSearchEntry
+                    game={sgdbGame}
+                    isSelected={selectedGame
+                      ? sgdbGame.id === selectedGame.id
+                      : sgdbGame.name === $selectedGameName}
+                    onSelect={setSelected}
+                  />
+                {/each}
+              {/if}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  {/snippet}
 
-  <span slot="buttons" class="buttons">
+  {#snippet controls()}
     <Button
       label="Apply Choice"
       onClick={applyChoice}
       width="100%"
       disabled={!canApply}
     />
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -215,12 +221,5 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    justify-self: flex-end;
   }
 </style>

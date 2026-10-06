@@ -10,7 +10,7 @@
 
   let {
     label = "",
-    value,
+    value = $bindable(),
     placeholder = "",
     width = "8.75rem",
     onChange,

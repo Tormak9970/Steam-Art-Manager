@@ -17,7 +17,7 @@
 
   let {
     label,
-    value = "",
+    value = $bindable(""),
     width = "12.5rem",
     interval = 300,
     reversed = false,

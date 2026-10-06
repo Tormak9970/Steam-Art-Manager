@@ -1,11 +1,18 @@
 <script lang="ts">
-  export let title: string;
+  import type { Snippet } from "svelte";
+
+  type Props = {
+    title: string;
+    children: Snippet;
+  };
+
+  let { title, children }: Props = $props();
 </script>
 
 <div class="info-modal-section">
   <h1 class="title">{title}</h1>
   <div class="content">
-    <slot />
+    {@render children()}
   </div>
 </div>
 
