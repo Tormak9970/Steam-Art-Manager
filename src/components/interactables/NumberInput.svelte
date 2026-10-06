@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let label: string = "";
-  export let value: number;
+  type Props = {
+    label?: string;
+    value: number;
+  };
+
+  let { label = "", value }: Props = $props();
 
   let internalValue = "";
 
@@ -9,7 +13,9 @@
    * @param value The value to check.
    * @returns Whether the value is a number or not.
    */
-  function isNumber(value: any): boolean { return !isNaN(value); }
+  function isNumber(value: any): boolean {
+    return !isNaN(value);
+  }
 
   /**
    * Handles the field's input events.
@@ -29,14 +35,17 @@
 
 <div class="input">
   {#if label !== ""}
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 0.875rem; font-size: 0.875rem; user-select: none;">{label}:</label>
+    <!-- svelte-ignore a11y_label_has_associated_control -->
+    <label
+      style="margin-right: 0.875rem; font-size: 0.875rem; user-select: none;"
+      >{label}:</label
+    >
   {/if}
   <input
     type="text"
     placeholder={value.toString()}
-    bind:value={value}
-    on:input={handleInput}
+    bind:value
+    oninput={handleInput}
   />
 </div>
 
@@ -60,8 +69,10 @@
     outline: none;
     padding: 0.25rem;
     max-width: 8.75rem;
-    
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
   .input > input:hover,
   .input > input:focus {

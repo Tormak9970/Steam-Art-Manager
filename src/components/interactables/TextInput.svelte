@@ -1,17 +1,39 @@
 <script lang="ts">
-  export let label:string = "";
-  export let value:string;
-  export let placeholder:string = "";
+  type Props = {
+    label?: string;
+    value: string;
+    placeholder?: string;
+    width?: string;
+    onChange?: (value: string) => void;
+    onInput?: (value: string) => void;
+  };
 
-  export let width:string = "8.75rem";
+  let {
+    label = "",
+    value,
+    placeholder = "",
+    width = "8.75rem",
+    onChange,
+    onInput,
+  }: Props = $props();
 </script>
 
 <div class="input">
   {#if label !== ""}
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 0.625rem; font-size: 0.825rem; user-select: none;">{label}:</label>
+    <!-- svelte-ignore a11y_label_has_associated_control -->
+    <label
+      style="margin-right: 0.625rem; font-size: 0.825rem; user-select: none;"
+      >{label}:</label
+    >
   {/if}
-  <input style="width: {width};" type="text" placeholder="{placeholder !== "" ? placeholder : value}" bind:value={value} on:change on:input>
+  <input
+    style="width: {width};"
+    type="text"
+    placeholder={placeholder !== "" ? placeholder : value}
+    bind:value
+    onchange={(e) => onChange?.(e.currentTarget?.value)}
+    oninput={(e) => onInput?.(e.currentTarget?.value)}
+  />
 </div>
 
 <style>
@@ -35,7 +57,9 @@
     border-radius: 0.25rem;
     padding: 0.25rem;
 
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
   }
   .input > input:hover,
   .input > input:focus {

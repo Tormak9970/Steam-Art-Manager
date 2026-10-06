@@ -37,25 +37,35 @@
       />
     {/if}
 
-    <IconButton label="Info" on:click={() => ($showInfoModal = true)}>
+    <IconButton
+      label="Info"
+      onClick={() => {
+        $showInfoModal = true;
+      }}
+    >
       <Info style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton
       label="View on GitHub"
-      on:click={() => open("https://github.com/Tormak9970/Steam-Art-Manager")}
+      onClick={() => open("https://github.com/Tormak9970/Steam-Art-Manager")}
       tooltipPosition="auto"
     >
       <GitHub style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
-    <IconButton label="Reload SARM" on:click={AppController.reload}>
+    <IconButton label="Reload SARM" onClick={AppController.reload}>
       <Refresh style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
-    <IconButton label="Tools" on:click={() => ($showToolsModal = true)}>
+    <IconButton
+      label="Tools"
+      onClick={() => {
+        $showToolsModal = true;
+      }}
+    >
       <Wrench style="height: 0.75rem; width: 0.75rem;" />
     </IconButton>
     <IconButton
       label="Settings"
-      on:click={() => {
+      onClick={() => {
         $showSettingsModal = true;
       }}
     >

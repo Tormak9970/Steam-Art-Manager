@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  type Props = {
+    label?: string;
+    value?: boolean;
+    onChange?: (value: boolean) => void;
+  };
 
-  export let label: string = "";
-  export let value = true;
-
-  const dispatch = createEventDispatcher();
+  let { label = "", value = true, onChange }: Props = $props();
 
   /**
    * Handles when the slider is clicked.
@@ -16,19 +17,19 @@
     const state = target.getAttribute("aria-checked");
 
     value = state === "true" ? false : true;
-    dispatch("change", { value: value });
+    onChange?.(value);
   }
-
 </script>
 
 <div class="toggle">
-  <button
-    role="switch"
-    aria-checked={value}
-    on:click={handleClick}
-  />
+  <!-- svelte-ignore a11y_consider_explicit_label -->
+  <!-- svelte-ignore element_invalid_self_closing_tag -->
+  <button role="switch" aria-checked={value} onclick={handleClick} />
   {#if label !== ""}
-    <span style="margin-left: 0.625rem; font-size: 0.875rem; height: 1rem; text-align: center; user-select: none;">{label}</span>
+    <span
+      style="margin-left: 0.625rem; font-size: 0.875rem; height: 1rem; text-align: center; user-select: none;"
+      >{label}</span
+    >
   {/if}
 </div>
 
@@ -59,7 +60,7 @@
 
   .toggle button::before {
     content: "";
-    
+
     width: 0.875rem;
     height: 0.875rem;
 
@@ -84,7 +85,7 @@
   .toggle button[aria-checked="true"]::before {
     transform: translateX(14px);
     transition: transform 0.3s;
-    
+
     background: var(--background-dark);
   }
 </style>

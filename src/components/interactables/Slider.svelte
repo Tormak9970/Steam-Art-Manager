@@ -1,32 +1,47 @@
 <script lang="ts">
   import RangeInput from "./RangeInput.svelte";
 
-  export let label:string = "";
-  export let min:number = 0;
-  export let max:number = 100;
-  export let value:number = 0;
-  export let width:string = "6.25rem";
+  type Props = {
+    label?: string;
+    min?: number;
+    max?: number;
+    value?: number;
+    width?: string;
+    onChange?: (value: number) => void;
+  };
+
+  let {
+    label = "",
+    min = 0,
+    max = 100,
+    value = 0,
+    width = "6.25rem",
+    onChange,
+  }: Props = $props();
 </script>
 
 <div class="slider" style="width: {width};">
   {#if label !== ""}
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label style="margin-right: 0.75rem; font-size: 0.875rem; user-select: none;">{label}:</label>
+    <!-- svelte-ignore a11y_label_has_associated_control -->
+    <label
+      style="margin-right: 0.75rem; font-size: 0.875rem; user-select: none;"
+      >{label}:</label
+    >
   {/if}
-  <RangeInput min={min} max={max} bind:value="{value}" on:change />
+  <RangeInput {min} {max} bind:value {onChange} />
 </div>
 
 <style>
   .slider {
-		--track-highlight-bg: var(--highlight);
-		--thumb-holding-outline: transparent;
+    --track-highlight-bg: var(--highlight);
+    --thumb-holding-outline: transparent;
 
     --track-bgcolor: var(--foreground);
     --thumb-bgcolor: var(--foreground-light);
 
     --tooltip-bg: var(--foreground-light);
     --tooltip-bgcolor: var(--foreground-light);
-    
+
     margin: 0rem;
 
     display: flex;

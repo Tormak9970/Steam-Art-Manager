@@ -1,15 +1,29 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { afterUpdate } from "svelte";
+  import type { Snippet } from "svelte";
   import type { Placement } from "tippy.js";
 
-  export let leftTooltip: string;
-  export let rightTooltip: string;
-  export let tooltipPositions: Placement = "bottom";
+  type Props = {
+    leftTooltip: string;
+    rightTooltip: string;
+    tooltipPositions?: Placement;
+    value?: boolean;
+    onChange?: (checked: boolean) => void;
+    left: Snippet;
+    right: Snippet;
+  };
 
-  export let value = true;
-  export let onChange = (checked:boolean) => {};
+  let {
+    leftTooltip,
+    rightTooltip,
+    tooltipPositions = "bottom",
+    value = $bindable(true),
+    onChange = (checked: boolean) => {},
+    left,
+    right,
+  }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   let oldValue = value;
 
   function setValue(newValue: boolean) {
@@ -17,21 +31,39 @@
     value = newValue;
   }
 
-  afterUpdate(() => {
+  $effect(() => {
     if (oldValue !== value) onChange(value);
   });
 </script>
 
 <div class="icon-toggle">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="side left" class:selected={!value} on:click={() => setValue(false)} use:AppController.tippy={{ content: leftTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
-    <slot name="left" />
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="side left"
+    class:selected={!value}
+    onclick={() => setValue(false)}
+    use:AppController.tippy={{
+      content: leftTooltip,
+      placement: tooltipPositions,
+      onShow: AppController.onTippyShow,
+    }}
+  >
+    {@render left()}
   </div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="side right" class:selected={value} on:click={() => setValue(true)} use:AppController.tippy={{ content: rightTooltip, placement: tooltipPositions, onShow: AppController.onTippyShow }}>
-    <slot name="right" />
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="side right"
+    class:selected={value}
+    onclick={() => setValue(true)}
+    use:AppController.tippy={{
+      content: rightTooltip,
+      placement: tooltipPositions,
+      onShow: AppController.onTippyShow,
+    }}
+  >
+    {@render right()}
   </div>
 </div>
 
@@ -39,7 +71,7 @@
   .icon-toggle {
     display: flex;
     align-items: center;
-		color: var(--font-color);
+    color: var(--font-color);
 
     border-radius: 0.25rem;
     border: 0.0625rem solid var(--foreground);

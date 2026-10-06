@@ -1,20 +1,34 @@
 <script lang="ts">
   import { LoadingSpinner } from "@layout";
 
-  export const setSearchFocus = () => { searchInput.focus(); }
+  export const setSearchFocus = () => {
+    searchInput?.focus();
+  };
 
-  export let label: string;
-  export let value = "";
-  export let width = "12.5rem";
-  export let interval = 300;
-  export let reversed = false;
-  export let updateOnInput = true;
-  export let onChange: (query:string) => void = () => {};
+  type Props = {
+    label: string;
+    value?: string;
+    width?: string;
+    interval?: number;
+    reversed?: boolean;
+    updateOnInput?: boolean;
+    onChange?: (query: string) => void;
+  };
 
-  let searching = false;
-  let timeout:number|null;
+  let {
+    label,
+    value = "",
+    width = "12.5rem",
+    interval = 300,
+    reversed = false,
+    updateOnInput = true,
+    onChange = () => {},
+  }: Props = $props();
 
-  let searchInput:HTMLInputElement;
+  let searching = $state(false);
+  let timeout: number | null;
+
+  let searchInput: HTMLInputElement | undefined = $state();
 
   /**
    * Wraps the onChange handler.
@@ -48,11 +62,26 @@
   }
 </script>
 
-<div class="search-bar" style="width: {width}; flex-direction: {reversed ? "row-reverse" : "row"};">
-  <div class="spinner-cont" style="margin-{reversed ? "left" : "right"}: 0.5rem;" class:showing={searching}>
+<div
+  class="search-bar"
+  style="width: {width}; flex-direction: {reversed ? 'row-reverse' : 'row'};"
+>
+  <div
+    class="spinner-cont"
+    style="margin-{reversed ? 'left' : 'right'}: 0.5rem;"
+    class:showing={searching}
+  >
     <LoadingSpinner width="1.25rem" height="1.25rem" />
   </div>
-  <input style="width: calc(100% - 0.375rem);" type="text" placeholder={label} on:input={onInputWrapper} on:change={onChangeWrapper} bind:value={value} bind:this={searchInput}>
+  <input
+    style="width: calc(100% - 0.375rem);"
+    type="text"
+    placeholder={label}
+    oninput={onInputWrapper}
+    onchange={onChangeWrapper}
+    bind:value
+    bind:this={searchInput}
+  />
 </div>
 
 <style>
@@ -66,8 +95,10 @@
     color: var(--font-color);
     border-radius: 0.25rem;
     padding: 0.375rem;
-    
-    transition: background-color 0.15s ease-in-out, border 0.15s ease-in-out;
+
+    transition:
+      background-color 0.15s ease-in-out,
+      border 0.15s ease-in-out;
 
     height: 0.875rem;
   }
@@ -83,5 +114,7 @@
     display: flex;
   }
 
-  .showing { visibility: visible; }
+  .showing {
+    visibility: visible;
+  }
 </style>
