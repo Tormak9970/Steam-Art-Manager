@@ -45,9 +45,6 @@
 
   let searchQuery = $state("");
   let games: GameStruct[] = $state([]);
-  $effect(() => {
-    console.log("games:", games);
-  });
 
   let searchComponent: SearchBar | undefined = $state();
 

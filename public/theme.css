@@ -36,13 +36,10 @@
 
 @media (prefers-color-scheme: light) {
   [data-theme="auto"] {
-    --highlight: #04e200;
-    --highlight-hover: #05FF00;
+    --highlight: #7ebede;
+    --highlight-hover: #7cb7d4;
 
-    --highlight-dim: #039900;
-    --highlight-dim-hover: #04aa02;
-
-    --highlight-transparent: #04e2009d;
+    --highlight-transparent: #008be29d;
     
     --font-color: #0e0e0e;
     --shadow: #868383;
@@ -60,9 +57,9 @@
     --foreground-light_rgb: 171, 171, 171;
     --foreground-light-hover: #b1b1b1;
     
-    
-    --save: #4ee73a;
-    --save-hover: #24fc08;
+      
+    --save: #7ebede;
+    --save-hover: #7cb7d4;
 
     --sgdb-animated-color: #f38c0d;
     
@@ -77,9 +74,6 @@
   [data-theme="auto"] {
     --highlight: #04e200;
     --highlight-hover: #05FF00;
-
-    --highlight-dim: #039900;
-    --highlight-dim-hover: #04aa02;
 
     --highlight-transparent: #04e2009d;
 
@@ -114,9 +108,6 @@
 	--highlight: #04e200;
 	--highlight-hover: #05FF00;
 
-	--highlight-dim: #039900;
-	--highlight-dim-hover: #04aa02;
-
 	--highlight-transparent: #04e2009d;
 
 	--font-color: #e7e7e7;
@@ -146,13 +137,10 @@
 }
 
 [data-theme="light"] {
-	--highlight: #04e200;
-	--highlight-hover: #05FF00;
+  --highlight: #7ebede;
+  --highlight-hover: #7cb7d4;
 
-	--highlight-dim: #039900;
-	--highlight-dim-hover: #04aa02;
-
-	--highlight-transparent: #04e2009d;
+	--highlight-transparent: #008be29d;
   
 	--font-color: #0e0e0e;
 	--shadow: #868383;
@@ -171,8 +159,8 @@
   --foreground-light-hover: #b1b1b1;
 	
 	
-	--save: #4ee73a;
-	--save-hover: #24fc08;
+	--save: #7ebede;
+	--save-hover: #7cb7d4;
 
 	--sgdb-animated-color: #f38c0d;
   

@@ -72,11 +72,11 @@
   }
 
   .highlight {
-    background-color: #18bb039c;
+    background-color: var(--save);
     border: 0.0625rem solid var(--save-hover);
   }
   .highlight:hover {
-    background-color: #18bb03c5;
+    background-color: var(--save-hover);
     border: 0.0625rem solid var(--save-hover);
   }
 
