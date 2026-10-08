@@ -5,19 +5,28 @@
   import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
-  export let imagePath: string;
-  export let altText: string;
-  export let showImage: boolean = true;
-  export let missingMessage: string;
-  export let isVideo: boolean = false;
+  type Props = {
+    imagePath: string;
+    altText: string;
+    showImage?: boolean;
+    missingMessage: string;
+    isVideo?: boolean;
+  };
 
-  let showWarning = false;
+  let {
+    imagePath,
+    altText,
+    showImage = true,
+    missingMessage,
+    isVideo = false,
+  }: Props = $props();
 
-  
-  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+  let showWarning = $state(false);
 
-  $: imageWidth = gridDimensions.widths[$gridType]
-  $: imageHeight = gridDimensions.heights[$gridType]
+  let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
+
+  let imageWidth = $derived(gridDimensions.widths[$gridType]);
+  let imageHeight = $derived(gridDimensions.heights[$gridType]);
 
   /**
    * Function to run when the user starts hovering over a video.
@@ -40,28 +49,40 @@
   {#if showImage && !showWarning && imagePath}
     <Lazy height="{imageHeight}rem" fadeOption={IMAGE_FADE_OPTIONS}>
       {#if isVideo}
+        <!-- svelte-ignore a11y_mouse_events_have_key_events -->
+        <!-- svelte-ignore element_invalid_self_closing_tag -->
         <video
-          src="{imagePath}"
+          src={imagePath}
           muted
           loop
           autoplay={false}
           style="max-width: {imageWidth}rem; max-height: {imageHeight}rem; width: auto; height: auto;"
-          on:mouseover={onEnter}
-          on:mouseleave={onLeave}
+          onmouseover={onEnter}
+          onmouseleave={onLeave}
         />
       {:else}
         <img
-          src="{imagePath}"
-          alt="{altText}"
+          src={imagePath}
+          alt={altText}
           style="max-width: {imageWidth}rem; max-height: {imageHeight}rem; width: auto; height: auto;"
           draggable="false"
-          on:error={() => showWarning = true}
+          onerror={() => (showWarning = true)}
         />
       {/if}
     </Lazy>
   {:else}
-    <div use:AppController.tippy={{ content: missingMessage, placement: "bottom", onShow: AppController.onTippyShow }}>
-      <TriangleExclamation height="3rem" width="3rem" fill="var(--foreground-light-hover)" />
+    <div
+      use:AppController.tippy={{
+        content: missingMessage,
+        placement: "bottom",
+        onShow: AppController.onTippyShow,
+      }}
+    >
+      <TriangleExclamation
+        height="3rem"
+        width="3rem"
+        fill="var(--foreground-light-hover)"
+      />
     </div>
   {/if}
 </div>

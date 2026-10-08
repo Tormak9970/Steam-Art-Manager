@@ -41,14 +41,17 @@
   let gridTypeUnsub: Unsubscriber;
   let appTypeUnsub: Unsubscriber;
 
-  let isLoading = true;
+  let isLoading = $state(true);
 
-  let searchQuery = "";
-  let games: GameStruct[] = [];
+  let searchQuery = $state("");
+  let games: GameStruct[] = $state([]);
+  $effect(() => {
+    console.log("games:", games);
+  });
 
-  let setSearchFocus: () => void;
+  let searchComponent: SearchBar | undefined = $state();
 
-  $: menuOptions = [
+  let menuOptions = $derived([
     {
       label: "Show Hidden",
       icon: $showHidden ? Check : undefined,
@@ -70,17 +73,19 @@
         $onlyShowInstalled = !$onlyShowInstalled;
       },
     },
-  ];
+  ]);
 
-  $: gridSizeOptions = GRID_IMAGE_SIZES.map((size) => {
-    return {
-      label: size.label,
-      icon: $gridImageSize === size.data ? Check : undefined,
-      onClick: () => {
-        $gridImageSize = size.data;
-      },
-    };
-  });
+  let gridSizeOptions = $derived(
+    GRID_IMAGE_SIZES.map((size) => {
+      return {
+        label: size.label,
+        icon: $gridImageSize === size.data ? Check : undefined,
+        onClick: () => {
+          $gridImageSize = size.data;
+        },
+      };
+    }),
+  );
 
   /**
    * Overwrites the default search function.
@@ -89,7 +94,7 @@
   function overwriteCtrlF(e: Event): void {
     if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key === "f") {
       e.preventDefault();
-      setSearchFocus();
+      searchComponent!.setSearchFocus();
     }
   }
 
@@ -402,7 +407,7 @@
             label="Search Library"
             onChange={onSearchChange}
             interval={800}
-            bind:setSearchFocus
+            bind:this={searchComponent}
           />
           <Menu label="Grid Size" options={gridSizeOptions}>
             <Ruler style="height: 1rem; width: 1rem;" />

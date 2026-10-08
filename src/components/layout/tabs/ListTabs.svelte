@@ -8,7 +8,12 @@
     children: Snippet;
   };
 
-  let { selected, tabs, height = "100%", children }: Props = $props();
+  let {
+    selected = $bindable(),
+    tabs,
+    height = "100%",
+    children,
+  }: Props = $props();
 
   /**
    * Handles the onClick event.

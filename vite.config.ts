@@ -44,7 +44,7 @@ export default defineConfig({
       ],
       compilerOptions: {
         // Temporary to force runes mode to find deprecated code.
-        runes: true,
+        // runes: true,
       },
     }),
     excludeDirectories({

@@ -2,16 +2,30 @@
   import { AppController } from "@controllers";
   import { Edit, Expand, Film, Share } from "@icons";
   import { LoadingSpinner } from "@layout";
-  import { dowloadingGridId, gridType, previewGridsOnClick } from "@stores/AppState";
+  import {
+    dowloadingGridId,
+    gridType,
+    previewGridsOnClick,
+  } from "@stores/AppState";
   import { open } from "@tauri-apps/plugin-shell";
   import type { SGDBImage } from "@types";
   import { throttle } from "@utils";
   import GridImage from "../GridImage.svelte";
 
-  export let grid: SGDBImage;
+  type Props = {
+    grid: SGDBImage;
+  };
 
-  let imagePath = grid.thumb.toString();
-  const onSelect = throttle(() => { AppController.setSteamGridArt(grid); }, 500, true);
+  let { grid }: Props = $props();
+
+  let imagePath = $derived(grid.thumb.toString());
+  const onSelect = throttle(
+    () => {
+      AppController.setSteamGridArt(grid);
+    },
+    500,
+    true,
+  );
 
   /**
    * Sets this grid to be the current grid for the selected game.
@@ -32,31 +46,75 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="grid" on:click={selectGame}>
-  <div class="loading-overlay" class:selected={$dowloadingGridId === grid.id.toString()}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="grid" onclick={selectGame}>
+  <div
+    class="loading-overlay"
+    class:selected={$dowloadingGridId === grid.id.toString()}
+  >
     <LoadingSpinner width="2.5rem" height="2.5rem" />
   </div>
   <div class="button-container">
-    <div class="image-control" on:click|stopPropagation={() => { AppController.viewSteamGridImage(grid); }} use:AppController.tippy={{ content: "View Grid", placement: "right", onShow: AppController.onTippyShow }}>
+    <div
+      class="image-control"
+      onclick={(e) => {
+        e.stopPropagation();
+        AppController.viewSteamGridImage(grid);
+      }}
+      use:AppController.tippy={{
+        content: "View Grid",
+        placement: "right",
+        onShow: AppController.onTippyShow,
+      }}
+    >
       <Expand style="width: 0.75rem; height: 0.75rem" />
     </div>
-    <div class="image-control" on:click|stopPropagation={viewOnSteamGridDB} use:AppController.tippy={{ content: "View on SGDB", placement: "right", onShow: AppController.onTippyShow }}>
+    <div
+      class="image-control"
+      onclick={(e) => {
+        e.stopPropagation();
+        viewOnSteamGridDB();
+      }}
+      use:AppController.tippy={{
+        content: "View on SGDB",
+        placement: "right",
+        onShow: AppController.onTippyShow,
+      }}
+    >
       <Share style="width: 0.75rem; height: 0.75rem" />
     </div>
     {#if grid?.notes}
-      <div class="image-control non-interactable" use:AppController.tippy={{ content: "Notes", placement: "right", onShow: AppController.onTippyShow }}>
+      <div
+        class="image-control non-interactable"
+        use:AppController.tippy={{
+          content: "Notes",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
+      >
         <Edit style="width: 0.75rem; height: 0.75rem" />
       </div>
     {/if}
     {#if grid?.isAnimated}
-      <div class="image-control non-interactable" use:AppController.tippy={{ content: "Animated", placement: "right", onShow: AppController.onTippyShow }}>
+      <div
+        class="image-control non-interactable"
+        use:AppController.tippy={{
+          content: "Animated",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
+      >
         <Film style="width: 0.75rem; height: 0.75rem" />
       </div>
     {/if}
   </div>
-  <GridImage imagePath={imagePath} altText="{grid.author.name}'s {$gridType} image" missingMessage="Failed to load" isVideo={grid.isAnimated} />
+  <GridImage
+    {imagePath}
+    altText="{grid.author.name}'s {$gridType} image"
+    missingMessage="Failed to load"
+    isVideo={grid.isAnimated}
+  />
   <div class="author">By {grid.author.name}</div>
 </div>
 
@@ -73,13 +131,15 @@
     align-items: center;
 
     position: relative;
-    
+
     cursor: pointer;
 
     user-select: none;
 
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
-    
+    transition:
+      transform 0.2s ease-in-out,
+      background-color 0.2s ease-in-out;
+
     background-color: var(--background-hover);
     border: 0.0625rem solid var(--foreground);
   }
@@ -98,7 +158,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    
+
     text-align: center;
   }
 
@@ -128,7 +188,7 @@
 
     top: 0.125rem;
     left: 0.125rem;
-    
+
     width: 1rem;
 
     z-index: 2;
@@ -162,10 +222,13 @@
     opacity: 1;
   }
 
-  .grid:hover > .button-container { display: flex; }
+  .grid:hover > .button-container {
+    display: flex;
+  }
 
   .non-interactable,
   .non-interactable:hover {
-    cursor: default; opacity: 0.8;
+    cursor: default;
+    opacity: 0.8;
   }
 </style>

@@ -6,47 +6,118 @@
   import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
-  export let game: GameStruct;
-  export let iconPath: string;
-  export let showIcon: boolean;
+  type Props = {
+    game: GameStruct;
+    iconPath: string;
+    showIcon: boolean;
 
-  export let isHidden: boolean;
-  export let hasCustomName: boolean;
-  export let hasCustomArt: boolean;
-  export let canDiscard: boolean;
-  export let disabled: boolean = false;
+    isHidden: boolean;
+    hasCustomName: boolean;
+    hasCustomArt: boolean;
+    canDiscard: boolean;
+    disabled?: boolean;
 
-  export let selectGame: () => void;
-  export let toggleHidden: (isHidden: boolean) => void;
-  export let showAllGrids: (appId: number) => void;
+    selectGame: () => void;
+    toggleHidden: (isHidden: boolean) => void;
+    showAllGrids: (appId: number) => void;
+  };
 
-  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+  let {
+    game,
+    iconPath,
+    showIcon,
+
+    isHidden,
+    hasCustomName,
+    hasCustomArt,
+    canDiscard,
+    disabled = false,
+
+    selectGame,
+    toggleHidden,
+    showAllGrids,
+  }: Props = $props();
+
+  let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="container">
   {#if disabled}
-    <div class="disabled-tooltip" use:AppController.tippy={{ content: "Icons can't be applied to games without them right now", placement: "top", onShow: AppController.onTippyShow }}></div>
+    <div
+      class="disabled-tooltip"
+      use:AppController.tippy={{
+        content: "Icons can't be applied to games without them right now",
+        placement: "top",
+        onShow: AppController.onTippyShow,
+      }}
+    ></div>
   {/if}
-  <div class="list-entry" class:disabled class:selected={$selectedGameAppId === game.appid.toString()} on:click={selectGame}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="list-entry"
+    class:disabled
+    class:selected={$selectedGameAppId === game.appid.toString()}
+    onclick={selectGame}
+  >
     <div class="entry-info">
       <div class="icon-container">
         {#if showIcon}
-          <Lazy height="{gridDimensions.heights.Icon}rem" fadeOption={IMAGE_FADE_OPTIONS}>
-            <img src="{iconPath}" alt="{game.name}'s icon image" style="max-width: {gridDimensions.widths.Icon}rem; max-height: {gridDimensions.heights.Icon}rem; width: auto; height: auto;" draggable="false" />
+          <Lazy
+            height="{gridDimensions.heights.Icon}rem"
+            fadeOption={IMAGE_FADE_OPTIONS}
+          >
+            <img
+              src={iconPath}
+              alt="{game.name}'s icon image"
+              style="max-width: {gridDimensions.widths
+                .Icon}rem; max-height: {gridDimensions.heights
+                .Icon}rem; width: auto; height: auto;"
+              draggable="false"
+            />
           </Lazy>
         {:else}
           <div style="text-align: center;">No icon image for game</div>
         {/if}
       </div>
-      <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
+      <div
+        class="name"
+        use:AppController.tippy={{
+          content: game.name,
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
+      >
+        {game.name}
+      </div>
     </div>
     <div class="status">
-      <div class="image-control" on:click|stopPropagation={() => showAllGrids(game.appid)} use:AppController.tippy={{ content: "View Grids", placement: "right", onShow: AppController.onTippyShow }}>
+      <div
+        class="image-control"
+        onclick={(e) => {
+          e.stopPropagation();
+          showAllGrids(game.appid);
+        }}
+        use:AppController.tippy={{
+          content: "View Grids",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
+      >
         <AllGrids />
       </div>
-      <div class="image-control" on:click|stopPropagation={() => toggleHidden(!isHidden)} use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}>
+      <div
+        class="image-control"
+        onclick={(e) => {
+          e.stopPropagation();
+          toggleHidden(!isHidden);
+        }}
+        use:AppController.tippy={{
+          content: isHidden ? "Unhide" : "Hide",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
+      >
         {#if isHidden}
           <Show />
         {:else}
@@ -54,17 +125,50 @@
         {/if}
       </div>
       {#if hasCustomName}
-        <div class="image-control" on:click|stopPropagation={() => { AppController.clearCustomNameForGame(game.appid.toString()); }} use:AppController.tippy={{ content: "Clear Custom Name", placement: "right", onShow: AppController.onTippyShow }}>
+        <div
+          class="image-control"
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.clearCustomNameForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Clear Custom Name",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
+        >
           <Tag />
         </div>
       {/if}
       {#if hasCustomArt}
-        <div class="image-control" on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid.toString()); }} use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow }}>
+        <div
+          class="image-control"
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.clearCustomArtForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Clear Art",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
+        >
           <Ban />
         </div>
       {/if}
       {#if canDiscard}
-        <div class="image-control" on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid.toString()); }} use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow }}>
+        <div
+          class="image-control"
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.discardChangesForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Discard Changes",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
+        >
           <Recycle />
         </div>
       {/if}
@@ -77,7 +181,7 @@
     width: 100%;
 
     border-radius: 0.25rem;
-    
+
     margin-bottom: 0.5rem;
     margin-right: 0.5rem;
 
@@ -87,7 +191,7 @@
   .disabled-tooltip {
     width: 100%;
     height: 100%;
-    
+
     border-radius: 0.25rem;
     overflow: hidden;
 
@@ -112,7 +216,7 @@
     justify-content: space-between;
 
     position: relative;
-    
+
     cursor: pointer;
 
     user-select: none;
@@ -122,7 +226,7 @@
     width: calc(100% - 1.25rem);
 
     z-index: 0;
-    
+
     background-color: var(--background-hover);
     border: 0.0625rem solid var(--foreground);
   }
@@ -130,7 +234,7 @@
     background-color: var(--foreground);
     border: 0.0625rem solid var(--foreground-hover);
   }
-  
+
   .disabled {
     pointer-events: none;
   }
@@ -166,7 +270,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    
+
     text-align: center;
   }
 
@@ -195,7 +299,7 @@
     display: none;
 
     z-index: 2;
-    
+
     margin-right: 0.5rem;
 
     align-items: center;
@@ -206,5 +310,7 @@
     opacity: 1;
   }
 
-  .list-entry:hover .image-control { display: flex; }
+  .list-entry:hover .image-control {
+    display: flex;
+  }
 </style>

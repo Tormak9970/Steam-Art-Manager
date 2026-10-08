@@ -9,7 +9,7 @@
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
 
-  let overflowing = false;
+  let overflowing = $state(false);
 
   /**
    * Creates a function to update the specified filter.
@@ -26,7 +26,7 @@
       filters[$gridType][section][filter] = value;
 
       $dbFilters = { ...filters };
-    }
+    };
   }
 
   /**
@@ -36,7 +36,10 @@
    */
   function toUpperCaseSplit(word: string): string {
     if (word.includes("_")) {
-      return word.split("_").map((w) => w.substring(0, 1).toUpperCase().concat(w.substring(1))).join(" ");
+      return word
+        .split("_")
+        .map((w) => w.substring(0, 1).toUpperCase().concat(w.substring(1)))
+        .join(" ");
     } else {
       return word.substring(0, 1).toUpperCase().concat(word.substring(1));
     }
@@ -47,7 +50,7 @@
    * @param value The theme.
    */
   function onDarkModeChange(value: number): void {
-    const newTheme = value === 0 ? "dark" : value === 1 ? "light" : "auto"
+    const newTheme = value === 0 ? "dark" : value === 1 ? "light" : "auto";
     document.body.setAttribute("data-theme", newTheme);
     $theme = value;
     LogController.log(`Set theme to "${newTheme}".`);
@@ -57,44 +60,60 @@
 <Pane minSize={15} size={$optionsSize}>
   <div class="inner">
     <SectionTitle title="Options" />
-  
+
     <div class="content">
       <div class="toggle-container">
-        <ThreeWayToggle leftTooltip="Dark" midTooltip="Light" rightTooltip="Auto" value={$theme} onChange={onDarkModeChange}>
-          <span slot="left">
+        <ThreeWayToggle
+          leftTooltip="Dark"
+          midTooltip="Light"
+          rightTooltip="Auto"
+          value={$theme}
+          onChange={onDarkModeChange}
+        >
+          {#snippet left()}
             <Moon width="1rem" height="1rem" />
-          </span>
-          <span slot="middle">
+          {/snippet}
+          {#snippet middle()}
             <Sun width="1rem" height="1rem" />
-          </span>
-          <span slot="right">
+          {/snippet}
+          {#snippet right()}
             <SunAndMoon width="1rem" height="1rem" />
-          </span>
+          {/snippet}
         </ThreeWayToggle>
       </div>
-      
+
       <Divider />
     </div>
 
     <div class="content" style="height: calc(100% - 5.375rem);">
-      <div class="scroll-container" use:scrollShadow={{ background: "red"}} use:isOverflowing={{ callback: (o) => overflowing = o }}>
-        <div class="wrapper" style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}>
+      <div
+        class="scroll-container"
+        use:scrollShadow={{ background: "red" }}
+        use:isOverflowing={{ callback: (o) => (overflowing = o) }}
+      >
+        <div
+          class="wrapper"
+          style:width={overflowing ? "calc(100% - 0.5rem)" : "100%"}
+        >
           {#each Object.keys($dbFilters[$gridType]) as section}
             <Accordion
-              label="{section === "oneoftag" ? "Tags" : toUpperCaseSplit(section)}"
+              label={section === "oneoftag"
+                ? "Tags"
+                : toUpperCaseSplit(section)}
               open={true}
             >
               <div class="accordion-body">
                 {#each Object.keys($dbFilters[$gridType][section]) as filter}
                   <Toggle
-                    label="{
-                      filter === "material" ? "Minimal" : 
-                      filter === "nsfw" ? "Adult Content" : 
-                      filter === "image/vnd.microsoft.icon" ? "image/ico" : 
-                      toUpperCaseSplit(filter)
-                    }"
+                    label={filter === "material"
+                      ? "Minimal"
+                      : filter === "nsfw"
+                        ? "Adult Content"
+                        : filter === "image/vnd.microsoft.icon"
+                          ? "image/ico"
+                          : toUpperCaseSplit(filter)}
                     value={$dbFilters[$gridType][section][filter]}
-                    on:change={updateFilters(section, filter)}
+                    onChange={updateFilters(section, filter)}
                   />
                 {/each}
               </div>

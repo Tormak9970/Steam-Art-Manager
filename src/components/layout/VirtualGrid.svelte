@@ -36,24 +36,23 @@
   let itemHeight = $derived(remItemHeight * 16);
   let itemWidth = $derived(remItemWidth * 16);
 
-  // * Read-Only, but visible to consumers via bind:start & bind:end.
-  let start = 0;
-  let end = 0;
-
   // * Local State
-  let mounted: boolean;
-  let entries: HTMLCollectionOf<HTMLElement>;
-  let heightMap: number[] = [];
+  let start = $state(0);
+  let end = $state(0);
 
-  let viewport: HTMLElement;
+  let mounted: boolean = $state(false);
+  let entries: HTMLCollectionOf<HTMLElement> | undefined = $state();
+  let heightMap: number[] = $state([]);
+
+  let viewport: HTMLElement | undefined = $state();
   let viewportHeight = $state(0);
   let viewportWidth = $state(0);
 
-  let contents: HTMLElement;
+  let contents: HTMLElement | undefined = $state();
 
   let top = $state(0);
   let bottom = $state(0);
-  let averageHeight: number;
+  let averageHeight: number = $state(0);
 
   let visible = $derived(
     items.slice(start, end).map((data, i) => {
@@ -91,13 +90,13 @@
     let i = start;
 
     while (contentHeight - rowGap < viewportHeight && i < items.length) {
-      let entry = entries[i - start];
+      let entry = entries![i - start];
 
       if (!entry) {
         end = i + 1;
         // * Render the newly visible entry.
         await tick();
-        entry = entries[i - start];
+        entry = entries![i - start];
       }
 
       const entryHeight = (heightMap[i] = itemHeight + rowGap);
@@ -126,15 +125,15 @@
    * Handles when the virtual grid is scrolled.
    */
   async function handleScroll() {
-    const { scrollTop } = viewport;
+    const { scrollTop } = viewport!;
 
     const numEntriesPerRow = Math.floor(
-      (viewport.clientWidth + columnGap) / (itemWidth + columnGap),
+      (viewport!.clientWidth + columnGap) / (itemWidth + columnGap),
     );
 
     const oldStart = start;
 
-    for (let v = 0; v < entries.length; v++) {
+    for (let v = 0; v < entries!.length; v++) {
       heightMap[start + v] = itemHeight + rowGap;
     }
 
@@ -192,14 +191,14 @@
       let actualHeight = 0;
 
       for (let i = start; i < oldStart; i++) {
-        if (entries[i - start] && i % numEntriesPerRow === 0) {
+        if (entries![i - start] && i % numEntriesPerRow === 0) {
           expectedHeight += heightMap[i];
           actualHeight += itemHeight + rowGap;
         }
       }
 
       const d = actualHeight - expectedHeight;
-      viewport.scrollTo(0, scrollTop + d);
+      viewport!.scrollTo(0, scrollTop + d);
     }
   }
 
@@ -214,9 +213,10 @@
 
   // * Trigger initial refresh.
   onMount(() => {
-    entries = contents.getElementsByTagName(
+    entries = contents!.getElementsByTagName(
       "svelte-virtual-grid-entry",
     ) as HTMLCollectionOf<HTMLElement>;
+
     mounted = true;
   });
 </script>

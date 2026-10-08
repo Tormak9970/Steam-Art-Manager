@@ -26,19 +26,18 @@
     entry,
   }: Props = $props();
 
-  // * Read-Only, but visible to consumers via bind:start & bind:end.
-  let start = 0;
-  let end = 0;
-
   // * Local State
-  let mounted: boolean;
-  let rows: HTMLCollectionOf<HTMLElement>;
-  let heightMap: number[] = [];
+  let start = $state(0);
+  let end = $state(0);
 
-  let viewport: HTMLElement;
+  let mounted: boolean = $state(false);
+  let rows: HTMLCollectionOf<HTMLElement> | undefined = $state();
+  let heightMap: number[] = $state([]);
+
+  let viewport: HTMLElement | undefined = $state();
   let viewportHeight = $state(0);
 
-  let contents: HTMLElement;
+  let contents: HTMLElement | undefined = $state();
 
   let top = $state(0);
   let bottom = $state(0);
@@ -60,7 +59,7 @@
     viewportHeight: number,
     itemHeight: number,
   ) {
-    const { scrollTop } = viewport;
+    const { scrollTop } = viewport!;
 
     // * Wait until the DOM is up to date.
     await tick();
@@ -69,13 +68,13 @@
     let i = start;
 
     while (contentHeight < viewportHeight && i < items.length) {
-      let row = rows[i - start];
+      let row = rows![i - start];
 
       if (!row) {
         end = i + 1;
         // * Render the newly visible entry.
         await tick();
-        row = rows[i - start];
+        row = rows![i - start];
       }
 
       const rowHeight = (heightMap[i] = itemHeight || row.offsetHeight);
@@ -93,12 +92,12 @@
   }
 
   async function handleScroll() {
-    const { scrollTop } = viewport;
+    const { scrollTop } = viewport!;
 
     const oldStart = start;
 
-    for (let v = 0; v < rows.length; v += 1) {
-      heightMap[start + v] = itemHeight || rows[v].offsetHeight;
+    for (let v = 0; v < rows!.length; v += 1) {
+      heightMap[start + v] = itemHeight || rows![v].offsetHeight;
     }
 
     let i = 0;
@@ -144,14 +143,14 @@
       let actualHeight = 0;
 
       for (let i = start; i < oldStart; i += 1) {
-        if (rows[i - start]) {
+        if (rows![i - start]) {
           expectedHeight += heightMap[i];
-          actualHeight += itemHeight || rows[i - start].offsetHeight;
+          actualHeight += itemHeight || rows![i - start].offsetHeight;
         }
       }
 
       const d = actualHeight - expectedHeight;
-      viewport.scrollTo(0, scrollTop + d);
+      viewport!.scrollTo(0, scrollTop + d);
     }
 
     // TODO if we overestimated the space these
@@ -161,9 +160,10 @@
 
   // * Trigger initial refresh.
   onMount(() => {
-    rows = contents.getElementsByTagName(
+    rows = contents!.getElementsByTagName(
       "svelte-virtual-list-row",
     ) as HTMLCollectionOf<HTMLElement>;
+
     mounted = true;
   });
 </script>

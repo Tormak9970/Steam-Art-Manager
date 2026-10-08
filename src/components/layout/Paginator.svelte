@@ -15,7 +15,7 @@
   };
 
   let {
-    currentPage,
+    currentPage = $bindable(),
     resultsPerPage,
     totalResults,
     disabled = false,

@@ -1,12 +1,8 @@
-<script lang="ts">
-
-</script>
-
 <div class="list-entry-skeleton">
-  <div class="shine" />
+  <div class="shine"></div>
   <div class="entry-info-skeleton">
-    <div class="icon-container-skeleton" />
-    <div class="name-skeleton" />
+    <div class="icon-container-skeleton"></div>
+    <div class="name-skeleton"></div>
   </div>
 </div>
 
@@ -27,7 +23,7 @@
 
     margin-bottom: 0.5rem;
     margin-right: 0.5rem;
-    
+
     position: relative;
 
     z-index: 1;
@@ -72,17 +68,24 @@
 
     left: -100%;
 
-    background-image: linear-gradient(to left, rgba(var(--foreground-light_rgb), 0.05), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), .5), rgba(var(--foreground-light_rgb), .2), rgba(var(--foreground-light_rgb), 0.05));
+    background-image: linear-gradient(
+      to left,
+      rgba(var(--foreground-light_rgb), 0.05),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.5),
+      rgba(var(--foreground-light_rgb), 0.2),
+      rgba(var(--foreground-light_rgb), 0.05)
+    );
     animation: loading 1.2s infinite;
 
     z-index: 45;
   }
 
   @keyframes loading {
-    0%{
+    0% {
       left: -100%;
     }
-    100%{
+    100% {
       left: 100%;
     }
   }
