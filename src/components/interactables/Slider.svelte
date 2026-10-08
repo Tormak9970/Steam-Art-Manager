@@ -22,10 +22,8 @@
 
 <div class="slider" style="width: {width};">
   {#if label !== ""}
-    <!-- svelte-ignore a11y_label_has_associated_control -->
-    <label
-      style="margin-right: 0.75rem; font-size: 0.875rem; user-select: none;"
-      >{label}:</label
+    <b style="margin-right: 0.5rem; font-size: 1rem; user-select: none;"
+      >{label}</b
     >
   {/if}
   <RangeInput {min} {max} bind:value {onChange} />
