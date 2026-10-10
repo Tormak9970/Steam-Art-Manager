@@ -1,10 +1,15 @@
 <script lang="ts">
   import { Button } from "@interactables";
   import { ProgressBar } from "@layout";
-  import { batchApplyMessage, batchApplyProgress, batchApplyWasCancelled, showBatchApplyProgress } from "@stores/Modals";
+  import {
+    batchApplyMessage,
+    batchApplyProgress,
+    batchApplyWasCancelled,
+    showBatchApplyProgress,
+  } from "@stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
 
-  let open = true;
+  let open = $state(true);
 
   /**
    * The function to run when the modal closes.
@@ -34,24 +39,37 @@
    * The function to run when the progress bar completes.
    */
   function onFinish(): void {
-    $batchApplyMessage = "Batch apply complete."
+    $batchApplyMessage = "Batch apply complete.";
   }
 </script>
 
-<ModalBody title={"Batch Apply Progress"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
-  <div class="content">
-    <div class="options">
-      <ProgressBar bind:progress={$batchApplyProgress} width="100%" onFinish={onFinish} />
+<ModalBody
+  title={"Batch Apply Progress"}
+  {open}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
+>
+  {#snippet body()}
+    <div class="content">
+      <div class="options">
+        <ProgressBar
+          bind:progress={$batchApplyProgress}
+          width="100%"
+          {onFinish}
+        />
+      </div>
+      <div class="info">{$batchApplyMessage}</div>
     </div>
-    <div class="info">{$batchApplyMessage}</div>
-  </div>
-  <span slot="buttons" class="buttons">
+  {/snippet}
+  {#snippet controls()}
     {#if $batchApplyProgress === 100}
-      <Button on:click={closeAfterComplete} width="100%">Close</Button>
+      <Button label="Close" onClick={closeAfterComplete} width="100%" />
     {:else}
-      <Button on:click={cancel} width="100%">Cancel</Button>
+      <Button label="Cancel" onClick={cancel} width="100%" />
     {/if}
-  </span>
+  {/snippet}
 </ModalBody>
 
 <style>
@@ -66,12 +84,5 @@
   .options {
     margin-top: 0.5rem;
     width: 100%;
-  }
-
-  .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    justify-self: flex-end;
   }
 </style>

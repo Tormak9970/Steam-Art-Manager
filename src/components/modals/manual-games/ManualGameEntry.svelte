@@ -4,34 +4,76 @@
   import { appLibraryCache, unfilteredLibraryCache } from "@stores/AppState";
   import type { GameStruct } from "@types";
 
-  export let game: GameStruct;
-  export let onRemove: (game: GameStruct) => void;
+  type Props = {
+    game: GameStruct;
+    onRemove: (game: GameStruct) => void;
+  };
 
-  $: hasSteamArt = !!$unfilteredLibraryCache[game.appid];
-  $: steamArtMsg = hasSteamArt ? "Existing official art" : "No official art";
-  $: hasCustomArt = $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid];
-  $: customArtMsg = hasCustomArt ? "Existing custom art" : "No custom art";
+  let { game, onRemove }: Props = $props();
+
+  let hasSteamArt = $derived(!!$unfilteredLibraryCache[game.appid]);
+  let steamArtMsg = $derived(
+    hasSteamArt ? "Existing official art" : "No official art",
+  );
+  let hasCustomArt = $derived(
+    $appLibraryCache[game.appid] != $unfilteredLibraryCache[game.appid],
+  );
+  let customArtMsg = $derived(
+    hasCustomArt ? "Existing custom art" : "No custom art",
+  );
 </script>
 
 <div class="selected-game-entry">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="remove-cont" on:click={() => { onRemove(game); }} use:AppController.tippy={{ content: "Remove this game", placement: "left", onShow: AppController.onTippyShow }}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="remove-cont"
+    onclick={() => {
+      onRemove(game);
+    }}
+    use:AppController.tippy={{
+      content: "Remove this game",
+      placement: "left",
+      onShow: AppController.onTippyShow,
+    }}
+  >
     <CloseOutlined style="width: 0.75rem; height: 0.75rem;" />
   </div>
   <div class="name">{game.name}</div>
-  <div class="steam-art" use:AppController.tippy={{ content: steamArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
+  <div
+    class="steam-art"
+    use:AppController.tippy={{
+      content: steamArtMsg,
+      placement: "left",
+      onShow: AppController.onTippyShow,
+    }}
+  >
     {#if hasSteamArt}
-      <CheckOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--success);" />
+      <CheckOutlined
+        style="width: 0.75rem; height: 0.75rem; fill: var(--success);"
+      />
     {:else}
-      <CloseOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);" />
+      <CloseOutlined
+        style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);"
+      />
     {/if}
   </div>
-  <div class="custom-art" use:AppController.tippy={{ content: customArtMsg, placement: "left", onShow: AppController.onTippyShow }}>
+  <div
+    class="custom-art"
+    use:AppController.tippy={{
+      content: customArtMsg,
+      placement: "left",
+      onShow: AppController.onTippyShow,
+    }}
+  >
     {#if hasCustomArt}
-      <CheckOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--success);" />
+      <CheckOutlined
+        style="width: 0.75rem; height: 0.75rem; fill: var(--success);"
+      />
     {:else}
-      <CloseOutlined style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);" />
+      <CloseOutlined
+        style="width: 0.75rem; height: 0.75rem; fill: var(--font-color);"
+      />
     {/if}
   </div>
 </div>
@@ -40,7 +82,7 @@
   .selected-game-entry {
     width: calc(100% - 1.125rem);
     height: 1.25rem;
-    
+
     padding: 0.25rem 0.5rem;
 
     display: flex;
@@ -79,14 +121,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
+
     margin-left: 0.5rem;
   }
 
   .steam-art {
     margin-left: 5.5rem;
     margin-right: 0.5rem;
-    
+
     font-size: 0.75rem;
     user-select: none;
 
@@ -103,7 +145,7 @@
   .custom-art {
     margin-left: 1.625rem;
     margin-right: 0.5rem;
-    
+
     font-size: 0.75rem;
     user-select: none;
 

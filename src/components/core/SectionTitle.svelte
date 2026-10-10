@@ -1,6 +1,10 @@
 <script lang="ts">
-  export let title: string;
-  export let fontSize = "1.25rem";
+  type Props = {
+    title: string;
+    fontSize?: string;
+  };
+
+  let { title, fontSize = "1.25rem" }: Props = $props();
 </script>
 
 <div class="section-title">

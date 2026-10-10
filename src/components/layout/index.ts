@@ -1,5 +1,3 @@
-export { default as InfiniteScroll } from "./InfiniteScroll.svelte";
-
 export { default as ListTabs } from "./tabs/ListTabs.svelte";
 
 export { default as Accordion } from "./Accordion.svelte";
@@ -15,4 +13,3 @@ export { default as VirtualList } from "./VirtualList.svelte";
 export { default as CurrentGridImage } from "./CurrentGridImage.svelte";
 
 export { default as Paginator } from "./Paginator.svelte";
-

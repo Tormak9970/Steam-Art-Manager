@@ -5,8 +5,12 @@
   import GameEntry from "../GameEntry.svelte";
   import EntryLoadingSkeleton from "./EntryLoadingSkeleton.svelte";
 
-  export let isLoading: boolean;
-  export let games: GameStruct[];
+  type Props = {
+    isLoading: boolean;
+    games: GameStruct[];
+  };
+
+  let { isLoading, games }: Props = $props();
 
   const itemHeight = 48;
 </script>
@@ -18,16 +22,21 @@
         <EntryLoadingSkeleton />
       {/each}
     </div>
+  {:else if games.length > 0}
+    <VirtualList
+      {itemHeight}
+      items={games}
+      keyFunction={(game: { index: number; data: GameStruct }) =>
+        `${$currentPlatform}|${game.data.appid}|${game.data.name}`}
+    >
+      {#snippet entry(data)}
+        <GameEntry game={data} />
+      {/snippet}
+    </VirtualList>
   {:else}
-    {#if games.length > 0}
-      <VirtualList itemHeight={itemHeight} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
-        <GameEntry game={entry} />
-      </VirtualList>
-    {:else}
-      <div class="message">
-        No {$currentPlatform} games found.
-      </div>
-    {/if}
+    <div class="message">
+      No {$currentPlatform} games found.
+    </div>
   {/if}
 </div>
 
@@ -43,7 +52,7 @@
 
     overflow: hidden;
   }
-  
+
   .message {
     width: 100%;
     text-align: center;

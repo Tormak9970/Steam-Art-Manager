@@ -5,40 +5,84 @@
   import type { GameStruct } from "@types";
   import GridImage from "../../GridImage.svelte";
 
-  export let game: GameStruct;
-  export let imagePath: string;
-  export let showImage: boolean;
+  type Props = {
+    game: GameStruct;
+    imagePath: string;
+    showImage: boolean;
 
-  export let isHidden: boolean;
-  export let hasCustomName: boolean;
-  export let hasCustomArt: boolean;
-  export let canDiscard: boolean;
-  export let disabled: boolean = false;
+    isHidden: boolean;
+    hasCustomName: boolean;
+    hasCustomArt: boolean;
+    canDiscard: boolean;
+    disabled?: boolean;
 
-  export let selectGame: () => void;
-  export let toggleHidden: (isHidden: boolean) => void;
-  export let showAllGrids: (appId: number) => void;
+    selectGame: () => void;
+    toggleHidden: (isHidden: boolean) => void;
+    showAllGrids: (appId: number) => void;
+  };
+
+  let {
+    game,
+    imagePath,
+    showImage,
+
+    isHidden,
+    hasCustomName,
+    hasCustomArt,
+    canDiscard,
+    disabled = false,
+
+    selectGame,
+    toggleHidden,
+    showAllGrids,
+  }: Props = $props();
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="container">
   {#if disabled}
-    <div class="disabled-tooltip" use:AppController.tippy={{ content: "Icons can't be applied to games without them right now", placement: "top", onShow: AppController.onTippyShow }}></div>
+    <div
+      class="disabled-tooltip"
+      use:AppController.tippy={{
+        content: "Icons can't be applied to games without them right now",
+        placement: "top",
+        onShow: AppController.onTippyShow,
+      }}
+    ></div>
   {/if}
-  <div class="game" class:disabled class:selected={$selectedGameAppId === game.appid.toString()} on:click={selectGame}>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="game"
+    class:disabled
+    class:selected={$selectedGameAppId === game.appid.toString()}
+    onclick={selectGame}
+  >
     <div class="button-container">
       <div
         class="image-control"
-        on:click|stopPropagation={() => showAllGrids(game.appid)}
-        use:AppController.tippy={{ content: "Grids", placement: "right", onShow: AppController.onTippyShow }}
+        onclick={(e) => {
+          e.stopPropagation();
+          showAllGrids(game.appid);
+        }}
+        use:AppController.tippy={{
+          content: "Grids",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
       >
         <AllGrids />
       </div>
       <div
         class="image-control"
-        on:click|stopPropagation={() => toggleHidden(!isHidden)}
-        use:AppController.tippy={{ content: isHidden ? "Unhide" : "Hide", placement: "right", onShow: AppController.onTippyShow }}
+        onclick={(e) => {
+          e.stopPropagation();
+          toggleHidden(!isHidden);
+        }}
+        use:AppController.tippy={{
+          content: isHidden ? "Unhide" : "Hide",
+          placement: "right",
+          onShow: AppController.onTippyShow,
+        }}
       >
         {#if isHidden}
           <Show />
@@ -49,8 +93,15 @@
       {#if hasCustomName}
         <div
           class="image-control"
-          on:click|stopPropagation={() => { AppController.clearCustomNameForGame(game.appid.toString()); }}
-          use:AppController.tippy={{ content: "Clear Name", placement: "right", onShow: AppController.onTippyShow }}
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.clearCustomNameForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Clear Name",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
         >
           <Tag height="1em" />
         </div>
@@ -58,8 +109,15 @@
       {#if hasCustomArt}
         <div
           class="image-control"
-          on:click|stopPropagation={() => { AppController.clearCustomArtForGame(game.appid.toString()); }}
-          use:AppController.tippy={{ content: "Clear Art", placement: "right", onShow: AppController.onTippyShow }}
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.clearCustomArtForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Clear Art",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
         >
           <Ban />
         </div>
@@ -67,15 +125,36 @@
       {#if canDiscard}
         <div
           class="image-control"
-          on:click|stopPropagation={() => { AppController.discardChangesForGame(game.appid.toString()); }}
-          use:AppController.tippy={{ content: "Discard Changes", placement: "right", onShow: AppController.onTippyShow }}
+          onclick={(e) => {
+            e.stopPropagation();
+            AppController.discardChangesForGame(game.appid.toString());
+          }}
+          use:AppController.tippy={{
+            content: "Discard Changes",
+            placement: "right",
+            onShow: AppController.onTippyShow,
+          }}
         >
           <Recycle />
         </div>
       {/if}
     </div>
-    <GridImage imagePath={imagePath} altText="{game.name}'s {$gridType} image" showImage={showImage} missingMessage="Missing {$gridType}" />
-    <div class="name" use:AppController.tippy={{ content: game.name, placement: "right", onShow: AppController.onTippyShow }}>{game.name}</div>
+    <GridImage
+      {imagePath}
+      altText="{game.name}'s {$gridType} image"
+      {showImage}
+      missingMessage="Missing {$gridType}"
+    />
+    <div
+      class="name"
+      use:AppController.tippy={{
+        content: game.name,
+        placement: "right",
+        onShow: AppController.onTippyShow,
+      }}
+    >
+      {game.name}
+    </div>
   </div>
 </div>
 
@@ -87,7 +166,7 @@
   .disabled-tooltip {
     width: 100%;
     height: 100%;
-    
+
     border-radius: 0.25rem;
     overflow: hidden;
 
@@ -110,13 +189,13 @@
     align-items: center;
 
     position: relative;
-    
+
     cursor: pointer;
 
     user-select: none;
 
     transition: background-color 0.2s ease-in-out;
-    
+
     background-color: var(--background-hover);
     border: 0.0625rem solid var(--foreground);
   }
@@ -142,7 +221,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    
+
     text-align: center;
   }
 
@@ -151,7 +230,7 @@
 
     top: 0.125rem;
     left: 0.125rem;
-    
+
     width: 1rem;
 
     z-index: 2;
@@ -185,5 +264,7 @@
     opacity: 1;
   }
 
-  .game:hover > .button-container { display: flex; }
+  .game:hover > .button-container {
+    display: flex;
+  }
 </style>

@@ -1,7 +1,19 @@
 <script lang="ts">
-  export let selected: string;
-  export let tabs: string[];
-  export let height = "100%";
+  import type { Snippet } from "svelte";
+
+  type Props = {
+    selected: string;
+    tabs: string[];
+    height?: string;
+    children: Snippet;
+  };
+
+  let {
+    selected = $bindable(),
+    tabs,
+    height = "100%",
+    children,
+  }: Props = $props();
 
   /**
    * Handles the onClick event.
@@ -12,30 +24,41 @@
   }
 </script>
 
-<ul style="user-select: none;">
-  {#each tabs as tab}
-    <li class:active={selected === tab}>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <span on:click={() => onClick(tab)}>{tab}</span>
-    </li>
-  {/each}
-</ul>
+<div class="tabs-container">
+  <ul style="user-select: none;">
+    {#each tabs as tab}
+      <li class:active={selected === tab}>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <span onclick={() => onClick(tab)}>{tab}</span>
+      </li>
+    {/each}
+  </ul>
 
-<div class="tabs" style="height: {height};">
-  <slot />
+  <div class="tabs" style="height: {height};">
+    {@render children()}
+  </div>
 </div>
 
 <style>
-	.tabs {
-		padding: 0.625rem;
+  .tabs-container {
+    height: calc(100% - 0.125rem);
+    width: calc(100% - 0.125rem);
+
+    border: 1px solid var(--foreground);
+
+    border-radius: 0.25rem;
+  }
+
+  .tabs {
+    padding: 0.625rem;
     padding-bottom: 0.25rem;
     border-top: 0.125rem solid var(--foreground);
-    
+
     background-color: var(--background);
 
     border-radius: 0rem 0rem 0.25rem 0.25rem;
-	}
+  }
 
   ul {
     display: flex;
@@ -46,7 +69,7 @@
 
     display: flex;
   }
-	li {
+  li {
     margin-bottom: -0.0625rem;
     flex-grow: 1;
 
@@ -58,7 +81,10 @@
   li:first-child {
     border-top-left-radius: 0.25rem;
   }
-  li:last-child { border-right: none; border-top-right-radius: 0.25rem; }
+  li:last-child {
+    border-right: none;
+    border-top-right-radius: 0.25rem;
+  }
 
   span {
     display: block;
@@ -70,8 +96,14 @@
     transition: background-color 0.15s ease-in-out;
   }
 
-  li.active > span { background-color: var(--foreground); }
+  li.active > span {
+    background-color: var(--foreground);
+  }
 
-  span:hover { background-color: var(--background-hover); }
-  li.active > span:hover { background-color: var(--foreground-hover); }
+  span:hover {
+    background-color: var(--background-hover);
+  }
+  li.active > span:hover {
+    background-color: var(--foreground-hover);
+  }
 </style>

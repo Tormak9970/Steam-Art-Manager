@@ -2,14 +2,18 @@
   import { Checkbox } from "@interactables";
   import type { SGDBGame } from "@types";
 
-  export let game: SGDBGame;
-  export let onSelect: (game: SGDBGame) => void;
-  export let isSelected: boolean;
+  type Props = {
+    game: SGDBGame;
+    onSelect: (game: SGDBGame) => void;
+    isSelected: boolean;
+  };
+
+  let { game, onSelect, isSelected }: Props = $props();
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="game-search-entry" on:click={() => onSelect(game)}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="game-search-entry" onclick={() => onSelect(game)}>
   <Checkbox value={isSelected} />
   <div class="name">{game.name}</div>
 </div>
@@ -18,7 +22,7 @@
   .game-search-entry {
     width: calc(100% - 0.75rem);
     height: 1.25rem;
-    
+
     padding: 0.25rem 0.325rem;
 
     border-radius: 0.25rem;
@@ -48,7 +52,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
+
     margin-left: 0.5rem;
   }
 </style>

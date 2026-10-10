@@ -2,11 +2,15 @@
   import { Button, NumberInput, TextInput } from "@interactables";
   import { showInfoSnackbar } from "@stores/AppState";
   import type { GameStruct } from "@types";
-  
-  export let onGameSave: (game: GameStruct) => void;
 
-  let gameName: string = "";
-  let appId: number = 0;
+  type Props = {
+    onGameSave: (game: GameStruct) => void;
+  };
+
+  let { onGameSave }: Props = $props();
+
+  let gameName: string = $state("");
+  let appId: number = $state(0);
 
   /**
    * Wrapper function for saving the manual game.
@@ -35,12 +39,19 @@
   </div>
   <NumberInput label={"App Id"} bind:value={appId} />
   <div class="description">
-    The appid of the game. You can find this by going to the game's steam page, and looking at the number in the url, or looking up "what is the steam appid for GAME_NAME".
+    The appid of the game. You can find this by going to the game's steam page,
+    and looking at the number in the url, or looking up "what is the steam appid
+    for GAME_NAME".
   </div>
 
   <div class="buttons">
-    <Button on:click={clear} width="48.5%">Clear</Button>
-    <Button on:click={saveWrapper} width="48.5%" disabled={gameName === "" || appId === 0}>Add Game</Button>
+    <Button label="Clear" onClick={clear} width="48.5%" />
+    <Button
+      label="Add Game"
+      onClick={saveWrapper}
+      width="48.5%"
+      disabled={gameName === "" || appId === 0}
+    />
   </div>
 </div>
 
@@ -53,13 +64,14 @@
   }
 
   .description {
-    width: calc(100% - 1.75rem);
+    width: calc(100% - 1.875rem);
     margin-top: 0.5rem;
     margin-bottom: 1.25rem;
 
     font-size: 0.875rem;
 
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.25rem;
 
     padding: 0.5rem;

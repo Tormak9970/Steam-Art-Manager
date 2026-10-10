@@ -5,32 +5,53 @@
   import { GRID_DIMENSIONS } from "@utils";
   import GameEntry from "../GameEntry.svelte";
 
-  export let isLoading: boolean;
-  export let games: GameStruct[];
+  type Props = {
+    isLoading: boolean;
+    games: GameStruct[];
+  };
 
-  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+  let { isLoading, games }: Props = $props();
 
-  $: imageWidth = gridDimensions.widths[$gridType] + gridDimensions.padding
-  $: imageHeight = gridDimensions.heights[$gridType] + gridDimensions.padding + gridDimensions.heightOffset
+  let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
+
+  let imageWidth = $derived(
+    gridDimensions.widths[$gridType] + gridDimensions.padding,
+  );
+  let imageHeight = $derived(
+    gridDimensions.heights[$gridType] +
+      gridDimensions.padding +
+      gridDimensions.heightOffset,
+  );
 </script>
 
 <div class="games-grid">
   {#if isLoading}
-    <div class="loading-container" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
+    <div
+      class="loading-container"
+      style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;"
+    >
       {#each new Array(100) as _}
         <GridLoadingSkeleton />
       {/each}
     </div>
+  {:else if games.length > 0}
+    <VirtualGrid
+      remItemHeight={imageHeight}
+      remItemWidth={imageWidth}
+      rowGap={15}
+      columnGap={15}
+      items={games}
+      keyFunction={(game: { index: number; data: GameStruct }) =>
+        `${$currentPlatform}|${game.data.appid}|${game.data.name}`}
+    >
+      {#snippet entry(data)}
+        <GameEntry game={data} />
+      {/snippet}
+    </VirtualGrid>
   {:else}
-    {#if games.length > 0}
-      <VirtualGrid remItemHeight={imageHeight} remItemWidth={imageWidth} rowGap={15} columnGap={15} items={games} keyFunction={(game) => `${$currentPlatform}|${game.data.appid}|${game.data.name}`} let:entry>
-        <GameEntry game={entry} />
-      </VirtualGrid>
-    {:else}
-      <div class="message">
-        No {$currentPlatform} games found.
-      </div>
-    {/if}
+    <div class="message">
+      No {$currentPlatform} games found.
+    </div>
   {/if}
 </div>
 
@@ -43,7 +64,7 @@
   .loading-container {
     width: 100%;
     display: grid;
-    
+
     grid-template-columns: repeat(auto-fit, var(--img-width));
     row-gap: 1rem;
     column-gap: 1rem;
