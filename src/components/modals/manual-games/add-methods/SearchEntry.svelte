@@ -1,14 +1,24 @@
 <script lang="ts">
   import type { SGDBGame } from "@types";
 
-  export let game: SGDBGame;
-  export let isSelected: boolean;
-  export let onSelect: (game: SGDBGame) => void;
+  type Props = {
+    game: SGDBGame;
+    isSelected: boolean;
+    onSelect: (game: SGDBGame) => void;
+  };
+
+  let { game, isSelected, onSelect }: Props = $props();
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="search-entry" class:selected={isSelected} on:click={() => { onSelect(game); }}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+  class="search-entry"
+  class:selected={isSelected}
+  onclick={() => {
+    onSelect(game);
+  }}
+>
   <div class="name">{game.name}</div>
 </div>
 
@@ -16,7 +26,7 @@
   .search-entry {
     width: calc(100% - 1rem);
     height: 1.25rem;
-    
+
     padding: 0.25rem;
 
     display: flex;
@@ -34,7 +44,8 @@
     cursor: pointer;
   }
 
-  .selected, .selected:hover {
+  .selected,
+  .selected:hover {
     background-color: var(--foreground-light);
     border: 0.0625rem solid var(--foreground-light);
   }
@@ -47,7 +58,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
+
     margin-left: 0.25rem;
   }
 </style>

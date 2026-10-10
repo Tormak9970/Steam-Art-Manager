@@ -1,9 +1,11 @@
 <script lang="ts">
-  export let marginTop: string = "0.375rem";
-  export let marginBottom: string = "";
+  let { marginTop = "0.375rem", marginBottom = "" } = $props();
 </script>
 
-<div class="divider" style="margin-top: {marginTop}; margin-bottom: {marginBottom};" />
+<div
+  class="divider"
+  style="margin-top: {marginTop}; margin-bottom: {marginBottom};"
+></div>
 
 <style>
   .divider {

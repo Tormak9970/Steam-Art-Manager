@@ -2,46 +2,84 @@
   import { CacheController } from "@controllers";
   import { scrollShadow } from "@directives";
   import { GridLoadingSkeleton, Paginator } from "@layout";
-  import { currentPlatform, dbFilters, gridImageSize, gridType, selectedGameAppId, selectedGameName, selectedSteamGridGameId, showCachedGrids, userSelectedGrids, type DBFilters } from "@stores/AppState";
+  import {
+    currentPlatform,
+    dbFilters,
+    gridImageSize,
+    gridType,
+    selectedGameAppId,
+    selectedGameName,
+    selectedSteamGridGameId,
+    showCachedGrids,
+    userSelectedGrids,
+    type DBFilters,
+  } from "@stores/AppState";
   import { GridTypes, type SGDBImage } from "@types";
   import { GRID_DIMENSIONS } from "@utils";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import Grid from "./Grid.svelte";
 
-  export let hasCustomName: boolean;
+  type Props = {
+    hasCustomName: boolean;
+  };
 
-  let isLoading = true;
-  let totalGrids: number = 0;
+  let { hasCustomName }: Props = $props();
+
+  let isLoading = $state(true);
+  let totalGrids: number = $state(0);
   const currentPage = writable<number>(0);
-  let grids: SGDBImage[] = [];
+  let grids: SGDBImage[] = $state([]);
 
-  $: selectedGameGrids = $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [];
-  
-  $: gridDimensions = GRID_DIMENSIONS[$gridImageSize]
+  let selectedGameGrids = $derived(
+    $userSelectedGrids?.[$selectedGameAppId]?.[$gridType] ?? [],
+  );
 
-  $: imageWidth = gridDimensions.widths[$gridType] + gridDimensions.padding
-  $: imageHeight = gridDimensions.heights[$gridType] + gridDimensions.padding + gridDimensions.heightOffset
+  let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
+
+  let imageWidth = $derived(
+    gridDimensions.widths[$gridType] + gridDimensions.padding,
+  );
+  let imageHeight = $derived(
+    gridDimensions.heights[$gridType] +
+      gridDimensions.padding +
+      gridDimensions.heightOffset,
+  );
 
   /**
    * Handles loading new grids when the user scrolls to the bottom.
    */
-  function fetchGrids(gameId:string, page: number, filters: DBFilters) {
+  function fetchGrids(gameId: string, page: number, filters: DBFilters) {
     if (gameId !== "None") {
-      isLoading = true
-      CacheController.fetchGrids($selectedGameAppId, true, gameId, $gridType, page, filters).then((unfilteredGrids) => {
-        totalGrids = unfilteredGrids.total
-        grids = unfilteredGrids.images
-        isLoading = false
-      })
+      isLoading = true;
+      CacheController.fetchGrids(
+        $selectedGameAppId,
+        true,
+        gameId,
+        $gridType,
+        page,
+        filters,
+      ).then((unfilteredGrids) => {
+        totalGrids = unfilteredGrids.total;
+        grids = unfilteredGrids.images;
+        isLoading = false;
+      });
     }
   }
 
-  $: fetchGrids($selectedSteamGridGameId, $currentPage, $dbFilters)
+  $effect(() => {
+    fetchGrids($selectedSteamGridGameId, $currentPage, $dbFilters);
+  });
 
   onMount(() => {
     if ($selectedSteamGridGameId === "None") {
-      CacheController.chooseSteamGridGameId($selectedGameAppId, $selectedGameName, $currentPlatform, true, hasCustomName).then((sgdbGameId) => {
+      CacheController.chooseSteamGridGameId(
+        $selectedGameAppId,
+        $selectedGameName,
+        $currentPlatform,
+        true,
+        hasCustomName,
+      ).then((sgdbGameId) => {
         $selectedSteamGridGameId = sgdbGameId;
       });
     }
@@ -50,43 +88,59 @@
 
 <div class="page-container">
   <div class="scroll-wrapper">
-    <div class="scroll-container" use:scrollShadow={{ background: "--background-dark"}}>
+    <div
+      class="scroll-container"
+      use:scrollShadow={{ background: "--background-dark" }}
+    >
       {#if isLoading}
-        <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
+        <div
+          class="game-grid"
+          style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;"
+        >
           {#each new Array(100) as _}
             <GridLoadingSkeleton />
           {/each}
         </div>
-      {:else}
-        {#if $showCachedGrids}
-          {#if selectedGameGrids.length > 0}
-            <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
-              {#each selectedGameGrids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                <Grid grid={grid} />
-              {/each}
-            </div>
-          {:else}
-            <div class="message">
-              No previously selected {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found.
-            </div>
-          {/if}
+      {:else if $showCachedGrids}
+        {#if selectedGameGrids.length > 0}
+          <div
+            class="game-grid"
+            style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;"
+          >
+            {#each selectedGameGrids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+              <Grid {grid} />
+            {/each}
+          </div>
         {:else}
-          {#if grids.length > 0}
-            <div class="game-grid" style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;">
-              {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
-                <Grid grid={grid} />
-              {/each}
-            </div>
-          {:else}
-            <div class="message">
-              No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s were found with your filters.
-            </div>
-          {/if}
+          <div class="message">
+            No previously selected {$gridType === GridTypes.HERO
+              ? "Heroe"
+              : $gridType}s were found.
+          </div>
         {/if}
+      {:else if grids.length > 0}
+        <div
+          class="game-grid"
+          style="--img-width: {imageWidth}rem; --img-height: {imageHeight}rem;"
+        >
+          {#each grids as grid (`${$selectedSteamGridGameId}|${grid.id}|${$gridType}`)}
+            <Grid {grid} />
+          {/each}
+        </div>
+      {:else}
+        <div class="message">
+          No results for {$gridType === GridTypes.HERO ? "Heroe" : $gridType}s
+          were found with your filters.
+        </div>
       {/if}
     </div>
   </div>
-  <Paginator bind:currentPage={$currentPage} totalResults={totalGrids} resultsPerPage={CacheController.SGDB_GRID_RESULT_LIMIT} disabled={$showCachedGrids} />
+  <Paginator
+    bind:currentPage={$currentPage}
+    totalResults={totalGrids}
+    resultsPerPage={CacheController.SGDB_GRID_RESULT_LIMIT}
+    disabled={$showCachedGrids}
+  />
 </div>
 
 <style>
@@ -101,11 +155,11 @@
 
     position: relative;
   }
-  
+
   .game-grid {
     width: 100%;
     display: grid;
-    
+
     grid-template-columns: repeat(auto-fit, var(--img-width));
     row-gap: 1rem;
     column-gap: 1rem;
@@ -114,7 +168,7 @@
 
     justify-content: center;
   }
-  
+
   .scroll-container {
     height: 100%;
     width: 100%;

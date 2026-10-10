@@ -37,6 +37,7 @@ export { default as Ruler } from "./Ruler.svelte";
 export { default as SGDBLogo } from "./SGDB.svelte";
 export { default as Share } from "./Share.svelte";
 export { default as Show } from "./Show.svelte";
+export { default as Sort } from "./Sort.svelte";
 export { default as Stack } from "./Stack.svelte";
 export { default as Steam } from "./Steam.svelte";
 export { default as Sun } from "./Sun.svelte";

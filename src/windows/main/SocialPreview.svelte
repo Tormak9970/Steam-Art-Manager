@@ -1,5 +1,5 @@
 <div class="social-preview">
-  <div class="backdrop" />
+  <div class="backdrop"></div>
   <div class="content">
     <div class="icon-container">
       <!-- svelte-ignore a11y-missing-attribute -->

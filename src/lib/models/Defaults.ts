@@ -1,4 +1,4 @@
-import type { Settings } from "@types";
+import { SortMethods, type Settings } from "@types";
 
 export const APP_TYPES = [
   "Game",
@@ -172,6 +172,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHiddenGames: false,
   onlyShowInstalled: false,
   onlyShowMissing: false,
+  previewOnClick: false,
 
   debugMode: false,
 
@@ -181,6 +182,7 @@ export const DEFAULT_SETTINGS: Settings = {
     main: {
       gridImageSize: "small",
       filters: DEFAULT_FILTERS,
+      sortBy: SortMethods.ALPHABETICAL,
       panels: {
         options: 16,
         games: 42,

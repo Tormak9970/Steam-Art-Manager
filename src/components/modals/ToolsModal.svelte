@@ -3,24 +3,35 @@
   import { Clean, Export, GameTiles, Import, Plus, Stack } from "@icons";
   import { IconButton } from "@interactables";
   import { canSave } from "@stores/AppState";
-  import { showBatchApplyModal, showCleanGridsModal, showManualGamesModal, showToolsModal, showUpdateTilesModal } from "@stores/Modals";
+  import {
+    showBatchApplyModal,
+    showCleanGridsModal,
+    showManualGamesModal,
+    showToolsModal,
+    showUpdateTilesModal,
+  } from "@stores/Modals";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
-  let open = true;
+  let open = $state(true);
 
   type Tool = {
     name: string;
     icon: any;
     onClick: () => Promise<void> | void;
-  }
+  };
 
-  
   /**
    * Wrapper function for handling when the Clean Grids action is selected.
    */
   async function onCleanGridsClick(): Promise<void> {
     if ($canSave) {
-      const shouldSaveAndOpen = await DialogController.ask("Found in Progress Changes", "WARNING", "You need to save your changes before cleaning. Would you like to save?", "Yes", "No");
+      const shouldSaveAndOpen = await DialogController.ask(
+        "Found in Progress Changes",
+        "WARNING",
+        "You need to save your changes before cleaning. Would you like to save?",
+        "Yes",
+        "No",
+      );
 
       if (shouldSaveAndOpen) {
         await AppController.saveChanges();
@@ -35,32 +46,38 @@
     {
       name: "Export",
       icon: Export,
-      onClick: AppController.exportGrids
+      onClick: AppController.exportGrids,
     },
     {
       name: "Import",
       icon: Import,
-      onClick: AppController.importGrids
+      onClick: AppController.importGrids,
     },
     {
       name: "Batch Apply",
       icon: Stack,
-      onClick: () => { $showBatchApplyModal = true; }
+      onClick: () => {
+        $showBatchApplyModal = true;
+      },
     },
     {
       name: "Manage Manual Games",
       icon: Plus,
-      onClick: () => { $showManualGamesModal = true; }
+      onClick: () => {
+        $showManualGamesModal = true;
+      },
     },
     {
       name: "Clean Grids",
       icon: Clean,
-      onClick: onCleanGridsClick
+      onClick: onCleanGridsClick,
     },
     {
       name: "Update Game Tiles",
       icon: GameTiles,
-      onClick: () => { $showUpdateTilesModal = true; }
+      onClick: () => {
+        $showUpdateTilesModal = true;
+      },
     },
   ];
 
@@ -72,26 +89,40 @@
   }
 </script>
 
-<ModalBody title={"Tools"} open={open} on:close={() => open = false} on:closeEnd={onClose}>
-  <div class="content">
-    {#each toolsList as tool}
-      <IconButton label={tool.name} on:click={tool.onClick} height="5rem" width="5rem" tooltipPosition="bottom">
-        <svelte:component this={tool.icon} style="height: 2rem; width: 2rem;" />
-      </IconButton>
-    {/each}
-  </div>
+<ModalBody
+  title={"Tools"}
+  {open}
+  onClose={() => {
+    open = false;
+  }}
+  onCloseEnd={onClose}
+>
+  {#snippet body()}
+    <div class="content">
+      {#each toolsList as tool}
+        <IconButton
+          label={tool.name}
+          onClick={tool.onClick}
+          height="5rem"
+          width="5rem"
+          tooltipPosition="bottom"
+        >
+          <tool.icon style="height: 2rem; width: 2rem;" />
+        </IconButton>
+      {/each}
+    </div>
+  {/snippet}
 </ModalBody>
 
 <style>
   .content {
-		width: 25rem;
+    width: 25rem;
 
-		display: grid;
+    display: grid;
     gap: 1.25rem;
-		grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     grid-auto-flow: row;
 
-
     padding-top: 1rem;
-	}
+  }
 </style>

@@ -3,21 +3,24 @@
   import { Button } from "@interactables";
   import * as fs from "@tauri-apps/plugin-fs";
   import { onMount } from "svelte";
-  import { cleanConflicts, showCleanConflictDialog } from "../../../stores/Modals";
+  import {
+    cleanConflicts,
+    showCleanConflictDialog,
+  } from "../../../stores/Modals";
   import ModalBody from "../modal-utils/ModalBody.svelte";
-    
+
   import { showInfoSnackbar } from "@stores/AppState";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import { type CleanConflict } from "@types";
   import { CLEAN_CONFLICT_GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
 
-  let open = true;
-  let conflictNumber: number = 1;
-  let conflict: CleanConflict | null;
-  $: conflictGridType = conflict ? conflict.gridType : "";
-  $: fileAPath = conflict ? convertFileSrc(conflict.fileAPath) : "";
-  $: fileBPath = conflict ? convertFileSrc(conflict.fileBPath) : "";
+  let open = $state(true);
+  let conflictNumber: number = $state(1);
+  let conflict: CleanConflict | null | undefined = $state();
+  let conflictGridType = $derived(conflict ? conflict.gridType : "");
+  let fileAPath = $derived(conflict ? convertFileSrc(conflict.fileAPath) : "");
+  let fileBPath = $derived(conflict ? convertFileSrc(conflict.fileBPath) : "");
 
   /**
    * Get the next grid conflict.
@@ -34,8 +37,10 @@
   async function deleteGrid(keepChoiceA: boolean): Promise<void> {
     await fs.remove(keepChoiceA ? conflict!.fileBPath : conflict!.fileAPath);
 
-    LogController.log(`Appid: ${conflict!.appid}. Keeping ${keepChoiceA ? conflict!.fileAName : conflict!.fileBName} and deleting ${keepChoiceA ? conflict!.fileBName : conflict!.fileAName}.`);
-    
+    LogController.log(
+      `Appid: ${conflict!.appid}. Keeping ${keepChoiceA ? conflict!.fileAName : conflict!.fileBName} and deleting ${keepChoiceA ? conflict!.fileBName : conflict!.fileAName}.`,
+    );
+
     conflict = getNextConflict();
 
     if (!conflict) {
@@ -50,7 +55,9 @@
    * Function to call when the user wants to keep both grids.
    */
   function keepBoth(): void {
-    LogController.log(`Appid: ${conflict!.appid}. Keeping both ${conflict!.fileAName} and ${conflict!.fileBName}.`);
+    LogController.log(
+      `Appid: ${conflict!.appid}. Keeping both ${conflict!.fileAName} and ${conflict!.fileBName}.`,
+    );
 
     conflict = getNextConflict();
 
@@ -70,52 +77,109 @@
   });
 </script>
 
-<ModalBody title={`Conflict #${conflictNumber}`} open={open} on:close={() => open = false} canClose={false}>
-  <div class="content">
-    <div class="description">
-      Choose which grid you would like to keep.
-    </div>
-    <div class="images {conflictGridType}">
-      <div class="split">
-        <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem;">
-            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
-              <img src="{fileAPath}" alt="Option 1" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem; width: auto; height: auto;" />
-            </Lazy>
+<ModalBody
+  title={`Conflict #${conflictNumber}`}
+  {open}
+  onClose={() => {
+    open = false;
+  }}
+  canClose={false}
+>
+  {#snippet body()}
+    <div class="content">
+      <div class="description">Choose which grid you would like to keep.</div>
+      <div class="images {conflictGridType}">
+        <div class="split">
+          <div class="img-cont">
+            <div
+              class="img"
+              class:logo-background={conflictGridType === "logo"}
+              style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                conflictGridType
+              ]}rem;"
+            >
+              <Lazy
+                height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                  conflictGridType
+                ]}rem"
+                fadeOption={IMAGE_FADE_OPTIONS}
+              >
+                <img
+                  src={fileAPath}
+                  alt="Option 1"
+                  style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+                    conflictGridType
+                  ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                    conflictGridType
+                  ]}rem; width: auto; height: auto;"
+                />
+              </Lazy>
+            </div>
           </div>
+          <div class="filename">{conflict?.fileAName}</div>
         </div>
-        <div class="filename">{conflict?.fileAName}</div>
-      </div>
-      <div class="split">
-        <div class="img-cont">
-          <div class="img" class:logo-background={conflictGridType === "logo"} style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem;">
-            <Lazy height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem" fadeOption={IMAGE_FADE_OPTIONS}>
-              <img src="{fileBPath}" alt="Option 2" style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[conflictGridType]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[conflictGridType]}rem; width: auto; height: auto;" />
-            </Lazy>
+        <div class="split">
+          <div class="img-cont">
+            <div
+              class="img"
+              class:logo-background={conflictGridType === "logo"}
+              style="max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                conflictGridType
+              ]}rem;"
+            >
+              <Lazy
+                height="{CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                  conflictGridType
+                ]}rem"
+                fadeOption={IMAGE_FADE_OPTIONS}
+              >
+                <img
+                  src={fileBPath}
+                  alt="Option 2"
+                  style="max-width: {CLEAN_CONFLICT_GRID_DIMENSIONS.widths[
+                    conflictGridType
+                  ]}rem; max-height: {CLEAN_CONFLICT_GRID_DIMENSIONS.heights[
+                    conflictGridType
+                  ]}rem; width: auto; height: auto;"
+                />
+              </Lazy>
+            </div>
           </div>
+          <div class="filename">{conflict?.fileBName}</div>
         </div>
-        <div class="filename">{conflict?.fileBName}</div>
       </div>
     </div>
-  </div>
-  <span slot="buttons" class="buttons">
-    <Button on:click={() => { deleteGrid(true); }} width="30%">Keep {conflictGridType === "hero" ? "Top" : "Left"}</Button>
-    <Button on:click={() => { deleteGrid(false); }} width="30%">Keep {conflictGridType === "hero" ? "Bottom" : "Right"}</Button>
-    <Button on:click={keepBoth} width="30%">Keep Both</Button>
-  </span>
+  {/snippet}
+  {#snippet controls()}
+    <Button
+      label={`Keep ${conflictGridType === "hero" ? "Top" : "Left"}`}
+      onClick={() => {
+        deleteGrid(true);
+      }}
+      width="30%"
+    />
+    <Button
+      label={`Keep ${conflictGridType === "hero" ? "Bottom" : "Right"}`}
+      onClick={() => {
+        deleteGrid(false);
+      }}
+      width="30%"
+    />
+    <Button label="Keep Both" onClick={keepBoth} width="30%" />
+  {/snippet}
 </ModalBody>
 
 <style>
   /* done */
   .content {
     width: 37.5rem;
-		height: calc(100% - 3.75rem);
+    height: calc(100% - 3.75rem);
 
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: center;
-	}
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
   .description {
     width: 100%;
@@ -176,11 +240,15 @@
     justify-content: center;
   }
 
-  
   .logo-background {
     border-radius: 0.5rem;
     background-color: #a3a3a3;
-    background-image: linear-gradient(140deg, #adadad 0%, #727272 50%, #535353 75%);
+    background-image: linear-gradient(
+      140deg,
+      #adadad 0%,
+      #727272 50%,
+      #535353 75%
+    );
     width: 100%;
     display: flex;
     align-items: center;

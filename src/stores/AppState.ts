@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
+import { GridTypes, SortMethods, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilter = {
@@ -35,6 +35,8 @@ export const debugMode = writable(false);
 export const appTypes = writable<string[]>([]);
 export const renderGamesInList = writable(false);
 
+export const sortGridsBy = writable(SortMethods.ALPHABETICAL);
+
 export const optionsSize = writable(16);
 export const gamesSize = writable(42);
 export const gridsSize = writable(42);
@@ -61,16 +63,17 @@ export const steamInstallPath = writable("");
 export const canSave = writable(false);
 export const isOnline = writable(false);
 export const loadingGames = writable(true);
-export const currentPlatform: Writable<Platforms> = writable(Platforms.STEAM);
-export const gridType: Writable<GridTypes> = writable(GridTypes.CAPSULE);
+export const currentPlatform = writable(Platforms.STEAM);
+export const gridType = writable(GridTypes.CAPSULE);
 
-export const selectedGameAppId = writable<string>("");
-export const dowloadingGridId = writable<string>("");
+export const selectedGameAppId = writable("");
+export const dowloadingGridId = writable("");
 export const selectedSteamGridGameId = writable("None");
 
 export const showHidden = writable(false);
-export const onlyShowMissing = writable<boolean>(false);
-export const onlyShowInstalled = writable<boolean>(false);
+export const onlyShowMissing = writable(false);
+export const onlyShowInstalled = writable(false);
+export const previewGridsOnClick = writable(false);
 
 export const steamUsers = writable<{ [id: string]: SteamUser }>({});
 export const activeUserId = writable(0);

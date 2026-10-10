@@ -2,15 +2,23 @@
   import { CacheController } from "@controllers";
   import { Button, SearchBar } from "@interactables";
   import { Table } from "@layout";
-  import { needsSGDBAPIKey, showErrorSnackbar, showInfoSnackbar } from "@stores/AppState";
+  import {
+    needsSGDBAPIKey,
+    showErrorSnackbar,
+    showInfoSnackbar,
+  } from "@stores/AppState";
   import type { GameStruct, SGDBGame } from "@types";
   import SearchEntry from "./SearchEntry.svelte";
-  
-  export let onGameSave: (game: GameStruct) => void;
 
-  let searchQuery: string = "";
-  let selectedGame: SGDBGame | null;
-  let results: SGDBGame[] = [];
+  type Props = {
+    onGameSave: (game: GameStruct) => void;
+  };
+
+  let { onGameSave }: Props = $props();
+
+  let searchQuery: string = $state("");
+  let selectedGame: SGDBGame | null = $state(null);
+  let results: SGDBGame[] = $state([]);
 
   /**
    * Function to run when a game is selected.
@@ -29,7 +37,9 @@
       results = [];
     } else {
       const searchRes = await CacheController.searchForGame(query);
-      const steamGames = searchRes.filter((game: SGDBGame) => game.types.includes("steam"));
+      const steamGames = searchRes.filter((game: SGDBGame) =>
+        game.types.includes("steam"),
+      );
       results = steamGames;
     }
   }
@@ -39,9 +49,14 @@
    */
   async function saveWrapper(): Promise<void> {
     const appid = await CacheController.getAppidForSGDBGame(selectedGame!);
-    
+
     if (appid) {
-      onGameSave({ appid: parseInt(appid), type: "Game", installed: true, name: selectedGame!.name });
+      onGameSave({
+        appid: parseInt(appid),
+        type: "Game",
+        installed: true,
+        name: selectedGame!.name,
+      });
       $showInfoSnackbar({ message: `Added ${selectedGame!.name}!` });
       selectedGame = null;
       results = [];
@@ -66,29 +81,49 @@
 <div class="search-add">
   {#if $needsSGDBAPIKey}
     <div class="description">
-      <b>Please provide a SteamGridDB API key in settings if you would like to use the game search!</b>
+      <b
+        >Please provide a SteamGridDB API key in settings if you would like to
+        use the game search!</b
+      >
     </div>
   {:else}
-    <SearchBar label="Game Search" bind:value={searchQuery} onChange={searchGame} reversed />
+    <SearchBar
+      label="Game Search"
+      bind:value={searchQuery}
+      onChange={searchGame}
+      reversed
+    />
     <div class="description">
-      Search SteamGridDB for a game with the provided name. (You need to hit enter to apply the search)
+      Search SteamGridDB for a game with the provided name. (You need to hit
+      enter to apply the search)
     </div>
     <div class="table-cont">
       <Table height="19.75rem">
-        <span slot="header">
+        {#snippet header()}
           <div class="name">Name</div>
-        </span>
-        <span slot="data" class="entries">
-          {#each results as game (game.id)}
-            <SearchEntry game={game} isSelected={selectedGame?.id === game.id} onSelect={onGameSelect} />
-          {/each}
-        </span>
+        {/snippet}
+        {#snippet data()}
+          <span class="entries">
+            {#each results as game (game.id)}
+              <SearchEntry
+                {game}
+                isSelected={selectedGame?.id === game.id}
+                onSelect={onGameSelect}
+              />
+            {/each}
+          </span>
+        {/snippet}
       </Table>
     </div>
 
     <div class="buttons">
-      <Button on:click={clear} width="47.5%">Clear</Button>
-      <Button on:click={saveWrapper} disabled={!selectedGame} width="47.5%">Add Selected</Button>
+      <Button label="Clear" onClick={clear} width="47.5%" />
+      <Button
+        label="Add Selected"
+        onClick={saveWrapper}
+        disabled={!selectedGame}
+        width="47.5%"
+      />
     </div>
   {/if}
 </div>

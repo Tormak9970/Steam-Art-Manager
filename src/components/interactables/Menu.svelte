@@ -1,47 +1,81 @@
 <script lang="ts">
   import { IconButton } from "@interactables";
-  import type { ComponentType } from "svelte";
+  import type { Component, Snippet } from "svelte";
 
-  export let label: string;
-  export let options: {label: string, icon?: ComponentType, onClick: () => void}[];
-  export let width = "auto";
-  export let direction: "UP" | "DOWN" = "DOWN";
-  export let disabled = false;
+  type Props = {
+    label: string;
+    options: {
+      label: string;
+      icon?: Component;
+      onClick: () => void;
+    }[];
+    children: Snippet;
+    width?: string;
+    direction?: "UP" | "DOWN";
+    disabled?: boolean;
+  };
 
-  let customSelectElemWrapper: HTMLDivElement;
-  
-  let open = false
-  let active = false;
+  let {
+    label,
+    options,
+    children,
+    width = "auto",
+    direction = "DOWN",
+    disabled = false,
+  }: Props = $props();
+
+  let open = $state(false);
 
   /**
    * Closes all dropdowns.
    * @param e The click event.
    */
   function closeDropdowns(e: Event): void {
-    const target = e.currentTarget as HTMLElement;
-    // * Need this bc we want to only compare the properties of the objects.
-    // eslint-disable-next-line eqeqeq
-    if (target != customSelectElemWrapper) active = false;
+    const target = e.target as HTMLElement;
+    const button = document.getElementById(label);
+
+    if (target.id !== label && !button?.contains(target)) open = false;
   }
 </script>
 
 <svelte:window on:click={closeDropdowns} />
 
 <!-- Overlay -->
-<div class="custom-select" style="width: calc({width} - 0.5rem); min-width: calc({width} - 0.5rem);" bind:this={customSelectElemWrapper}>
-  <IconButton label={label} on:click={() => open = !open} tooltipPosition={"top"} disabled={disabled}>
-    <slot />
+<div
+  class="custom-select"
+  style="width: calc({width} - 0.5rem); min-width: calc({width} - 0.5rem);"
+>
+  <IconButton
+    id={label}
+    {label}
+    onClick={() => {
+      open = !open;
+    }}
+    tooltipPosition={"top"}
+    {disabled}
+  >
+    {@render children()}
   </IconButton>
 
   {#if open}
-    <div class="select-items" class:open-up={direction === "UP"} style="--top-percentage: -{(options.length + 1) * 100 - 35 }%;" class:select-hide={!open}>
+    <div
+      class="select-items"
+      class:open-up={direction === "UP"}
+      style="--top-percentage: -{(options.length + 1) * 100 - 35}%;"
+      class:select-hide={!open}
+    >
       {#each options as option}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div on:click={() => { option.onClick(); open = false }}>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          onclick={() => {
+            option.onClick();
+            open = false;
+          }}
+        >
           <div class="icon-container">
             {#if option.icon}
-              <svelte:component this={option.icon} style="height: 0.875rem; width: 0.875rem;" />
+              <option.icon style="height: 0.875rem; width: 0.875rem;" />
             {/if}
           </div>
           {option.label}
@@ -71,13 +105,13 @@
     gap: 1rem;
 
     font-size: 0.9rem;
-    
+
     transition: background-color 0.15s ease-in-out;
   }
   .icon-container {
     width: 0.875rem;
     height: 0.875rem;
-    
+
     color: var(--font-color);
     fill: var(--font-color);
   }
@@ -98,7 +132,7 @@
     background-color: var(--foreground);
     cursor: pointer;
   }
-  
+
   .open-up {
     top: var(--top-percentage);
     left: 0;
@@ -110,5 +144,7 @@
     box-shadow: -0.125rem -0.375rem 1.625rem -0.125rem var(--shadow);
   }
 
-  .select-hide { display: none; }
+  .select-hide {
+    display: none;
+  }
 </style>

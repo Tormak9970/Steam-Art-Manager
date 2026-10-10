@@ -1,13 +1,19 @@
 <script lang="ts">
- import { afterUpdate } from "svelte";
+  type Props = {
+    progress?: number;
+    width?: string;
+    onFinish?: () => void | Promise<void>;
+  };
 
-  export let progress:number = 0;
-  export let width:string = "12.5rem";
-  export let onFinish: () => void = () => {};
+  let {
+    progress = $bindable(0),
+    width = "12.5rem",
+    onFinish = () => {},
+  }: Props = $props();
 
-  $: isFinished = Math.abs(progress - 100) === 0;
+  let isFinished = $derived(Math.abs(progress - 100) === 0);
 
-  afterUpdate(() => {
+  $effect(() => {
     if (isFinished) {
       onFinish();
     }
@@ -15,7 +21,11 @@
 </script>
 
 <div class="prog-bar" style="width: calc({width} - 0.125rem);">
-  <div class="prog-bar-ind" style="width: {progress}%;" class:finished={isFinished} />
+  <div
+    class="prog-bar-ind"
+    style="width: {progress}%;"
+    class:finished={isFinished}
+  ></div>
 </div>
 
 <style>
@@ -23,7 +33,7 @@
     position: relative;
     height: 1.25rem;
     background-color: var(--background-dark);
-    border: 0.0625rem solid #000;
+    border: 0.0625rem solid var(--foreground);
     border-radius: 0.125rem;
   }
 

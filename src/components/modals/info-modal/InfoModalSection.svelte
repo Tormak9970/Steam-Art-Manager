@@ -1,11 +1,18 @@
 <script lang="ts">
-  export let title: string;
+  import type { Snippet } from "svelte";
+
+  type Props = {
+    title: string;
+    children: Snippet;
+  };
+
+  let { title, children }: Props = $props();
 </script>
 
 <div class="info-modal-section">
   <h1 class="title">{title}</h1>
   <div class="content">
-    <slot />
+    {@render children()}
   </div>
 </div>
 
@@ -16,13 +23,14 @@
     align-items: flex-start;
 
     background-color: var(--background-dark);
+    border: 0.0625rem solid var(--foreground);
     padding: 0.5rem;
     border-radius: 0.25rem;
   }
 
   .title {
     margin-top: 0rem;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .content {

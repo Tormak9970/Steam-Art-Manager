@@ -3,16 +3,25 @@
   import { progressModalMessage, progressModalTitle } from "@stores/Modals";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
-  let open = true;
+  let open = $state(true);
 </script>
 
-<ModalBody title={$progressModalTitle} open={open} on:close={() => open = false} canClose={false}>
-  <div class="content">
-    <div class="info">
-      <LoadingSpinner width="5rem" height="5rem" />
-      <div class="message">{$progressModalMessage}</div>
+<ModalBody
+  title={$progressModalTitle}
+  {open}
+  onClose={() => {
+    open = false;
+  }}
+  canClose={false}
+>
+  {#snippet body()}
+    <div class="content">
+      <div class="info">
+        <LoadingSpinner width="5rem" height="5rem" />
+        <div class="message">{$progressModalMessage}</div>
+      </div>
     </div>
-  </div>
+  {/snippet}
 </ModalBody>
 
 <style>
