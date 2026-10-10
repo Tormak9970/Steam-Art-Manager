@@ -4,6 +4,7 @@
   import type { Placement } from "tippy.js";
 
   type Props = {
+    id?: string;
     label: string | undefined;
     children: Snippet;
     onClick: () => void | Promise<void>;
@@ -18,6 +19,7 @@
   };
 
   let {
+    id = undefined,
     label = undefined,
     children,
     onClick,
@@ -34,6 +36,7 @@
 
 {#if !!label}
   <button
+    {id}
     class="button"
     class:warn
     class:grey-highlight={greyHighlight}
@@ -51,6 +54,7 @@
   </button>
 {:else}
   <button
+    {id}
     class="button"
     class:warn
     class:grey-highlight={greyHighlight}

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -355,14 +355,6 @@ export class SettingsController {
       SettingsController.oldValues["userSelectedGrids"] = userSelectedGridsSetting;
       userSelectedGrids.set(userSelectedGridsSetting);
 
-
-      const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
-      SettingsController.oldValues["windowSettings.main.gameViewType"] = gameViewTypeSetting;
-      renderGamesInList.set(gameViewTypeSetting === 1);
-
-      const gridImageSizeSetting = SettingsController.settings.windowSettings.main.gridImageSize;
-      SettingsController.oldValues["windowSettings.main.gridImageSize"] = gridImageSizeSetting;
-      gridImageSize.set(gridImageSizeSetting);
   
       const showHiddenGamesSetting = SettingsController.settings.showHiddenGames;
       SettingsController.oldValues["showHiddenGames"] = showHiddenGamesSetting;
@@ -379,6 +371,7 @@ export class SettingsController {
       const previewGridsOnClickSetting = SettingsController.settings.previewOnClick;
       SettingsController.oldValues["previewOnClick"] = previewGridsOnClickSetting;
       previewGridsOnClick.set(previewGridsOnClickSetting);
+
       
       const dbFiltersSetting = SettingsController.settings.windowSettings.main.filters;
       SettingsController.oldValues["windowSettings.main.filters"] = structuredClone(dbFiltersSetting);
@@ -391,6 +384,18 @@ export class SettingsController {
       const showCachedSetting = SettingsController.settings.windowSettings.main.showCached;
       SettingsController.oldValues["windowSettings.main.showCached"] = showCachedSetting;
       showCachedGrids.set(showCachedSetting);
+      
+      const gameViewTypeSetting = SettingsController.settings.windowSettings.main.gameViewType;
+      SettingsController.oldValues["windowSettings.main.gameViewType"] = gameViewTypeSetting;
+      renderGamesInList.set(gameViewTypeSetting === 1);
+
+      const gridImageSizeSetting = SettingsController.settings.windowSettings.main.gridImageSize;
+      SettingsController.oldValues["windowSettings.main.gridImageSize"] = gridImageSizeSetting;
+      gridImageSize.set(gridImageSizeSetting);
+      
+      const sortGridsBySetting = SettingsController.settings.windowSettings.main.sortBy;
+      SettingsController.oldValues["windowSettings.main.sortBy"] = sortGridsBySetting;
+      sortGridsBy.set(sortGridsBySetting);
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
@@ -463,6 +468,7 @@ export class SettingsController {
       userSelectedGrids.subscribe(SettingsController.setOnChange("userSelectedGrids")),
   
       dbFilters.subscribe(SettingsController.setOnChange("windowSettings.main.filters")),
+      sortGridsBy.subscribe(SettingsController.setOnChange("windowSettings.main.sortBy")),
   
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),

@@ -24,20 +24,17 @@
     disabled = false,
   }: Props = $props();
 
-  let customSelectElemWrapper: HTMLDivElement | undefined = $state();
-
   let open = $state(false);
-  let active = $state(false);
 
   /**
    * Closes all dropdowns.
    * @param e The click event.
    */
   function closeDropdowns(e: Event): void {
-    const target = e.currentTarget as HTMLElement;
-    // * Need this bc we want to only compare the properties of the objects.
-    // eslint-disable-next-line eqeqeq
-    if (target != customSelectElemWrapper) active = false;
+    const target = e.target as HTMLElement;
+    const button = document.getElementById(label);
+
+    if (target.id !== label && !button?.contains(target)) open = false;
   }
 </script>
 
@@ -47,9 +44,9 @@
 <div
   class="custom-select"
   style="width: calc({width} - 0.5rem); min-width: calc({width} - 0.5rem);"
-  bind:this={customSelectElemWrapper}
 >
   <IconButton
+    id={label}
     {label}
     onClick={() => {
       open = !open;

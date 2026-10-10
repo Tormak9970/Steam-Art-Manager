@@ -1,6 +1,12 @@
 import type { CleanGridsPreset, GameStruct, GridTypesOptionalMap, MainWindowPanels, ManageManualGamesMethod } from "./SARM";
 import type { SGDBImage } from "./SGDB";
 
+export enum SortMethods {
+  ALPHABETICAL,
+  LAST_PLAYED,
+  PLAYTIME
+}
+
 export type Settings = {
   version: string,
   steamInstallPath: string,
@@ -45,6 +51,7 @@ export type Settings = {
     main: {
       gridImageSize: string,
       filters: any,
+      sortBy: SortMethods,
       panels: MainWindowPanels,
       gameViewType: number,
       showCached: boolean,
