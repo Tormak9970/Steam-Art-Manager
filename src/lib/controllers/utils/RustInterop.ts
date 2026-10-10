@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, LocalConfigEntry, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -220,8 +220,9 @@ export class RustInterop {
    * @param activeUserId The id of the active user.
    * @returns A promise resolving to the contents of the localconfig.vdf file.
    */
-  static async readLocalconfigVdf(activeUserId: string): Promise<any> {
-    return JSON.parse(await invoke<string>("read_localconfig_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId }));
+  static async readLocalconfigVdf(activeUserId: string): Promise<Record<string, LocalConfigEntry>> {
+    const data = await invoke<string>("read_localconfig_vdf", { steamPath: RustInterop.steamPath, steamActiveUserId: activeUserId });
+    return JSON.parse(data);
   }
 
   /**

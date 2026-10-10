@@ -9,7 +9,7 @@ import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKe
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
-import { type AppInfoVdf, type GameStruct, type LibraryCacheEntry, type SteamLogoConfig } from "@types";
+import { type AppInfoVdf, type GameStruct, type LibraryCacheEntry, type LocalConfigEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
 
@@ -64,7 +64,7 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async getGamesFromAppinfo(ids: string[]): Promise<GameStruct[]> {
+  private static async getGamesFromAppinfo(ids: string[], localConfigData: Record<string, LocalConfigEntry>): Promise<GameStruct[]> {
     // LogController.log("Loading games from appinfo.vdf...");
     const installedAppIds: string[] = await RustInterop.getInstalledAppIds();
 
@@ -76,6 +76,8 @@ export class SteamController {
       .map((entry) => {
         const commonData = entry.common!;
         const libraryAssets = commonData.library_assets_full;
+
+        const localData = localConfigData[entry.appid]
         
         return {
           appid: entry.appid,
@@ -89,7 +91,9 @@ export class SteamController {
             logo: libraryAssets?.library_logo?.image?.english ?? "",
           },
           type: commonData.type ?? "Game",
-          installed: installedAppIds.includes(entry.appid.toString())
+          installed: installedAppIds.includes(entry.appid.toString()),
+          lastPlayed: localData.lastPlayed ? parseInt(localData.lastPlayed) : undefined,
+          playtime: localData.playtime ? parseInt(localData.playtime) : undefined,
         };
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
@@ -123,7 +127,7 @@ export class SteamController {
    * @returns A promise resolving to a list of steam games.
    * ? Logging complete.
    */
-  private static async filterByLocalConfig(): Promise<string[]> {
+  private static async filterByLocalConfig(): Promise<Record<string, LocalConfigEntry>> {
     const userId = get(activeUserId);
     return await RustInterop.readLocalconfigVdf(userId.toString());
   }
@@ -151,10 +155,13 @@ export class SteamController {
       }
     }
     
+    DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
+    const localConfigData = await this.filterByLocalConfig();
+    
     // * Try loading games from the file system
     if (ids.length === 0) {
       DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
-      ids = await this.filterByLocalConfig();
+      ids = Object.keys(localConfigData);
       
       if (ids.length > 0) {
         LogController.log(`Loaded ${ids.length} games from localconfig.vdf.`);
@@ -163,7 +170,7 @@ export class SteamController {
       DialogController.hideProgressModal();
     }
     
-    const games = await SteamController.getGamesFromAppinfo(ids);
+    const games = await SteamController.getGamesFromAppinfo(ids, localConfigData);
 
     return games;
   }
@@ -185,7 +192,7 @@ export class SteamController {
       RustInterop.readShortcutsVdf(userId.toString()),
       SteamController.getSteamApps(),
     ]);
-    
+
     originalSteamShortcuts.set(structuredClone(Object.values(shortcuts)));
     steamShortcuts.set(Object.values(shortcuts));
     
@@ -195,6 +202,7 @@ export class SteamController {
         name: shortcut.AppName ?? shortcut.appName ?? shortcut.appname,
         type: "Game",
         installed: true,
+        lastPlayed: shortcut.LastPlayTime ?? undefined,
       };
     });
     nonSteamGames.set(structuredShortcuts);

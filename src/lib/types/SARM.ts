@@ -4,6 +4,8 @@ export type GameStruct = {
   gridInfo?: GameStructGridInfo
   type: string
   installed: boolean
+  lastPlayed?: number
+  playtime?: number
 }
 
 export type GameStructGridInfo = {
@@ -58,4 +60,9 @@ export type CleanConflict = {
   fileBPath: string,
   appid: string,
   gridType: string
+}
+
+export type LocalConfigEntry = {
+  lastPlayed?: string,
+  playtime?: string,
 }
