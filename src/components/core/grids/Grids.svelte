@@ -239,7 +239,9 @@
             tooltipPosition={"top"}
             disabled={$selectedGameAppId === "" || $needsSGDBAPIKey}
           >
-            <Edit style="height: 0.875rem; width: 0.875rem;" />
+            <Edit
+              style="height: 0.875rem; width: 0.875rem; margin-left: 0.125rem;"
+            />
           </IconButton>
         </div>
 
