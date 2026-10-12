@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.23.1
+
+Bug Fixes
+* corrected missed optional chaining modifier ([ef9baeb](https://github.com/Tormak9970/Steam-Art-Manager/commit/ef9baeb))
+
 ## v3.23.0
 
 New Features
