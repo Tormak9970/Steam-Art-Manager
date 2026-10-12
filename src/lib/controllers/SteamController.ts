@@ -92,8 +92,8 @@ export class SteamController {
           },
           type: commonData.type ?? "Game",
           installed: installedAppIds.includes(entry.appid.toString()),
-          lastPlayed: localData.lastPlayed ? parseInt(localData.lastPlayed) : undefined,
-          playtime: localData.playtime ? parseInt(localData.playtime) : undefined,
+          lastPlayed: localData?.lastPlayed ? parseInt(localData.lastPlayed) : undefined,
+          playtime: localData?.playtime ? parseInt(localData.playtime) : undefined,
         };
       }).sort((gameA: GameStruct, gameB: GameStruct) => gameA.name.localeCompare(gameB.name));
   }
