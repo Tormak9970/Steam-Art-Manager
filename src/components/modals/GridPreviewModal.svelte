@@ -12,14 +12,13 @@
     steamGames,
   } from "@stores/AppState";
   import { gridModalInfo, showGridModal } from "@stores/Modals";
-  import { GridTypes } from "@types";
+  import { GridTypes, type SGDBImage } from "@types";
   import { PREVIEW_GRID_DIMENSIONS } from "@utils";
   import Lazy from "svelte-lazy";
   import ModalBody from "./modal-utils/ModalBody.svelte";
 
   let modalOpen = $state(true);
   let definedModalInfo = $derived($gridModalInfo!);
-  console.log("definedModalInfo:", $gridModalInfo);
 
   let showHeroCropping = $state(false);
 
@@ -46,7 +45,8 @@
    * Apply the grid being previewed.
    */
   function applyGrid(): void {
-    AppController.setSteamGridArt(definedModalInfo);
+    const nonProxy = $state.snapshot(definedModalInfo) as unknown as SGDBImage;
+    AppController.setSteamGridArt(nonProxy);
   }
 
   /**
