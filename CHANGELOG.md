@@ -6,6 +6,12 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.23.2
+
+Bug Fixes
+* corrected localconfig progress modal not closing ([15045f6](https://github.com/Tormak9970/Steam-Art-Manager/commit/15045f6))
+* corrected new svelte state breaking when cloned ([77e960b](https://github.com/Tormak9970/Steam-Art-Manager/commit/77e960b))
+
 ## v3.23.1
 
 Bug Fixes
