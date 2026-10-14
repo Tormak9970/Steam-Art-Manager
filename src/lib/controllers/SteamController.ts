@@ -157,17 +157,15 @@ export class SteamController {
     
     DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
     const localConfigData = await this.filterByLocalConfig();
+    DialogController.hideProgressModal();
     
     // * Try loading games from the file system
     if (ids.length === 0) {
-      DialogController.showProgressModal("Fetching games", "Loading games listed on your localconfig.vdf...");
       ids = Object.keys(localConfigData);
       
       if (ids.length > 0) {
         LogController.log(`Loaded ${ids.length} games from localconfig.vdf.`);
       }
-      
-      DialogController.hideProgressModal();
     }
     
     const games = await SteamController.getGamesFromAppinfo(ids, localConfigData);
