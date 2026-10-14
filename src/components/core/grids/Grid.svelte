@@ -21,7 +21,8 @@
   let imagePath = $derived(grid.thumb.toString());
   const onSelect = throttle(
     () => {
-      AppController.setSteamGridArt(grid);
+      const nonProxy = $state.snapshot(grid) as unknown as SGDBImage;
+      AppController.setSteamGridArt(nonProxy);
     },
     500,
     true,
