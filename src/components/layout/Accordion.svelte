@@ -87,7 +87,7 @@
 
   .content {
     padding: 0 0.375rem;
-    width: calc(100% - 0.875rem);
+    width: calc(100% - 0.85rem);
     background-color: var(--background);
     border-radius: 0 0 0.25rem 0.25rem;
 
