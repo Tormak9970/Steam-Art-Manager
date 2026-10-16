@@ -6,6 +6,22 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.23.0
+
+New Features
+* added game filters ([737d4f4](https://github.com/Tormak9970/Steam-Art-Manager/commit/737d4f4))
+* added setting to preview grids when clicking on them ([7691e27](https://github.com/Tormak9970/Steam-Art-Manager/commit/7691e27))
+* continued ui improvements ([d2593b7](https://github.com/Tormak9970/Steam-Art-Manager/commit/d2593b7))
+* improved highlight color in light mode ([bf29349](https://github.com/Tormak9970/Steam-Art-Manager/commit/bf29349))
+* migrated to tauri v2.4.0 and svelte v5 ([1eacaea](https://github.com/Tormak9970/Steam-Art-Manager/commit/1eacaea))
+* updated all dependencies ([023a8b0](https://github.com/Tormak9970/Steam-Art-Manager/commit/023a8b0))
+
+Bug Fixes
+* cleaned up clarity of dropdown labels ([c8b07e5](https://github.com/Tormak9970/Steam-Art-Manager/commit/c8b07e5))
+* cleaned up some of the styling to make sarm look more consistent ([4b7baf9](https://github.com/Tormak9970/Steam-Art-Manager/commit/4b7baf9))
+* corrected sizing of custom search button ([e5c3449](https://github.com/Tormak9970/Steam-Art-Manager/commit/e5c3449))
+* improved contrast for icon toggle buttons ([16702c0](https://github.com/Tormak9970/Steam-Art-Manager/commit/16702c0))
+
 ## v3.19.2
 
 Bug Fixes
