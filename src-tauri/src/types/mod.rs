@@ -11,13 +11,6 @@ pub struct GridInfo {
     pub logo: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-#[allow(non_snake_case)]
-pub struct GameStruct {
-    pub appid: u64,
-    pub name: String,
-}
-
 pub static GRID_CACHE_TYPES: phf::Map<&'static str, &'static str> = phf_map! {
   "capsule" => "Capsule",
   "wide_capsule" => "Wide Capsule",

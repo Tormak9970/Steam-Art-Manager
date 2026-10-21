@@ -3,7 +3,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 use new_vdf_parser::shortcuts_vdf_parser::write_shortcuts_vdf;
 use serde_json::{Map, Value};
 
-use crate::steam;
+use crate::steam::local_files::file_paths;
 use serde;
 use tauri::{self, AppHandle};
 
@@ -68,7 +68,7 @@ fn filter_paths(
     original_paths: &GridImageCache,
     shortcut_icons: &Map<String, Value>,
 ) -> Vec<ChangedPath> {
-    let grids_dir = PathBuf::from(steam::get_grids_directory(
+    let grids_dir = PathBuf::from(file_paths::get_grids_directory(
         app_handle,
         steam_path.to_owned(),
         steam_active_user_id,
@@ -240,8 +240,8 @@ pub async fn save_changes(
             let parent_dir = dir_path.parent().expect("Path should have parent.");
             let dir_res = fs::create_dir_all(parent_dir);
             if dir_res.is_err() {
-              let err = dir_res.err().unwrap();
-              return format!("{{ \"error\": \"{}\"}}", err.to_string());
+                let err = dir_res.err().unwrap();
+                return format!("{{ \"error\": \"{}\"}}", err.to_string());
             }
 
             let _ = fs::File::create(target.clone());
@@ -266,7 +266,7 @@ pub async fn save_changes(
         }
     }
 
-    let grids_directory: PathBuf = PathBuf::from(steam::get_grids_directory(
+    let grids_directory: PathBuf = PathBuf::from(file_paths::get_grids_directory(
         &app_handle,
         steam_path.to_owned(),
         steam_active_user_id.clone(),
@@ -357,7 +357,7 @@ pub async fn save_changes(
         modified_shortcuts_data.insert(String::from("shortcuts"), shortcuts_obj_map.to_owned());
         shortcuts_data = Value::Object(modified_shortcuts_data);
 
-        let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(
+        let shortcuts_vdf_path: PathBuf = PathBuf::from(file_paths::get_shortcuts_path(
             &app_handle,
             steam_path.to_owned(),
             steam_active_user_id,
@@ -392,7 +392,7 @@ pub async fn write_shortcuts(
     shortcuts_str: String,
 ) -> bool {
     logger::log_core(&app_handle, "Writing shortcuts.vdf...", 0);
-    let shortcuts_vdf_path: PathBuf = PathBuf::from(steam::get_shortcuts_path(
+    let shortcuts_vdf_path: PathBuf = PathBuf::from(file_paths::get_shortcuts_path(
         &app_handle,
         steam_path,
         steam_active_user_id,
