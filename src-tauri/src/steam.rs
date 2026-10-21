@@ -439,6 +439,53 @@ pub async fn read_shortcuts_vdf(
     }
 }
 
+fn get_apps_dict_from_vdf(vdf: steam_vdf_parser::Vdf<'_>) -> Option<steam_vdf_parser::Obj<'_>> {
+    let mut software_dict_res = vdf.get_obj(&["Software"]);
+    if software_dict_res.is_none() {
+        software_dict_res = vdf.get_obj(&["software"]);
+        if software_dict_res.is_none() {
+            return None;
+        }
+    }
+
+    let software_dict = software_dict_res.expect("Software key was some, should have been fine.");
+
+    let mut valve_dict_res = software_dict.get("Valve");
+    if valve_dict_res.is_none() {
+        valve_dict_res = software_dict.get("valve");
+        if valve_dict_res.is_none() {
+            return None;
+        }
+    }
+
+    let valve_dict = valve_dict_res.expect("Valve key was some, should have been fine.");
+
+    let mut steam_dict_res = valve_dict.get("Steam");
+    if steam_dict_res.is_none() {
+        steam_dict_res = valve_dict.get("steam");
+        if steam_dict_res.is_none() {
+            return None;
+        }
+    }
+
+    let steam_dict = steam_dict_res.expect("Steam key was some, should have been fine.");
+
+    let mut apps_dict_res = steam_dict.get("Apps");
+    if apps_dict_res.is_none() {
+        apps_dict_res = steam_dict.get("apps");
+        if apps_dict_res.is_none() {
+            return None;
+        }
+    }
+
+    let apps_dict = apps_dict_res.expect("Apps key was some, should have been fine.");
+    let owned = apps_dict
+        .as_obj()
+        .expect("Should have been able to get apps as obj.");
+
+    return Some(owned.clone());
+}
+
 #[tauri::command]
 /// Reads the user's localconfig.vdf file.
 pub async fn read_localconfig_vdf(
@@ -465,9 +512,7 @@ pub async fn read_localconfig_vdf(
             parse_text(&localconfig_contents).expect("localconfig VDF should have been parsable.");
 
         // Path-based access
-        let apps_dict = vdf
-            .get_obj(&["Software", "Valve", "Steam", "apps"])
-            .expect("localconfig VDF should have had apps");
+        let apps_dict = get_apps_dict_from_vdf(vdf).expect("localconfig VDF should have had apps");
 
         for (key, value) in apps_dict.iter() {
             let mut map_value = Map::new();
