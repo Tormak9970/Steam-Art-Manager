@@ -34,6 +34,8 @@ export const theme = writable(Theme.DARK);
 export const debugMode = writable(false);
 export const appTypes = writable<string[]>([]);
 export const renderGamesInList = writable(false);
+export const useCEFInjection = writable(false);
+export const startSteamOnLaunch = writable(false);
 
 export const sortGridsBy = writable(SortMethods.ALPHABETICAL);
 

@@ -9,10 +9,14 @@ export enum SortMethods {
 
 export type Settings = {
   version: string,
+  useCEFInjection: boolean,
+  startSteamOnLaunch: boolean,
+  
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
   steamGridDbApiKey: string,
   steamApiKeyMap: Record<string, string>,
+
   hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
   customGameNames: Record<string, string>,

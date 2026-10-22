@@ -13,6 +13,7 @@ export { default as Ellipse } from "./Ellipse.svelte";
 export { default as Expand } from "./Expand.svelte";
 export { default as Export } from "./Export.svelte";
 export { default as Film } from "./Film.svelte";
+export { default as Flask } from "./Flask.svelte";
 export { default as Folder } from "./Folder.svelte";
 export { default as GameTiles } from "./GameTiles.svelte";
 export { default as GitHub } from "./GitHub.svelte";

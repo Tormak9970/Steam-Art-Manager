@@ -157,10 +157,14 @@ export const DEFAULT_FILTERS = {
 
 export const DEFAULT_SETTINGS: Settings = {
   version: "",
+  useCEFInjection: false,
+  startSteamOnLaunch: false,
+  
   steamInstallPath: "",
   shownShortcutPrompt: false,
   steamGridDbApiKey: "",
   steamApiKeyMap: {},
+
   hiddenGameIds: [],
   manualSteamGames: [],
   customGameNames: {},
