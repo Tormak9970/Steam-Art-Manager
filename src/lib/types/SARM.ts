@@ -6,6 +6,19 @@ export type GameStruct = {
   installed: boolean
   lastPlayed?: number
   playtime?: number
+
+  // Only available when using Steam Client
+  hiddenInSteam?: boolean,
+  isFamilySharing?: boolean,
+  releaseDate?: number,
+  purchaseDate?: number,
+  storeCategories?: number[],
+  storeTags?: number[],
+  steamReviewScore?: number,
+  steamDeckCompatCategory?: number
+  steamFrameCompatCategory?: number
+  steamMachineCompatCategory?: number
+  steamOSCompatCategory?: number
 }
 
 export type GameStructGridInfo = {

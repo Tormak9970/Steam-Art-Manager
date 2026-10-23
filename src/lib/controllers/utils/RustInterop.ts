@@ -373,4 +373,14 @@ export class RustInterop {
   static async findSharedJSContext(): Promise<string | null> {
     return await invoke<string | null>("find_shared_js_context_frontend", {});
   }
+  
+  /**
+   * gets the user's apps from the Steam Client
+   * @returns A promise resolving to the user's apps. Will return an empty object if none are found.
+   */
+  static async getSteamClientApps(wsUrl: string): Promise<GameStruct[]> {
+    const appsString = await invoke<string>("get_client_apps_frontend", { wsUrl })
+
+    return JSON.parse(appsString) as GameStruct[];
+  }
 }

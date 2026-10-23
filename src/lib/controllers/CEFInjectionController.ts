@@ -1,3 +1,4 @@
+import type { GameStruct } from "@types";
 import { restartApp } from "@utils";
 import { AppController } from "./AppController";
 import { DialogController } from "./utils/DialogController";
@@ -42,9 +43,7 @@ export class CEFInjectionController {
       return;
     }
     
-    // TODO: may need to attempt this multiple times.
     CEFInjectionController.sharedJSContextWSURL = await RustInterop.findSharedJSContext();
-    console.log('sharedJSContextWSURL:', CEFInjectionController.sharedJSContextWSURL);
   }
 
   /**
@@ -58,8 +57,16 @@ export class CEFInjectionController {
     
   }
   
-  static async getApps() {
-    
+  /**
+   * Gets the user's apps using the Steam Client.
+   * @returns The user's apps.
+   */
+  static async getApps(): Promise<GameStruct[] | null> {
+    if (CEFInjectionController.sharedJSContextWSURL) {
+      return await RustInterop.getSteamClientApps(CEFInjectionController.sharedJSContextWSURL)
+    }
+
+    return null
   }
   
   static async getFilterData() {

@@ -6,7 +6,7 @@ use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
-use crate::utils::logger;
+use crate::{steam::js_functions::GET_STEAM_APPS_JS, utils::logger};
 
 /// Check is Steam's CEF Debugger is enabled
 pub fn check_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
@@ -119,52 +119,17 @@ pub async fn inject_js(ws_url: &str, expr: &str) -> Option<String> {
     return None;
 }
 
-pub const GET_STEAM_COLLECTIONS_JS: &str = r#"
-JSON.stringify(
-  collectionStore.userCollections.map(c => ({
-    id: c.id,
-    name: c.displayName,
-    apps: c.allApps.map(a => a.appid),
-  }))
-)"#;
+#[tauri::command]
+/// IPC wrapper for getting the user's apps based on the steam.
+pub async fn get_client_apps_frontend(
+    _app_handle: AppHandle,
+    ws_url: String,
+) -> Result<String, ()> {
+    let client_apps_res = inject_js(&ws_url, GET_STEAM_APPS_JS).await;
 
-pub const GET_STEAM_TAGS_JS: &str = r#"
-JSON.stringify(
-  appStore.m_mapStoreTagLocalization
-)"#;
+    if client_apps_res.is_some() {
+        return Ok(client_apps_res.unwrap());
+    }
 
-pub const GET_STEAM_APPS_JS: &str = r#"
-JSON.stringify(
-  appStore.allApps.map(a => ({
-    appid: a.id,
-    name: a.displayName,
-    installed: a.installed,
-    visible_in_game_list: a.visible_in_game_list,
-    playtime: a.minutes_playtime_forever,
-    last_played: a.rt_last_time_played,
-    release_date: a.rt_steam_release_date,
-    purchase_date: a.rt_purchased_time,
-    store_category: a.store_category,
-    store_tag: a.store_tag,
-    steam_review_score: a.review_percentage_without_bombs,
-    steam_deck_compat_category: a.steam_deck_compat_category,
-    steam_frame_compat_category: a.steam_frame_compat_category,
-    steam_machine_compat_category: a.steam_machine_compat_category,
-    steam_os_compat_category: a.steam_os_compat_category,
-  }))
-)"#;
-
-pub const GET_STEAM_INSTALL_FOLDERS_JS: &str = r#"
-JSON.stringify(
-  installFolderStore.AllInstallFolders.map(f => {
-      return {
-          displayName: f.strUserLabel || f.strDriveName,
-          drive: f.strDriveName,
-          bIsMounted: f.bIsMounted,
-          strFolderPath: f.strFolderPath,
-          apps: f.vecApps.map(a => a.nAppID),
-      }
-  })
-)"#;
-
-// TODO: Also get users from CEF
+    return Ok(String::from("{}"));
+}
