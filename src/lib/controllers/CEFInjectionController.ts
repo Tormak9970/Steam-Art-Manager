@@ -1,6 +1,4 @@
-import { startSteamOnLaunch } from "@stores/AppState";
 import { restartApp } from "@utils";
-import { get } from "svelte/store";
 import { AppController } from "./AppController";
 import { DialogController } from "./utils/DialogController";
 import { LogController } from "./utils/LogController";
@@ -14,28 +12,15 @@ export class CEFInjectionController {
    * @param needsRestart Whether SARM needs to restart.
    */
   static async startCEFInjection(needsRestart: boolean): Promise<void> {
-    const cefEnabled = await RustInterop.checkSteamCEFEnabled();
-    const steamIsRunning = await RustInterop.checkSteamIsRunning();
-    let steamStarted: boolean
-
-    if (!cefEnabled) {
-      await RustInterop.enableSteamCEFDebugging();
-    }
-
     if (needsRestart) {
       await restartApp(AppController.saveChanges.bind(AppController));
     }
 
+    const cefEnabled = await RustInterop.checkSteamCEFEnabled();
+    const steamIsRunning = await RustInterop.checkSteamIsRunning();
+    let steamStarted: boolean
+
     if (!steamIsRunning) {
-      if (!get(startSteamOnLaunch)) {
-        await DialogController.message(
-          "Steam Needs to be Running",
-          "INFO",
-          "You have the <b>Use Steam Client</b> setting enabled, which means Steam needs to be running. Please start Steam. Once it loads click the button below. You can enabled the <b>Start Steam on Launch</b> setting to do this automatically in the future.",
-          "Steam is Now Running"
-        )
-      }
-      
       steamStarted = await RustInterop.awaitSteamStart();
       LogController.log(`Steam Started: ${steamStarted}`);
     } else if (steamIsRunning && !cefEnabled) {
@@ -66,18 +51,6 @@ export class CEFInjectionController {
    * Ends CEF Remote Debug Injection.
    */
   static async endCEFInjection(): Promise<void> {
-    const disableCEF = await DialogController.ask(
-      "Disable Steam Remote Debugging?",
-      "INFO",
-      "Do you want to disable Steam CEF Remote Debugging? If you don't know what that is, selecting <b>Yes</b> is recommended. This has no impact on day to day usage of Steam.",
-      "Yes",
-      "No"
-    );
-        
-    if (disableCEF) {
-      await RustInterop.disableSteamCEFDebugging();
-    }
-
     await restartApp(AppController.saveChanges.bind(AppController));
   }
 

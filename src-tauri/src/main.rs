@@ -303,8 +303,6 @@ fn main() {
       clean_grids::clean_grids,
       validate_steam_path,
       steam::remote_debug_injection::check_cef_debugging_frontend,
-      steam::remote_debug_injection::enable_cef_debugging_frontend,
-      steam::remote_debug_injection::disable_cef_debugging_frontend,
       steam::remote_debug_injection::find_shared_js_context_frontend,
       steam::lifecycle::check_steam_running_frontend,
       steam::lifecycle::await_steam_start_frontend,

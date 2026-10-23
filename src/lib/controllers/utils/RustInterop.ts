@@ -346,7 +346,7 @@ export class RustInterop {
    * @returns A promise resolving to true if Steam is running, false if not.
    */
   static async awaitSteamStart(): Promise<boolean> {
-    return await invoke<boolean>("await_steam_start_frontend", {});
+    return await invoke<boolean>("await_steam_start_frontend", { steamPath: RustInterop.steamPath });
   }
   
   /**
@@ -354,7 +354,7 @@ export class RustInterop {
    * @returns A promise resolving to true if Steam is running, false if not.
    */
   static async awaitSteamRestart(): Promise<boolean> {
-    return await invoke<boolean>("await_steam_restart_frontend", {});
+    return await invoke<boolean>("await_steam_restart_frontend", { steamPath: RustInterop.steamPath });
   }
 
   /**
@@ -362,23 +362,8 @@ export class RustInterop {
    * @returns A promise resolving to true if CEF debugging is enabled, false if its not or there was an error.
    */
   static async checkSteamCEFEnabled(): Promise<boolean> {
+    console.log(JSON.parse(JSON.stringify(RustInterop.steamPath)))
     return await invoke<boolean>("check_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
-  }
-
-  /**
-   * Enables Steam CEF Debugging
-   * @returns A promise resolving to true if CEF debugging was enabled, false if its not or there was an error.
-   */
-  static async enableSteamCEFDebugging(): Promise<boolean> {
-    return await invoke<boolean>("enable_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
-  }
-
-  /**
-   * Disables Steam CEF Debugging
-   * @returns A promise resolving to true if CEF debugging was disabled, false if its not or there was an error.
-   */
-  static async disableSteamCEFDebugging(): Promise<boolean> {
-    return await invoke<boolean>("disable_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
   }
 
   /**

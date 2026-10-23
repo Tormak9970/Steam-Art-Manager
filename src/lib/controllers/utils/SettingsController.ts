@@ -303,13 +303,6 @@ export class SettingsController {
     const startSteamOnLaunchSetting = SettingsController.settings.startSteamOnLaunch;
     SettingsController.oldValues["startSteamOnLaunch"] = startSteamOnLaunchSetting;
     startSteamOnLaunch.set(startSteamOnLaunchSetting);
-    
-    const useCEFInjectionSetting = SettingsController.settings.useCEFInjection;
-    SettingsController.oldValues["useCEFInjection"] = useCEFInjectionSetting;
-    useCEFInjection.set(useCEFInjectionSetting);
-    if (useCEFInjectionSetting) {
-      CEFInjectionController.startCEFInjection(false);
-    }
 
     const appTypesSetting = SettingsController.settings.appTypes;
     SettingsController.oldValues["appTypes"] = appTypesSetting;
@@ -317,6 +310,14 @@ export class SettingsController {
 
     const steamInstallPathSetting = SettingsController.settings.steamInstallPath;
     await findSteamPath(steamInstallPathSetting);
+    
+    // ! Has to load after the steam install path.
+    const useCEFInjectionSetting = SettingsController.settings.useCEFInjection;
+    SettingsController.oldValues["useCEFInjection"] = useCEFInjectionSetting;
+    useCEFInjection.set(useCEFInjectionSetting);
+    if (useCEFInjectionSetting) {
+      CEFInjectionController.startCEFInjection(false);
+    }
 
     const activeUserId = await SettingsController.loadUserSettings();
     if (activeUserId === "0") {

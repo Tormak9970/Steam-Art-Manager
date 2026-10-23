@@ -33,56 +33,6 @@ pub fn check_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) ->
     return check_cef_debugging(&app_handle, steam_path);
 }
 
-/// Enables Steam's CEF Debugger so SARM can access it
-pub fn enable_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
-    let create_res = fs::write(steam_path.join(".cef-enable-remote-debugging"), b"");
-
-    if create_res.is_err() {
-        let err = create_res.err().unwrap();
-        let message = format!(
-            "Failed to create CEF Debug File. Error: {}",
-            err.to_string()
-        );
-
-        logger::log_core(app_handle, &message, 1);
-
-        return false;
-    }
-
-    return true;
-}
-
-#[tauri::command]
-/// IPC wrapper for enabling CEF Debugging.
-pub fn enable_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) -> bool {
-    return enable_cef_debugging(&app_handle, steam_path);
-}
-
-/// Disables Steam's CEF Debugger
-pub fn disable_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
-    let delete_res = fs::remove_file(steam_path.join(".cef-enable-remote-debugging"));
-
-    if delete_res.is_err() {
-        let err = delete_res.err().unwrap();
-        let message = format!(
-            "Failed to delete CEF Debug File. Error: {}",
-            err.to_string()
-        );
-
-        logger::log_core(app_handle, &message, 1);
-
-        return false;
-    }
-
-    return true;
-}
-
-#[tauri::command]
-/// IPC wrapper for disabling CEF Debugging.
-pub fn disable_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) -> bool {
-    return disable_cef_debugging(&app_handle, steam_path);
-}
-
 #[derive(Deserialize)]
 struct CEFTarget {
     title: String,
