@@ -1,57 +1,95 @@
+import { startSteamOnLaunch } from "@stores/AppState";
+import { restartApp } from "@utils";
+import { get } from "svelte/store";
+import { AppController } from "./AppController";
+import { DialogController } from "./utils/DialogController";
+import { LogController } from "./utils/LogController";
+import { RustInterop } from "./utils/RustInterop";
 
 export class CEFInjectionController {
-  private static async checkIfCEFDebugEnabled(): Promise<boolean> {
-    return false
-  }
-
-  private static async addCEFDebugFile(): Promise<void> {
-
-  }
-  
-  private static async removeCEFDebugFile(): Promise<void> {
-
-  }
+  private static sharedJSContextWSURL: string | null = null
 
   /**
    * Starts CEF Remote Debug Injection.
    * @param needsRestart Whether SARM needs to restart.
    */
   static async startCEFInjection(needsRestart: boolean): Promise<void> {
-    // TODO: Check if CEF Debug file exists
-      // TODO: if !exists 
-        // TODO: if steamRunning
-          // TODO: prompt user to shut down steam
-        // TODO: call addCEFDebugFile()
+    const cefEnabled = await RustInterop.checkSteamCEFEnabled();
+    const steamIsRunning = await RustInterop.checkSteamIsRunning();
+    let steamStarted: boolean
+
+    if (!cefEnabled) {
+      await RustInterop.enableSteamCEFDebugging();
+    }
 
     if (needsRestart) {
-      // TODO: restart sarm
+      await restartApp(AppController.saveChanges.bind(AppController));
+    }
+
+    if (!steamIsRunning) {
+      if (!get(startSteamOnLaunch)) {
+        await DialogController.message(
+          "Steam Needs to be Running",
+          "INFO",
+          "You have the <b>Use Steam Client</b> setting enabled, which means Steam needs to be running. Please start Steam. Once it loads click the button below. You can enabled the <b>Start Steam on Launch</b> setting to do this automatically in the future.",
+          "Steam is Now Running"
+        )
+      }
+      
+      steamStarted = await RustInterop.awaitSteamStart();
+      LogController.log(`Steam Started: ${steamStarted}`);
+    } else if (steamIsRunning && !cefEnabled) {
+      await DialogController.message(
+        "Steam Needs to be Restarted",
+        "INFO",
+        "Steam needs to be restarted (SARM will do this for you once you click <b>Ok</b>). Make sure you don't have any games running.",
+        "Restart Steam"
+      )
+      
+      steamStarted = await RustInterop.awaitSteamRestart();
+      LogController.log(`Steam Restarted: ${steamStarted}`);
+    } else {
+      steamStarted = true;
+    }
+
+    if (!steamStarted) {
+      LogController.warn('Failed to inject into the Steam Client!');
+      return;
     }
     
-    // TODO: if !steamRunning
-      // TODO: if startSteamOnLaunch
-        // TODO: start automatically
-      // TODO: else
-        // TODO: prompt user to start steam (mention they can do this automatically in settings), then click "I've started it"
-
-    // TODO: call getDataFromCEF
-    
-    // ! Add setting for automatically start steam if not running when SARM Launched. Dependent on CEF setting
-      // ! add 'linked UI' for related setting
+    // TODO: may need to attempt this multiple times.
+    CEFInjectionController.sharedJSContextWSURL = await RustInterop.findSharedJSContext();
+    console.log('sharedJSContextWSURL:', CEFInjectionController.sharedJSContextWSURL);
   }
 
   /**
    * Ends CEF Remote Debug Injection.
    */
   static async endCEFInjection(): Promise<void> {
-    // TODO: Ask users if they would like to turn of CEF Remote Debug for Steam
-      // TODO: explain that if they don't know what that means they should turn it off
-        // TODO: disable if yes
+    const disableCEF = await DialogController.ask(
+      "Disable Steam Remote Debugging?",
+      "INFO",
+      "Do you want to disable Steam CEF Remote Debugging? If you don't know what that is, selecting <b>Yes</b> is recommended. This has no impact on day to day usage of Steam.",
+      "Yes",
+      "No"
+    );
+        
+    if (disableCEF) {
+      await RustInterop.disableSteamCEFDebugging();
+    }
 
-    // TODO: Notify that SARM needs to restart, and ask if they want to save changes
-    // TODO: restart
+    await restartApp(AppController.saveChanges.bind(AppController));
   }
 
-  static async getDataFromCEF() {
+  static async getUsers() {
+    
+  }
+  
+  static async getApps() {
+    
+  }
+  
+  static async getFilterData() {
     
   }
 }

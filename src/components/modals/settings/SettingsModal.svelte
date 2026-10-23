@@ -133,6 +133,8 @@
 
       if (useCEFInjectionSetting) {
         CEFInjectionController.startCEFInjection(true);
+      } else {
+        CEFInjectionController.endCEFInjection();
       }
     }
 

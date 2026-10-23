@@ -1,8 +1,8 @@
 import { DialogController, LogController, RustInterop } from "@controllers";
-import { steamInstallPath } from "@stores/AppState";
+import { canSave, steamInstallPath } from "@stores/AppState";
 import { showSteamPathModal, steamPathModalClose } from "@stores/Modals";
-import * as process from "@tauri-apps/plugin-process";
-import { exit } from "@tauri-apps/plugin-process";
+import { exit, relaunch } from "@tauri-apps/plugin-process";
+import { get } from "svelte/store";
 
 /**
  * Debounces a function by the provided interval.
@@ -167,13 +167,23 @@ export async function findSteamPath(savedInstallPath: string): Promise<void> {
 
 /**
  * Reloads the app.
+ * @param saveChanges The function to run if changes should be saved.
  */
-export async function restartApp(): Promise<void> {
-  const shouldReload = await DialogController.ask("Warning!", "WARNING", "Are you sure you want to reload? Any changes will be lost!", "Ok", "Cancel");
-  if (shouldReload) {
-    LogController.log("Reloading...");
-    await process.relaunch();
+export async function restartApp(saveChanges?: () => Promise<void>): Promise<void> {
+  const canSaveChanges = get(canSave)
+  
+  if (canSaveChanges) {
+    const shouldSave = await DialogController.ask("Warning!", "WARNING", "You have unsaved changes, do you want to save? All changes will be lost if you do not.", "Save", "Don't Save");
+    
+    if (shouldSave) {
+      await saveChanges?.();
+    }
+  } else {
+    await DialogController.message("Restart Needed", "INFO", "Steam Art Manager will now restart.", "Ok");
   }
+  
+  LogController.log("Reloading...");
+  await relaunch();
 }
 
 /**

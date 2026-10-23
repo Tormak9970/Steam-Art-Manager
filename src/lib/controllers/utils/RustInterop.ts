@@ -332,4 +332,60 @@ export class RustInterop {
   static async validateSteamPath(targetPath: string): Promise<boolean> {
     return await invoke<boolean>("validate_steam_path", { targetPath: targetPath.toLowerCase() });
   }
+
+  /**
+   * Checks if Steam is running.
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async checkSteamIsRunning(): Promise<boolean> {
+    return await invoke<boolean>("check_steam_running_frontend", {});
+  }
+  
+  /**
+   * Starts Steam and waits until its launched, or 60s have passed
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async awaitSteamStart(): Promise<boolean> {
+    return await invoke<boolean>("await_steam_start_frontend", {});
+  }
+  
+  /**
+   * Restarts Steam and waits until its launched, or 60s have passed
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async awaitSteamRestart(): Promise<boolean> {
+    return await invoke<boolean>("await_steam_restart_frontend", {});
+  }
+
+  /**
+   * Checks if CEF debugging is enabled for Steam.
+   * @returns A promise resolving to true if CEF debugging is enabled, false if its not or there was an error.
+   */
+  static async checkSteamCEFEnabled(): Promise<boolean> {
+    return await invoke<boolean>("check_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Enables Steam CEF Debugging
+   * @returns A promise resolving to true if CEF debugging was enabled, false if its not or there was an error.
+   */
+  static async enableSteamCEFDebugging(): Promise<boolean> {
+    return await invoke<boolean>("enable_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Disables Steam CEF Debugging
+   * @returns A promise resolving to true if CEF debugging was disabled, false if its not or there was an error.
+   */
+  static async disableSteamCEFDebugging(): Promise<boolean> {
+    return await invoke<boolean>("disable_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Finds Steam's SharedJSContext's WebSocket URL
+   * @returns A promise resolving to the SharedJSContext's WebSocket URL, or null if not found.
+   */
+  static async findSharedJSContext(): Promise<string | null> {
+    return await invoke<string | null>("find_shared_js_context_frontend", {});
+  }
 }

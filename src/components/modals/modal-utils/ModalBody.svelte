@@ -7,6 +7,7 @@
     display?: string;
     extraOptions?: HTMLDialogAttributes;
     title: string;
+    icon?: Snippet;
     open: boolean;
     canClose?: boolean;
     onClose?: () => void | Promise<void>;
@@ -19,6 +20,7 @@
     display = "flex",
     extraOptions = {},
     title,
+    icon,
     open,
     canClose = true,
     onClose,
@@ -90,6 +92,11 @@
 >
   <div class="m3-container">
     <div class="header">
+      {#if icon}
+        <div class="icon-container">
+          {@render icon()}
+        </div>
+      {/if}
       <p class="headline m3-font-headline-small">{title}</p>
       {#if canClose}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -163,6 +170,13 @@
 
     display: flex;
     align-items: center;
+  }
+
+  .icon-container {
+    display: flex;
+    align-items: center;
+
+    margin-right: 0.5rem;
   }
 
   .border {

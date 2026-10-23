@@ -36,7 +36,10 @@ new-vdf-parser = { path = "../crates/new-vdf-parser" }
 keyvalues-parser = "0.2.4"
 steam-vdf-parser = "0.1.2"
 tokio-tungstenite = "0.30.0"
+tokio = "1.54.1"
 futures-util = "0.3.34"
+open = "5"
+sysinfo = "0.30"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11"

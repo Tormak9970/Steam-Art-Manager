@@ -8,16 +8,79 @@ use tokio_tungstenite::{connect_async, tungstenite::Message};
 
 use crate::utils::logger;
 
-/// Enables Steam's CEF Debugger so SARM can access it
-pub fn enable_cef_debugging(steam_path: &Path) -> std::io::Result<()> {
-    let res = fs::write(steam_path.join(".cef-enable-remote-debugging"), b"");
-    return res;
+/// Check is Steam's CEF Debugger is enabled
+pub fn check_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
+    let exists_res = fs::exists(steam_path.join(".cef-enable-remote-debugging"));
+
+    if exists_res.is_err() {
+        let err = exists_res.err().unwrap();
+        let message = format!(
+            "Failed to check if CEF Debug is enabled. Error: {}",
+            err.to_string()
+        );
+
+        logger::log_core(app_handle, &message, 1);
+
+        return false;
+    }
+
+    return exists_res.unwrap();
 }
 
-/// Disables Steam's CEF Debugger so SARM can access it
-pub fn disable_cef_debugging(steam_path: &Path) -> std::io::Result<()> {
-    let res = fs::remove_file(steam_path.join(".cef-enable-remote-debugging"));
-    return res;
+#[tauri::command]
+/// IPC wrapper for checking if CEF Debug is enabled.
+pub fn check_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) -> bool {
+    return check_cef_debugging(&app_handle, steam_path);
+}
+
+/// Enables Steam's CEF Debugger so SARM can access it
+pub fn enable_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
+    let create_res = fs::write(steam_path.join(".cef-enable-remote-debugging"), b"");
+
+    if create_res.is_err() {
+        let err = create_res.err().unwrap();
+        let message = format!(
+            "Failed to create CEF Debug File. Error: {}",
+            err.to_string()
+        );
+
+        logger::log_core(app_handle, &message, 1);
+
+        return false;
+    }
+
+    return true;
+}
+
+#[tauri::command]
+/// IPC wrapper for enabling CEF Debugging.
+pub fn enable_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) -> bool {
+    return enable_cef_debugging(&app_handle, steam_path);
+}
+
+/// Disables Steam's CEF Debugger
+pub fn disable_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
+    let delete_res = fs::remove_file(steam_path.join(".cef-enable-remote-debugging"));
+
+    if delete_res.is_err() {
+        let err = delete_res.err().unwrap();
+        let message = format!(
+            "Failed to delete CEF Debug File. Error: {}",
+            err.to_string()
+        );
+
+        logger::log_core(app_handle, &message, 1);
+
+        return false;
+    }
+
+    return true;
+}
+
+#[tauri::command]
+/// IPC wrapper for disabling CEF Debugging.
+pub fn disable_cef_debugging_frontend(app_handle: AppHandle, steam_path: &Path) -> bool {
+    return disable_cef_debugging(&app_handle, steam_path);
 }
 
 #[derive(Deserialize)]
@@ -64,6 +127,13 @@ pub async fn find_shared_js_context(app_handle: &AppHandle) -> Option<String> {
         .and_then(|t| t.ws_url);
 
     return shared_js_ws_url;
+}
+
+#[tauri::command]
+/// IPC wrapper for disabling CEF Debugging.
+pub async fn find_shared_js_context_frontend(app_handle: AppHandle) -> Option<String> {
+    let ws_url_res = find_shared_js_context(&app_handle).await;
+    return ws_url_res;
 }
 
 /// Injects the provided javascript into the Steam Client
