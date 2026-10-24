@@ -21,7 +21,6 @@
     needsSteamKey,
     previewGridsOnClick,
     showInfoSnackbar,
-    startSteamOnLaunch,
     steamGridDBKey,
     steamInstallPath,
     steamKey,
@@ -36,7 +35,6 @@
   import type { Unsubscriber } from "svelte/store";
   import ModalBody from "../modal-utils/ModalBody.svelte";
   import ChecklistArrayEntry from "./ChecklistArrayEntry.svelte";
-  import ChildSettingWrapper from "./ChildSettingWrapper.svelte";
   import DropdownEntry from "./DropdownEntry.svelte";
   import FilePathEntry from "./FilePathEntry.svelte";
   import TextFieldEntry from "./TextFieldEntry.svelte";
@@ -87,7 +85,6 @@
   let steamAPIKey = $state($steamKey);
   let steamInstallLocation = $state($steamInstallPath);
   let useCEFInjectionSetting = $state($useCEFInjection);
-  let startSteamOnLaunchSetting = $state($startSteamOnLaunch);
   let debugModeSetting = $state($debugMode);
   let cacheSelectedGridsSetting = $state($cacheSelectedGrids);
   let previewGridsOnClickSetting = $state($previewGridsOnClick);
@@ -122,11 +119,6 @@
       $appTypes = [...appTypesSetting];
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
-
-    if (startSteamOnLaunchSetting !== $startSteamOnLaunch)
-      $startSteamOnLaunch = useCEFInjectionSetting
-        ? startSteamOnLaunchSetting
-        : false;
 
     if (useCEFInjectionSetting !== $useCEFInjection) {
       $useCEFInjection = useCEFInjectionSetting;
@@ -169,7 +161,6 @@
     steamInstallLocation = $steamInstallPath;
     debugModeSetting = $debugMode;
     useCEFInjectionSetting = $useCEFInjection;
-    startSteamOnLaunchSetting = $startSteamOnLaunch;
     appTypesSetting = [...$appTypes];
     cacheSelectedGridsSetting = $cacheSelectedGrids;
     previewGridsOnClickSetting = $previewGridsOnClick;
@@ -285,17 +276,6 @@
             }}
             experimental
           />
-          <ChildSettingWrapper visible={useCEFInjectionSetting} isLast>
-            <ToggleFieldEntry
-              label="Start Steam on Launch"
-              description={'Whether to launch Steam when you boot up SARM, if its not running already. This prevents you from having to seeing the "Launch Steam" dialog every time.'}
-              value={startSteamOnLaunchSetting}
-              onChange={(value) => {
-                startSteamOnLaunchSetting = value;
-                canSave = true;
-              }}
-            />
-          </ChildSettingWrapper>
           <ChecklistArrayEntry
             label="App Types to Display"
             description={"Choose which app types SARM will display."}

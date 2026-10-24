@@ -1,4 +1,4 @@
-import type { GameStruct } from "@types";
+import type { GameStruct, SteamClientFilterData } from "@types";
 import { restartApp } from "@utils";
 import { AppController } from "./AppController";
 import { DialogController } from "./utils/DialogController";
@@ -52,10 +52,6 @@ export class CEFInjectionController {
   static async endCEFInjection(): Promise<void> {
     await restartApp(AppController.saveChanges.bind(AppController));
   }
-
-  static async getUsers() {
-    
-  }
   
   /**
    * Gets the user's apps using the Steam Client.
@@ -69,7 +65,15 @@ export class CEFInjectionController {
     return null
   }
   
-  static async getFilterData() {
-    
+  /**
+   * Gets the data needed for filters available when using the Steam Client.
+   * @returns The filter data.
+   */
+  static async getFilterData(): Promise<SteamClientFilterData | null> {
+    if (CEFInjectionController.sharedJSContextWSURL) {
+      return await RustInterop.getSteamClientFilterData(CEFInjectionController.sharedJSContextWSURL)
+    }
+
+    return null
   }
 }

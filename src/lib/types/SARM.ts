@@ -79,3 +79,23 @@ export type LocalConfigEntry = {
   lastPlayed?: string,
   playtime?: string,
 }
+
+export type InstallFolder = {
+  displayName?: string,
+  drive: string,
+  bIsMounted: boolean,
+  strFolderPath: string,
+  apps: number[],
+}
+
+export type Collection = {
+  id: number,
+  name: string,
+  apps: number[],
+}
+
+export type SteamClientFilterData = {
+  installFolders: InstallFolder[],
+  tags: Record<number, string>,
+  collections: Collection[]
+}

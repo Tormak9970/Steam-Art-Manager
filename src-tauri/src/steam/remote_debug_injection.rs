@@ -6,7 +6,10 @@ use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
-use crate::{steam::js_functions::GET_STEAM_APPS_JS, utils::logger};
+use crate::{
+    steam::js_functions::{GET_STEAM_APPS_JS, GET_STEAM_FILTER_DATA_JS},
+    utils::logger,
+};
 
 /// Check is Steam's CEF Debugger is enabled
 pub fn check_cef_debugging(app_handle: &AppHandle, steam_path: &Path) -> bool {
@@ -129,6 +132,21 @@ pub async fn get_client_apps_frontend(
 
     if client_apps_res.is_some() {
         return Ok(client_apps_res.unwrap());
+    }
+
+    return Ok(String::from("{}"));
+}
+
+#[tauri::command]
+/// IPC wrapper for getting the client's filter data.
+pub async fn get_client_filter_data_frontend(
+    _app_handle: AppHandle,
+    ws_url: String,
+) -> Result<String, ()> {
+    let client_filter_data_res = inject_js(&ws_url, GET_STEAM_FILTER_DATA_JS).await;
+
+    if client_filter_data_res.is_some() {
+        return Ok(client_filter_data_res.unwrap());
     }
 
     return Ok(String::from("{}"));

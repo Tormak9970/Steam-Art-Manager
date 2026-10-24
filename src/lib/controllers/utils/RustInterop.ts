@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, LocalConfigEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, LocalConfigEntry, SteamClientFilterData, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -375,12 +375,27 @@ export class RustInterop {
   }
   
   /**
-   * gets the user's apps from the Steam Client
+   * Gets the user's apps from the Steam Client
    * @returns A promise resolving to the user's apps. Will return an empty object if none are found.
    */
   static async getSteamClientApps(wsUrl: string): Promise<GameStruct[]> {
     const appsString = await invoke<string>("get_client_apps_frontend", { wsUrl })
 
     return JSON.parse(appsString) as GameStruct[];
+  }
+  
+  /**
+   * Gets the data needed for Steam Client filter options.
+   * @returns A promise resolving to the data, or any empty object if there was an error.
+   */
+  static async getSteamClientFilterData(wsUrl: string): Promise<SteamClientFilterData | null> {
+    const appsString = await invoke<string>("get_client_filter_data_frontend", { wsUrl })
+    const parsed = JSON.parse(appsString)
+
+    if (Object.keys(parsed).includes('installFolders')) {
+      return parsed as SteamClientFilterData
+    }
+
+    return null;
   }
 }

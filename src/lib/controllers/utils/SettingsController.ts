@@ -17,7 +17,7 @@
  */
 import { CEFInjectionController } from "@controllers";
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, startSteamOnLaunch, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, useCEFInjection, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, useCEFInjection, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -299,10 +299,6 @@ export class SettingsController {
     SettingsController.oldValues["debugMode"] = debugModeSetting;
     debugMode.set(debugModeSetting);
     if (debugModeSetting) await RustInterop.toggleDevTools(true);
-    
-    const startSteamOnLaunchSetting = SettingsController.settings.startSteamOnLaunch;
-    SettingsController.oldValues["startSteamOnLaunch"] = startSteamOnLaunchSetting;
-    startSteamOnLaunch.set(startSteamOnLaunchSetting);
 
     const appTypesSetting = SettingsController.settings.appTypes;
     SettingsController.oldValues["appTypes"] = appTypesSetting;
@@ -473,7 +469,6 @@ export class SettingsController {
       theme.subscribe(SettingsController.setOnChange("theme")),
       debugMode.subscribe(SettingsController.setOnChange("debugMode")),
       useCEFInjection.subscribe(SettingsController.setOnChange("useCEFInjection")),
-      startSteamOnLaunch.subscribe(SettingsController.setOnChange("startSteamOnLaunch")),
       appTypes.subscribe(SettingsController.setOnChange("appTypes")),
       showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
       onlyShowInstalled.subscribe(SettingsController.setOnChange("onlyShowInstalled")),

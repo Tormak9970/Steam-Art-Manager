@@ -1,18 +1,4 @@
-pub const GET_STEAM_COLLECTIONS_JS: &str = r#"
-JSON.stringify(
-  collectionStore.userCollections.map(c => ({
-    id: c.id,
-    name: c.displayName,
-    apps: c.allApps.map(a => a.appid),
-  }))
-)"#;
-
-pub const GET_STEAM_TAGS_JS: &str = r#"
-JSON.stringify(
-  appStore.m_mapStoreTagLocalization
-)"#;
-
-// Application = 2, 4
+// Application = 2, 4, anything else
 pub const GET_STEAM_APPS_JS: &str = r#"
 JSON.stringify(
   appStore.allApps.map(a => ({
@@ -36,17 +22,23 @@ JSON.stringify(
   }))
 )"#;
 
-pub const GET_STEAM_INSTALL_FOLDERS_JS: &str = r#"
-JSON.stringify(
-  installFolderStore.AllInstallFolders.map(f => {
-      return {
-          displayName: f.strUserLabel || f.strDriveName,
-          drive: f.strDriveName,
-          bIsMounted: f.bIsMounted,
-          strFolderPath: f.strFolderPath,
-          apps: f.vecApps.map(a => a.nAppID),
-      }
-  })
-)"#;
+pub const GET_STEAM_FILTER_DATA_JS: &str = r#"
+JSON.stringify({
+  installFolders: installFolderStore.AllInstallFolders.map(f => {
+    return {
+      displayName: f.strUserLabel || f.strDriveName,
+      drive: f.strDriveName,
+      bIsMounted: f.bIsMounted,
+      strFolderPath: f.strFolderPath,
+      apps: f.vecApps.map(a => a.nAppID),
+    }
+  }),
+  tags: appStore.m_mapStoreTagLocalization,
+  collections: collectionStore.userCollections.map(c => ({
+    id: c.id,
+    name: c.displayName,
+    apps: c.allApps.map(a => a.appid),
+  }))
+})"#;
 
 // TODO: Also get users from CEF
