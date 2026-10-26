@@ -99,7 +99,7 @@ pub async fn inject_js(ws_url: &str, expr: &str) -> Option<String> {
     let req = json!({
         "id": 1,
         "method": "Runtime.evaluate",
-        "params": { "expression": expr, "returnByValue": true }
+        "params": { "expression": expr, "awaitPromise": true, "returnByValue": true }
     });
 
     ws.send(Message::Text(req.to_string().into()))

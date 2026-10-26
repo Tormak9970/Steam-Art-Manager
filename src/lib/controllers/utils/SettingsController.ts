@@ -312,7 +312,7 @@ export class SettingsController {
     SettingsController.oldValues["useCEFInjection"] = useCEFInjectionSetting;
     useCEFInjection.set(useCEFInjectionSetting);
     if (useCEFInjectionSetting) {
-      CEFInjectionController.startCEFInjection(false);
+      await CEFInjectionController.startCEFInjection(false);
     }
 
     const activeUserId = await SettingsController.loadUserSettings();

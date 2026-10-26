@@ -142,7 +142,6 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
-    console.log(RustInterop.steamPath)
     return await invoke<string>("frontend_get_library_cache_directory_handler", { steamPath: RustInterop.steamPath });
   }
   
@@ -362,7 +361,6 @@ export class RustInterop {
    * @returns A promise resolving to true if CEF debugging is enabled, false if its not or there was an error.
    */
   static async checkSteamCEFEnabled(): Promise<boolean> {
-    console.log(JSON.parse(JSON.stringify(RustInterop.steamPath)))
     return await invoke<boolean>("check_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
   }
 
