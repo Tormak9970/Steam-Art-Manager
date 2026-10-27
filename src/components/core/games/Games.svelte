@@ -190,8 +190,6 @@
       sortBy = $sortGridsBy,
     } = props;
 
-    console.log("sGames:", sGames);
-
     let allGames = getGamesForPlatform(
       platform,
       sGames,

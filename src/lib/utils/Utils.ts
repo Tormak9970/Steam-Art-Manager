@@ -169,16 +169,16 @@ export async function findSteamPath(savedInstallPath: string): Promise<void> {
  * Reloads the app.
  * @param saveChanges The function to run if changes should be saved.
  */
-export async function restartApp(saveChanges?: () => Promise<void>): Promise<void> {
+export async function restartApp(saveChanges?: () => Promise<void>, messageOnNoChanges = false): Promise<void> {
   const canSaveChanges = get(canSave)
   
-  if (canSaveChanges) {
+  if (canSaveChanges && saveChanges) {
     const shouldSave = await DialogController.ask("Warning!", "WARNING", "You have unsaved changes, do you want to save? All changes will be lost if you do not.", "Save", "Don't Save");
     
     if (shouldSave) {
-      await saveChanges?.();
+      await saveChanges();
     }
-  } else {
+  } else if (messageOnNoChanges) {
     await DialogController.message("Restart Needed", "INFO", "Steam Art Manager will now restart.", "Ok");
   }
   

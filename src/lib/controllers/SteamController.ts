@@ -50,8 +50,6 @@ export class SteamController {
   static async getCacheData(steamApps: GameStruct[], shortcuts: GameStruct[]): Promise<{ [appid: string]: LibraryCacheEntry }> {
     const shortcutIds = Object.values(shortcuts).map((shortcut) => shortcut.appid.toString());
     const [ unfilteredCache, filteredCache, logoConfigPaths ] = await RustInterop.getCacheData(get(activeUserId).toString(), shortcutIds, steamApps);
-    console.log('unfilteredCache:', JSON.parse(JSON.stringify(unfilteredCache)))
-    console.log('filteredCache:', JSON.parse(JSON.stringify(filteredCache)))
 
     unfilteredLibraryCache.set(unfilteredCache);
     originalAppLibraryCache.set(structuredClone(filteredCache));
@@ -183,7 +181,6 @@ export class SteamController {
   private static async getSteamAppsFromClient(): Promise<GameStruct[]> {
     DialogController.showProgressModal("Fetching Games", "Loading games from Steam Client...");
     const apps = await CEFInjectionController.getApps()
-    console.log('apps:', apps)
 
     if (apps) {
       LogController.log(`Loaded ${apps.length} games from Steam Client Injection.`);

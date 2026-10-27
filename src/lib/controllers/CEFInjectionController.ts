@@ -14,7 +14,7 @@ export class CEFInjectionController {
    */
   static async startCEFInjection(needsRestart: boolean): Promise<void> {
     if (needsRestart) {
-      await restartApp(AppController.saveChanges.bind(AppController));
+      await restartApp(AppController.saveChanges.bind(AppController), true);
     }
 
     const cefEnabled = await RustInterop.checkSteamCEFEnabled();
@@ -50,7 +50,7 @@ export class CEFInjectionController {
    * Ends CEF Remote Debug Injection.
    */
   static async endCEFInjection(): Promise<void> {
-    await restartApp(AppController.saveChanges.bind(AppController));
+    await restartApp(AppController.saveChanges.bind(AppController), true);
   }
   
   /**
