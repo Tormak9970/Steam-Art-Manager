@@ -4,6 +4,7 @@
   import { gridType, selectedGameAppId } from "@stores/AppState";
   import type { GameStruct } from "@types";
   import GridImage from "../../GridImage.svelte";
+  import FilterInfo from "../FilterInfo.svelte";
   import SortInfo from "../SortInfo.svelte";
 
   type Props = {
@@ -157,6 +158,7 @@
       {game.name}
     </div>
     <SortInfo {game} />
+    <FilterInfo {game} />
   </div>
 </div>
 

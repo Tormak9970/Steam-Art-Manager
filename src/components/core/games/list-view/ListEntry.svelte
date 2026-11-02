@@ -1,10 +1,16 @@
 <script lang="ts">
   import { AppController } from "@controllers";
   import { AllGrids, Ban, Hide, Recycle, Show, Tag } from "@icons";
-  import { gridImageSize, selectedGameAppId } from "@stores/AppState";
-  import type { GameStruct } from "@types";
+  import {
+    filterGridsBy,
+    gridImageSize,
+    selectedGameAppId,
+    sortGridsBy,
+  } from "@stores/AppState";
+  import { FilterMethods, SortMethods, type GameStruct } from "@types";
   import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
+  import FilterInfo from "../FilterInfo.svelte";
   import SortInfo from "../SortInfo.svelte";
 
   type Props = {
@@ -91,9 +97,16 @@
       >
         {game.name}
       </div>
-      <div class="extra-info">
-        - <SortInfo {game} />
-      </div>
+      {#if $sortGridsBy !== SortMethods.ALPHABETICAL}
+        <div class="extra-info">
+          - <SortInfo {game} />
+        </div>
+      {/if}
+      {#if $filterGridsBy !== FilterMethods.NAME}
+        <div class="extra-info">
+          - <FilterInfo {game} />
+        </div>
+      {/if}
     </div>
     <div class="status">
       <div

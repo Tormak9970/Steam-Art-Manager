@@ -14,7 +14,6 @@
 
   function formatDate(date: number | undefined): string {
     if (date) {
-      console.log(date);
       const asDate = new Date(0);
       asDate.setUTCSeconds(date);
 
@@ -25,7 +24,7 @@
       });
     }
 
-    return "Unkown";
+    return "Unknown";
   }
 
   function formatTime(time: number | undefined): string {
@@ -48,7 +47,7 @@
       return `${score}%`;
     }
 
-    return "Unkown";
+    return "Unknown";
   }
 </script>
 

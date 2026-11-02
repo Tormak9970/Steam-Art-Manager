@@ -2,11 +2,12 @@
   import { GridLoadingSkeleton, VirtualGrid } from "@layout";
   import {
     currentPlatform,
+    filterGridsBy,
     gridImageSize,
     gridType,
     sortGridsBy,
   } from "@stores/AppState";
-  import { SortMethods, type GameStruct } from "@types";
+  import { FilterMethods, SortMethods, type GameStruct } from "@types";
   import { GRID_DIMENSIONS } from "@utils";
   import GameEntry from "../GameEntry.svelte";
 
@@ -20,6 +21,9 @@
   const extraSortHeight = $derived(
     $sortGridsBy !== SortMethods.ALPHABETICAL ? 1 : 0,
   );
+  const extraFilterHeight = $derived(
+    $filterGridsBy !== FilterMethods.NAME ? 1 : 0,
+  );
 
   let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
 
@@ -30,7 +34,8 @@
     gridDimensions.heights[$gridType] +
       gridDimensions.padding +
       gridDimensions.heightOffset +
-      extraSortHeight,
+      extraSortHeight +
+      extraFilterHeight,
   );
 </script>
 

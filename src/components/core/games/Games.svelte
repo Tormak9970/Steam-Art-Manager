@@ -8,6 +8,7 @@
     appLibraryCache,
     appTypes,
     currentPlatform,
+    filterGridsBy,
     gamesSize,
     gridImageSize,
     gridType,
@@ -24,7 +25,9 @@
     useCEFInjection,
   } from "@stores/AppState";
   import {
+    ExperimentalFilterMethods,
     ExperimentalSortMethods,
+    FilterMethods,
     SortMethods,
     type GameStruct,
     type GridTypes,
@@ -49,6 +52,7 @@
   let gridTypeUnsub: Unsubscriber;
   let appTypeUnsub: Unsubscriber;
   let sortGridsByUnsub: Unsubscriber;
+  let filterGridsByUnsub: Unsubscriber;
 
   let isLoading = $state(true);
 
@@ -228,6 +232,7 @@
     currentGridType?: GridTypes;
     selectedAppTypes?: string[];
     sortBy?: SortMethods | ExperimentalSortMethods;
+    filterBy?: FilterMethods | ExperimentalFilterMethods;
   };
 
   /**
@@ -388,6 +393,13 @@
       });
       isLoading = false;
     });
+    filterGridsByUnsub = filterGridsBy.subscribe((filterMethod) => {
+      isLoading = true;
+      games = filterGames({
+        filterBy: filterMethod,
+      });
+      isLoading = false;
+    });
   });
 
   onDestroy(() => {
@@ -402,6 +414,7 @@
     if (gridTypeUnsub) gridTypeUnsub();
     if (appTypeUnsub) appTypeUnsub();
     if (sortGridsByUnsub) sortGridsByUnsub();
+    if (filterGridsByUnsub) filterGridsByUnsub();
   });
 </script>
 
