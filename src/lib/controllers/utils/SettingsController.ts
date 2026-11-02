@@ -17,7 +17,7 @@
  */
 import { CEFInjectionController } from "@controllers";
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, useCEFInjection, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, filterGridsBy, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, useCEFInjection, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -405,6 +405,10 @@ export class SettingsController {
       const sortGridsBySetting = SettingsController.settings.windowSettings.main.sortBy;
       SettingsController.oldValues["windowSettings.main.sortBy"] = sortGridsBySetting;
       sortGridsBy.set(sortGridsBySetting);
+      
+      const filterGridsBySetting = SettingsController.settings.windowSettings.main.filterBy;
+      SettingsController.oldValues["windowSettings.main.filterBy"] = filterGridsBySetting;
+      filterGridsBy.set(filterGridsBySetting);
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
@@ -479,6 +483,7 @@ export class SettingsController {
   
       dbFilters.subscribe(SettingsController.setOnChange("windowSettings.main.filters")),
       sortGridsBy.subscribe(SettingsController.setOnChange("windowSettings.main.sortBy")),
+      filterGridsBy.subscribe(SettingsController.setOnChange("windowSettings.main.filterBy")),
   
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),

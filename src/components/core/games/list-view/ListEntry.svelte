@@ -5,6 +5,7 @@
   import type { GameStruct } from "@types";
   import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
+  import SortInfo from "../SortInfo.svelte";
 
   type Props = {
     game: GameStruct;
@@ -89,6 +90,9 @@
         }}
       >
         {game.name}
+      </div>
+      <div class="extra-info">
+        - <SortInfo {game} />
       </div>
     </div>
     <div class="status">
@@ -208,7 +212,7 @@
 
     height: 3rem;
 
-    font-size: 1rem;
+    font-size: 0.875rem;
 
     display: flex;
     flex-direction: row;
@@ -251,6 +255,9 @@
   .entry-info {
     display: flex;
     align-items: center;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .icon-container {
@@ -280,6 +287,10 @@
 
     display: flex;
     align-items: center;
+
+    position: absolute;
+    top: calc(50% - 10.25rem);
+    right: 0;
   }
 
   .image-control {
@@ -312,5 +323,12 @@
 
   .list-entry:hover .image-control {
     display: flex;
+  }
+
+  .extra-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 0.5rem;
   }
 </style>

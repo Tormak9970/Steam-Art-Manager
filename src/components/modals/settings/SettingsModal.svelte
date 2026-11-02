@@ -16,11 +16,13 @@
     autoGenLogoPos,
     cacheSelectedGrids,
     debugMode,
+    filterGridsBy,
     loadingGames,
     needsSGDBAPIKey,
     needsSteamKey,
     previewGridsOnClick,
     showInfoSnackbar,
+    sortGridsBy,
     steamGridDBKey,
     steamInstallPath,
     steamKey,
@@ -30,6 +32,7 @@
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
+  import { FilterMethods, SortMethods } from "@types";
   import { validateSteamPath } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
@@ -127,6 +130,21 @@
         CEFInjectionController.startCEFInjection(true);
       } else {
         CEFInjectionController.endCEFInjection();
+
+        if (
+          $sortGridsBy !== SortMethods.ALPHABETICAL &&
+          $sortGridsBy !== SortMethods.LAST_PLAYED &&
+          $sortGridsBy !== SortMethods.PLAYTIME
+        ) {
+          $sortGridsBy = SortMethods.ALPHABETICAL;
+        }
+
+        if (
+          $filterGridsBy !== FilterMethods.NAME &&
+          $filterGridsBy !== FilterMethods.APP_ID
+        ) {
+          $filterGridsBy = FilterMethods.NAME;
+        }
       }
     }
 

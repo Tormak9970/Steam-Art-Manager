@@ -1,5 +1,5 @@
 import { DEFAULT_FILTERS } from "@models";
-import { GridTypes, SortMethods, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamClientFilterData, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
+import { ExperimentalFilterMethods, ExperimentalSortMethods, FilterMethods, GridTypes, SortMethods, type GameStruct, type GridTypesMap, type GridTypesOptionalMap, type LibraryCacheEntry, type SGDBGame, type SGDBImage, type SteamClientFilterData, type SteamLogoConfig, type SteamShortcut, type SteamUser } from "@types";
 import { derived, writable, type Writable } from "svelte/store";
 
 export type DBFilter = {
@@ -42,7 +42,8 @@ export const loadedSteamClient = writable(false);
 export const useCEFInjection = writable(false);
 export const steamClientFilterData = writable<SteamClientFilterData | null>(null);
 
-export const sortGridsBy = writable(SortMethods.ALPHABETICAL);
+export const sortGridsBy = writable<SortMethods | ExperimentalSortMethods>(SortMethods.ALPHABETICAL);
+export const filterGridsBy = writable<FilterMethods | ExperimentalFilterMethods>(FilterMethods.NAME);
 
 export const optionsSize = writable(16);
 export const gamesSize = writable(42);

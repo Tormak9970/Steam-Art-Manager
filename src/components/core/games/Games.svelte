@@ -21,12 +21,18 @@
     showHidden,
     sortGridsBy,
     steamGames,
+    useCEFInjection,
   } from "@stores/AppState";
-  import { SortMethods, type GameStruct, type GridTypes } from "@types";
+  import {
+    ExperimentalSortMethods,
+    SortMethods,
+    type GameStruct,
+    type GridTypes,
+  } from "@types";
+  import { sortGames } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import { type Unsubscriber } from "svelte/store";
-  import { sortGames } from "../../../lib/utils/SortMethods";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
   import GamesGrid from "./grid-view/GamesGrid.svelte";
@@ -51,33 +57,9 @@
 
   let searchComponent: SearchBar | undefined = $state();
 
-  let gameFilterMenu = $derived([
+  const filterOptions = $derived([
     {
-      label: "Show Hidden",
-      icon: $showHidden ? Check : undefined,
-      onClick: () => {
-        $showHidden = !$showHidden;
-      },
-    },
-    {
-      label: "Missing Grids Only",
-      icon: $onlyShowMissing ? Check : undefined,
-      onClick: () => {
-        $onlyShowMissing = !$onlyShowMissing;
-      },
-    },
-    {
-      label: "Installed Only",
-      icon: $onlyShowInstalled ? Check : undefined,
-      onClick: () => {
-        $onlyShowInstalled = !$onlyShowInstalled;
-      },
-    },
-  ]);
-
-  let gameSortMenu = $derived([
-    {
-      label: "Alphabetical",
+      label: "Name",
       icon: $sortGridsBy === SortMethods.ALPHABETICAL ? Check : undefined,
       onClick: () => {
         $sortGridsBy = SortMethods.ALPHABETICAL;
@@ -103,7 +85,93 @@
       : []),
   ]);
 
-  let gridSizeMenu = $derived(
+  const gameFilterMenu = $derived([
+    {
+      label: "Show Hidden",
+      icon: $showHidden ? Check : undefined,
+      onClick: () => {
+        $showHidden = !$showHidden;
+      },
+    },
+    {
+      label: "Missing Grids Only",
+      icon: $onlyShowMissing ? Check : undefined,
+      onClick: () => {
+        $onlyShowMissing = !$onlyShowMissing;
+      },
+    },
+    {
+      label: "Installed Only",
+      icon: $onlyShowInstalled ? Check : undefined,
+      onClick: () => {
+        $onlyShowInstalled = !$onlyShowInstalled;
+      },
+    },
+  ]);
+
+  const gameSortMenu = $derived([
+    {
+      label: "Alphabetical",
+      icon: $sortGridsBy === SortMethods.ALPHABETICAL ? Check : undefined,
+      onClick: () => {
+        $sortGridsBy = SortMethods.ALPHABETICAL;
+      },
+    },
+    {
+      label: "Last Played",
+      icon: $sortGridsBy === SortMethods.LAST_PLAYED ? Check : undefined,
+      onClick: () => {
+        $sortGridsBy = SortMethods.LAST_PLAYED;
+      },
+    },
+    ...($currentPlatform === Platforms.STEAM
+      ? [
+          {
+            label: "Playtime",
+            icon: $sortGridsBy === SortMethods.PLAYTIME ? Check : undefined,
+            onClick: () => {
+              $sortGridsBy = SortMethods.PLAYTIME;
+            },
+          },
+        ]
+      : []),
+    ...($useCEFInjection
+      ? [
+          {
+            label: "Purchase Date",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.PURCHASE_DATE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.PURCHASE_DATE;
+            },
+          },
+          {
+            label: "Release Date",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.RELEASE_DATE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.RELEASE_DATE;
+            },
+          },
+          {
+            label: "Review Score",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.STEAM_REVIEW_SCORE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.STEAM_REVIEW_SCORE;
+            },
+          },
+        ]
+      : []),
+  ]);
+
+  const gridSizeMenu = $derived(
     GRID_IMAGE_SIZES.map((size) => {
       return {
         label: size.label,
@@ -159,7 +227,7 @@
     onlyInstalledGames?: boolean;
     currentGridType?: GridTypes;
     selectedAppTypes?: string[];
-    sortBy?: SortMethods;
+    sortBy?: SortMethods | ExperimentalSortMethods;
   };
 
   /**
