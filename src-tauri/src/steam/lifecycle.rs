@@ -70,11 +70,11 @@ fn start_steam_silent(steam_path: &Path) -> std::io::Result<()> {
             }
         }
 
-        c;
+        c
     } else {
         let mut c = Command::new(steam_path.join("steam.sh"));
 
-        c;
+        c
     };
 
     #[cfg(target_os = "windows")]
