@@ -54,7 +54,7 @@ fn is_flatpak_steam(root: &Path) -> bool {
 
 fn start_steam_silent(steam_path: &Path) -> std::io::Result<()> {
     #[cfg(target_os = "linux")]
-    let mut cmd = if is_flatpak_root(&steam_path) {
+    let mut cmd = if is_flatpak_steam(&steam_path) {
         let mut c = Command::new("flatpak");
         c.args(["run", "com.valvesoftware.Steam", "-silent"]);
 
@@ -70,12 +70,12 @@ fn start_steam_silent(steam_path: &Path) -> std::io::Result<()> {
             }
         }
 
-        return c;
+        return Ok(());
     } else {
         let mut c = Command::new(steam_path.join("steam.sh"));
         c.arg("-silent");
 
-        return c;
+        return Ok(());
     };
 
     #[cfg(target_os = "windows")]
