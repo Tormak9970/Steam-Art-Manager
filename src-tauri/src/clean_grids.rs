@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use tauri::AppHandle;
 
-use crate::{steam, utils::logger, zip_controller};
+use crate::{steam::local_files::file_paths, utils::logger, zip_controller};
 
 #[derive(Clone, serde::Serialize)]
 #[allow(non_snake_case)]
@@ -35,7 +35,7 @@ pub async fn clean_grids(
         .expect("Should have been able to deserialize appids array.");
 
     let grids_dir_path: String =
-        steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
+        file_paths::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
     let grids_dir_contents = fs::read_dir(grids_dir_path).unwrap();
 
     let mut found_apps: HashMap<String, (String, String)> = HashMap::new();

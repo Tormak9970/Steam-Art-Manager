@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AppController } from "@controllers";
-  import { Bug } from "@icons";
+  import { Bug, Flask } from "@icons";
   import { Toggle } from "@interactables";
   import { open } from "@tauri-apps/plugin-shell";
   import type { Snippet } from "svelte";
@@ -9,6 +9,7 @@
     label?: string;
     description?: string;
     steamBug?: boolean;
+    experimental?: boolean;
     value: boolean;
     onChange?: (value: boolean) => void;
     children?: Snippet;
@@ -18,6 +19,7 @@
     label = "",
     description = "",
     steamBug = false,
+    experimental = false,
     value,
     onChange = () => {},
     children,
@@ -44,7 +46,7 @@
     {@render children?.()}
     {#if steamBug}
       <div
-        class="bug-warning"
+        class="feature-notice"
         use:AppController.tippy={{
           content: "This is a Steam issue and will be removed once fixed.",
           placement: "top",
@@ -53,6 +55,19 @@
       >
         <div class="steam-bug-warning">Steam</div>
         <Bug fill="yellow" width="1rem" />
+      </div>
+    {/if}
+    {#if experimental}
+      <div
+        class="feature-notice"
+        use:AppController.tippy={{
+          content: "This is feature is experimental, you may run into bugs.",
+          placement: "top",
+          onShow: AppController.onTippyShow,
+        }}
+      >
+        <div class="experimental-warning">Experimental</div>
+        <Flask fill="var(--link-color)" width="1rem" />
       </div>
     {/if}
   </div>
@@ -92,7 +107,7 @@
     justify-content: space-between;
   }
 
-  .bug-warning {
+  .feature-notice {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -100,5 +115,9 @@
 
   .steam-bug-warning {
     color: yellow;
+  }
+
+  .experimental-warning {
+    color: var(--link-color);
   }
 </style>

@@ -1,10 +1,17 @@
 <script lang="ts">
   import { AppController } from "@controllers";
   import { AllGrids, Ban, Hide, Recycle, Show, Tag } from "@icons";
-  import { gridImageSize, selectedGameAppId } from "@stores/AppState";
-  import type { GameStruct } from "@types";
+  import {
+    filterGridsBy,
+    gridImageSize,
+    selectedGameAppId,
+    sortGridsBy,
+  } from "@stores/AppState";
+  import { FilterMethods, SortMethods, type GameStruct } from "@types";
   import { GRID_DIMENSIONS, IMAGE_FADE_OPTIONS } from "@utils";
   import Lazy from "svelte-lazy";
+  import FilterInfo from "../FilterInfo.svelte";
+  import SortInfo from "../SortInfo.svelte";
 
   type Props = {
     game: GameStruct;
@@ -90,6 +97,16 @@
       >
         {game.name}
       </div>
+      {#if $sortGridsBy !== SortMethods.ALPHABETICAL}
+        <div class="extra-info">
+          - <SortInfo {game} />
+        </div>
+      {/if}
+      {#if $filterGridsBy !== FilterMethods.NAME}
+        <div class="extra-info">
+          - <FilterInfo {game} />
+        </div>
+      {/if}
     </div>
     <div class="status">
       <div
@@ -208,7 +225,7 @@
 
     height: 3rem;
 
-    font-size: 1rem;
+    font-size: 0.875rem;
 
     display: flex;
     flex-direction: row;
@@ -251,6 +268,9 @@
   .entry-info {
     display: flex;
     align-items: center;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .icon-container {
@@ -280,6 +300,10 @@
 
     display: flex;
     align-items: center;
+
+    position: absolute;
+    top: calc(50% - 10.25rem);
+    right: 0;
   }
 
   .image-control {
@@ -312,5 +336,12 @@
 
   .list-entry:hover .image-control {
     display: flex;
+  }
+
+  .extra-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 0.5rem;
   }
 </style>

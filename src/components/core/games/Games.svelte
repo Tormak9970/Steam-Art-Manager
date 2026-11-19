@@ -1,6 +1,14 @@
 <script lang="ts">
-  import { Check, GridView, ListView, Options, Ruler, Sort } from "@icons";
-  import { IconToggle, Menu, SearchBar } from "@interactables";
+  import {
+    Check,
+    Filter,
+    GridView,
+    ListView,
+    Options,
+    Ruler,
+    Sort,
+  } from "@icons";
+  import { IconToggle, Menu } from "@interactables";
   import { ListTabs } from "@layout";
   import { GRID_IMAGE_SIZES } from "@models";
   import {
@@ -8,6 +16,7 @@
     appLibraryCache,
     appTypes,
     currentPlatform,
+    filterGridsBy,
     gamesSize,
     gridImageSize,
     gridType,
@@ -20,15 +29,25 @@
     renderGamesInList,
     showHidden,
     sortGridsBy,
+    steamClientFilterData,
     steamGames,
+    useCEFInjection,
   } from "@stores/AppState";
-  import { SortMethods, type GameStruct, type GridTypes } from "@types";
+  import {
+    ExperimentalFilterMethods,
+    ExperimentalSortMethods,
+    FilterMethods,
+    SortMethods,
+    type GameStruct,
+    type GridTypes,
+  } from "@types";
+  import { filterGames, sortGames } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import { Pane } from "svelte-splitpanes";
   import { type Unsubscriber } from "svelte/store";
-  import { sortGames } from "../../../lib/utils/SortMethods";
   import Divider from "../Divider.svelte";
   import SectionTitle from "../SectionTitle.svelte";
+  import FilterInput from "./FilterInput.svelte";
   import GamesGrid from "./grid-view/GamesGrid.svelte";
   import GamesList from "./list-view/GamesList.svelte";
 
@@ -43,15 +62,129 @@
   let gridTypeUnsub: Unsubscriber;
   let appTypeUnsub: Unsubscriber;
   let sortGridsByUnsub: Unsubscriber;
+  let filterGridsByUnsub: Unsubscriber;
 
   let isLoading = $state(true);
 
   let searchQuery = $state("");
   let games: GameStruct[] = $state([]);
 
-  let searchComponent: SearchBar | undefined = $state();
+  const filterOptions = $derived([
+    {
+      label: "Name",
+      icon: $filterGridsBy === FilterMethods.NAME ? Check : undefined,
+      onClick: () => {
+        $filterGridsBy = FilterMethods.NAME;
+      },
+    },
+    {
+      label: "App ID",
+      icon: $filterGridsBy === FilterMethods.APP_ID ? Check : undefined,
+      onClick: () => {
+        $filterGridsBy = FilterMethods.APP_ID;
+      },
+    },
+    ...($useCEFInjection
+      ? [
+          {
+            label: "Collections",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.COLLECTIONS
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.COLLECTIONS;
+            },
+          },
+          {
+            label: "Store Categories",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.STORE_CATEGORIES
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.STORE_CATEGORIES;
+            },
+          },
+          {
+            label: "Store Tags",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.STORE_TAGS
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.STORE_TAGS;
+            },
+          },
+          {
+            label: "Steam Review Score",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.STEAM_REVIEW_SCORE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.STEAM_REVIEW_SCORE;
+            },
+          },
+          {
+            label: "Deck Compat Category",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.DECK_COMPAT_CATEGORY
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.DECK_COMPAT_CATEGORY;
+            },
+          },
+          {
+            label: "Frame Compat Category",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.FRAME_COMPAT_CATEGORY
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.FRAME_COMPAT_CATEGORY;
+            },
+          },
+          {
+            label: "Machine Compat Category",
+            icon:
+              $filterGridsBy ===
+              ExperimentalFilterMethods.MACHINE_COMPAT_CATEGORY
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy =
+                ExperimentalFilterMethods.MACHINE_COMPAT_CATEGORY;
+            },
+          },
+          {
+            label: "SteamOS Compat Category",
+            icon:
+              $filterGridsBy ===
+              ExperimentalFilterMethods.STEAMOS_COMPAT_CATEGORY
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy =
+                ExperimentalFilterMethods.STEAMOS_COMPAT_CATEGORY;
+            },
+          },
+          {
+            label: "Is Family Sharing",
+            icon:
+              $filterGridsBy === ExperimentalFilterMethods.IS_FAMILY_SHARING
+                ? Check
+                : undefined,
+            onClick: () => {
+              $filterGridsBy = ExperimentalFilterMethods.IS_FAMILY_SHARING;
+            },
+          },
+        ]
+      : []),
+  ]);
 
-  let gameFilterMenu = $derived([
+  const gameRestrictionMenu = $derived([
     {
       label: "Show Hidden",
       icon: $showHidden ? Check : undefined,
@@ -75,7 +208,7 @@
     },
   ]);
 
-  let gameSortMenu = $derived([
+  const gameSortMenu = $derived([
     {
       label: "Alphabetical",
       icon: $sortGridsBy === SortMethods.ALPHABETICAL ? Check : undefined,
@@ -101,9 +234,43 @@
           },
         ]
       : []),
+    ...($useCEFInjection
+      ? [
+          {
+            label: "Purchase Date",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.PURCHASE_DATE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.PURCHASE_DATE;
+            },
+          },
+          {
+            label: "Release Date",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.RELEASE_DATE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.RELEASE_DATE;
+            },
+          },
+          {
+            label: "Review Score",
+            icon:
+              $sortGridsBy === ExperimentalSortMethods.STEAM_REVIEW_SCORE
+                ? Check
+                : undefined,
+            onClick: () => {
+              $sortGridsBy = ExperimentalSortMethods.STEAM_REVIEW_SCORE;
+            },
+          },
+        ]
+      : []),
   ]);
 
-  let gridSizeMenu = $derived(
+  const gridSizeMenu = $derived(
     GRID_IMAGE_SIZES.map((size) => {
       return {
         label: size.label,
@@ -114,17 +281,6 @@
       };
     }),
   );
-
-  /**
-   * Overwrites the default search function.
-   * @param e The keyboard event.
-   */
-  function overwriteCtrlF(e: Event): void {
-    if ((e as KeyboardEvent).ctrlKey && (e as KeyboardEvent).key === "f") {
-      e.preventDefault();
-      searchComponent!.setSearchFocus();
-    }
-  }
 
   /**
    * Gets the games based on the provided platform.
@@ -159,7 +315,8 @@
     onlyInstalledGames?: boolean;
     currentGridType?: GridTypes;
     selectedAppTypes?: string[];
-    sortBy?: SortMethods;
+    sortBy?: SortMethods | ExperimentalSortMethods;
+    filterBy?: FilterMethods | ExperimentalFilterMethods;
   };
 
   /**
@@ -175,7 +332,7 @@
    * @param gridType The current gridType.
    * @returns The list of filtered games.
    */
-  function filterGames(props: FilterProps): GameStruct[] {
+  function restrictGames(props: FilterProps): GameStruct[] {
     const {
       platform = $currentPlatform,
       hiddenIds = $hiddenGameIds,
@@ -188,6 +345,7 @@
       currentGridType = $gridType,
       selectedAppTypes = $appTypes,
       sortBy = $sortGridsBy,
+      filterBy = $filterGridsBy,
     } = props;
 
     let allGames = getGamesForPlatform(
@@ -218,10 +376,15 @@
       });
     }
 
-    const filteredGames = selectedGames.filter(
-      (game) =>
-        game.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        selectedAppTypes.includes(game.type.toLowerCase()),
+    const appTypeGames = selectedGames.filter((game) =>
+      selectedAppTypes.includes(game.type.toLowerCase()),
+    );
+
+    const filteredGames = filterGames(
+      appTypeGames,
+      filterBy,
+      searchQuery,
+      $steamClientFilterData?.collections ?? [],
     );
 
     return sortGames(filteredGames, sortBy);
@@ -233,14 +396,14 @@
    */
   function onSearchChange(query: string): void {
     searchQuery = query.toLowerCase();
-    games = filterGames({});
+    games = restrictGames({});
   }
 
   onMount(() => {
     steamGamesUnsub = steamGames.subscribe((newGames) => {
       isLoading = true;
       if ($currentPlatform === Platforms.STEAM) {
-        games = filterGames({
+        games = restrictGames({
           sGames: newGames,
         });
       }
@@ -249,7 +412,7 @@
     manualSteamGamesUnsub = manualSteamGames.subscribe((newGames) => {
       isLoading = true;
       if ($currentPlatform === Platforms.STEAM) {
-        games = filterGames({
+        games = restrictGames({
           manualSGames: newGames,
         });
       }
@@ -258,7 +421,7 @@
     nonSteamGamesUnsub = nonSteamGames.subscribe((newGames) => {
       isLoading = true;
       if ($currentPlatform === Platforms.NON_STEAM) {
-        games = filterGames({
+        games = restrictGames({
           nonSGames: newGames,
         });
       }
@@ -266,57 +429,65 @@
     });
     hiddenGameIdsUnsub = hiddenGameIds.subscribe((ids) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         hiddenIds: ids,
       });
       isLoading = false;
     });
     showHiddenUnsub = showHidden.subscribe((show) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         showHiddenGames: show,
       });
       isLoading = false;
     });
     selectedPlatformUnsub = currentPlatform.subscribe((platform) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         platform,
       });
       isLoading = false;
     });
     onlyShowMissingUnsub = onlyShowMissing.subscribe((missing) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         onlyShowMissingGames: missing,
       });
       isLoading = false;
     });
     onlyShowInstalledUnsub = onlyShowInstalled.subscribe((installed) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         onlyInstalledGames: installed,
       });
       isLoading = false;
     });
     gridTypeUnsub = gridType.subscribe((type) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         currentGridType: type,
       });
       isLoading = false;
     });
     appTypeUnsub = appTypes.subscribe((types) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         selectedAppTypes: types,
       });
       isLoading = false;
     });
     sortGridsByUnsub = sortGridsBy.subscribe((sortMethod) => {
       isLoading = true;
-      games = filterGames({
+      games = restrictGames({
         sortBy: sortMethod,
+      });
+      isLoading = false;
+    });
+    filterGridsByUnsub = filterGridsBy.subscribe((filterMethod) => {
+      isLoading = true;
+      searchQuery = "";
+      games = restrictGames({
+        filterBy: filterMethod,
       });
       isLoading = false;
     });
@@ -334,10 +505,9 @@
     if (gridTypeUnsub) gridTypeUnsub();
     if (appTypeUnsub) appTypeUnsub();
     if (sortGridsByUnsub) sortGridsByUnsub();
+    if (filterGridsByUnsub) filterGridsByUnsub();
   });
 </script>
-
-<svelte:window on:keydown={overwriteCtrlF} />
 
 <Pane minSize={20} size={$gamesSize}>
   <div class="inner">
@@ -360,19 +530,17 @@
           </IconToggle>
         </div>
         <div class="left-cont">
-          <SearchBar
-            label="Search Library"
-            onChange={onSearchChange}
-            interval={800}
-            bind:this={searchComponent}
-          />
+          <FilterInput onChange={onSearchChange} bind:value={searchQuery} />
           <Menu label="Grid Size" options={gridSizeMenu}>
             <Ruler style="height: 1rem; width: 1rem;" />
+          </Menu>
+          <Menu label="Filters" options={filterOptions}>
+            <Filter style="height: 1rem; width: 1rem;" />
           </Menu>
           <Menu label="Sorting" options={gameSortMenu}>
             <Sort style="height: 1rem; width: 1rem;" />
           </Menu>
-          <Menu label="Filters" options={gameFilterMenu}>
+          <Menu label="Restrict Games" options={gameRestrictionMenu}>
             <Options style="height: 1rem; width: 1rem;" />
           </Menu>
         </div>

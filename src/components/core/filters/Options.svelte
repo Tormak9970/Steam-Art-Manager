@@ -17,9 +17,11 @@
    * @param filter The filter to update.
    * @returns A function to update the filter.
    */
-  function updateFilters(section: string, filter: string): (e: any) => void {
-    return (e: any) => {
-      const value = e.detail.value;
+  function updateFilters(
+    section: string,
+    filter: string,
+  ): (value: boolean) => void {
+    return (value: boolean) => {
       const filters = $dbFilters;
 
       // @ts-expect-error this will always work because the properties come from $dbFilters' keys.

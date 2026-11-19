@@ -17,7 +17,7 @@
  */
 import { steamInstallPath } from "@stores/AppState";
 import { invoke } from "@tauri-apps/api/core";
-import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, LocalConfigEntry, SteamShortcut, SteamUser } from "@types";
+import type { ChangedPath, CleanConflict, GameStruct, LibraryCacheEntry, LocalConfigEntry, SteamClientFilterData, SteamShortcut, SteamUser } from "@types";
 import { get } from "svelte/store";
 
 /**
@@ -142,7 +142,6 @@ export class RustInterop {
    * @returns A promise resolving to the active steam user's library cache directory.
    */
   static async getLibraryCacheDirectory(): Promise<string> {
-    console.log(RustInterop.steamPath)
     return await invoke<string>("frontend_get_library_cache_directory_handler", { steamPath: RustInterop.steamPath });
   }
   
@@ -331,5 +330,70 @@ export class RustInterop {
    */
   static async validateSteamPath(targetPath: string): Promise<boolean> {
     return await invoke<boolean>("validate_steam_path", { targetPath: targetPath.toLowerCase() });
+  }
+
+  /**
+   * Checks if Steam is running.
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async checkSteamIsRunning(): Promise<boolean> {
+    return await invoke<boolean>("check_steam_running_frontend", {});
+  }
+  
+  /**
+   * Starts Steam and waits until its launched, or 60s have passed
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async awaitSteamStart(): Promise<boolean> {
+    return await invoke<boolean>("await_steam_start_frontend", { steamPath: RustInterop.steamPath });
+  }
+  
+  /**
+   * Restarts Steam and waits until its launched, or 60s have passed
+   * @returns A promise resolving to true if Steam is running, false if not.
+   */
+  static async awaitSteamRestart(): Promise<boolean> {
+    return await invoke<boolean>("await_steam_restart_frontend", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Checks if CEF debugging is enabled for Steam.
+   * @returns A promise resolving to true if CEF debugging is enabled, false if its not or there was an error.
+   */
+  static async checkSteamCEFEnabled(): Promise<boolean> {
+    return await invoke<boolean>("check_cef_debugging_frontend", { steamPath: RustInterop.steamPath });
+  }
+
+  /**
+   * Finds Steam's SharedJSContext's WebSocket URL
+   * @returns A promise resolving to the SharedJSContext's WebSocket URL, or null if not found.
+   */
+  static async findSharedJSContext(): Promise<string | null> {
+    return await invoke<string | null>("find_shared_js_context_frontend", {});
+  }
+  
+  /**
+   * Gets the user's apps from the Steam Client
+   * @returns A promise resolving to the user's apps. Will return an empty object if none are found.
+   */
+  static async getSteamClientApps(wsUrl: string): Promise<GameStruct[]> {
+    const appsString = await invoke<string>("get_client_apps_frontend", { wsUrl })
+
+    return JSON.parse(appsString) as GameStruct[];
+  }
+  
+  /**
+   * Gets the data needed for Steam Client filter options.
+   * @returns A promise resolving to the data, or any empty object if there was an error.
+   */
+  static async getSteamClientFilterData(wsUrl: string): Promise<SteamClientFilterData | null> {
+    const appsString = await invoke<string>("get_client_filter_data_frontend", { wsUrl })
+    const parsed = JSON.parse(appsString)
+
+    if (Object.keys(parsed).includes('installFolders')) {
+      return parsed as SteamClientFilterData
+    }
+
+    return null;
   }
 }

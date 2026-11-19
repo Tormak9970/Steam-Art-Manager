@@ -4,11 +4,12 @@ import { fetch } from "@tauri-apps/plugin-http";
 import { exit } from "@tauri-apps/plugin-process";
 import { get } from "svelte/store";
 
-import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache } from "@stores/AppState";
+import { activeUserId, appLibraryCache, isOnline, manualSteamGames, needsSteamKey, nonSteamGames, originalAppLibraryCache, originalLogoPositions, originalSteamShortcuts, requestTimeoutLength, showErrorSnackbar, steamClientFilterData, steamGames, steamKey, steamLogoPositions, steamShortcuts, unfilteredLibraryCache, useCEFInjection } from "@stores/AppState";
 
 import { LogController } from "./utils/LogController";
 import { RustInterop } from "./utils/RustInterop";
 
+import { CEFInjectionController } from "@controllers";
 import { type AppInfoVdf, type GameStruct, type LibraryCacheEntry, type LocalConfigEntry, type SteamLogoConfig } from "@types";
 import { XMLParser } from "fast-xml-parser";
 import { DialogController } from "./utils/DialogController";
@@ -133,12 +134,11 @@ export class SteamController {
   }
 
   /**
-   * Loads the user's Steam apps.
+   * Loads the user's Steam apps using the **File System**.
    * @returns The list of steam apps.
    * ? Logging complete.
    */
-  static async getSteamApps(): Promise<GameStruct[]> {
-    const online = get(isOnline);
+  private static async getSteamAppsFromSystem(online: boolean): Promise<GameStruct[]> {
     const needsSteamAPIKey = get(needsSteamKey);
 
     const userId = get(activeUserId);
@@ -169,6 +169,55 @@ export class SteamController {
     }
     
     const games = await SteamController.getGamesFromAppinfo(ids, localConfigData);
+
+    return games;
+  }
+
+  /**
+   * Loads the user's Steam apps using the **Steam Client**.
+   * @returns The list of steam apps.
+   * ? Logging complete.
+   */
+  private static async getSteamAppsFromClient(): Promise<GameStruct[]> {
+    DialogController.showProgressModal("Fetching Games", "Loading games from Steam Client...");
+    const apps = await CEFInjectionController.getApps()
+
+    if (apps) {
+      LogController.log(`Loaded ${apps.length} games from Steam Client Injection.`);
+    } else {
+      LogController.warn(`Failed to load games using Steam Client Injection.`);
+      return []
+    }
+
+    const filters = await CEFInjectionController.getFilterData()
+    
+    if (filters) {
+      LogController.log(`Loaded filter data from Steam Client Injection.`);
+      steamClientFilterData.set(filters);
+    }
+    
+    DialogController.hideProgressModal();
+
+    return apps
+  }
+
+  /**
+   * Loads the user's Steam apps.
+   * @returns The list of steam apps.
+   * ? Logging complete.
+   */
+  static async getSteamApps(): Promise<GameStruct[]> {
+    const online = get(isOnline);
+    const useSteamClient = get(useCEFInjection);
+    let games: GameStruct[] = []
+
+    if (online && useSteamClient) {
+      games = await SteamController.getSteamAppsFromClient();
+    }
+    
+    if (games.length === 0) {
+      games = await SteamController.getSteamAppsFromSystem(online);
+    }
 
     return games;
   }

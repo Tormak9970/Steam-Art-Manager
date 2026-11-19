@@ -2,7 +2,9 @@
 ![Version Badge](https://img.shields.io/github/v/release/Tormak9970/Steam-Art-Manager?label=version&style=flat-square)
 ![Downloads Badge](https://img.shields.io/github/downloads/Tormak9970/Steam-Art-Manager/total?style=flat-square)
 ![License Badge](https://img.shields.io/github/license/Tormak9970/Steam-Art-Manager?style=flat-square)
+![No AI](https://img.shields.io/badge/Made%20by%20people,%20for%20people-F54927?style=flat-square)
 <!-- [![Translations](https://img.shields.io/badge/translations-help%20out-brightgreen?style=flat-square)](#translations) -->
+
 
 # Steam Art Manager
 A tool for managing the artwork of your Steam library.

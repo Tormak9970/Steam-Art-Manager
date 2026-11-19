@@ -6,6 +6,19 @@ export type GameStruct = {
   installed: boolean
   lastPlayed?: number
   playtime?: number
+
+  // Only available when using Steam Client
+  hiddenInSteam?: boolean,
+  isFamilySharing?: boolean,
+  releaseDate?: number,
+  purchaseDate?: number,
+  storeCategories?: number[],
+  storeTags?: number[],
+  steamReviewScore?: number,
+  steamDeckCompatCategory?: number
+  steamFrameCompatCategory?: number
+  steamMachineCompatCategory?: number
+  steamOSCompatCategory?: number
 }
 
 export type GameStructGridInfo = {
@@ -65,4 +78,24 @@ export type CleanConflict = {
 export type LocalConfigEntry = {
   lastPlayed?: string,
   playtime?: string,
+}
+
+export type InstallFolder = {
+  displayName?: string,
+  drive: string,
+  bIsMounted: boolean,
+  strFolderPath: string,
+  apps: number[],
+}
+
+export type Collection = {
+  id: number,
+  name: string,
+  apps: number[],
+}
+
+export type SteamClientFilterData = {
+  installFolders: InstallFolder[],
+  tags: Record<number, string>,
+  collections: Collection[]
 }
