@@ -41,6 +41,7 @@ export class AppController {
     duration: 100,
     theme: "sarm",
     arrow: true,
+    allowHTML: true,
     appendTo: "parent"
   });
 
@@ -601,7 +602,7 @@ export class AppController {
    * ? Logging complete.
    */
   static async reload(): Promise<void> {
-    await restartApp();
+    await restartApp(AppController.saveChanges.bind(AppController));
   }
 
   /**

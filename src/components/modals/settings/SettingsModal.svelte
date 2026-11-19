@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     AppController,
+    CEFInjectionController,
     DialogController,
     LogController,
     SettingsController,
@@ -15,19 +16,23 @@
     autoGenLogoPos,
     cacheSelectedGrids,
     debugMode,
+    filterGridsBy,
     loadingGames,
     needsSGDBAPIKey,
     needsSteamKey,
     previewGridsOnClick,
     showInfoSnackbar,
+    sortGridsBy,
     steamGridDBKey,
     steamInstallPath,
     steamKey,
     steamUsers,
+    useCEFInjection,
   } from "@stores/AppState";
   import { showSettingsModal } from "@stores/Modals";
   import { appLogDir } from "@tauri-apps/api/path";
   import * as shell from "@tauri-apps/plugin-shell";
+  import { FilterMethods, SortMethods } from "@types";
   import { validateSteamPath } from "@utils";
   import { onDestroy, onMount } from "svelte";
   import type { Unsubscriber } from "svelte/store";
@@ -82,6 +87,7 @@
   let steamGridKey = $state($steamGridDBKey);
   let steamAPIKey = $state($steamKey);
   let steamInstallLocation = $state($steamInstallPath);
+  let useCEFInjectionSetting = $state($useCEFInjection);
   let debugModeSetting = $state($debugMode);
   let cacheSelectedGridsSetting = $state($cacheSelectedGrids);
   let previewGridsOnClickSetting = $state($previewGridsOnClick);
@@ -117,6 +123,31 @@
 
     if (debugModeSetting !== $debugMode) $debugMode = debugModeSetting;
 
+    if (useCEFInjectionSetting !== $useCEFInjection) {
+      $useCEFInjection = useCEFInjectionSetting;
+
+      if (useCEFInjectionSetting) {
+        CEFInjectionController.startCEFInjection(true);
+      } else {
+        CEFInjectionController.endCEFInjection();
+
+        if (
+          $sortGridsBy !== SortMethods.ALPHABETICAL &&
+          $sortGridsBy !== SortMethods.LAST_PLAYED &&
+          $sortGridsBy !== SortMethods.PLAYTIME
+        ) {
+          $sortGridsBy = SortMethods.ALPHABETICAL;
+        }
+
+        if (
+          $filterGridsBy !== FilterMethods.NAME &&
+          $filterGridsBy !== FilterMethods.APP_ID
+        ) {
+          $filterGridsBy = FilterMethods.NAME;
+        }
+      }
+    }
+
     if (cacheSelectedGridsSetting !== $cacheSelectedGrids)
       $cacheSelectedGrids = cacheSelectedGridsSetting;
 
@@ -147,6 +178,7 @@
     steamAPIKey = $steamKey;
     steamInstallLocation = $steamInstallPath;
     debugModeSetting = $debugMode;
+    useCEFInjectionSetting = $useCEFInjection;
     appTypesSetting = [...$appTypes];
     cacheSelectedGridsSetting = $cacheSelectedGrids;
     previewGridsOnClickSetting = $previewGridsOnClick;
@@ -160,63 +192,11 @@
   }
 
   /**
-   * Function to run on grid key input change.
-   * @param value The updated value.
-   * @param isValid Whether the new value is valid.
-   */
-  function onGridKeyChange(value: string, isValid: boolean): void {
-    if (value !== "" && isValid) {
-      steamGridKey = value;
-      canSave = true;
-    } else {
-      canSave = false;
-    }
-  }
-
-  /**
-   * Function to run on steam key input change.
-   * @param value The updated value.
-   * @param isValid Whether the new value is valid.
-   */
-  function onSteamKeyChange(value: string, isValid: boolean): void {
-    if (isValid) {
-      steamAPIKey = value;
-      canSave = true;
-    } else {
-      canSave = false;
-    }
-  }
-
-  /**
-   * Function to run on cache selected app types.
-   * @param value The updated value.
-   */
-  function onAppTypesChange(value: string[]): void {
-    appTypesSetting = value;
-    console.log("appTypesSetting:", appTypesSetting);
-    canSave = true;
-  }
-
-  /**
    * Opens the app's log directory.
    */
   async function openLogDirectory() {
     const logDir = await appLogDir();
     shell.open("file://" + logDir);
-  }
-
-  /**
-   * Function to run on steam install location change.
-   * @param path The updated installation path.
-   * @param isValid Whether the new value is valid.
-   */
-  function onInstallLocationChange(path: string, isValid: boolean): void {
-    if (isValid) {
-      steamInstallLocation = path;
-      canSave = true;
-    } else {
-      canSave = false;
-    }
   }
 
   onMount(() => {
@@ -262,7 +242,14 @@
             label="Steam Install Path"
             description={"The root of your Steam installation. The default on Windows is <b>C:/Program Files (x86)/Steam</b> and <b>/home/deck/.steam/steam</b> on Linux. You must restart after changing this."}
             value={steamInstallLocation}
-            onChange={onInstallLocationChange}
+            onChange={(path, isValid) => {
+              if (isValid) {
+                steamInstallLocation = path;
+                canSave = true;
+              } else {
+                canSave = false;
+              }
+            }}
             useValidator
             validPathMessage={"Path is a valid Steam install"}
             validator={validateSteamPath}
@@ -272,7 +259,14 @@
             label="SteamGrid Api Key"
             description={'Needed to load art from SteamGridDB.com. To create one, go to <a href="https://www.steamgriddb.com">Steamgrid</a>, sign in and go to preferences, then API.'}
             value={steamGridKey}
-            onChange={onGridKeyChange}
+            onChange={(value, isValid) => {
+              if (value !== "" && isValid) {
+                steamGridKey = value;
+                canSave = true;
+              } else {
+                canSave = false;
+              }
+            }}
             required
           />
           <TextFieldEntry
@@ -280,15 +274,35 @@
             description={"Used to load your games using Steam's web API (It's much faster). To create one, go to Steam's <a href=\"https://steamcommunity.com/dev/apikey\">key registration</a> page, sign in and create an api key."}
             notes={'Recommended for large libraries. It does <b>NOT</b> matter what domain you put in, It just needs to be a valid url. When in doubt do "http://YOUR_STEAM_USERNAME.com".'}
             value={steamAPIKey}
+            onChange={(value, isValid) => {
+              if (isValid) {
+                steamAPIKey = value;
+                canSave = true;
+              } else {
+                canSave = false;
+              }
+            }}
             canBeEmpty
-            onChange={onSteamKeyChange}
+          />
+          <ToggleFieldEntry
+            label="Use Steam Client"
+            description={"Use the Steam Client to fetch games and enable additional features such as extra filter modes and more."}
+            value={useCEFInjectionSetting}
+            onChange={(value) => {
+              useCEFInjectionSetting = value;
+              canSave = true;
+            }}
+            experimental
           />
           <ChecklistArrayEntry
             label="App Types to Display"
             description={"Choose which app types SARM will display."}
             options={APP_TYPES}
             value={appTypesSetting}
-            onChange={onAppTypesChange}
+            onChange={(value) => {
+              appTypesSetting = value;
+              canSave = true;
+            }}
           />
           <ToggleFieldEntry
             label="Cache Selected Grids"
@@ -328,12 +342,12 @@
           <ToggleFieldEntry
             label="Automatically Generate Logo Config"
             description={"Steam is bugged for some users and doesn't display custom logos unless the logo config is present. Check this if you're running into that issue."}
-            steamBug
             value={autoGenLogoPosSetting}
             onChange={(value) => {
               autoGenLogoPosSetting = value;
               canSave = true;
             }}
+            steamBug
           />
           <ToggleFieldEntry
             label="Debug Mode"

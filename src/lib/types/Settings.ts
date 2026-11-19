@@ -2,17 +2,43 @@ import type { CleanGridsPreset, GameStruct, GridTypesOptionalMap, MainWindowPane
 import type { SGDBImage } from "./SGDB";
 
 export enum SortMethods {
-  ALPHABETICAL,
-  LAST_PLAYED,
-  PLAYTIME
+  ALPHABETICAL = 0,
+  LAST_PLAYED = 1,
+  PLAYTIME = 2
+}
+
+export enum ExperimentalSortMethods {
+  PURCHASE_DATE = 3,
+  RELEASE_DATE = 4,
+  STEAM_REVIEW_SCORE = 5
+}
+
+export enum FilterMethods {
+  NAME = 0,
+  APP_ID = 1,
+}
+
+export enum ExperimentalFilterMethods {
+  COLLECTIONS = 2,
+  STORE_CATEGORIES = 3,
+  STORE_TAGS = 4,
+  STEAM_REVIEW_SCORE = 5,
+  DECK_COMPAT_CATEGORY = 6,
+  FRAME_COMPAT_CATEGORY = 7,
+  MACHINE_COMPAT_CATEGORY = 8,
+  STEAMOS_COMPAT_CATEGORY = 9,
+  IS_FAMILY_SHARING = 10,
 }
 
 export type Settings = {
   version: string,
+  useCEFInjection: boolean,
+  
   steamInstallPath: string,
   shownShortcutPrompt: boolean,
   steamGridDbApiKey: string,
   steamApiKeyMap: Record<string, string>,
+
   hiddenGameIds: number[],
   manualSteamGames: GameStruct[],
   customGameNames: Record<string, string>,
@@ -51,7 +77,8 @@ export type Settings = {
     main: {
       gridImageSize: string,
       filters: any,
-      sortBy: SortMethods,
+      sortBy: SortMethods | ExperimentalSortMethods,
+      filterBy: FilterMethods | ExperimentalFilterMethods,
       panels: MainWindowPanels,
       gameViewType: number,
       showCached: boolean,

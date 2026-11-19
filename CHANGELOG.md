@@ -6,6 +6,23 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.31.0
+
+New Features
+* added a ton of new filter options ([00abc71](https://github.com/Tormak9970/Steam-Art-Manager/commit/00abc71))
+* added ability to load apps from steam client ([4922d5a](https://github.com/Tormak9970/Steam-Art-Manager/commit/4922d5a))
+* added experimental sort methods ([35332ec](https://github.com/Tormak9970/Steam-Art-Manager/commit/35332ec))
+* added settings needed  for cef injection ([272a55b](https://github.com/Tormak9970/Steam-Art-Manager/commit/272a55b))
+* added steam client support ([7466740](https://github.com/Tormak9970/Steam-Art-Manager/commit/7466740))
+* added support for rare vdf fields ([55cf26e](https://github.com/Tormak9970/Steam-Art-Manager/commit/55cf26e))
+* added the ability to pull data from the steam client ([01d98f0](https://github.com/Tormak9970/Steam-Art-Manager/commit/01d98f0))
+* family sharing filtering added ([bf9fb27](https://github.com/Tormak9970/Steam-Art-Manager/commit/bf9fb27))
+
+Bug Fixes
+* accounted for case sensitivity in localconfig loading ([6a5ced4](https://github.com/Tormak9970/Steam-Art-Manager/commit/6a5ced4))
+* corrected accordion sizes ([f4e6559](https://github.com/Tormak9970/Steam-Art-Manager/commit/f4e6559))
+* corrected filters recieving the wrong value type ([4b72bea](https://github.com/Tormak9970/Steam-Art-Manager/commit/4b72bea))
+
 ## v3.23.2
 
 Bug Fixes

@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>
  */
+import { CEFInjectionController } from "@controllers";
 import { DEFAULT_SETTINGS } from "@models";
-import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, userSelectedGrids } from "@stores/AppState";
+import { activeUserId, appTypes, autoGenLogoPos, cacheSelectedGrids, customGameNames, dbFilters, debugMode, filterGridsBy, gamesSize, gridImageSize, gridsSize, gridType, hiddenGameIds, loadingSettings, manualSteamGames, needsSGDBAPIKey, needsSteamKey, onlyShowInstalled, onlyShowMissing, optionsSize, previewGridsOnClick, renderGamesInList, selectedCleanGridsPreset, selectedManualGamesAddMethod, showCachedGrids, showHidden, showInfoSnackbar, sortGridsBy, steamGridDBKey, steamInstallPath, steamKey, steamUsers, theme, useCEFInjection, userSelectedGrids } from "@stores/AppState";
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import { exit } from "@tauri-apps/plugin-process";
@@ -305,6 +306,14 @@ export class SettingsController {
 
     const steamInstallPathSetting = SettingsController.settings.steamInstallPath;
     await findSteamPath(steamInstallPathSetting);
+    
+    // ! Has to load after the steam install path.
+    const useCEFInjectionSetting = SettingsController.settings.useCEFInjection;
+    SettingsController.oldValues["useCEFInjection"] = useCEFInjectionSetting;
+    useCEFInjection.set(useCEFInjectionSetting);
+    if (useCEFInjectionSetting) {
+      await CEFInjectionController.startCEFInjection(false);
+    }
 
     const activeUserId = await SettingsController.loadUserSettings();
     if (activeUserId === "0") {
@@ -396,6 +405,10 @@ export class SettingsController {
       const sortGridsBySetting = SettingsController.settings.windowSettings.main.sortBy;
       SettingsController.oldValues["windowSettings.main.sortBy"] = sortGridsBySetting;
       sortGridsBy.set(sortGridsBySetting);
+      
+      const filterGridsBySetting = SettingsController.settings.windowSettings.main.filterBy;
+      SettingsController.oldValues["windowSettings.main.filterBy"] = filterGridsBySetting;
+      filterGridsBy.set(filterGridsBySetting);
   
       
       const panelSizeSetting = SettingsController.settings.windowSettings.main.panels;
@@ -459,6 +472,7 @@ export class SettingsController {
   
       theme.subscribe(SettingsController.setOnChange("theme")),
       debugMode.subscribe(SettingsController.setOnChange("debugMode")),
+      useCEFInjection.subscribe(SettingsController.setOnChange("useCEFInjection")),
       appTypes.subscribe(SettingsController.setOnChange("appTypes")),
       showHidden.subscribe(SettingsController.setOnChange("showHiddenGames")),
       onlyShowInstalled.subscribe(SettingsController.setOnChange("onlyShowInstalled")),
@@ -469,6 +483,7 @@ export class SettingsController {
   
       dbFilters.subscribe(SettingsController.setOnChange("windowSettings.main.filters")),
       sortGridsBy.subscribe(SettingsController.setOnChange("windowSettings.main.sortBy")),
+      filterGridsBy.subscribe(SettingsController.setOnChange("windowSettings.main.filterBy")),
   
       // * See src/windows/Main.svelte for `windowSettings.main.panels` handling.
       renderGamesInList.subscribe(SettingsController.setOnChange("windowSettings.main.gameViewType")),

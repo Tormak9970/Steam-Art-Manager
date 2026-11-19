@@ -1,4 +1,4 @@
-import { SortMethods, type Settings } from "@types";
+import { FilterMethods, SortMethods, type Settings } from "@types";
 
 export const APP_TYPES = [
   "Game",
@@ -157,10 +157,13 @@ export const DEFAULT_FILTERS = {
 
 export const DEFAULT_SETTINGS: Settings = {
   version: "",
+  useCEFInjection: false,
+  
   steamInstallPath: "",
   shownShortcutPrompt: false,
   steamGridDbApiKey: "",
   steamApiKeyMap: {},
+
   hiddenGameIds: [],
   manualSteamGames: [],
   customGameNames: {},
@@ -183,6 +186,7 @@ export const DEFAULT_SETTINGS: Settings = {
       gridImageSize: "small",
       filters: DEFAULT_FILTERS,
       sortBy: SortMethods.ALPHABETICAL,
+      filterBy: FilterMethods.NAME,
       panels: {
         options: 16,
         games: 42,

@@ -13,6 +13,7 @@
     entryTooltipPosition?: Placement;
     direction?: "UP" | "DOWN";
     disabled?: boolean;
+    maxHeight?: string;
   };
 
   let {
@@ -26,6 +27,7 @@
     entryTooltipPosition = tooltipPosition,
     direction = "DOWN",
     disabled = false,
+    maxHeight = "12rem",
   }: Props = $props();
 
   let customSelectElem: HTMLDivElement | undefined = $state();
@@ -112,7 +114,9 @@
         class="select-items"
         class:select-hide={!active}
         class:open-up={direction === "UP"}
-        style="--top-percentage: -{(options.length + 1) * 100 - 35}%;"
+        style="--top-percentage: -{(options.length + 1) * 100 -
+          35}%; --max-height: {maxHeight};"
+        onclick={(e) => e.stopPropagation()}
       >
         {#each options as opt}
           <div
@@ -160,7 +164,9 @@
       <div
         class="select-items"
         class:open-up={direction === "UP"}
-        style="--top-percentage: -{(options.length + 1) * 100 - 35}%;"
+        style="--top-percentage: -{(options.length + 1) * 100 -
+          35}%; --max-height: {maxHeight};"
+        onclick={(e) => e.stopPropagation()}
         class:select-hide={!active}
       >
         {#each options as opt}
@@ -267,7 +273,10 @@
     border-radius: 0.25rem;
     border: 0.0625rem solid var(--foreground-hover);
     box-shadow: 0.125rem 0.75rem -0.125rem var(--shadow);
-    overflow: hidden;
+
+    max-height: var(--max-height);
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   .select-items > div:hover {
     background-color: var(--foreground);

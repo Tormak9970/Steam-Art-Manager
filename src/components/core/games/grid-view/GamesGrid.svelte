@@ -1,7 +1,13 @@
 <script lang="ts">
   import { GridLoadingSkeleton, VirtualGrid } from "@layout";
-  import { currentPlatform, gridImageSize, gridType } from "@stores/AppState";
-  import type { GameStruct } from "@types";
+  import {
+    currentPlatform,
+    filterGridsBy,
+    gridImageSize,
+    gridType,
+    sortGridsBy,
+  } from "@stores/AppState";
+  import { FilterMethods, SortMethods, type GameStruct } from "@types";
   import { GRID_DIMENSIONS } from "@utils";
   import GameEntry from "../GameEntry.svelte";
 
@@ -12,6 +18,13 @@
 
   let { isLoading, games }: Props = $props();
 
+  const extraSortHeight = $derived(
+    $sortGridsBy !== SortMethods.ALPHABETICAL ? 1 : 0,
+  );
+  const extraFilterHeight = $derived(
+    $filterGridsBy !== FilterMethods.NAME ? 1 : 0,
+  );
+
   let gridDimensions = $derived(GRID_DIMENSIONS[$gridImageSize]);
 
   let imageWidth = $derived(
@@ -20,7 +33,9 @@
   let imageHeight = $derived(
     gridDimensions.heights[$gridType] +
       gridDimensions.padding +
-      gridDimensions.heightOffset,
+      gridDimensions.heightOffset +
+      extraSortHeight +
+      extraFilterHeight,
   );
 </script>
 

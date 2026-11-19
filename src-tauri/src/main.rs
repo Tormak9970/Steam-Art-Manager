@@ -25,7 +25,7 @@ use std::{
 
 use panic_message::get_panic_info_message;
 use serde;
-use steam::get_steam_root_dir;
+use steam::local_files::file_paths::get_steam_root_dir;
 use tauri::Emitter;
 use tauri::{self, AppHandle, Manager};
 
@@ -275,15 +275,15 @@ fn main() {
       logger::clean_out_log,
       logger::frontend_log_core_handler,
       logger::frontend_log_batch_handler,
-      steam::get_steam_users,
-      steam::frontend_get_grids_directory,
-      steam::frontend_get_library_cache_directory_handler,
-      steam::frontend_get_appinfo_path_handler,
-      steam::frontend_get_shortcuts_path_handler,
-      steam::frontend_get_localconfig_path_handler,
-      steam::get_sourcemod_path,
-      steam::get_goldsrc_path,
-      steam::frontend_get_libraryfolders_path_handler,
+      steam::local_files::file_readers::get_steam_users,
+      steam::local_files::file_paths::frontend_get_grids_directory,
+      steam::local_files::file_paths::frontend_get_library_cache_directory_handler,
+      steam::local_files::file_paths::frontend_get_appinfo_path_handler,
+      steam::local_files::file_paths::frontend_get_shortcuts_path_handler,
+      steam::local_files::file_paths::frontend_get_localconfig_path_handler,
+      steam::local_files::file_paths::get_sourcemod_path,
+      steam::local_files::file_paths::get_goldsrc_path,
+      steam::local_files::file_paths::frontend_get_libraryfolders_path_handler,
       start_menu_tiles::get_apps_with_tiles,
       start_menu_tiles::write_app_tiles,
       grids_cache_loader::get_cache_data,
@@ -292,16 +292,23 @@ fn main() {
       add_steam_to_scope,
       zip_controller::export_grids_to_zip,
       zip_controller::import_grids_from_zip,
-      steam::read_appinfo_vdf,
-      steam::read_shortcuts_vdf,
-      steam::read_localconfig_vdf,
-      steam::get_installed_appids,
+      steam::local_files::file_readers::read_appinfo_vdf,
+      steam::local_files::file_readers::read_shortcuts_vdf,
+      steam::local_files::file_readers::read_localconfig_vdf,
+      steam::local_files::file_readers::get_installed_appids,
       handle_changes::save_changes,
       handle_changes::write_shortcuts,
       download_grid,
       copy_grid_to_selected,
       clean_grids::clean_grids,
-      validate_steam_path
+      validate_steam_path,
+      steam::remote_debug_injection::check_cef_debugging_frontend,
+      steam::remote_debug_injection::find_shared_js_context_frontend,
+      steam::remote_debug_injection::get_client_apps_frontend,
+      steam::remote_debug_injection::get_client_filter_data_frontend,
+      steam::lifecycle::check_steam_running_frontend,
+      steam::lifecycle::await_steam_start_frontend,
+      steam::lifecycle::await_steam_restart_frontend,
     ])
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_http::init())

@@ -1,4 +1,4 @@
-use crate::{logger, steam};
+use crate::{logger, steam::local_files::file_paths};
 
 use std::{
     fs::{File, read, read_dir},
@@ -340,7 +340,7 @@ pub async fn export_grids_to_zip(
         );
 
         let grids_dir_path =
-            steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
+            file_paths::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
         let succeeded = generate_grids_zip(
             &app_handle,
             PathBuf::from(grids_dir_path),
@@ -350,11 +350,7 @@ pub async fn export_grids_to_zip(
         );
 
         if succeeded {
-            logger::log_core(
-                &app_handle,
-                "Successfully saved the user's grids.",
-                0,
-            );
+            logger::log_core(&app_handle, "Successfully saved the user's grids.", 0);
             return true;
         }
 
@@ -399,7 +395,7 @@ pub async fn import_grids_from_zip(
         );
 
         let grids_dir_path =
-            steam::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
+            file_paths::get_grids_directory(&app_handle, steam_path, steam_active_user_id);
         let (success, icon_map) = set_grids_from_zip(
             &app_handle,
             PathBuf::from(grids_dir_path),
@@ -408,11 +404,7 @@ pub async fn import_grids_from_zip(
         );
 
         if success {
-            logger::log_core(
-                &app_handle,
-                "Successfully set the user's grids.",
-                0,
-            );
+            logger::log_core(&app_handle, "Successfully set the user's grids.", 0);
             return (success, icon_map);
         }
 
@@ -420,10 +412,6 @@ pub async fn import_grids_from_zip(
         return (success, icon_map);
     }
 
-    logger::log_core(
-        &app_handle,
-        "No zip file was selected by user.",
-        0,
-    );
+    logger::log_core(&app_handle, "No zip file was selected by user.", 0);
     return (false, Map::new());
 }

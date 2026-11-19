@@ -1,5 +1,5 @@
 use crate::logger;
-use crate::steam;
+use crate::steam::local_files::file_paths;
 use crate::types::GRID_CACHE_TYPES;
 use crate::types::GridInfo;
 use crate::types::LIBRARY_CACHE_TYPES;
@@ -52,7 +52,11 @@ fn add_grid_file_to_cache(
 
     if grid_info_res.is_err() {
         let err = grid_info_res.err().unwrap();
-        let message = format!("Skipping Grid Info for {}. Error: {}", filename, err.to_string());
+        let message = format!(
+            "Skipping Grid Info for {}. Error: {}",
+            filename,
+            err.to_string()
+        );
 
         logger::log_core(app_handle, &message, 1);
         return;
@@ -91,8 +95,7 @@ async fn filter_grids_dir(
     let mut cache_data: Map<String, Value> = Map::new();
     let mut logo_configs: Vec<String> = vec![];
 
-    let grids_dir =
-        steam::get_grids_directory(app_handle, steam_path, steam_active_user_id);
+    let grids_dir = file_paths::get_grids_directory(app_handle, steam_path, steam_active_user_id);
 
     let contents_res = fs::read_dir(grids_dir);
     if contents_res.is_err() {
@@ -242,7 +245,7 @@ async fn filter_library_dir(
 ) -> Map<String, Value> {
     let mut unfiltered_cache: Map<String, Value> = Map::new();
 
-    let library_dir = steam::get_library_cache_directory(app_handle, steam_path);
+    let library_dir = file_paths::get_library_cache_directory(app_handle, steam_path);
 
     let contents_res = fs::read_dir(&library_dir);
     if contents_res.is_err() {
