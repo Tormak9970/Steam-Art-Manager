@@ -41,6 +41,7 @@ export class AppController {
     duration: 100,
     theme: "sarm",
     arrow: true,
+    allowHTML: true,
     appendTo: "parent"
   });
 

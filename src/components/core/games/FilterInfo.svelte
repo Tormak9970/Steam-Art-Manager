@@ -1,16 +1,41 @@
 <script lang="ts">
-  import { filterGridsBy } from "@stores/AppState";
+  import { AppController } from "@controllers";
+  import { filterGridsBy, steamClientFilterData } from "@stores/AppState";
   import {
     ExperimentalFilterMethods,
     FilterMethods,
     type GameStruct,
   } from "@types";
+  import {
+    DECK_COMPAT_CATEGORIES,
+    FRAME_COMPAT_CATEGORIES,
+    MACHINE_COMPAT_CATEGORIES,
+    STEAMOS_COMPAT_CATEGORIES,
+  } from "../../../lib/constants/SteamCompatCategories";
+  import { STEAM_FEATURES_ID_MAP } from "../../../lib/constants/SteamFeatures";
 
   type Props = {
     game: GameStruct;
   };
 
   let { game }: Props = $props();
+
+  const collectionOptions: Record<number, string[]> = $derived.by(() => {
+    const appCollectionMap: Record<number, string[]> = {};
+
+    for (const collection of $steamClientFilterData?.collections ?? []) {
+      for (const appId of collection.apps) {
+        if (!appCollectionMap[appId]) {
+          appCollectionMap[appId] = [collection.name];
+          continue;
+        }
+
+        appCollectionMap[appId].push(collection.name);
+      }
+    }
+
+    return appCollectionMap;
+  });
 
   function formatBoolean(value: boolean | undefined): string {
     if (value) {
@@ -22,32 +47,61 @@
     return "Unknown";
   }
 
-  function formatCollections(appid: number | undefined): string {
-    return "Unknown";
+  function formatCollections(appid: number): string {
+    return (
+      collectionOptions[appid]
+        ?.filter((category) => category && category !== "")
+        .join("<br/>") ?? "None"
+    );
   }
 
-  function formatStoreCategories(appid: number | undefined): string {
-    return "Unknown";
+  function formatStoreCategories(categories: number[]): string {
+    return (
+      categories
+        ?.map(
+          (category) =>
+            STEAM_FEATURES_ID_MAP[category.toString()]?.display_name ?? "",
+        )
+        .filter((category) => category && category !== "")
+        .join("<br/>") ?? "None"
+    );
   }
 
-  function formatStoreTags(appid: number | undefined): string {
-    return "Unknown";
+  function formatStoreTags(tags: number[]): string {
+    return (
+      tags
+        ?.map((tag) => $steamClientFilterData?.tags[tag] ?? "")
+        .filter((category) => category && category !== "")
+        .join("<br/>") ?? "None"
+    );
   }
 
   function formatDeckCompat(compat: number | undefined): string {
-    return "Unknown";
+    return (
+      DECK_COMPAT_CATEGORIES.find((cat) => cat.data === compat?.toString())
+        ?.label ?? "Unkown"
+    );
   }
 
   function formatFrameCompat(compat: number | undefined): string {
-    return "Unknown";
+    return (
+      FRAME_COMPAT_CATEGORIES.find((cat) => cat.data === compat?.toString())
+        ?.label ?? "Unkown"
+    );
   }
 
   function formatMachineCompat(compat: number | undefined): string {
-    return "Unknown";
+    return (
+      MACHINE_COMPAT_CATEGORIES.find((cat) => cat.data === compat?.toString())
+        ?.label ?? "Unkown"
+    );
   }
 
   function formatSteamOSCompat(compat: number | undefined): string {
-    return "Unknown";
+    return (
+      STEAMOS_COMPAT_CATEGORIES.find((cat) => cat.data === compat?.toString())
+        ?.label ?? "Unkown"
+    );
   }
 
   function formatReviewScore(score: number | undefined): string {
@@ -64,14 +118,41 @@
     {#if $filterGridsBy === FilterMethods.APP_ID}
       <div>{game.appid}</div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.COLLECTIONS}
-      <!-- TODO: need to show a tooltip listing all collections -->
-      <div>{formatCollections(game.appid)}</div>
+      <div
+        use:AppController.tippy={{
+          content: formatCollections(game.appid),
+          placement: "bottom",
+          onShow: AppController.onTippyShow,
+        }}
+      >
+        {collectionOptions[game.appid]?.length === 1
+          ? "1 Category"
+          : `${collectionOptions[game.appid]?.length ?? 0} Categories`}
+      </div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.STORE_CATEGORIES}
-      <!-- TODO: need to show a tooltip listing all categories -->
-      <div>{formatStoreCategories(game.storeCategories)}</div>
+      <div
+        use:AppController.tippy={{
+          content: formatStoreCategories(game.storeCategories ?? []),
+          placement: "bottom",
+          onShow: AppController.onTippyShow,
+        }}
+      >
+        {(game.storeCategories ?? []).length === 1
+          ? "1 Category"
+          : `${(game.storeCategories ?? []).length} Categories`}
+      </div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.STORE_TAGS}
-      <!-- TODO: need to show a tooltip listing all tags -->
-      <div>{formatStoreTags(game.storeTags)}</div>
+      <div
+        use:AppController.tippy={{
+          content: formatStoreTags(game.storeTags ?? []),
+          placement: "bottom",
+          onShow: AppController.onTippyShow,
+        }}
+      >
+        {(game.storeTags ?? []).length === 1
+          ? "1 Tag"
+          : `${(game.storeTags ?? []).length} Tags`}
+      </div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.STEAM_REVIEW_SCORE}
       <div>{formatReviewScore(game.steamReviewScore)}</div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.DECK_COMPAT_CATEGORY}

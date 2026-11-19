@@ -29,6 +29,7 @@
     renderGamesInList,
     showHidden,
     sortGridsBy,
+    steamClientFilterData,
     steamGames,
     useCEFInjection,
   } from "@stores/AppState";
@@ -379,7 +380,12 @@
       selectedAppTypes.includes(game.type.toLowerCase()),
     );
 
-    const filteredGames = filterGames(appTypeGames, filterBy, searchQuery);
+    const filteredGames = filterGames(
+      appTypeGames,
+      filterBy,
+      searchQuery,
+      $steamClientFilterData?.collections ?? [],
+    );
 
     return sortGames(filteredGames, sortBy);
   }

@@ -15,7 +15,14 @@ const t = (label: string, fallback: string, isSteamLocalized?: boolean) => {
 // StoreFeaturesModule.V5 //* this links store category (type, category) to a string
 
 // found via response from https://api.steampowered.com/IStoreBrowseService/GetStoreCategories/v1/?access_token=redacted&language=english
-export const STEAM_FEATURES_ID_MAP = {
+export const STEAM_FEATURES_ID_MAP: Record<string, {
+        categoryid: number,
+        type: number,
+        internal_name: string,
+        display_name: string,
+        image_url: string,
+        show_in_search?: boolean,
+    }> = {
     '28': {
         categoryid: 28,
         type: 3,
