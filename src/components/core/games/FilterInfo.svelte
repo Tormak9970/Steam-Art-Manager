@@ -14,9 +14,9 @@
 
   function formatBoolean(value: boolean | undefined): string {
     if (value) {
-      return "Yes";
+      return "Shared";
     } else if (value === false) {
-      return "No";
+      return "Owned";
     }
 
     return "Unknown";
@@ -34,19 +34,19 @@
     return "Unknown";
   }
 
-  function formatDeckCompat(comptat: number | undefined): string {
+  function formatDeckCompat(compat: number | undefined): string {
     return "Unknown";
   }
 
-  function formatFrameCompat(comptat: number | undefined): string {
+  function formatFrameCompat(compat: number | undefined): string {
     return "Unknown";
   }
 
-  function formatMachineCompat(comptat: number | undefined): string {
+  function formatMachineCompat(compat: number | undefined): string {
     return "Unknown";
   }
 
-  function formatSteamOSCompat(comptat: number | undefined): string {
+  function formatSteamOSCompat(compat: number | undefined): string {
     return "Unknown";
   }
 
@@ -74,13 +74,13 @@
       <div>{formatStoreTags(game.storeTags)}</div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.STEAM_REVIEW_SCORE}
       <div>{formatReviewScore(game.steamReviewScore)}</div>
-    {:else if $filterGridsBy === ExperimentalFilterMethods.DECK_COMPAT_CATGEORY}
+    {:else if $filterGridsBy === ExperimentalFilterMethods.DECK_COMPAT_CATEGORY}
       <div>{formatDeckCompat(game.steamDeckCompatCategory)}</div>
-    {:else if $filterGridsBy === ExperimentalFilterMethods.FRAME_COMPAT_CATGEORY}
+    {:else if $filterGridsBy === ExperimentalFilterMethods.FRAME_COMPAT_CATEGORY}
       <div>{formatFrameCompat(game.steamFrameCompatCategory)}</div>
-    {:else if $filterGridsBy === ExperimentalFilterMethods.MACHINE_COMPAT_CATGEORY}
+    {:else if $filterGridsBy === ExperimentalFilterMethods.MACHINE_COMPAT_CATEGORY}
       <div>{formatMachineCompat(game.steamMachineCompatCategory)}</div>
-    {:else if $filterGridsBy === ExperimentalFilterMethods.STEAMOS_COMPAT_CATGEORY}
+    {:else if $filterGridsBy === ExperimentalFilterMethods.STEAMOS_COMPAT_CATEGORY}
       <div>{formatSteamOSCompat(game.steamOSCompatCategory)}</div>
     {:else if $filterGridsBy === ExperimentalFilterMethods.IS_FAMILY_SHARING}
       <div>{formatBoolean(game.isFamilySharing)}</div>
