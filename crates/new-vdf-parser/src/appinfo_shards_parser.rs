@@ -98,10 +98,10 @@ fn parse_shard(shard_buffer: &[u8], filter_only_games: bool) -> Result<Vec<Value
             ));
         }
 
-        let mut r = payload.slice(offset, len);
-        r.seek(SHA1_LEN, 1);
+        let mut reader = payload.slice(offset, len);
+        reader.seek(SHA1_LEN, 1);
 
-        let mut entry = read_entry_map(&mut r, Some(STRING_TABLE_MAGIC), &strings);
+        let mut entry = read_entry_map(&mut reader, Some(STRING_TABLE_MAGIC), &strings);
 
         if let Some(Value::Object(inner)) = entry.get("appinfo").cloned() {
             entry = inner;
