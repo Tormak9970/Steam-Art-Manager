@@ -6,6 +6,11 @@ All notable changes to Steam Art Manager (SARM) will be recorded in this file.
 
 <!-- replace me with new updates! -->
 
+## v3.32.0
+
+New Features
+* add support for steam's new sharded appinfo structure ([059630c](https://github.com/Tormak9970/Steam-Art-Manager/commit/059630c))
+
 ## v3.31.0
 
 New Features

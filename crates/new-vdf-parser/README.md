@@ -26,6 +26,7 @@ You can see an in-context example in [SARM](https://github.com/Tormak9970/Steam-
 
 ```rust
 use new_vdf_parser::appinfo_vdf_parser::open_appinfo_vdf;
+use new_vdf_parser::appinfo_shards_parser::read_appinfo_shards;
 use std::path::{PathBuf, Path};
 use serde_json::{Value, Map};
 
@@ -38,7 +39,14 @@ pub fn get_appinfo_path(steam_path: String) -> String {
 
 let steam_path: String = "your/steam/path".toString();
 let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(app_handle.to_owned(), steam_path));
-let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path);
+let appinfo_vdf: Map<String, Value> = if appinfo_path.is_file() {
+      open_appinfo_vdf(&appinfo_path, Some(false))
+          .expect("Should have been able to read monolithic appinfo files.")
+  } else {
+      // This covers the beta change made in November 2026. Appinfo is now sharded.
+      read_appinfo_shards(&appinfo_path.with_extension(""), Some(false))
+          .expect("Should have been able to read sharded appinfo files.")
+  };
 
 let pretty_str: String = serde_json::to_string(&appinfo_vdf).expect("Should have been able to serialize AppInfo vdf to string.");
 

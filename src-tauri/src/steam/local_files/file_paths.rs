@@ -143,7 +143,7 @@ pub fn get_appinfo_path(app_handle: &AppHandle, steam_path: String) -> String {
     logger::log_core(app_handle, "Getting steam appinfo.vdf...", 0);
 
     let steam_root: PathBuf = PathBuf::from(steam_path);
-    let joined_path: PathBuf = steam_root.join("appcache/appinfo.vdf");
+    let joined_path: PathBuf = steam_root.join("appcache/appinfo.vdf"); // ! pre-beta 11.21.2026
 
     return joined_path
         .to_str()

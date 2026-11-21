@@ -1,27 +1,27 @@
 {
-	"version": "3.31.0",
-	"notes": "New Features\n* added a ton of new filter options ([00abc71](https://github.com/Tormak9970/Steam-Art-Manager/commit/00abc71))\n* added ability to load apps from steam client ([4922d5a](https://github.com/Tormak9970/Steam-Art-Manager/commit/4922d5a))\n* added experimental sort methods ([35332ec](https://github.com/Tormak9970/Steam-Art-Manager/commit/35332ec))\n* added settings needed  for cef injection ([272a55b](https://github.com/Tormak9970/Steam-Art-Manager/commit/272a55b))\n* added steam client support ([7466740](https://github.com/Tormak9970/Steam-Art-Manager/commit/7466740))\n* added support for rare vdf fields ([55cf26e](https://github.com/Tormak9970/Steam-Art-Manager/commit/55cf26e))\n* added the ability to pull data from the steam client ([01d98f0](https://github.com/Tormak9970/Steam-Art-Manager/commit/01d98f0))\n* family sharing filtering added ([bf9fb27](https://github.com/Tormak9970/Steam-Art-Manager/commit/bf9fb27))\n\nBug Fixes\n* accounted for case sensitivity in localconfig loading ([6a5ced4](https://github.com/Tormak9970/Steam-Art-Manager/commit/6a5ced4))\n* corrected accordion sizes ([f4e6559](https://github.com/Tormak9970/Steam-Art-Manager/commit/f4e6559))\n* corrected filters recieving the wrong value type ([4b72bea](https://github.com/Tormak9970/Steam-Art-Manager/commit/4b72bea))",
-	"pub_date": "2026-11-19T03:53:48.759Z",
+	"version": "3.32.0",
+	"notes": "New Features\n* add support for steam's new sharded appinfo structure ([059630c](https://github.com/Tormak9970/Steam-Art-Manager/commit/059630c))",
+	"pub_date": "2026-11-21T17:28:08.769Z",
 	"platforms": {
-		"windows-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXU5SzU2Um5IcnpETm0ySzB1MHJ2bTZEdVhmL0FFNVZPcTBhbUJNblI5dnM4QnlyU0d1eEp2bjVURzVjS2pXVCtFNkZQU2QyZVEyeEh4S1FlLzMweXc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDU5ODY1CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMS4wX3g2NF9lbi1VUy5tc2kuemlwCXZlcnNpb246My4zMS4wCnd6dTdWWERnMDNONkZYRGVtc2hlVFdzMnBWdTl1NTYweDZkTUJJMXdVckIwWkZQOFFmZVBFdTdQVzJ5Q3lJdFd3dlBoeldkeVpoazNzNXRiclBuUkFnPT0K",
-			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/766100272"
-		},
-		"windows-x86_64-msi": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZWxGL0xrSWZVU3E0VTZ6L3ZCeXljaUJkVmJjWGlSUjNGbjlXSHNlb0VYdHYvejNtc3ltcXZBUVRuRUdrZTdwMUJoQTRkTWtQZjY2LzVVTVl4bGJ0dWd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDU5ODY1CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMS4wX3g2NF9lbi1VUy5tc2kJdmVyc2lvbjozLjMxLjAKZkdkZEVZYmZEUElXWW5XRjU3L1FaRnJ1SkZONEEvcnFXRURkMGQ1WnNMbFNqS0Q3Vlk5eDk5NElZbjVZa0VLYXpjUHJBVTZ1V3Y4T0FCT082dlFSQ0E9PQo=",
-			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/766099955"
-		},
 		"linux-x86_64": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXRRcTYzcURoc3JoL1JDa2pkaURld0puWDRxYmwrcktFZHFFN1J0Y3dZUzlpWHltejl4Vi9XMGszUmhWSlI5NFpaT2dwR3pXM2RvTVo0bUN2Q1l1dGdZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDYwNDEyCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMS4wX2FtZDY0LkFwcEltYWdlLnRhci5negl2ZXJzaW9uOjMuMzEuMApRekxxdUdHdmpEYXBjVVRJWmoyVDBqQ1M2VmFYUEhNQnJTdTl5R3M2RXc1UGZvNGd6TjkzaUVTV2ZSelFwcVVsK1pibTh0dStXSDgzWFkzeVNiSE5Ddz09Cg==",
-			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/766126281"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZW1NQjlkNWpWbHF3c2ppUUNPYVYxQnptOW5mNnE2L1M3WlFFRHlQVGZpcWppa3ZEM3NqMXBlRmtleTVpQk1HbS9QcnZ6RWFxMmNaQXB6MTV1TU5sUFFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgxODc2CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMi4wX2FtZDY0LkFwcEltYWdlLnRhci5negl2ZXJzaW9uOjMuMzIuMAo2RUZMTDNWcDJjd0JSQ0toVytzVGtoYjlNeld1OXJRdG16d2kxTEJ6MFRGbEViZ0VBN2xnbHB4Z1FjaXFrUzRQTm40djk0WDJqZEV0RW55dXF5RThCUT09Cg==",
+			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/776309460"
 		},
 		"linux-x86_64-appimage": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXQ1OTJ6UXU3SzltK1ZvS2I2Y2ZyTENJbk53NDVXNHlOd1VPR2Q0WXdkNkRDT3lsZW5HQ2JkKyszSldTUXlKRUVITGZnYzFaTmI2bFpiMXRvOVJoa0FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDYwNDEyCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMS4wX2FtZDY0LkFwcEltYWdlCXZlcnNpb246My4zMS4wCnJFOTFOaStTUGlyNnJhMFdxYjBWZFI5NzFITWZhSEd3MjdZbUk1NjRaSUJTMFBNa0FzYitXWHhGK2xYY2lHSG5nR2dJVHlscDF2UWFhSHNLVDNZd0NnPT0K",
-			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/766125970"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXY2WU4vT05uT1JLZlhyeldMNitETGNrYWJGdzF1M1pwNEo1ZzVQeVp0bi9PcWhNSk5Fa2I3OUJxSVdIV2Zwa1hLcXgzYXZLQnBWTEpyS1dnS0J1emdvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgxODc2CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMi4wX2FtZDY0LkFwcEltYWdlCXZlcnNpb246My4zMi4wCkpnN29FKzZwQnh3TSszaUlxL01lUmZzb0NZYTlHbnFwUUNEMXp1Zm1kZHB1UDlFU1NkVWVkS1pFZU9KR2hNTSs4bFF0T2tVckVrYUtqaGVGMCszNkFnPT0K",
+			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/776309211"
 		},
 		"linux-x86_64-deb": {
-			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXFvR0V6YkJtaDZpQkErQlJNZGYyaEg2dkcyV3UwUktEQUhidDlhVGlRdGE4WTZCa2V1NWhodkt0L3VqZnNKeHBqZy9RUnRkWG16K1RyWnRkbmRwY0FJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDYwNDEyCWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMS4wX2FtZDY0LmRlYgl2ZXJzaW9uOjMuMzEuMApDL0dRWk9Tb1ROUGtRUUU0eW1EU08wcWlTaENsdkttaCtBcUFweHBEUnVzSWRkaVpZMGxPYWF5NU9sMmpmcGgvZ0cva3d0aTlLWFF3MnRMaHcxVjJBQT09Cg==",
-			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/766125882"
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXNMaU1va0M4SXFYSU82aUpYUUxucVRMQnh6WFo0bGcxT1R2K3ZCOUlXOFM3Z2VlSW9jZUU1Ti90azVyVHgyVGU2OGZtZVhTbjVOL081MmlyUWlkTFFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgxODc2CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMi4wX2FtZDY0LmRlYgl2ZXJzaW9uOjMuMzIuMAp5SjJFZHpUcHo5L1dpWEdISEp6eDhvS0U3Y2EwU3QwMUVGQWZjb2xVUnRWV3VNVTRhYWdZakRKYzN4QkdOUE5Fbnl5NHpZUjZzbER4c0sxaGM1MjdBdz09Cg==",
+			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/776309124"
+		},
+		"windows-x86_64": {
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXR4L2pQVG51VDB4dW95a0k5MFU0aUw2eHFjMDZUcFJkYWhDc3kxS0QrVHh6aWR3NkxqUG5OVHVlaWVzTmNrZ082OUlIOExlL20xOFBEQnlNQzdzendNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgyMDc4CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMi4wX3g2NF9lbi1VUy5tc2kuemlwCXZlcnNpb246My4zMi4wClRGTGl2dXBPTEtKOUhhcEFpcTdZYUR6WGg0MUN1MlJpRnBkSDdqNWluaU5mL2pWNTBLY0ExU0xKRkJqWk9UQjRJdk5CRGI0d0wzN1FCQi9IQm5mQ0R3PT0K",
+			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/776318836"
+		},
+		"windows-x86_64-msi": {
+			"signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRU0UyZ3NKTEJZZXZWYVpXVGRPaUN5R3pmUE12OGVYay82ZUVFeTJIUjdtcHc4NmtuUG5qclVTSm9vTHV5ZWg3bUF6ZWxvNk0weDh0U1VKeFNEQ0ZJaUVZVlIrWXVuYlEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgyMDc4CWZpbGU6U3RlYW0gQXJ0IE1hbmFnZXJfMy4zMi4wX3g2NF9lbi1VUy5tc2kJdmVyc2lvbjozLjMyLjAKc0ZXQk12eVpOT1ZiQXp5ZFAzV3VDanhWV3VyemZJbXAxY3pmcVp4d2RJSEJjSHpGeDFIdzdGNWJGb09NUEJyenFhS2loRjlocllZZ1VyanhDK0JTRGc9PQo=",
+			"url": "https://api.github.com/repos/Tormak9970/Steam-Art-Manager/releases/assets/776318409"
 		}
 	}
 }
