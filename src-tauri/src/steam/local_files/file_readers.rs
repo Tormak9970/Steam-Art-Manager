@@ -2,8 +2,10 @@ use super::file_paths::{
     get_appinfo_path, get_libraryfolders_path, get_localconfig_path, get_shortcuts_path,
 };
 use crate::logger;
-use new_vdf_parser::appinfo_vdf_parser::open_appinfo_vdf;
 use new_vdf_parser::shortcuts_vdf_parser::open_shortcuts_vdf;
+use new_vdf_parser::{
+    appinfo_shards_parser::read_appinfo_shards, appinfo_vdf_parser::open_appinfo_vdf,
+};
 use steam_vdf_parser::parse_text;
 
 use std::fs;
@@ -100,7 +102,15 @@ pub fn get_steam_users(app_handle: AppHandle, steam_path: String) -> String {
 /// Reads the user's appinfo.vdf file.
 pub async fn read_appinfo_vdf(app_handle: AppHandle, steam_path: String) -> String {
     let appinfo_path: PathBuf = PathBuf::from(get_appinfo_path(&app_handle, steam_path));
-    let appinfo_vdf: Map<String, Value> = open_appinfo_vdf(&appinfo_path, Some(false));
+
+    let appinfo_vdf: Map<String, Value> = if appinfo_path.is_file() {
+        open_appinfo_vdf(&appinfo_path, Some(false))
+            .expect("Should have been able to read monolithic appinfo files.")
+    } else {
+        read_appinfo_shards(&appinfo_path.with_extension(""), Some(false))
+            .expect("Should have been able to read sharded appinfo files.")
+    };
+
     return serde_json::to_string(&appinfo_vdf)
         .expect("Should have been able to serialize AppInfo vdf to string.");
 }
